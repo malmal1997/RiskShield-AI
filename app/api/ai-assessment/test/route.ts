@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { testAIProviders } from "@/lib/ai-service"
+import { testAIProviders, analyzeDocuments } from "@/lib/ai-service"
 
 export async function GET() {
   try {
@@ -8,31 +8,23 @@ export async function GET() {
     // Test all available AI providers
     const providerResults = await testAIProviders()
 
-    // Check environment variables
-    const hasGroq = !!process.env.GROQ_API_KEY
-    const hasHuggingFace = !!process.env.HUGGINGFACE_API_KEY
+    const hasGoogle = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
 
     return NextResponse.json({
       status: "AI Provider Test Complete",
       timestamp: new Date().toISOString(),
       providers: {
-        groq: {
-          configured: hasGroq,
-          working: providerResults.groq,
-          status: hasGroq ? (providerResults.groq ? "✅ Working" : "❌ Failed") : "❌ Not configured",
-          model: "llama-3.1-8b-instant",
-        },
-        huggingface: {
-          configured: hasHuggingFace,
-          working: providerResults.huggingface,
-          status: hasHuggingFace ? (providerResults.huggingface ? "✅ Working" : "❌ Failed") : "❌ Not configured",
-          model: "meta-llama/Llama-3.1-8B-Instruct",
+        google: {
+          configured: hasGoogle,
+          working: providerResults.google,
+          status: hasGoogle ? (providerResults.google ? "✅ Working" : "❌ Failed") : "❌ Not configured",
+          model: "gemini-1.5-flash",
         },
       },
       summary: {
         totalProviders: Object.keys(providerResults).length,
         workingProviders: Object.values(providerResults).filter(Boolean).length,
-        recommendation: hasGroq || hasHuggingFace ? "Ready for AI analysis" : "Add API keys to enable AI analysis",
+        recommendation: hasGoogle ? "Ready for AI analysis" : "Add GOOGLE_GENERATIVE_AI_API_KEY to enable AI analysis",
       },
     })
   } catch (error) {
@@ -106,9 +98,6 @@ Security policies are reviewed and updated yearly.
 
     // Create a mock file for testing
     const mockFile = new File([sampleDocument], "sample-policy.txt", { type: "text/plain" })
-
-    // Import the analysis function
-    const { analyzeDocuments } = await import("@/lib/ai-service")
 
     // Run the analysis
     const result = await analyzeDocuments([mockFile], sampleQuestions, "Sample Security Assessment")
