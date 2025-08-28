@@ -2159,7 +2159,7 @@ export default function AIAssessmentPage() {
 
           // Show ALL evidence excerpts, not just the first 2
           excerpts.forEach((excerpt, excerptIndex) => {
-            const excerptText = `"${excerpt.excerpt}"`
+            const excerptText = `${excerpt.excerpt}`
             evidenceY = addWrappedText(excerptText, margin + 10, evidenceY, contentWidth - 20, 9)
             if (excerpt.fileName) {
               doc.setFontSize(8)

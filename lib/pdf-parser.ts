@@ -81,6 +81,7 @@ async function extractWithPDFJS(file: File): Promise<Partial<PDFExtractionResult
     const pdfjsLib = await import('pdfjs-dist')
     
     // Set worker source
+    // Use CDN worker to avoid bundling large worker with app bundle
     pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
     const arrayBuffer = await file.arrayBuffer()
