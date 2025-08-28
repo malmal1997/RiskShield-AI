@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server"
+import { testAIProviders } from "@/lib/ai-service"
 
 export async function GET() {
   try {
-    console.log("Testing AI providers (disabled in this build)...")
+    console.log("Testing AI providers...")
+
+    // Test all available AI providers
+    const providerResults = await testAIProviders()
 
     // Check environment variables
     const hasGroq = !!process.env.GROQ_API_KEY
@@ -14,21 +18,21 @@ export async function GET() {
       providers: {
         groq: {
           configured: hasGroq,
-          working: false,
-          status: hasGroq ? "🔧 Disabled in this build" : "❌ Not configured",
+          working: providerResults.groq,
+          status: hasGroq ? (providerResults.groq ? "✅ Working" : "❌ Failed") : "❌ Not configured",
           model: "llama-3.1-8b-instant",
         },
         huggingface: {
           configured: hasHuggingFace,
-          working: false,
-          status: hasHuggingFace ? "🔧 Disabled in this build" : "❌ Not configured",
+          working: providerResults.huggingface,
+          status: hasHuggingFace ? (providerResults.huggingface ? "✅ Working" : "❌ Failed") : "❌ Not configured",
           model: "meta-llama/Llama-3.1-8B-Instruct",
         },
       },
       summary: {
-        totalProviders: 2,
-        workingProviders: 0,
-        recommendation: hasGroq || hasHuggingFace ? "Add AI build to enable analysis" : "Add API keys to enable AI",
+        totalProviders: Object.keys(providerResults).length,
+        workingProviders: Object.values(providerResults).filter(Boolean).length,
+        recommendation: hasGroq || hasHuggingFace ? "Ready for AI analysis" : "Add API keys to enable AI analysis",
       },
     })
   } catch (error) {
@@ -46,14 +50,79 @@ export async function GET() {
 
 export async function POST() {
   try {
-    console.log("Running sample document analysis test (disabled in this build)...")
-    return NextResponse.json(
+    console.log("Running sample document analysis test...")
+
+    // Sample security policy text for testing
+    const sampleDocument = `
+CYBERSECURITY POLICY DOCUMENT
+
+SECTION 1: DATA PROTECTION
+All sensitive data must be encrypted using AES-256 encryption standards.
+Data backups are performed on a daily basis and stored securely.
+Multi-factor authentication is required for all employees accessing sensitive systems.
+
+SECTION 2: NETWORK SECURITY
+Network firewalls are configured and monitored continuously.
+All network traffic is logged and reviewed regularly.
+Intrusion detection systems are deployed across critical infrastructure.
+
+SECTION 3: SECURITY TESTING
+Comprehensive penetration testing is conducted annually by certified professionals.
+Vulnerability assessments are performed quarterly on all systems.
+Security audits are completed every six months.
+
+SECTION 4: INCIDENT RESPONSE
+A 24/7 security operations center monitors all systems.
+Incident response procedures are tested monthly.
+All security incidents are documented and investigated thoroughly.
+
+SECTION 5: COMPLIANCE
+Regular compliance audits ensure adherence to industry standards.
+Security awareness training is provided to all staff annually.
+Security policies are reviewed and updated yearly.
+`
+
+    const sampleQuestions = [
       {
-        status: "Disabled",
-        message: "AI sample analysis is disabled in this build.",
+        id: "q1",
+        question: "Does your organization encrypt data?",
+        type: "boolean" as const,
+        weight: 3,
       },
-      { status: 503 },
-    )
+      {
+        id: "q2",
+        question: "How often do you conduct penetration testing?",
+        type: "multiple" as const,
+        options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
+        weight: 3,
+      },
+      {
+        id: "q3",
+        question: "Do you have multi-factor authentication?",
+        type: "boolean" as const,
+        weight: 2,
+      },
+    ]
+
+    // Create a mock file for testing
+    const mockFile = new File([sampleDocument], "sample-policy.txt", { type: "text/plain" })
+
+    // Import the analysis function
+    const { analyzeDocuments } = await import("@/lib/ai-service")
+
+    // Run the analysis
+    const result = await analyzeDocuments([mockFile], sampleQuestions, "Sample Security Assessment")
+
+    return NextResponse.json({
+      status: "Sample analysis complete",
+      timestamp: new Date().toISOString(),
+      testResult: result,
+      sampleData: {
+        documentLength: sampleDocument.length,
+        questionsCount: sampleQuestions.length,
+        documentPreview: sampleDocument.substring(0, 200) + "...",
+      },
+    })
   } catch (error) {
     console.error("Sample analysis test failed:", error)
     return NextResponse.json(
