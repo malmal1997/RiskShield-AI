@@ -20,6 +20,17 @@ const nextConfig = {
       'zod/v4': 'zod',
       'zod/v3': 'zod',
     }
+    
+    // Exclude AI SDK from client bundle during static build
+    if (!config.isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        'ai': false,
+        '@ai-sdk/google': false,
+        '@ai-sdk/provider-utils': false,
+      }
+    }
+    
     return config
   },
 }
