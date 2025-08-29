@@ -206,7 +206,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
           const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
 
           return (
-            <div key={question.id} className="mb-8 p-6 border border-gray-200 rounded-lg shadow-sm">
+            <div key={question.id} className="mb-8 p-6 border border-gray-200 rounded-lg shadow-sm" style={{ pageBreakInside: 'avoid' }}>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
                 {index + 1}. {question.question}
               </h3>
