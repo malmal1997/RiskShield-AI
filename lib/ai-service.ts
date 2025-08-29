@@ -17,12 +17,10 @@ export interface DocumentAnalysisResult {
     string,
     Array<{
       fileName: string
-      excerpt: string
+      quote: string // Changed from excerpt
       relevance: string
       pageOrSection?: string
-      quote?: string
-      pageNumber?: number
-      lineNumber?: number
+      pageNumber?: number // Added pageNumber
     }>
   >
   directUploadResults?: Array<{
@@ -140,7 +138,7 @@ function getGoogleAIMediaType(file: File): string {
   if (fileName.endsWith(".pdf")) return "application/pdf"
   if (fileName.endsWith(".txt")) return "text/plain"
   if (fileName.endsWith(".md")) return "text/markdown"
-  if (fileName.endsWith(".csv")) return "text/csv"
+  if (fileName.endsWith(".csv")) return "application/csv" // Corrected from text/csv for consistency
   if (fileName.endsWith(".json")) return "application/json"
   if (fileName.endsWith(".html") || fileName.endsWith(".htm")) return "text/html"
   if (fileName.endsWith(".xml")) return "application/xml"
@@ -514,7 +512,6 @@ CRITICAL INSTRUCTIONS:
 - If evidence is about a different cybersecurity topic than what's being asked, DO NOT use it
 - Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
 - Answer "No" for boolean questions if no directly relevant evidence exists
-- Quote exact text from the documents that SPECIFICALLY relates to each question topic
 - Do NOT make assumptions or use general knowledge beyond what's in the documents
 - Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
@@ -550,7 +547,7 @@ For each question, you must:
 4. For VULNERABILITY or PENETRATION TESTING questions: Search exhaustively for ANY mention of vulnerability scans, security scans, penetration tests, pen tests, security testing, vulnerability assessments, security evaluations, or related terms
 5. If you find ANY relevant evidence, answer "Yes" for boolean questions or select the appropriate option
 6. If absolutely NO evidence exists anywhere in the documents, answer "No" or use the most conservative option
-7. Quote the exact text that supports your answer and specify which document and section it came from
+7. Provide the EXACT QUOTE from the document content (NOT titles, headers, or metadata) that supports your answer. Include the document name and page number if available.
 8. Be especially thorough for technical security topics like vulnerability assessments, scans, and testing procedures
 
 Respond in this exact JSON format:
@@ -562,10 +559,10 @@ Respond in this exact JSON format:
     ${questions.map((q) => `"${q.id}": 0.8`).join(",\n    ")}
   },
   "reasoning": {
-    ${questions.map((q) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+    ${questions.map((q) => `"${q.id}": "explanation based on evidence or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic, including document name and section, or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+    ${questions.map((q) => `"${q.id}": [ { "quote": "EXACT TEXT FROM DOCUMENT CONTENT", "fileName": "document_name.pdf", "pageNumber": 1, "relevance": "explanation of relevance" } ]`).join(",\n    ")}
   }
 }`
 
@@ -629,123 +626,65 @@ Respond in this exact JSON format:
         questions.forEach((question) => {
           const questionId = question.id
           const aiAnswer = aiResponse.answers?.[questionId]
-          const aiEvidence = aiResponse.evidence?.[questionId]
           const aiReasoning = aiResponse.reasoning?.[questionId]
           const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
+          const aiEvidenceArray = aiResponse.evidence?.[questionId]; // Expect an array now
 
           console.log(
-            `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence length=${aiEvidence?.length || 0}`,
+            `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence count=${Array.isArray(aiEvidenceArray) ? aiEvidenceArray.length : 0}`,
           )
 
-          // Perform semantic relevance check
-          if (
-            aiEvidence &&
-            typeof aiEvidence === "string" &&
-            !aiEvidence.toLowerCase().includes("no directly relevant evidence found") &&
-            aiEvidence.length > 20
-          ) {
-            const relevanceCheck = checkSemanticRelevance(question.question, aiEvidence)
-            console.log(
-              `🎯 Relevance check for ${questionId}: ${relevanceCheck.isRelevant ? "RELEVANT" : "NOT RELEVANT"} - ${relevanceCheck.reason}`,
-            )
+          if (Array.isArray(aiEvidenceArray) && aiEvidenceArray.length > 0) {
+            const relevantExcerpts = aiEvidenceArray.map((item: any) => {
+              // Ensure item has quote, fileName, pageNumber
+              const quote = item.quote || "";
+              const fileName = item.fileName || (supportedFiles.length > 0 ? supportedFiles[0].name : "Document");
+              const pageNumber = item.pageNumber || undefined;
+              const relevance = item.relevance || `Evidence found in ${fileName}`;
 
-            if (relevanceCheck.isRelevant) {
-              // Evidence is relevant - use AI's answer
-              answers[questionId] = aiAnswer
-              confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence)
-              reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
-
-              // Extract document name from evidence
-              let sourceFileName = supportedFiles.length > 0 ? supportedFiles[0].name : "Document"
-              const documentNameMatch = aiEvidence.match(
-                /(?:from|in|document|file)[\s:]*([^,.\n]+\.(pdf|txt|md|csv|json|html|xml))/i,
-              )
-              if (documentNameMatch) {
-                sourceFileName = documentNameMatch[1].trim()
-              } else {
-                // Try to match against uploaded file names
-                const matchingFile = supportedFiles.find((file) =>
-                  aiEvidence.toLowerCase().includes(file.name.toLowerCase().replace(/\.[^.]+$/, "")),
-                )
-                if (matchingFile) {
-                  sourceFileName = matchingFile.name
-                }
+              // Perform semantic relevance check on the quote
+              const relevanceCheck = checkSemanticRelevance(question.question, quote);
+              if (!relevanceCheck.isRelevant) {
+                console.log(`❌ Question ${questionId}: Evidence quote rejected - ${relevanceCheck.reason}`);
+                return null; // Filter out irrelevant quotes
               }
 
-              let cleanExcerpt = aiEvidence
+              return {
+                fileName,
+                quote: quote.trim(), // Ensure no leading/trailing whitespace
+                relevance,
+                pageNumber,
+              };
+            }).filter(Boolean); // Filter out nulls (irrelevant quotes)
 
-              // Remove document name patterns from the beginning or end of quotes
-              cleanExcerpt = cleanExcerpt.replace(/^["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*:?\s*/i, "")
-              cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*$/i, "")
-
-              // Remove any remaining document name references within quotes
-              supportedFiles.forEach((file) => {
-                const fileName = file.name.replace(/\.[^.]+$/, "") // Remove extension
-                const fileNamePattern = new RegExp(`\\b${fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi")
-                cleanExcerpt = cleanExcerpt.replace(fileNamePattern, "").trim()
-
-                // Also remove the full filename with extension
-                const fullFileNamePattern = new RegExp(
-                  `\\b${file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
-                  "gi",
-                )
-                cleanExcerpt = cleanExcerpt.replace(fullFileNamePattern, "").trim()
-              })
-
-              // Remove common document reference patterns
-              cleanExcerpt = cleanExcerpt.replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "").trim()
-
-              // Clean up extra spaces and punctuation
-              cleanExcerpt = cleanExcerpt
-                .replace(/\s+/g, " ")
-                .replace(/^[,.\s]+|[,.\s]+$/g, "")
-                .trim()
-
-              // Remove any existing quotes and add proper ones
-              cleanExcerpt = cleanExcerpt.replace(/^["']+|["']+$/g, "").trim()
-
-              // Ensure we still have meaningful content after cleaning
-              if (cleanExcerpt.length < 5) {
-                // If cleaning removed too much, extract just the meaningful text without document references
-                const meaningfulText = aiEvidence.replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "").trim()
-                cleanExcerpt = meaningfulText.substring(0, 200).trim()
-              }
-
-              documentExcerpts[questionId] = [
-                {
-                  fileName: sourceFileName,
-                  excerpt: cleanExcerpt.substring(0, 500), // Use cleaned excerpt instead of raw aiEvidence
-                  relevance: `Evidence found within ${sourceFileName}`,
-                  pageOrSection: "Document Content",
-                },
-              ]
+            if (relevantExcerpts.length > 0) {
+              answers[questionId] = aiAnswer; // Use AI's answer if relevant evidence found
+              confidenceScores[questionId] = Math.min(aiConfidence, relevantExcerpts[0].confidence); // Use confidence from first relevant excerpt
+              reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant";
+              documentExcerpts[questionId] = relevantExcerpts;
             } else {
-              // Evidence is not relevant - use conservative answer
-              console.log(`❌ Question ${questionId}: Evidence rejected - ${relevanceCheck.reason}`)
-
+              // No relevant excerpts found after filtering
+              console.log(`❌ Question ${questionId}: No relevant evidence found after semantic filtering.`);
               if (question.type === "boolean") {
-                answers[questionId] = false
+                answers[question.id] = false;
               } else if (question.options && question.options.length > 0) {
-                answers[questionId] = question.options[0] // Most conservative option
+                answers[question.id] = question.options[0];
               }
-
-              confidenceScores[questionId] = 0.9 // High confidence in conservative answer
-              reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
-              documentExcerpts[questionId] = []
+              confidenceScores[question.id] = 0.9;
+              reasoning[question.id] = "No directly relevant evidence found in documents after semantic filtering.";
+              documentExcerpts[question.id] = [];
             }
           } else {
-            // No evidence provided - use conservative answer
-            console.log(`⚠️ Question ${questionId}: No evidence provided by AI`)
-
+            // No evidence array or empty array provided by AI
+            console.log(`⚠️ Question ${questionId}: No evidence array or empty array provided by AI`);
             if (question.type === "boolean") {
-              answers[question.id] = false
+              answers[question.id] = false;
             } else if (question.options && question.options.length > 0) {
-              answers[question.id] = question.options[0]
+              answers[question.id] = question.options[0];
             }
-
-            confidenceScores[question.id] = 0.9
-            reasoning[question.id] = "No directly relevant evidence found in documents"
-            documentExcerpts[question.id] = []
+            confidenceScores[question.id] = 0.9;
+            reasoning[question.id] = "No directly relevant evidence found in documents.";
+            documentExcerpts[question.id] = [];
           }
         })
       } catch (parseError) {
