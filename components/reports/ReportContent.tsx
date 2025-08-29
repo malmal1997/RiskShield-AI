@@ -221,7 +221,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
                 )}
               </div>
 
-              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style={{ pageBreakInside: 'avoid', pageBreakAfter: 'auto', pageBreakBefore: 'auto' }}>
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style={{ pageBreakInside: 'avoid', pageBreakBefore: 'auto', position: 'relative' }}>
                 <p className="text-sm font-medium text-blue-800 mb-2">Answer:</p>
                 <p className="font-semibold text-blue-900 text-lg">
                   {question.type === "boolean"
@@ -240,13 +240,13 @@ const ReportContent: React.FC<ReportContentProps> = ({
                 </p>
               </div>
 
-              <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg" style={{ pageBreakInside: 'avoid', pageBreakAfter: 'auto', pageBreakBefore: 'auto' }}>
+              <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg" style={{ pageBreakInside: 'avoid', pageBreakBefore: 'auto', position: 'relative' }}>
                 <p className="text-sm font-medium text-gray-800 mb-2">Reasoning:</p>
                 <p className="text-gray-700">{reasoning}</p>
               </div>
 
               {excerpts.length > 0 && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg" style={{ pageBreakInside: 'avoid', pageBreakAfter: 'auto', pageBreakBefore: 'auto' }}>
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg" style={{ pageBreakInside: 'avoid', pageBreakBefore: 'auto', position: 'relative' }}>
                   <p className="text-sm font-medium text-green-800 mb-2">Document Evidence:</p>
                   {excerpts.map((excerpt, excerptIndex) => (
                     <div key={excerptIndex} className="mb-3 last:mb-0">
