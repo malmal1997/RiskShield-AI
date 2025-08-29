@@ -40,10 +40,6 @@ import {
 import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
-import { useAuth } from "@/components/auth-context"
-import html2canvas from "html2canvas" // Import html2canvas
-import ReportContent from "@/components/reports/ReportContent" // Import the new ReportContent component
-import ReactDOM from 'react-dom/client'; // Import ReactDOM for createRoot
 
 // Complete assessment categories for AI assessment
 const assessmentCategories = [
@@ -966,31 +962,6 @@ const assessmentCategories = [
         type: "tested" as const,
         weight: 9,
       },
-      {
-        id: "soc25a",
-        question:
-          "Are processing authorization controls in place to ensure only authorized transactions are processed?",
-        type: "tested" as const,
-        weight: 9,
-      },
-      {
-        id: "soc25b",
-        question: "Are controls implemented to ensure processing completeness and accuracy?",
-        type: "tested" as const,
-        weight: 9,
-      },
-      {
-        id: "soc25c",
-        question: "Are processing controls designed to ensure timely processing of transactions?",
-        type: "tested" as const,
-        weight: 8,
-      },
-      {
-        id: "soc25d",
-        question: "Are processing issues properly escalated, tracked, and addressed in a timely manner?",
-        type: "tested" as const,
-        weight: 9,
-      },
 
       // Confidentiality Controls
       {
@@ -1069,21 +1040,6 @@ const assessmentCategories = [
         type: "tested" as const,
         weight: 8,
       },
-      {
-        id: "soc38",
-        question: "Is there a centralized logging system for security monitoring?",
-        question: "Are logs regularly reviewed for suspicious activities?",
-        type: "tested" as const,
-        weight: 8,
-      },
-      {
-        id: "soc38",
-        question: "Is there a centralized logging system for security monitoring?",
-        type: "tested" as const,
-        weight: 8,
-      },
-
-      // Third-Party Management
       {
         id: "soc38",
         question: "Is there a centralized logging system for security monitoring?",
@@ -1195,7 +1151,6 @@ interface AIAnalysisResult {
 }
 
 export default function AIAssessmentPage() {
-  const { signOut } = useAuth()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
@@ -1387,70 +1342,65 @@ export default function AIAssessmentPage() {
   }
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Check for pre-selected category from main risk assessment page
-      const preSelectedCategory = localStorage.getItem("selectedAssessmentCategory")
-      const skipMethodSelection = localStorage.getItem("skipMethodSelection")
+    // Check for pre-selected category from main risk assessment page
+    const preSelectedCategory = localStorage.getItem("selectedAssessmentCategory")
+    const skipMethodSelection = localStorage.getItem("skipMethodSelection")
 
-      if (preSelectedCategory) {
-        setSelectedCategory(preSelectedCategory)
+    if (preSelectedCategory) {
+      setSelectedCategory(preSelectedCategory)
 
-        if (skipMethodSelection === "true") {
-          // For SOC assessments, go to SOC info collection first
-          if (preSelectedCategory === "soc-compliance") {
-            setCurrentStep("soc-info")
-          } else {
-            // For other assessments, go directly to upload
-            setCurrentStep("upload")
-          }
-          localStorage.removeItem("skipMethodSelection")
+      if (skipMethodSelection === "true") {
+        // For SOC assessments, go to SOC info collection first
+        if (preSelectedCategory === "soc-compliance") {
+          setCurrentStep("soc-info")
         } else {
-          setCurrentStep("choose-method")
+          // For other assessments, go directly to upload
+          setCurrentStep("upload")
         }
-
-        // Clear the stored category so it doesn't interfere with future visits
-        localStorage.removeItem("selectedAssessmentCategory")
+        localStorage.removeItem("skipMethodSelection")
+      } else {
+        setCurrentStep("choose-method")
       }
+
+      // Clear the stored category so it doesn't interfere with future visits
+      localStorage.removeItem("selectedAssessmentCategory")
     }
   }, [])
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const delegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
-      setDelegatedAssessments(delegated)
-    }
+    const delegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
+    setDelegatedAssessments(delegated)
   }, [])
 
+  // Add this useEffect after the existing useEffects
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Check if this is a delegated assessment
-      const urlParams = new URLSearchParams(window.location.search)
-      const isDelegated = urlParams.get("delegated") === "true"
-      const delegatedId = urlParams.get("id")
-      const delegatedToken = urlParams.get("token")
+    // Check if this is a delegated assessment
+    const urlParams = new URLSearchParams(window.location.search)
+    const isDelegated = urlParams.get("delegated") === "true"
+    const delegatedId = urlParams.get("id")
+    const delegatedToken = urlParams.get("token")
 
-      if (isDelegated && delegatedId && delegatedToken) {
-        setIsDelegatedAssessment(true)
+    if (isDelegated && delegatedId && delegatedToken) {
+      setIsDelegatedAssessment(true)
 
-        // Get the stored assessment info
-        const storedInfo = localStorage.getItem("internalAssessmentInfo")
-        if (storedInfo) {
-          try {
-            const assessmentInfo = JSON.parse(storedInfo)
-            setDelegatedAssessmentInfo(assessmentInfo)
+      // Get the stored assessment info
+      const storedInfo = localStorage.getItem("internalAssessmentInfo")
+      if (storedInfo) {
+        try {
+          const assessmentInfo = JSON.parse(storedInfo)
+          setDelegatedAssessmentInfo(assessmentInfo)
 
-            // Find the matching category
-            const matchingCategory = assessmentCategories.find(
-              (cat) => cat.name === assessmentInfo.assessmentType || assessmentInfo.assessmentType.includes(cat.name),
-            )
+          // Find the matching category
+          const matchingCategory = assessmentCategories.find(
+            (cat) => cat.name === assessmentInfo.assessmentType || assessmentInfo.assessmentType.includes(cat.name),
+          )
 
-            if (matchingCategory) {
-              setSelectedCategory(matchingCategory.id)
-              setCurrentStep("choose-method")
-            }
-          } catch (error) {
-            console.error("Error parsing delegated assessment info:", error)
+          if (matchingCategory) {
+            setSelectedCategory(matchingCategory.id)
+            setCurrentStep("choose-method")
           }
+        } catch (error) {
+          console.error("Error parsing delegated assessment info:", error)
         }
       }
     }
@@ -1970,65 +1920,355 @@ export default function AIAssessmentPage() {
     if (!aiAnalysisResult || !currentCategory) return
 
     try {
+      // Import jsPDF dynamically to avoid SSR issues
       const { jsPDF } = await import("jspdf")
 
-      // Create a temporary div to render the ReportContent component
-      const reportContainer = document.createElement("div")
-      reportContainer.style.position = "absolute"
-      reportContainer.style.left = "-9999px" // Hide it off-screen
-      reportContainer.style.width = "1200px" // Set a fixed width for consistent rendering
-      document.body.appendChild(reportContainer)
+      const doc = new jsPDF()
+      const pageWidth = doc.internal.pageSize.getWidth()
+      const pageHeight = doc.internal.pageSize.getHeight()
+      const margin = 20
+      const contentWidth = pageWidth - 2 * margin
+      let yPosition = margin
 
-      // Create a React root and render the component
-      const root = ReactDOM.createRoot(reportContainer);
-      root.render(
-        <ReportContent
-          aiAnalysisResult={aiAnalysisResult}
-          currentCategory={currentCategory}
-          approverInfo={approverInfo}
-          companyInfo={companyInfo}
-          socInfo={socInfo}
-        />
-      );
-
-      // Wait for React to render the component
-      // A small delay might be necessary to ensure the component is fully rendered
-      await new Promise(resolve => setTimeout(resolve, 100)); 
-
-      const canvas = await html2canvas(reportContainer, {
-        scale: 2, // Increase scale for better resolution
-        useCORS: true,
-        logging: false,
-      })
-
-      root.unmount(); // Clean up the React root
-      document.body.removeChild(reportContainer) // Clean up the temporary div
-
-      const imgData = canvas.toDataURL("image/png")
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "px",
-        format: "a4",
-      })
-
-      const imgWidth = pdf.internal.pageSize.getWidth()
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-
-      let heightLeft = imgHeight
-      let position = 0
-
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
-      heightLeft -= pdf.internal.pageSize.getHeight()
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
-        heightLeft -= pdf.internal.pageSize.getHeight()
+      // Helper function to add text with word wrapping
+      const addWrappedText = (text: string, x: number, y: number, maxWidth: number, fontSize = 10) => {
+        doc.setFontSize(fontSize)
+        const lines = doc.splitTextToSize(text, maxWidth)
+        doc.text(lines, x, y)
+        return y + lines.length * (fontSize * 0.5) // Better line spacing
       }
 
+      // Helper function to check if we need a new page
+      const checkNewPage = (requiredHeight: number) => {
+        if (yPosition + requiredHeight > pageHeight - margin) {
+          doc.addPage()
+          yPosition = margin
+        }
+      }
+
+      // Header
+      doc.setFillColor(59, 130, 246) // Blue background
+      doc.rect(0, 0, pageWidth, 60, "F")
+
+      doc.setTextColor(255, 255, 255) // White text
+      doc.setFontSize(24)
+      doc.setFont("helvetica", "bold")
+      doc.text(`${currentCategory.name} Risk Assessment Report`, pageWidth / 2, 25, { align: "center" })
+
+      doc.setFontSize(12)
+      doc.setFont("helvetica", "normal")
+      doc.text(`AI-Powered Risk Analysis • Generated ${new Date().toLocaleDateString()}`, pageWidth / 2, 40, {
+        align: "center",
+      })
+
+      yPosition = 80
+
+      // Summary Section
+      doc.setTextColor(0, 0, 0) // Black text
+      doc.setFontSize(16)
+      doc.setFont("helvetica", "bold")
+      doc.text("Assessment Summary", margin, yPosition)
+      yPosition += 20
+
+      // Summary boxes
+      const boxWidth = (contentWidth - 20) / 3
+      const boxHeight = 40
+
+      // Risk Score Box
+      doc.setFillColor(239, 246, 255) // Light blue
+      doc.rect(margin, yPosition, boxWidth, boxHeight, "F")
+      doc.setDrawColor(219, 234, 254)
+      doc.rect(margin, yPosition, boxWidth, boxHeight, "S")
+      doc.setFontSize(24)
+      doc.setFont("helvetica", "bold")
+      doc.text(`${aiAnalysisResult.riskScore}%`, margin + boxWidth / 2, yPosition + 22, { align: "center" })
+      doc.setFontSize(10)
+      doc.setFont("helvetica", "normal")
+      doc.text("Risk Score", margin + boxWidth / 2, yPosition + 32, { align: "center" })
+
+      // Risk Level Box
+      doc.setFillColor(254, 249, 195) // Light yellow
+      doc.rect(margin + boxWidth + 10, yPosition, boxWidth, boxHeight, "F")
+      doc.setDrawColor(250, 204, 21)
+      doc.rect(margin + boxWidth + 10, yPosition, boxWidth, boxHeight, "S")
+      doc.setFontSize(14)
+      doc.setFont("helvetica", "bold")
+      doc.text(`${aiAnalysisResult.riskLevel} Risk`, margin + boxWidth + 10 + boxWidth / 2, yPosition + 22, {
+        align: "center",
+      })
+      doc.setFontSize(10)
+      doc.setFont("helvetica", "normal")
+      doc.text("Risk Level", margin + boxWidth + 10 + boxWidth / 2, yPosition + 32, { align: "center" })
+
+      // Documents Analyzed Box
+      doc.setFillColor(240, 253, 244) // Light green
+      doc.rect(margin + 2 * (boxWidth + 10), yPosition, boxWidth, boxHeight, "F")
+      doc.setDrawColor(34, 197, 94)
+      doc.rect(margin + 2 * (boxWidth + 10), yPosition, boxWidth, boxHeight, "S")
+      doc.setFontSize(24)
+      doc.setFont("helvetica", "bold")
+      doc.text(`${aiAnalysisResult.documentsAnalyzed}`, margin + 2 * (boxWidth + 10) + boxWidth / 2, yPosition + 22, {
+        align: "center",
+      })
+      doc.setFontSize(10)
+      doc.setFont("helvetica", "normal")
+      doc.text("Documents Analyzed", margin + 2 * (boxWidth + 10) + boxWidth / 2, yPosition + 32, { align: "center" })
+
+      yPosition += boxHeight + 30
+
+      // Company Information
+      checkNewPage(70)
+      doc.setFontSize(16)
+      doc.setFont("helvetica", "bold")
+      doc.text("Company Information", margin, yPosition)
+      yPosition += 20
+
+      doc.setFillColor(248, 250, 252) // Light gray
+      doc.rect(margin, yPosition, contentWidth, 45, "F")
+      doc.setDrawColor(229, 231, 235)
+      doc.rect(margin, yPosition, contentWidth, 45, "S")
+
+      doc.setFontSize(11)
+      doc.setFont("helvetica", "normal")
+      doc.text(`Company Name: ${companyInfo.companyName || "Not specified"}`, margin + 10, yPosition + 15)
+      doc.text(`Product/Service: ${companyInfo.productName || "Not specified"}`, margin + 10, yPosition + 27)
+      doc.text(`Assessment Date: ${new Date().toLocaleDateString()}`, margin + 10, yPosition + 39)
+
+      yPosition += 60
+
+      // SOC Information (if applicable)
+      if (selectedCategory === "soc-compliance" && socInfo.socType) {
+        checkNewPage(120)
+        doc.setFontSize(16)
+        doc.setFont("helvetica", "bold")
+        doc.text("SOC Assessment Information", margin, yPosition)
+        yPosition += 20
+
+        doc.setFillColor(239, 246, 255) // Light blue
+        doc.rect(margin, yPosition, contentWidth, 100, "F")
+        doc.setDrawColor(147, 197, 253)
+        doc.rect(margin, yPosition, contentWidth, 100, "S")
+
+        doc.setFontSize(11)
+        doc.setFont("helvetica", "normal")
+        doc.text(`SOC Type: ${socInfo.socType}`, margin + 10, yPosition + 15)
+        doc.text(`Report Type: ${socInfo.reportType}`, margin + 10, yPosition + 27)
+        doc.text(`Auditor: ${socInfo.auditor || "Not specified"}`, margin + 10, yPosition + 39)
+        doc.text(`Expected Opinion: ${socInfo.auditorOpinion || "Not specified"}`, margin + 10, yPosition + 51)
+        doc.text(`Company: ${socInfo.companyName}`, margin + 10, yPosition + 63)
+        doc.text(`Product/Service: ${socInfo.productService}`, margin + 10, yPosition + 75)
+
+        yPosition += 120
+      }
+
+      // Approval Information
+      checkNewPage(70)
+      doc.setFontSize(16)
+      doc.setFont("helvetica", "bold")
+      doc.text("Approval Information", margin, yPosition)
+      yPosition += 20
+
+      doc.setFillColor(240, 249, 255) // Light blue
+      doc.rect(margin, yPosition, contentWidth, 45, "F")
+      doc.setDrawColor(147, 197, 253)
+      doc.rect(margin, yPosition, contentWidth, 45, "S")
+
+      doc.setFontSize(11)
+      doc.setFont("helvetica", "normal")
+      doc.text(`Approved By: ${approverInfo.name}`, margin + 10, yPosition + 15)
+      doc.text(`Title: ${approverInfo.title}`, margin + 10, yPosition + 27)
+      doc.text(`Digital Signature: ${approverInfo.signature}`, margin + 10, yPosition + 39)
+
+      yPosition += 70
+
+      // Assessment Questions
+      doc.setFontSize(16)
+      doc.setFont("helvetica", "bold")
+      doc.text("Assessment Questions & Responses", margin, yPosition)
+      yPosition += 25
+
+      currentCategory.questions.forEach((question, index) => {
+        checkNewPage(120) // Check if we need space for question block
+
+        const answer = aiAnalysisResult.answers[question.id]
+        const reasoning = aiAnalysisResult.reasoning[question.id] || "No reasoning provided"
+        const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
+
+        // Question header with better spacing
+        doc.setFillColor(255, 255, 255)
+        doc.rect(margin, yPosition, contentWidth, 25, "F")
+        doc.setDrawColor(229, 231, 235)
+        doc.rect(margin, yPosition, contentWidth, 25, "S")
+
+        doc.setFontSize(12)
+        doc.setFont("helvetica", "bold")
+        const questionText = `${index + 1}. ${question.question}`
+        yPosition = addWrappedText(questionText, margin + 5, yPosition + 8, contentWidth - 10, 12)
+
+        doc.setFontSize(9)
+        doc.setFont("helvetica", "normal")
+        doc.text(`Weight: ${question.weight}`, margin + 5, yPosition + 8)
+        yPosition += 20
+
+        // Answer with proper background
+        doc.setFillColor(219, 234, 254) // Light blue
+        doc.rect(margin + 5, yPosition, contentWidth - 10, 18, "F")
+        doc.setDrawColor(147, 197, 253)
+        doc.rect(margin + 5, yPosition, contentWidth - 10, 18, "S")
+        doc.setFontSize(11)
+        doc.setFont("helvetica", "bold")
+
+        let answerText = ""
+        if (question.type === "boolean") {
+          answerText = typeof answer === "boolean" ? (answer ? "Yes" : "No") : String(answer)
+        } else if (question.type === "tested") {
+          answerText = answer === "tested" ? "Tested" : answer === "not_tested" ? "Not Tested" : String(answer)
+        } else {
+          answerText = String(answer)
+        }
+
+        doc.text(`Answer: ${answerText}`, margin + 10, yPosition + 12)
+        yPosition += 25
+
+        // Reasoning with proper background and text wrapping
+        const reasoningHeight = Math.max(35, Math.ceil(reasoning.length / 80) * 12 + 15)
+        doc.setFillColor(243, 244, 246) // Light gray
+        doc.rect(margin + 5, yPosition, contentWidth - 10, reasoningHeight, "F")
+        doc.setDrawColor(209, 213, 219)
+        doc.rect(margin + 5, yPosition, contentWidth - 10, reasoningHeight, "S")
+        doc.setFontSize(10)
+        doc.setFont("helvetica", "bold")
+        doc.text("Reasoning:", margin + 10, yPosition + 10)
+        doc.setFont("helvetica", "normal")
+        yPosition = addWrappedText(reasoning, margin + 10, yPosition + 18, contentWidth - 20, 9)
+        yPosition += 15
+
+        // Evidence with proper background - SHOW ALL EVIDENCE
+        if (excerpts.length > 0) {
+          // Calculate height needed for all evidence items
+          const evidenceHeight = Math.max(30, excerpts.length * 25 + 15)
+          doc.setFillColor(240, 253, 244) // Light green
+          doc.rect(margin + 5, yPosition, contentWidth - 10, evidenceHeight, "F")
+          doc.setDrawColor(34, 197, 94)
+          doc.rect(margin + 5, yPosition, contentWidth - 10, evidenceHeight, "S")
+          doc.setFontSize(10)
+          doc.setFont("helvetica", "bold")
+          doc.text("Evidence:", margin + 10, yPosition + 10)
+          doc.setFont("helvetica", "normal")
+          let evidenceY = yPosition + 18
+
+          // Show ALL evidence excerpts, not just the first 2
+          excerpts.forEach((excerpt, excerptIndex) => {
+            const excerptText = `"${excerpt.excerpt}"`
+            evidenceY = addWrappedText(excerptText, margin + 10, evidenceY, contentWidth - 20, 9)
+            if (excerpt.fileName) {
+              doc.setFontSize(8)
+              doc.setFont("helvetica", "italic")
+              doc.text(`Source: ${excerpt.fileName}`, margin + 10, evidenceY + 5)
+              doc.setFont("helvetica", "normal")
+              doc.setFontSize(9)
+              evidenceY += 8
+            }
+            evidenceY += 8
+          })
+          yPosition += evidenceHeight
+        }
+
+        yPosition += 20
+      })
+
+      // Overall Analysis
+      checkNewPage(80)
+      doc.setFontSize(16)
+      doc.setFont("helvetica", "bold")
+      doc.text("Overall Analysis", margin, yPosition)
+      yPosition += 20
+
+      const analysisHeight = Math.max(50, Math.ceil(aiAnalysisResult.overallAnalysis.length / 100) * 12 + 20)
+      doc.setFillColor(240, 249, 255) // Light blue
+      doc.rect(margin, yPosition, contentWidth, analysisHeight, "F")
+      doc.setDrawColor(147, 197, 253)
+      doc.rect(margin, yPosition, contentWidth, analysisHeight, "S")
+      doc.setFontSize(11)
+      doc.setFont("helvetica", "normal")
+      yPosition = addWrappedText(aiAnalysisResult.overallAnalysis, margin + 10, yPosition + 12, contentWidth - 20, 11)
+      yPosition += 30
+
+      // Risk Factors
+      if (aiAnalysisResult.riskFactors.length > 0) {
+        checkNewPage(60 + aiAnalysisResult.riskFactors.length * 15)
+        doc.setFontSize(16)
+        doc.setFont("helvetica", "bold")
+        doc.text("Risk Factors", margin, yPosition)
+        yPosition += 20
+
+        const riskFactorsHeight = aiAnalysisResult.riskFactors.length * 18 + 20
+        doc.setFillColor(254, 242, 242) // Light red
+        doc.rect(margin, yPosition, contentWidth, riskFactorsHeight, "F")
+        doc.setDrawColor(248, 113, 113)
+        doc.rect(margin, yPosition, contentWidth, riskFactorsHeight, "S")
+
+        doc.setFontSize(11)
+        doc.setFont("helvetica", "normal")
+        let factorY = yPosition + 15
+        aiAnalysisResult.riskFactors.forEach((factor) => {
+          factorY = addWrappedText(`• ${factor}`, margin + 10, factorY, contentWidth - 20, 11)
+          factorY += 8
+        })
+        yPosition += riskFactorsHeight + 20
+      }
+
+      // Recommendations
+      if (aiAnalysisResult.recommendations.length > 0) {
+        checkNewPage(60 + aiAnalysisResult.recommendations.length * 15)
+        doc.setFontSize(16)
+        doc.setFont("helvetica", "bold")
+        doc.text("Recommendations", margin, yPosition)
+        yPosition += 20
+
+        const recommendationsHeight = aiAnalysisResult.recommendations.length * 18 + 20
+        doc.setFillColor(240, 253, 244) // Light green
+        doc.rect(margin, yPosition, contentWidth, recommendationsHeight, "F")
+        doc.setDrawColor(34, 197, 94)
+        doc.rect(margin, yPosition, contentWidth, recommendationsHeight, "S")
+
+        doc.setFontSize(11)
+        doc.setFont("helvetica", "normal")
+        let recY = yPosition + 15
+        aiAnalysisResult.recommendations.forEach((recommendation) => {
+          recY = addWrappedText(`• ${recommendation}`, margin + 10, recY, contentWidth - 20, 11)
+          recY += 8
+        })
+        yPosition += recommendationsHeight + 20
+      }
+
+      // Footer
+      const totalPages = doc.getNumberOfPages()
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i)
+        doc.setFillColor(248, 250, 252) // Light gray
+        doc.rect(0, pageHeight - 30, pageWidth, 30, "F")
+        doc.setFontSize(8)
+        doc.setFont("helvetica", "normal")
+        doc.setTextColor(107, 114, 128) // Gray text
+        doc.text(
+          "Report generated by RiskGuard AI - AI-Powered Risk Assessment Platform",
+          pageWidth / 2,
+          pageHeight - 20,
+          { align: "center" },
+        )
+        doc.text(
+          `Assessment ID: ${Date.now()} • Generation Date: ${new Date().toISOString()}`,
+          pageWidth / 2,
+          pageHeight - 12,
+          { align: "center" },
+        )
+        doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: "right" })
+      }
+
+      // Save the PDF
       const fileName = `${currentCategory.name.replace(/\s+/g, "_")}_AI_Risk_Assessment_Report_${new Date().toISOString().split("T")[0]}.pdf`
-      pdf.save(fileName)
+      doc.save(fileName)
     } catch (error) {
       console.error("Error generating PDF:", error)
       alert("Error generating PDF report. Please try again.")
@@ -2039,7 +2279,7 @@ export default function AIAssessmentPage() {
 
   // Add this function after the existing functions
   const handleDelegatedAssessmentCompletion = () => {
-    if (typeof window !== 'undefined' && isDelegatedAssessment && delegatedAssessmentInfo && aiAnalysisResult) {
+    if (isDelegatedAssessment && delegatedAssessmentInfo && aiAnalysisResult) {
       try {
         const existingDelegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
         const updatedDelegated = existingDelegated.map((delegation: any) =>
@@ -2157,7 +2397,7 @@ export default function AIAssessmentPage() {
       previewMessage="Preview Mode: Sign up to save assessments and access full AI features"
     >
       <div className="min-h-screen bg-white">
-        <MainNavigation onSignOut={signOut} />
+        <MainNavigation showAuthButtons={true} />
 
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -2249,7 +2489,7 @@ export default function AIAssessmentPage() {
             {/* Step 2: Choose Assessment Method */}
             {currentStep === "choose-method" && currentCategory && (
               <div className="max-w-4xl mx-auto">
-                <div className="mb-8">
+                <div className="text-center mb-12">
                   <Button variant="ghost" onClick={() => setCurrentStep("select")} className="mb-4 hover:bg-blue-50">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Assessment Selection
@@ -2274,8 +2514,8 @@ export default function AIAssessmentPage() {
                     </CardHeader>
                     <CardContent>
                       <CardDescription className="mb-6 text-base">
-                        Complete the assessment manually by answering questions step by step. Full control over responses
-                        with detailed explanations.
+                        Complete the assessment manually by answering questions step by step. Full control over
+                        responses with detailed explanations.
                       </CardDescription>
                       <div className="space-y-3 mb-6">
                         <div className="flex items-center text-sm text-gray-600">
@@ -3568,18 +3808,18 @@ export default function AIAssessmentPage() {
                       <CardTitle>Assessment Summary</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                        <div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="text-center">
                           <div className="text-3xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}%</div>
                           <p className="text-sm text-gray-600">Risk Score</p>
                         </div>
-                        <div>
+                        <div className="text-center">
                           <Badge className={`text-sm px-3 py-1 ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
                             {aiAnalysisResult.riskLevel} Risk
                           </Badge>
                           <p className="text-sm text-gray-600 mt-2">Risk Level</p>
                         </div>
-                        <div>
+                        <div className="text-center">
                           <div className="text-3xl font-bold text-gray-900 mb-2">
                             {currentCategory.questions.length}
                           </div>
