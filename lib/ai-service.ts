@@ -37,7 +37,7 @@ export interface DocumentAnalysisResult {
 interface Question {
   id: string
   question: string
-  type: "boolean" | "multiple"
+  type: "boolean" | "multiple" | "tested"
   options?: string[]
   weight: number
 }
@@ -492,34 +492,15 @@ async function performDirectAIAnalysis(
     }
   }
 
-  // Create comprehensive prompt for Google AI
-  let documentContent = ""
-
-  // Add text file content
-  if (textFiles.length > 0) {
-    documentContent += "TEXT DOCUMENTS:\n"
-    textFiles.forEach(({ file, text }) => {
-      documentContent += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
-    })
-  }
-
-  // Add PDF file references
-  if (pdfFiles.length > 0) {
-    documentContent += "\nPDF DOCUMENTS:\n"
-    pdfFiles.forEach((file) => {
-      documentContent += `\n=== PDF DOCUMENT: ${file.name} ===\n[This PDF file has been uploaded and will be analyzed directly]\n`
-    })
-  }
-
-  const basePrompt = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with ${supportedFiles.length} document(s) to analyze.
+  // Construct the main text prompt part
+  let textPromptPart = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with the following documents and questions.
 
 CRITICAL INSTRUCTIONS:
-- Analyze ALL provided documents (both text and PDF files) using your built-in document processing capabilities
+- Analyze ALL provided documents (both attached files and text content provided below)
 - Answer questions based ONLY on information that is DIRECTLY and SPECIFICALLY found in the documents
-- For PDF files, use your native PDF reading capabilities to extract and analyze the content
 - THOROUGHLY scan ALL sections, pages, and content areas of each document
 - Look for ALL cybersecurity-related content including but not limited to:
-  * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen tests, pentests, vulnerability testing, security testing, vulnerability analysis, security evaluations
+  * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen test, pentests, vulnerability testing, security testing, vulnerability analysis, security evaluations
   * PENETRATION TESTING: penetration tests, pen tests, pentests, ethical hacking, red team exercises, intrusion testing, security audits
   * Security policies, procedures, controls, and measures
   * Access controls, authentication, authorization, user management
@@ -538,17 +519,33 @@ CRITICAL INSTRUCTIONS:
 - Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
 
-DOCUMENT FILES PROVIDED:
-${supportedFiles.map((file, index) => `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)})`).join("\n")}
+`
 
-${documentContent}
+  // Add text file content directly to the prompt
+  if (textFiles.length > 0) {
+    textPromptPart += "--- TEXT DOCUMENTS CONTENT ---\n"
+    textFiles.forEach(({ file, text }) => {
+      textPromptPart += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
+    })
+    textPromptPart += "----------------------------\n\n"
+  }
 
-ASSESSMENT QUESTIONS:
+  // List all files (including PDFs) and indicate if they are attached
+  textPromptPart += "--- ATTACHED DOCUMENTS FOR ANALYSIS ---\n"
+  supportedFiles.forEach((file, index) => {
+    textPromptPart += `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)}) - ${
+      file.type.includes("application/pdf") || file.name.endsWith(".pdf") ? "Attached as file" : "Content included above"
+    }\n`
+  })
+  textPromptPart += "-------------------------------------\n\n"
+
+
+  textPromptPart += `ASSESSMENT QUESTIONS:
 ${questions.map((q, idx) => `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""})`).join("\n")}
 
 For each question, you must:
 1. Identify the SPECIFIC topic being asked about (e.g., vulnerability scanning, penetration testing, access controls)
-2. COMPREHENSIVELY search ALL provided documents (including PDFs) for ANY evidence that relates to that topic
+2. COMPREHENSIVELY search ALL provided documents (both attached files and text content provided in this prompt) for ANY evidence that relates to that topic
 3. Look in ALL sections: main content, appendices, technical sections, procedure details, policy statements
 4. For VULNERABILITY or PENETRATION TESTING questions: Search exhaustively for ANY mention of vulnerability scans, security scans, penetration tests, pen tests, security testing, vulnerability assessments, security evaluations, or related terms
 5. If you find ANY relevant evidence, answer "Yes" for boolean questions or select the appropriate option
@@ -572,6 +569,29 @@ Respond in this exact JSON format:
   }
 }`
 
+  // Prepare message content for generateText
+  const messageContent: Array<any> = [{ type: "text" as const, text: textPromptPart }]
+
+  // Add PDF files as attachments
+  const pdfAttachments = await Promise.all(
+    pdfFiles.map(async (file) => {
+      try {
+        const bufferData = await fileToBuffer(file)
+        console.log(`✅ Converted ${file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
+        return {
+          type: "file" as const,
+          name: file.name,
+          data: bufferData,
+          mediaType: getGoogleAIMediaType(file),
+        }
+      } catch (error) {
+        console.error(`❌ Failed to convert ${file.name} to buffer for attachment:`, error)
+        return null
+      }
+    }),
+  )
+  messageContent.push(...pdfAttachments.filter(Boolean)); // Add valid attachments
+
   // Process questions with Google AI - include PDF files if present
   const answers: Record<string, boolean | string> = {}
   const confidenceScores: Record<string, number> = {}
@@ -581,73 +601,20 @@ Respond in this exact JSON format:
   try {
     console.log("🧠 Processing documents with Google AI (including PDFs)...")
 
-    let result
-
-    if (pdfFiles.length > 0) {
-      console.log(`📄 Sending ${pdfFiles.length} PDF file(s) directly to Google AI...`)
-
-      const pdfAttachments = await Promise.all(
-        pdfFiles.map(async (file) => {
-          try {
-            const bufferData = await fileToBuffer(file)
-            console.log(`✅ Converted ${file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
-            return {
-              name: file.name,
-              data: bufferData,
-              mediaType: getGoogleAIMediaType(file),
-            }
-          } catch (error) {
-            console.error(`❌ Failed to convert ${file.name} to buffer:`, error)
-            return null
-          }
-        }),
-      )
-
-      // Filter out failed conversions
-      const validPdfAttachments = pdfAttachments.filter((attachment) => attachment !== null)
-
-      if (validPdfAttachments.length > 0) {
-        const messageContent = [
-          { type: "text" as const, text: basePrompt },
-          ...validPdfAttachments.map((attachment) => ({
-            type: "file" as const,
-            data: attachment!.data,
-            mediaType: attachment!.mediaType,
-          })),
-        ]
-
-        result = await generateText({
-          model: google("gemini-1.5-flash"),
-          messages: [
-            {
-              role: "user" as const,
-              content: messageContent,
-            },
-          ],
-          temperature: 0.1,
-          maxTokens: 4000,
-        })
-        console.log(`✅ Successfully processed ${validPdfAttachments.length} PDF file(s) with Google AI`)
-      } else {
-        // Fallback to text-only if PDF conversion failed
-        console.log("⚠️ PDF conversion failed, falling back to text-only analysis")
-        result = await generateText({
-          model: google("gemini-1.5-flash"),
-          prompt: basePrompt,
-          temperature: 0.1,
-          maxTokens: 4000,
-        })
-      }
-    } else {
-      // Text-only analysis
-      result = await generateText({
-        model: google("gemini-1.5-flash"),
-        prompt: basePrompt,
-        temperature: 0.1,
-        maxTokens: 4000,
-      })
-    }
-
+    let result;
+    
+    result = await generateText({
+      model: google("gemini-1.5-flash"),
+      messages: [
+        {
+          role: "user" as const,
+          content: messageContent,
+        },
+      ],
+      temperature: 0.1,
+      maxTokens: 4000,
+    })
+    
     console.log(`📝 Google AI response received (${result.text.length} characters)`)
     console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
 
@@ -771,14 +738,14 @@ Respond in this exact JSON format:
             console.log(`⚠️ Question ${questionId}: No evidence provided by AI`)
 
             if (question.type === "boolean") {
-              answers[questionId] = false
+              answers[question.id] = false
             } else if (question.options && question.options.length > 0) {
-              answers[questionId] = question.options[0]
+              answers[question.id] = question.options[0]
             }
 
-            confidenceScores[questionId] = 0.9
-            reasoning[questionId] = "No directly relevant evidence found in documents"
-            documentExcerpts[questionId] = []
+            confidenceScores[question.id] = 0.9
+            reasoning[question.id] = "No directly relevant evidence found in documents"
+            documentExcerpts[question.id] = []
           }
         })
       } catch (parseError) {
