@@ -114,44 +114,44 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     )
   }
 
-  // Check if user is authenticated (either real user or demo)
-  if (!user && !isDemo) { // Use isDemo from context
-    // If preview is allowed, show a preview banner but allow access
-    if (allowPreview) {
-      return (
-        <div className="min-h-screen bg-white">
-          {/* Preview Banner */}
-          <div className="bg-blue-600 text-white py-3 px-4">
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5" />
-                <span className="font-medium">
-                  {previewMessage || "You're viewing a preview. Sign up for full access to all features."}
-                </span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={handleDemoLogin}
-                  disabled={isSubmitting}
-                  className="bg-white text-blue-600 hover:bg-gray-100"
-                >
-                  <Play className="h-4 w-4 mr-1" />
-                  Try Demo
-                </Button>
-                <a href="/auth/register" className="text-white hover:text-blue-100 text-sm font-medium">
-                  Sign Up Free
-                </a>
-              </div>
+  // If preview is allowed, always render the preview banner and children
+  // The actual authentication status (user, isDemo) will be used by components within children
+  if (allowPreview) {
+    return (
+      <div className="min-h-screen bg-white">
+        {/* Preview Banner */}
+        <div className="bg-blue-600 text-white py-3 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Shield className="h-5 w-5" />
+              <span className="font-medium">
+                {previewMessage || "You're viewing a preview. Sign up for full access to all features."}
+              </span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleDemoLogin}
+                disabled={isSubmitting}
+                className="bg-white text-blue-600 hover:bg-gray-100"
+              >
+                <Play className="h-4 w-4 mr-1" />
+                Try Demo
+              </Button>
+              <a href="/auth/register" className="text-white hover:text-blue-100 text-sm font-medium">
+                Sign Up Free
+              </a>
             </div>
           </div>
-          {children}
         </div>
-      )
-    }
+        {children}
+      </div>
+    )
+  }
 
-    // Original login form for pages that require full authentication
+  // Original login form for pages that require full authentication and don't allow preview
+  if (!user && !isDemo) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
         <Card className="w-full max-w-md">

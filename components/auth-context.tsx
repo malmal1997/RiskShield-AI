@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<any | null>(null)
   const [organization, setOrganization] = useState<any | null>(null)
   const [role, setRole] = useState<any | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true) // Initialize loading to true
   const [isDemo, setIsDemo] = useState(false)
 
   const refreshProfile = useCallback(async () => {
@@ -88,8 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setOrganization(null)
           setRole(null)
           setIsDemo(false)
-          setLoading(false)
-          return
+          return // Do not set loading to false here, let finally block handle it
         }
 
         // Get user profile from Supabase
@@ -105,8 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setOrganization(null)
           setRole(null)
           setIsDemo(false)
-          setLoading(false)
-          return
+          return // Do not set loading to false here, let finally block handle it
         }
 
         // Get organization
@@ -137,15 +135,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setRole(null)
         setIsDemo(false)
       } finally {
-        setLoading(false)
+        setLoading(false) // Ensure loading is always set to false after attempts
       }
     } else {
-      // On server, set loading to false and return nulls
-      setUser(null)
-      setProfile(null)
-      setOrganization(null)
-      setRole(null)
-      setIsDemo(false)
+      // On server, ensure loading is false after initial render
       setLoading(false)
     }
   }, [])
@@ -166,6 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           await refreshProfile()
         } else {
+          // If signed out, clear all state and set loading to false
           setUser(null)
           setProfile(null)
           setOrganization(null)

@@ -2486,7 +2486,7 @@ export default function AIAssessmentPage() {
                         <Input
                           id="companyName"
                           value={socInfo.companyName}
-                          onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value }))}
+                          onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
                           placeholder="Enter your company name"
                           required
                         />
@@ -2496,7 +2496,7 @@ export default function AIAssessmentPage() {
                         <Input
                           id="productService"
                           value={socInfo.productService}
-                          onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value }))}
+                          onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
                           placeholder="Enter the product or service"
                           required
                         />
@@ -3092,7 +3092,7 @@ export default function AIAssessmentPage() {
                                                 "{excerpt.quote}"
                                               </p>
                                               {(excerpt.fileName || excerpt.pageNumber) && (
-                                                <p className="text-xs text-green-600 mb-1">
+                                                <p className="text-xs text-green-600">
                                                   (Document: {excerpt.fileName}
                                                   {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`})
                                                 </p>
