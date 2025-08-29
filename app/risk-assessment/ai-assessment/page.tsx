@@ -2830,7 +2830,9 @@ export default function AIAssessmentPage() {
                                     {index + 1}. {question.question}
                                   </h3>
                                   <div className="flex items-center space-x-4">
-                                    <Badge variant="outline">Weight: {question.weight}</Badge>
+                                    {!isApproved && ( // Conditionally render Weight badge
+                                      <Badge variant="outline">Weight: {question.weight}</Badge>
+                                    )}
                                     {!isApproved && ( // Conditionally render Confidence badge
                                       <Badge variant="outline">
                                         Confidence:{" "}

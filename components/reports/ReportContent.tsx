@@ -213,10 +213,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
                 {index + 1}. {question.question}
               </h3>
               <div className="flex items-center space-x-4 mb-4">
-                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800">
-                  Weight: {question.weight}
-                </span>
-                {/* Conditionally render Confidence badge */}
+                {/* Removed Weight badge from PDF */}
                 {!approvedQuestions.has(question.id) && (
                   <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800">
                     Confidence: {Math.round((aiAnalysisResult.confidenceScores[question.id] || 0) * 100)}%
