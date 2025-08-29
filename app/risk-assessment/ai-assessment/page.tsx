@@ -3006,7 +3006,6 @@ export default function AIAssessmentPage() {
                                         onClick={() => addEvidenceItem(question.id)}
                                         className="hover:bg-blue-50"
                                       >
-                                        <Plus className="mr-1 h-4 w-4" />
                                         Add Evidence
                                       </Button>
                                     )}
@@ -3090,7 +3089,9 @@ export default function AIAssessmentPage() {
                                             <>
                                               <p className="text-sm text-green-800 italic mb-2">
                                                 "{excerpt.quote}"{" "}
-                                                {excerpt.pageNumber && `(Page ${excerpt.pageNumber})`}
+                                                {excerpt.fileName && `(Document: ${excerpt.fileName}`}
+                                                {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`}
+                                                {(excerpt.fileName || excerpt.pageNumber) && `)`}
                                               </p>
                                               {excerpt.relevance && (
                                                 <p className="text-xs text-green-600">Relevance: {excerpt.relevance}</p>

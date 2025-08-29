@@ -250,11 +250,10 @@ const ReportContent: React.FC<ReportContentProps> = ({
                     <div key={excerptIndex} className="mb-3 last:mb-0">
                       <p className="text-sm text-green-800 italic">
                         "{excerpt.quote}"{" "}
-                        {excerpt.pageNumber && `(Page ${excerpt.pageNumber})`}
+                        {excerpt.fileName && `(Document: ${excerpt.fileName}`}
+                        {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`}
+                        {(excerpt.fileName || excerpt.pageNumber) && `)`}
                       </p>
-                      {excerpt.fileName && (
-                        <p className="text-xs text-green-600 mt-1">Source: {excerpt.fileName}</p>
-                      )}
                       {excerpt.relevance && (
                         <p className="text-xs text-green-600">Relevance: {excerpt.relevance}</p>
                       )}
