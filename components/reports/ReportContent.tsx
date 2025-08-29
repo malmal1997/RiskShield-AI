@@ -208,7 +208,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
           const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
 
           return (
-            <div key={question.id} className="mb-8 p-6 border border-gray-200 rounded-lg shadow-sm" style={{ pageBreakInside: 'avoid' }}>
+            <div key={question.id} className="mb-8 p-6 border border-gray-200 rounded-lg shadow-sm" style={{ pageBreakInside: 'avoid', pageBreakBefore: 'auto' }}>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
                 {index + 1}. {question.question}
               </h3>
@@ -221,7 +221,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
                 )}
               </div>
 
-              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style={{ pageBreakInside: 'avoid' }}>
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style={{ pageBreakInside: 'avoid', pageBreakAfter: 'avoid' }}>
                 <p className="text-sm font-medium text-blue-800 mb-2">Answer:</p>
                 <p className="font-semibold text-blue-900 text-lg">
                   {question.type === "boolean"
@@ -240,13 +240,13 @@ const ReportContent: React.FC<ReportContentProps> = ({
                 </p>
               </div>
 
-              <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg" style={{ pageBreakInside: 'avoid' }}>
+              <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg" style={{ pageBreakInside: 'avoid', pageBreakAfter: 'avoid' }}>
                 <p className="text-sm font-medium text-gray-800 mb-2">Reasoning:</p>
                 <p className="text-gray-700">{reasoning}</p>
               </div>
 
               {excerpts.length > 0 && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg" style={{ pageBreakInside: 'avoid' }}>
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg" style={{ pageBreakInside: 'avoid', pageBreakAfter: 'avoid' }}>
                   <p className="text-sm font-medium text-green-800 mb-2">Document Evidence:</p>
                   {excerpts.map((excerpt, excerptIndex) => (
                     <div key={excerptIndex} className="mb-3 last:mb-0">
@@ -317,7 +317,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
 
       {/* Disclaimer */}
       <div className="mt-10 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
-        <h3 className="text-xl font-semibold text-yellow-800 mb-3">⚠️ Important Disclaimer</h3>
+        <h3 className="xl font-semibold text-yellow-800 mb-3">⚠️ Important Disclaimer</h3>
         <p className="text-yellow-700 text-base">
           This assessment was generated using AI technology and should be reviewed by qualified professionals.
           RiskGuard AI may make mistakes. Please use with discretion and verify results with internal expertise.
