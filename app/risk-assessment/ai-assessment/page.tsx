@@ -2485,8 +2485,8 @@ export default function AIAssessmentPage() {
                         <Label htmlFor="companyName">Company Name *</Label>
                         <Input
                           id="companyName"
-                          value={socInfo.companyName}
-                          onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
+                          value={companyInfo.companyName}
+                          onChange={(e) => setCompanyInfo((prev) => ({ ...prev, companyName: e.target.value }))}
                           placeholder="Enter your company name"
                           required
                         />
@@ -2495,8 +2495,8 @@ export default function AIAssessmentPage() {
                         <Label htmlFor="productService">Product/Service Being Assessed *</Label>
                         <Input
                           id="productService"
-                          value={socInfo.productService}
-                          onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
+                          value={companyInfo.productName}
+                          onChange={(e) => setCompanyInfo((prev) => ({ ...prev, productName: e.target.value }))}
                           placeholder="Enter the product or service"
                           required
                         />
