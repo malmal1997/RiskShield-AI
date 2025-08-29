@@ -1,30 +1,26 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Shield, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useFeatureTracking } from "@/hooks/use-tracking"
+import { useAuth } from "./auth-context" // Import useAuth
 
 interface NavigationProps {
-  userEmail?: string
   onSignOut?: () => void
   showAuthButtons?: boolean
 }
 
-export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }: NavigationProps) {
+export function MainNavigation({ onSignOut, showAuthButtons = true }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { trackClick } = useFeatureTracking()
+  const { user, isDemo, signOut: authSignOut } = useAuth(); // Use useAuth hook
 
-  // Add preview detection
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
-
-  useEffect(() => {
-    const hasAuth = localStorage.getItem("demo_session") || userEmail
-    setIsPreviewMode(!hasAuth)
-  }, [userEmail])
+  // Determine userEmail from auth context
+  const currentUserEmail = user?.email || (isDemo ? "demo@riskguard.ai" : undefined);
 
   const navigationItems = [
     { name: "Platform", href: "/" },
@@ -43,11 +39,19 @@ export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }:
   }
 
   const handleNavClick = (itemName: string, href: string) => {
-    trackClick("navigation", { page: itemName, href, isPreview: isPreviewMode })
+    trackClick("navigation", { page: itemName, href, isPreview: isDemo })
   }
 
   const handleAuthClick = (action: string) => {
-    trackClick("auth", { action, isPreview: isPreviewMode })
+    trackClick("auth", { action, isPreview: isDemo })
+  }
+
+  const handleSignOutClick = () => {
+    if (onSignOut) {
+      onSignOut(); // Call prop if provided
+    } else {
+      authSignOut(); // Use context signOut
+    }
   }
 
   return (
@@ -79,14 +83,14 @@ export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }:
 
             {showAuthButtons && (
               <div className="flex items-center space-x-4 ml-6 xl:ml-8 pl-6 xl:pl-8 border-l border-gray-200">
-                {userEmail ? (
+                {currentUserEmail ? (
                   <>
-                    <span className="text-sm text-gray-600 whitespace-nowrap">{userEmail}</span>
-                    <Button variant="outline" size="sm" onClick={onSignOut}>
+                    <span className="text-sm text-gray-600 whitespace-nowrap">{currentUserEmail}</span>
+                    <Button variant="outline" size="sm" onClick={handleSignOutClick}>
                       Sign Out
                     </Button>
                   </>
-                ) : isPreviewMode ? (
+                ) : isDemo ? (
                   <>
                     <span className="text-xs text-blue-600 whitespace-nowrap">Preview Mode</span>
                     <Link href="/auth/login" onClick={() => handleAuthClick("sign_in_click")}>
@@ -149,10 +153,10 @@ export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }:
 
               {showAuthButtons && (
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
-                  {userEmail ? (
+                  {currentUserEmail ? (
                     <>
-                      <span className="text-sm text-gray-600">{userEmail}</span>
-                      <Button variant="outline" size="sm" onClick={onSignOut} className="w-fit bg-transparent">
+                      <span className="text-sm text-gray-600">{currentUserEmail}</span>
+                      <Button variant="outline" size="sm" onClick={handleSignOutClick} className="w-fit bg-transparent">
                         Sign Out
                       </Button>
                     </>

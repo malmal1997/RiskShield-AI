@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
+import { useAuth } from "@/components/auth-context" // Import useAuth
 
 // Assessment categories and questions
 const assessmentCategories = [
@@ -584,7 +585,8 @@ const assessmentCategories = [
         id: "dp26",
         question: "Do you have physical access controls for wireless infrastructure?",
         type: "boolean",
-        weight: 7,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp27",
@@ -1182,6 +1184,7 @@ const mockAssessments = [
 ]
 
 export default function RiskAssessmentPage() {
+  const { signOut } = useAuth() // Use signOut from AuthContext
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<"select" | "choose-method" | "manual-assessment" | "soc-info">(
     "select",
@@ -2155,7 +2158,7 @@ ${emailResult.message}`)
     >
       <div className="min-h-screen bg-white">
         {/* Header */}
-        <MainNavigation showAuthButtons={true} />
+        <MainNavigation onSignOut={signOut} />
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">

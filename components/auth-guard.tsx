@@ -115,7 +115,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   }
 
   // Check if user is authenticated (either real user or demo)
-  if (!user && !localStorage.getItem("demo_session")) {
+  if (!user && !isDemo) { // Use isDemo from context
     // If preview is allowed, show a preview banner but allow access
     if (allowPreview) {
       return (

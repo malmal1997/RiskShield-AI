@@ -6,6 +6,7 @@ import { Shield, Users, Send, BarChart3, Settings, Building, FileText, Plus, Ser
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 import Link from "next/link"
+import { MainNavigation } from "@/components/main-navigation" // Import MainNavigation
 
 export default function AdminDashboard() {
   return (
@@ -16,30 +17,12 @@ export default function AdminDashboard() {
 }
 
 function AdminDashboardContent() {
-  const { user, profile, organization } = useAuth()
+  const { user, profile, organization, signOut } = useAuth()
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-blue-600" />
-                <div>
-                  <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
-                  <p className="text-sm text-gray-600">{organization?.name || "Financial Institution"}</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Badge className="bg-green-100 text-green-800">Admin Dashboard</Badge>
-              <span className="text-sm text-gray-600">Welcome, {profile?.first_name || "Admin"}</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <MainNavigation onSignOut={signOut} showAuthButtons={false} />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, useCallback } from "react"
 import { supabaseClient } from "@/lib/supabase-client"
 import type { User } from "@supabase/supabase-js"
 
@@ -47,28 +47,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [isDemo, setIsDemo] = useState(false)
+  const [hasMounted, setHasMounted] = useState(false); // New state to track mounting
 
-  const refreshProfile = async () => {
-    // Check for demo session first
-    const demoSession = localStorage.getItem("demo_session")
-    if (demoSession) {
-      try {
-        const session: DemoSession = JSON.parse(demoSession)
-        setUser(session.user)
-        setOrganization(session.organization)
-        setRole({ role: session.role, permissions: { all: true } })
-        setProfile({
-          first_name: "Demo",
-          last_name: "User",
-          organization_id: session.organization.id,
-          avatar_url: "/placeholder.svg?height=32&width=32",
-        })
-        setIsDemo(true)
-        setLoading(false)
-        return
-      } catch (error) {
-        console.error("Error parsing demo session:", error)
-        localStorage.removeItem("demo_session")
+  const refreshProfile = useCallback(async () => {
+    setLoading(true); // Ensure loading is true during refresh
+    
+    // Check for demo session first, ONLY if mounted
+    if (hasMounted) {
+      const demoSession = localStorage.getItem("demo_session")
+      if (demoSession) {
+        try {
+          const session: DemoSession = JSON.parse(demoSession)
+          setUser(session.user)
+          setOrganization(session.organization)
+          setRole({ role: session.role, permissions: { all: true } })
+          setProfile({
+            first_name: "Demo",
+            last_name: "User",
+            organization_id: session.organization.id,
+            avatar_url: "/placeholder.svg?height=32&width=32",
+          })
+          setIsDemo(true)
+          setLoading(false)
+          return;
+        } catch (error) {
+          console.error("Error parsing demo session:", error)
+          localStorage.removeItem("demo_session")
+        }
       }
     }
 
@@ -85,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
+        setLoading(false);
         return
       }
 
@@ -101,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
+        setLoading(false);
         return
       }
 
@@ -131,34 +138,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setOrganization(null)
       setRole(null)
       setIsDemo(false)
+    } finally {
+      setLoading(false);
     }
-  }
+  }, [hasMounted]); // Dependency on hasMounted
 
   useEffect(() => {
+    setHasMounted(true); // Mark component as mounted
     let subscription: any = null
 
     const getInitialSession = async () => {
-      // Check for demo session immediately
-      const demoSession = localStorage.getItem("demo_session")
-      if (demoSession) {
-        await refreshProfile()
-        setLoading(false)
-        return
-      }
-
-      // Regular auth flow
       await refreshProfile()
-      setLoading(false)
     }
 
     getInitialSession()
 
     // Listen for auth changes (only for non-demo sessions)
-    try {
-      const {
-        data: { subscription: authSubscription },
-      } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        if (!localStorage.getItem("demo_session")) {
+    if (hasMounted && typeof window !== 'undefined' && !localStorage.getItem("demo_session")) {
+      try {
+        const {
+          data: { subscription: authSubscription },
+        } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
           if (session?.user) {
             await refreshProfile()
           } else {
@@ -167,16 +167,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setOrganization(null)
             setRole(null)
             setIsDemo(false)
+            setLoading(false);
           }
-        }
+        })
+        subscription = authSubscription
+      } catch (error) {
+        console.error("Error setting up auth listener:", error)
         setLoading(false)
-      })
-
-      subscription = authSubscription
-    } catch (error) {
-      console.error("Error setting up auth listener:", error)
-      setLoading(false)
+      }
+    } else if (!hasMounted) {
+      setLoading(true);
     }
+
 
     return () => {
       if (subscription && typeof subscription.unsubscribe === "function") {
@@ -187,7 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [])
+  }, [hasMounted, refreshProfile]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabaseClient.auth.signInWithPassword({
@@ -207,7 +209,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     // Clear demo session
-    localStorage.removeItem("demo_session")
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("demo_session")
+    }
     setIsDemo(false)
 
     // Sign out from Supabase
