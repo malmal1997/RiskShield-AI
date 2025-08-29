@@ -42,7 +42,7 @@ import { AuthGuard } from "@/components/auth-guard"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
 import { useAuth } from "@/components/auth-context"
 import html2canvas from "html2canvas" // Import html2canvas
-import ReportContent from "@/components/reports/ReportContent" // Import the new ReportContent component
+import ReportSectionRenderer from "@/components/reports/ReportSectionRenderer" // Import the new ReportSectionRenderer component
 import ReactDOM from 'react-dom/client'; // Import ReactDOM for client-side rendering
 
 // Complete assessment categories for AI assessment
@@ -1946,66 +1946,124 @@ export default function AIAssessmentPage() {
 
     try {
       const { jsPDF } = await import("jspdf")
-
-      // Create a temporary div to render the ReportContent component
-      const reportContainer = document.createElement("div")
-      reportContainer.style.position = "absolute"
-      reportContainer.style.left = "-9999px" // Hide it off-screen
-      reportContainer.style.width = "1200px" // Set a fixed width for consistent rendering
-      document.body.appendChild(reportContainer)
-
-      // Render the ReportContent component into the temporary div
-      // We need to use ReactDOM.render or similar for React 18, but for simplicity,
-      // we'll directly inject the HTML string from a virtual render.
-      // A more robust solution would involve a dedicated server-side rendering or
-      // a client-side render-to-string utility.
-      // For now, we'll simulate by creating a React element and converting it to HTML.
-      // This is a simplification and might not capture all React lifecycle effects.
-      const root = ReactDOM.createRoot(reportContainer);
-      root.render(
-        <ReportContent
-          aiAnalysisResult={aiAnalysisResult}
-          currentCategory={currentCategory}
-          approverInfo={approverInfo}
-          companyInfo={companyInfo}
-          socInfo={socInfo}
-          approvedQuestions={approvedQuestions} // Pass approvedQuestions here
-        />
-      );
-
-      // Wait for rendering to complete (a small delay might be needed for complex components)
-      await new Promise(resolve => setTimeout(resolve, 100)); 
-
-      const canvas = await html2canvas(reportContainer, {
-        scale: 3, // Increased scale for better resolution
-        useCORS: true,
-        logging: false,
-      })
-
-      document.body.removeChild(reportContainer) // Clean up the temporary div
-
-      const imgData = canvas.toDataURL("image/png")
       const pdf = new jsPDF({
         orientation: "portrait",
-        unit: "px",
+        unit: "pt", // Use points for better control
         format: "a4",
       })
 
-      const imgWidth = pdf.internal.pageSize.getWidth()
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      const margin = 40 // Margin in points
+      let cursorY = margin // Current Y position for adding content
 
-      let heightLeft = imgHeight
-      let position = 0
+      // Create a temporary div to render sections for html2canvas
+      const tempDiv = document.createElement("div")
+      tempDiv.style.position = "absolute"
+      tempDiv.style.left = "-9999px"
+      tempDiv.style.width = `${pdf.internal.pageSize.getWidth() - 2 * margin}pt` // Match PDF width
+      document.body.appendChild(tempDiv)
 
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
-      heightLeft -= pdf.internal.pageSize.getHeight()
+      const addSectionToPdf = async (sectionType: any, data: any, index?: number) => {
+        // Render the specific section into the temporary div
+        const root = ReactDOM.createRoot(tempDiv);
+        root.render(
+          <ReportSectionRenderer
+            sectionType={sectionType}
+            aiAnalysisResult={aiAnalysisResult}
+            currentCategory={currentCategory}
+            approverInfo={approverInfo}
+            companyInfo={companyInfo}
+            socInfo={socInfo}
+            approvedQuestions={approvedQuestions}
+            questionData={data}
+            questionIndex={index}
+          />
+        );
+        // Wait for rendering to complete
+        await new Promise(resolve => setTimeout(resolve, 50));
 
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
-        heightLeft -= pdf.internal.pageSize.getHeight()
+        const canvas = await html2canvas(tempDiv, {
+          scale: 3, // High scale for clarity
+          useCORS: true,
+          logging: false,
+          windowWidth: tempDiv.offsetWidth, // Ensure html2canvas uses the correct width
+          windowHeight: tempDiv.offsetHeight,
+        })
+
+        const imgData = canvas.toDataURL("image/png")
+        const imgWidth = pdf.internal.pageSize.getWidth() - 2 * margin
+        const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+        // Check if the image fits on the current page
+        if (cursorY + imgHeight > pdf.internal.pageSize.getHeight() - margin) {
+          pdf.addPage()
+          cursorY = margin // Reset cursor for new page
+        }
+
+        pdf.addImage(imgData, "PNG", margin, cursorY, imgWidth, imgHeight)
+        cursorY += imgHeight + 20 // Add some padding between sections
       }
+
+      // Add Header
+      await addSectionToPdf("header", null)
+
+      // Add Summary
+      await addSectionToPdf("summary", null)
+
+      // Add Company Information
+      await addSectionToPdf("companyInfo", null)
+
+      // Add SOC Information (if applicable)
+      if (currentCategory.id === "soc-compliance" && socInfo) {
+        await addSectionToPdf("socInfo", null)
+      }
+
+      // Add Approval Information
+      await addSectionToPdf("approvalInfo", null)
+
+      // Add Assessment Questions & Responses header
+      // This is a separate header, so render it as a generic div to capture
+      const questionsHeaderDiv = document.createElement("div");
+      questionsHeaderDiv.innerHTML = `<h2 class="text-2xl font-bold text-gray-900 mb-6">Assessment Questions & Responses</h2>`;
+      tempDiv.appendChild(questionsHeaderDiv);
+      const questionsHeaderCanvas = await html2canvas(questionsHeaderDiv, { scale: 3, useCORS: true, logging: false });
+      const questionsHeaderImgData = questionsHeaderCanvas.toDataURL("image/png");
+      const questionsHeaderImgWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
+      const questionsHeaderImgHeight = (questionsHeaderCanvas.height * questionsHeaderImgWidth) / questionsHeaderCanvas.width;
+      
+      if (cursorY + questionsHeaderImgHeight > pdf.internal.pageSize.getHeight() - margin) {
+        pdf.addPage();
+        cursorY = margin;
+      }
+      pdf.addImage(questionsHeaderImgData, "PNG", margin, cursorY, questionsHeaderImgWidth, questionsHeaderImgHeight);
+      cursorY += questionsHeaderImgHeight + 20;
+      questionsHeaderDiv.remove(); // Clean up
+
+      // Add each Question Card
+      for (let i = 0; i < currentCategory.questions.length; i++) {
+        const question = currentCategory.questions[i]
+        await addSectionToPdf("question", question, i)
+      }
+
+      // Add Overall Analysis
+      await addSectionToPdf("overallAnalysis", null)
+
+      // Add Risk Factors
+      if (aiAnalysisResult.riskFactors.length > 0) {
+        await addSectionToPdf("riskFactors", null)
+      }
+
+      // Add Recommendations
+      if (aiAnalysisResult.recommendations.length > 0) {
+        await addSectionToPdf("recommendations", null)
+      }
+
+      // Add Disclaimer
+      await addSectionToPdf("disclaimer", null)
+
+      // Add Footer
+      await addSectionToPdf("footer", null)
+
+      document.body.removeChild(tempDiv) // Clean up the temporary div
 
       const fileName = `${currentCategory.name.replace(/\s+/g, "_")}_AI_Risk_Assessment_Report_${new Date().toISOString().split("T")[0]}.pdf`
       pdf.save(fileName)

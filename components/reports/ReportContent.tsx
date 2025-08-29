@@ -104,7 +104,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
   return (
     <div className="p-8 bg-white font-sans text-gray-800">
       {/* Header */}
-      <div className="text-center pb-8 mb-8 border-b-4 border-blue-600" style={{ pageBreakInside: 'avoid' }}>
+      <div className="text-center pb-8 mb-8 border-b-4 border-blue-600">
         <h1 className="text-4xl font-bold text-blue-600 mb-2">
           {currentCategory.name} Risk Assessment Report
         </h1>
@@ -114,7 +114,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       </div>
 
       {/* Summary Section */}
-      <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
+      <div className="mb-10">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Assessment Summary</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
@@ -133,7 +133,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       </div>
 
       {/* Company Information */}
-      <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
+      <div className="mb-10">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Company Information</h2>
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-3">
           <p className="text-lg">
@@ -150,7 +150,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
 
       {/* SOC Information (if applicable) */}
       {currentCategory.id === "soc-compliance" && socInfo && (
-        <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
+        <div className="mb-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">SOC Assessment Information</h2>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -183,7 +183,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       )}
 
       {/* Approval Information */}
-      <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
+      <div className="mb-10">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Approval Information</h2>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 space-y-3">
           <p className="text-lg">
@@ -200,7 +200,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       </div>
 
       {/* Assessment Questions & Responses */}
-      <div className="mb-10" style={{ pageBreakBefore: 'always' }}>
+      <div className="mb-10">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Assessment Questions & Responses</h2>
         {currentCategory.questions.map((question, index) => {
           const answer = aiAnalysisResult.answers[question.id]
