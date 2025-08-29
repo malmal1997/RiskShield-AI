@@ -114,7 +114,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       </div>
 
       {/* Summary Section */}
-      <div className="mb-10" style={{ pageBreakInside: 'avoid' }}>
+      <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Assessment Summary</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
@@ -133,7 +133,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       </div>
 
       {/* Company Information */}
-      <div className="mb-10" style={{ pageBreakInside: 'avoid' }}>
+      <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Company Information</h2>
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-3">
           <p className="text-lg">
@@ -150,7 +150,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
 
       {/* SOC Information (if applicable) */}
       {currentCategory.id === "soc-compliance" && socInfo && (
-        <div className="mb-10" style={{ pageBreakInside: 'avoid' }}>
+        <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
           <h2 className="text-2xl font-bold text-gray-900 mb-6">SOC Assessment Information</h2>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -183,7 +183,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       )}
 
       {/* Approval Information */}
-      <div className="mb-10" style={{ pageBreakInside: 'avoid' }}>
+      <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Approval Information</h2>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 space-y-3">
           <p className="text-lg">
@@ -200,7 +200,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       </div>
 
       {/* Assessment Questions & Responses */}
-      <div className="mb-10">
+      <div className="mb-10" style={{ pageBreakBefore: 'always' }}>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Assessment Questions & Responses</h2>
         {currentCategory.questions.map((question, index) => {
           const answer = aiAnalysisResult.answers[question.id]
@@ -224,7 +224,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
                 )}
               </div>
 
-              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style={{ pageBreakInside: 'avoid' }}>
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm font-medium text-blue-800 mb-2">Answer:</p>
                 <p className="font-semibold text-blue-900 text-lg">
                   {question.type === "boolean"
@@ -243,13 +243,13 @@ const ReportContent: React.FC<ReportContentProps> = ({
                 </p>
               </div>
 
-              <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg" style={{ pageBreakInside: 'avoid' }}>
+              <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                 <p className="text-sm font-medium text-gray-800 mb-2">Reasoning:</p>
                 <p className="text-gray-700">{reasoning}</p>
               </div>
 
               {excerpts.length > 0 && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg" style={{ pageBreakInside: 'avoid' }}>
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-sm font-medium text-green-800 mb-2">Document Evidence:</p>
                   {excerpts.map((excerpt, excerptIndex) => (
                     <div key={excerptIndex} className="mb-3 last:mb-0">
@@ -275,7 +275,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       </div>
 
       {/* Overall Analysis */}
-      <div className="mb-10" style={{ pageBreakInside: 'avoid' }}>
+      <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Overall Analysis</h2>
         <div className="p-6 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-blue-900 text-lg">{aiAnalysisResult.overallAnalysis}</p>
@@ -284,7 +284,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
 
       {/* Risk Factors */}
       {aiAnalysisResult.riskFactors.length > 0 && (
-        <div className="mb-10" style={{ pageBreakInside: 'avoid' }}>
+        <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
           <h2 className="text-2xl font-bold text-red-700 mb-6">
             <AlertCircle className="inline-block h-6 w-6 mr-2 align-middle" />
             Risk Factors
@@ -302,7 +302,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
 
       {/* Recommendations */}
       {aiAnalysisResult.recommendations.length > 0 && (
-        <div className="mb-10" style={{ pageBreakInside: 'avoid' }}>
+        <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
           <h2 className="text-2xl font-bold text-green-700 mb-6">
             <CheckCircle className="inline-block h-6 w-6 mr-2 align-middle" />
             Recommendations
@@ -319,7 +319,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       )}
 
       {/* Disclaimer */}
-      <div className="mt-10 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center" style={{ pageBreakInside: 'avoid' }}>
+      <div className="mt-10 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
         <h3 className="text-xl font-semibold text-yellow-800 mb-3">⚠️ Important Disclaimer</h3>
         <p className="text-yellow-700 text-base">
           This assessment was generated using AI technology and should be reviewed by qualified professionals.
@@ -328,7 +328,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="mt-10 pt-8 border-t border-gray-200 text-center text-gray-600 text-sm" style={{ pageBreakInside: 'avoid' }}>
+      <div className="mt-10 pt-8 border-t border-gray-200 text-center text-gray-600 text-sm" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
         <p>Report generated by RiskGuard AI - AI-Powered Risk Assessment Platform</p>
         <p>
           Assessment ID: {aiAnalysisResult.analysisDate.split("T")[0]}-{Math.random().toString(36).substr(2, 9)} •
