@@ -2485,8 +2485,8 @@ export default function AIAssessmentPage() {
                         <Label htmlFor="companyName">Company Name *</Label>
                         <Input
                           id="companyName"
-                          value={companyInfo.companyName}
-                          onChange={(e) => setCompanyInfo((prev) => ({ ...prev, companyName: e.target.value }))}
+                          value={socInfo.companyName}
+                          onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
                           placeholder="Enter your company name"
                           required
                         />
@@ -2495,8 +2495,8 @@ export default function AIAssessmentPage() {
                         <Label htmlFor="productService">Product/Service Being Assessed *</Label>
                         <Input
                           id="productService"
-                          value={companyInfo.productName}
-                          onChange={(e) => setCompanyInfo((prev) => ({ ...prev, productName: e.target.value }))}
+                          value={socInfo.productService}
+                          onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
                           placeholder="Enter the product or service"
                           required
                         />
@@ -2830,10 +2830,12 @@ export default function AIAssessmentPage() {
                                   </h3>
                                   <div className="flex items-center space-x-4">
                                     <Badge variant="outline">Weight: {question.weight}</Badge>
-                                    <Badge variant="outline">
-                                      Confidence:{" "}
-                                      {Math.round((aiAnalysisResult.confidenceScores[question.id] || 0) * 100)}%
-                                    </Badge>
+                                    {!isApproved && ( // Conditionally render Confidence badge
+                                      <Badge variant="outline">
+                                        Confidence:{" "}
+                                        {Math.round((aiAnalysisResult.confidenceScores[question.id] || 0) * 100)}%
+                                      </Badge>
+                                    )}
                                   </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
@@ -3092,7 +3094,7 @@ export default function AIAssessmentPage() {
                                                 "{excerpt.quote}"
                                               </p>
                                               {(excerpt.fileName || excerpt.pageNumber) && (
-                                                <p className="text-xs text-green-600">
+                                                <p className="text-xs text-green-600 mt-1">
                                                   (Document: {excerpt.fileName}
                                                   {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`})
                                                 </p>
