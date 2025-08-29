@@ -1510,7 +1510,7 @@ export default function AIAssessmentPage() {
   }
 
   const updateEvidenceItem = (questionId: string, index: number, field: string, value: string | number) => {
-    const currentEvidence = editedEvidence[questionId] || aiAnalysisResult?.documentExcerpts?.[questionId] || []
+    const currentEvidence = editedEvidence[questionId] || aiAnalysisResult?.documentExcerpts?.[question.id] || []
     const updatedEvidence = [...currentEvidence]
     updatedEvidence[index] = { ...updatedEvidence[index], [field]: value }
     handleEvidenceEdit(questionId, updatedEvidence)
@@ -3006,6 +3006,7 @@ export default function AIAssessmentPage() {
                                         onClick={() => addEvidenceItem(question.id)}
                                         className="hover:bg-blue-50"
                                       >
+                                        <Plus className="mr-1 h-4 w-4" />
                                         Add Evidence
                                       </Button>
                                     )}
