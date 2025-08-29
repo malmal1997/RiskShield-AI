@@ -2486,7 +2486,7 @@ export default function AIAssessmentPage() {
                         <Input
                           id="companyName"
                           value={socInfo.companyName}
-                          onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
+                          onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value }))}
                           placeholder="Enter your company name"
                           required
                         />
@@ -2496,7 +2496,7 @@ export default function AIAssessmentPage() {
                         <Input
                           id="productService"
                           value={socInfo.productService}
-                          onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
+                          onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value }))}
                           placeholder="Enter the product or service"
                           required
                         />
@@ -3006,6 +3006,7 @@ export default function AIAssessmentPage() {
                                         onClick={() => addEvidenceItem(question.id)}
                                         className="hover:bg-blue-50"
                                       >
+                                        <Plus className="mr-1 h-4 w-4" />
                                         Add Evidence
                                       </Button>
                                     )}
@@ -3087,12 +3088,15 @@ export default function AIAssessmentPage() {
                                             </div>
                                           ) : (
                                             <>
-                                              <p className="text-sm text-green-800 italic mb-2">
-                                                "{excerpt.quote}"{" "}
-                                                {excerpt.fileName && `(Document: ${excerpt.fileName}`}
-                                                {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`}
-                                                {(excerpt.fileName || excerpt.pageNumber) && `)`}
+                                              <p className="text-sm text-green-800 italic mb-1">
+                                                "{excerpt.quote}"
                                               </p>
+                                              {(excerpt.fileName || excerpt.pageNumber) && (
+                                                <p className="text-xs text-green-600 mb-1">
+                                                  (Document: {excerpt.fileName}
+                                                  {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`})
+                                                </p>
+                                              )}
                                               {excerpt.relevance && (
                                                 <p className="text-xs text-green-600">Relevance: {excerpt.relevance}</p>
                                               )}

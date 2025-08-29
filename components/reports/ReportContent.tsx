@@ -249,11 +249,14 @@ const ReportContent: React.FC<ReportContentProps> = ({
                   {excerpts.map((excerpt, excerptIndex) => (
                     <div key={excerptIndex} className="mb-3 last:mb-0">
                       <p className="text-sm text-green-800 italic">
-                        "{excerpt.quote}"{" "}
-                        {excerpt.fileName && `(Document: ${excerpt.fileName}`}
-                        {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`}
-                        {(excerpt.fileName || excerpt.pageNumber) && `)`}
+                        "{excerpt.quote}"
                       </p>
+                      {(excerpt.fileName || excerpt.pageNumber) && (
+                        <p className="text-xs text-green-600 mt-1">
+                          (Document: {excerpt.fileName}
+                          {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`})
+                        </p>
+                      )}
                       {excerpt.relevance && (
                         <p className="text-xs text-green-600">Relevance: {excerpt.relevance}</p>
                       )}
