@@ -1977,7 +1977,7 @@ export default function AIAssessmentPage() {
       await new Promise(resolve => setTimeout(resolve, 100)); 
 
       const canvas = await html2canvas(reportContainer, {
-        scale: 2, // Increase scale for better resolution
+        scale: 3, // Increased scale for better resolution
         useCORS: true,
         logging: false,
       })

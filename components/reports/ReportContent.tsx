@@ -104,7 +104,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
   return (
     <div className="p-8 bg-white font-sans text-gray-800">
       {/* Header */}
-      <div className="text-center pb-8 mb-8 border-b-4 border-blue-600">
+      <div className="text-center pb-8 mb-8 border-b-4 border-blue-600" style={{ pageBreakInside: 'avoid' }}>
         <h1 className="text-4xl font-bold text-blue-600 mb-2">
           {currentCategory.name} Risk Assessment Report
         </h1>
