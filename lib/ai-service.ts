@@ -1,6 +1,7 @@
 import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
 import { supabaseClient } from "./supabase-client" // Import supabaseClient
+import { getUserApiKeys, decryptUserApiKey } from "./user-api-key-service" // Import API key services
 
 export interface DocumentAnalysisResult {
   answers: Record<string, boolean | string>
@@ -380,6 +381,26 @@ function checkSemanticRelevance(
   }
 }
 
+// Mock pricing for AI models (per 1000 tokens)
+const MOCK_PRICING = {
+  "gemini-1.5-flash": {
+    input: 0.00000035, // $0.35 per 1M tokens
+    output: 0.00000105, // $1.05 per 1M tokens
+  },
+  // Add other models if needed
+};
+
+// Calculate mock cost
+function calculateMockCost(modelName: string, inputTokens: number = 0, outputTokens: number = 0): number {
+  const pricing = MOCK_PRICING[modelName as keyof typeof MOCK_PRICING];
+  if (!pricing) {
+    return 0;
+  }
+  const inputCost = (inputTokens / 1000) * pricing.input;
+  const outputCost = (outputTokens / 1000) * pricing.output;
+  return inputCost + outputCost;
+}
+
 // Direct Google AI analysis with file upload support
 async function performDirectAIAnalysis(
   files: File[],
@@ -391,9 +412,52 @@ async function performDirectAIAnalysis(
 ): Promise<DocumentAnalysisResult> {
   console.log("🤖 Starting direct Google AI analysis with file upload support...")
 
-  // Check if Google AI API key is available
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    throw new Error("Google AI API key not found. Please add GOOGLE_GENERATIVE_AI_API_KEY environment variable.")
+  let googleApiKey: string | undefined = undefined;
+  let keySource: 'client_key' | 'default_key' = 'default_key';
+
+  // 1. Try to get client's API key
+  if (userId && userId !== "anonymous") { // "anonymous" is used for preview mode
+    try {
+      const { data: userApiKeys, error: keysError } = await getUserApiKeys();
+      if (keysError) {
+        console.warn("Error fetching user API keys:", keysError);
+      } else if (userApiKeys && userApiKeys.length > 0) {
+        // Find a Google Gemini key (or the first one if no specific name)
+        const geminiKeyEntry = userApiKeys.find(key => key.api_key_name.toLowerCase().includes("gemini") || key.api_key_name.toLowerCase().includes("google"));
+        
+        if (geminiKeyEntry) {
+          console.log(`Attempting to decrypt client's API key: ${geminiKeyEntry.api_key_name}`);
+          const { apiKey, error: decryptError } = await decryptUserApiKey(geminiKeyEntry.id, userId);
+          if (decryptError) {
+            console.warn(`Failed to decrypt client's API key (${geminiKeyEntry.api_key_name}):`, decryptError);
+          } else if (apiKey) {
+            googleApiKey = apiKey;
+            keySource = 'client_key';
+            console.log("✅ Successfully retrieved client's Google Gemini API key.");
+          }
+        } else {
+          console.log("No specific Google Gemini API key found for client. Falling back to default.");
+        }
+      } else {
+        console.log("No API keys configured for client. Falling back to default.");
+      }
+    } catch (error) {
+      console.error("Error in client API key retrieval/decryption process:", error);
+    }
+  } else {
+    console.log("Anonymous user or no user ID provided. Using default Google API key.");
+  }
+
+  // 2. Fallback to default if client key not found or failed
+  if (!googleApiKey) {
+    googleApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    keySource = 'default_key';
+    console.log("Using default Google Gemini API key from environment variables.");
+  }
+
+  // 3. Final check for any Google API key
+  if (!googleApiKey) {
+    throw new Error("Google AI API key not found. Please add GOOGLE_GENERATIVE_AI_API_KEY environment variable or configure a client API key.");
   }
 
   // Filter and process supported files
@@ -443,7 +507,7 @@ async function performDirectAIAnalysis(
       riskLevel: "High",
       analysisDate: new Date().toISOString(),
       documentsAnalyzed: files.length,
-      aiProvider: "Conservative Analysis (No supported files found)",
+      aiProvider: `Google AI (Gemini 1.5 Flash) - ${keySource === 'client_key' ? 'Client Key' : 'Default Key'} (Conservative Analysis)`,
       documentExcerpts: {},
       directUploadResults: files.map((file) => ({
         fileName: file.name,
@@ -455,11 +519,11 @@ async function performDirectAIAnalysis(
     }
   }
 
-  // Test Google AI connection
+  // Test Google AI connection with the selected API key
   try {
-    console.log("🔗 Testing Google AI connection...")
+    console.log("🔗 Testing Google AI connection with selected API key...")
     const testResult = await generateText({
-      model: google("gemini-1.5-flash"),
+      model: google("gemini-1.5-flash", { apiKey: googleApiKey }),
       prompt: "Reply with 'OK' if you can read this.",
       maxTokens: 10,
       temperature: 0.1,
@@ -469,10 +533,10 @@ async function performDirectAIAnalysis(
     if (!testResult.text.toLowerCase().includes("ok")) {
       throw new Error("Google AI test failed - unexpected response")
     }
-    console.log("✅ Google AI connection successful")
+    console.log("✅ Google AI connection successful with selected API key.")
   } catch (error) {
-    console.error("❌ Google AI test failed:", error)
-    throw new Error(`Google AI is not available: ${error instanceof Error ? error.message : "Unknown error"}`)
+    console.error("❌ Google AI test failed with selected API key:", error)
+    throw new Error(`Google AI is not available with the provided API key: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 
   // Process files - separate PDFs from text files
@@ -645,6 +709,7 @@ Respond in this exact JSON format:
         document_count: files.length,
         question_count: questions.length,
         status: "pending",
+        key_source: keySource, // Store the key source
       })
       .select('id')
       .single();
@@ -658,7 +723,7 @@ Respond in this exact JSON format:
     console.log("🧠 Processing documents with Google AI (including PDFs)...")
 
     const result = await generateText({
-      model: google("gemini-1.5-flash"),
+      model: google("gemini-1.5-flash", { apiKey: googleApiKey }), // Use the selected API key
       messages: [
         {
           role: "user" as const,
@@ -788,11 +853,13 @@ Respond in this exact JSON format:
 
     // Update AI usage log with success status and token usage
     if (aiUsageLogId) {
+      const cost = calculateMockCost("gemini-1.5-flash", result.usage?.inputTokens, result.usage?.outputTokens);
       const { error: updateLogError } = await supabaseClient
         .from('ai_usage_logs')
         .update({
           input_tokens: result.usage?.inputTokens,
           output_tokens: result.usage?.outputTokens,
+          cost: cost, // Store the calculated cost
           status: "success",
         })
         .eq('id', aiUsageLogId);
@@ -897,7 +964,7 @@ Respond in this exact JSON format:
     riskLevel,
     analysisDate: new Date().toISOString(),
     documentsAnalyzed: files.length,
-    aiProvider: "Google AI (Gemini 1.5 Flash) with Direct Document Processing",
+    aiProvider: `Google AI (Gemini 1.5 Flash) - ${keySource === 'client_key' ? 'Client Key' : 'Default Key'}`,
     documentExcerpts,
     directUploadResults: files.map((file, index) => {
       const result = processingResults.find((r) => r.fileName === file.name)
@@ -961,7 +1028,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
   if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
     try {
       const result = await generateText({
-        model: google("gemini-1.5-flash"),
+        model: google("gemini-1.5-flash", { apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY }), // Use default key for test
         prompt: 'Respond with "OK" if you can read this.',
         maxTokens: 10,
         temperature: 0.1,

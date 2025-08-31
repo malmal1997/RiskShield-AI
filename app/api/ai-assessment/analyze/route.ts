@@ -83,16 +83,10 @@ export async function POST(request: NextRequest) {
     // Check if Google AI is available
     const hasGoogleAI = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
-    if (!hasGoogleAI) {
-      return NextResponse.json(
-        {
-          error: "Google AI not configured. Please add GOOGLE_GENERATIVE_AI_API_KEY environment variable.",
-          setup: {
-            google: "Get API key at https://aistudio.google.com/app/apikey",
-          },
-        },
-        { status: 503 },
-      )
+    // Note: The actual API key selection (client vs default) happens inside analyzeDocuments
+    // We only need to ensure the default is configured if no client key is expected.
+    if (!hasGoogleAI && !isDemoFromClient) { // If not demo and no default key, it will fail if no client key is provided
+      console.warn("Default Google AI API key not configured. Analysis might fail if client key is not provided.");
     }
 
     // Perform analysis, passing the user ID, optional assessment ID, and document metadata

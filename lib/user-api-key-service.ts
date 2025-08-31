@@ -94,3 +94,28 @@ export async function deleteUserApiKey(keyId: string): Promise<{ success: boolea
     return { success: false, message: `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}` };
   }
 }
+
+// New function to decrypt a user's API key
+export async function decryptUserApiKey(keyId: string, userId: string): Promise<{ apiKey: string | null; error: string | null }> {
+  try {
+    const { data, error } = await supabaseClient.functions.invoke('decrypt-api-key', {
+      body: { keyId, userId },
+    });
+
+    if (error) {
+      console.error("Error invoking decrypt-api-key function:", error);
+      return { apiKey: null, error: `Failed to decrypt API key: ${error.message}` };
+    }
+
+    if (data.error) {
+      console.error("Edge function returned error:", data.error);
+      return { apiKey: null, error: `Failed to decrypt API key: ${data.error}` };
+    }
+
+    return { apiKey: data.apiKey, error: null };
+
+  } catch (error) {
+    console.error("Error in decryptUserApiKey:", error);
+    return { apiKey: null, error: `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}` };
+  }
+}
