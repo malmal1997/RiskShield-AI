@@ -507,8 +507,10 @@ async function performDirectAIAnalysis(
   let textPromptPart = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with the following documents and questions.
 
 CRITICAL INSTRUCTIONS:
-- Your response MUST be a single, valid JSON object.
-- DO NOT include any conversational text, markdown code block delimiters (like \`\`\`json\`\`\` or \`\`\`\`), or any other text outside the JSON object.
+- Your ENTIRE response MUST be a single, valid JSON object.
+- ABSOLUTELY NO conversational text, introductory phrases, concluding remarks, or any other non-JSON text.
+- DO NOT wrap the JSON in markdown code blocks (e.g., \`\`\`json ... \`\`\`).
+- The response should start directly with '{' and end directly with '}'.
 - Analyze ALL provided documents (both attached files and text content provided below)
 - Documents are classified as 'Primary' or '4th Party'.
 - Prioritize information from 'Primary' documents. Only use information from '4th Party' documents if the required information cannot be found in 'Primary' documents.
@@ -672,27 +674,33 @@ Respond in this exact JSON format:
     console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
 
     // Parse AI response
-    let jsonString = result.text;
-    const markdownJsonMatch = result.text.match(/```json\s*([\s\S]*?)\s*```/);
+    let rawAiText = result.text;
+    console.log("Raw AI response before extraction attempts:", rawAiText);
 
+    let jsonString = "";
+
+    // 1. Attempt to extract JSON from markdown code block
+    const markdownJsonMatch = rawAiText.match(/```json\s*([\s\S]*?)\s*```/);
     if (markdownJsonMatch && markdownJsonMatch[1]) {
-      jsonString = markdownJsonMatch[1];
+      jsonString = markdownJsonMatch[1].trim();
       console.log("Extracted JSON from markdown block.");
     } else {
-      // Fallback to finding the outermost JSON object
-      const greedyJsonMatch = result.text.match(/\{[\s\S]*\}/);
-      if (greedyJsonMatch && greedyJsonMatch[0]) {
-        jsonString = greedyJsonMatch[0];
-        console.log("Extracted JSON using greedy match.");
+      // 2. If no markdown block, try to find the outermost JSON object by curly braces
+      const firstCurly = rawAiText.indexOf('{');
+      const lastCurly = rawAiText.lastIndexOf('}');
+
+      if (firstCurly !== -1 && lastCurly !== -1 && lastCurly > firstCurly) {
+        jsonString = rawAiText.substring(firstCurly, lastCurly + 1).trim();
+        console.log("Extracted JSON using first '{' and last '}' indices.");
       } else {
-        console.error("❌ No JSON object found in AI response.");
-        console.log("Raw AI response:", result.text);
+        // 3. Fallback: if still no clear JSON, log and throw
+        console.error("❌ No valid JSON structure (markdown or curly braces) found in AI response.");
+        console.log("Raw AI response:", rawAiText);
         throw new Error("Invalid AI response format - no JSON object found.");
       }
     }
 
-    jsonString = jsonString.trim(); // Trim any whitespace or newlines
-    console.log("Attempting to parse JSON string:", jsonString); // Log the string before parsing
+    console.log("Attempting to parse JSON string (after extraction):", jsonString);
     try {
       const aiResponse = JSON.parse(jsonString);
       console.log(`✅ Successfully parsed AI response JSON`);
@@ -768,8 +776,8 @@ Respond in this exact JSON format:
       })
     } catch (parseError) {
       console.error("❌ Failed to parse AI response JSON:", parseError)
-      console.log("Raw AI response (attempted parse):", jsonString)
-      console.log("Original AI response:", result.text)
+      console.log("Problematic JSON string (attempted parse):", jsonString)
+      console.log("Original AI response:", rawAiText)
       throw new Error("Invalid AI response format - JSON parsing failed")
     }
 
