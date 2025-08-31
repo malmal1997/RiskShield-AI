@@ -22,6 +22,7 @@ import {
   Building2,
   CheckCircle2,
   Plus,
+  CheckCircle, // Added CheckCircle import
 } from "lucide-react"
 import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
