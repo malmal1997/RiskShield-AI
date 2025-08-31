@@ -21,6 +21,7 @@ import {
   ArrowLeft,
   Building2,
   CheckCircle2,
+  Plus,
 } from "lucide-react"
 import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
@@ -30,6 +31,7 @@ import { Input } from "@/components/ui/input"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
 import { useAuth } from "@/components/auth-context" // Import useAuth
 import { supabaseClient } from "@/lib/supabase-client" // Import supabaseClient
+import { useToast } from "@/components/ui/use-toast" // Import useToast
 
 // Assessment categories and questions
 const assessmentCategories = [
@@ -1170,6 +1172,7 @@ const mockAssessments = [
 
 export default function RiskAssessmentPage() {
   const { user, profile, organization, signOut } = useAuth() // Use signOut from AuthContext
+  const { toast } = useToast() // Initialize useToast hook
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<"select" | "choose-method" | "manual-assessment" | "soc-info">(
     "select",
@@ -2570,8 +2573,8 @@ ${emailResult.message}`;
                       <div>
                         <CardTitle className="text-xl">AI Assessment</CardTitle>
                       </div>
-                    </div>
-                  </CardHeader>
+                    </div
+>                  </CardHeader>
                   <CardContent>
                     <CardDescription className="mb-6 text-base">
                       Upload your documents and let AI analyze them automatically. Fast, comprehensive analysis with
@@ -2662,7 +2665,7 @@ ${emailResult.message}`;
                               id="auditor"
                               value={socInfo.auditor}
                               onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
-                            />
+                              />
                           </div>
                           <div>
                             <Label htmlFor="auditorOpinion">Expected Auditor Opinion</Label>
@@ -2704,7 +2707,7 @@ ${emailResult.message}`;
                             id="companyName"
                             value={socInfo.companyName}
                             onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
-                          />
+                            />
                         </div>
                         <div>
                           <Label htmlFor="productService">Product/Service Being Assessed *</Label>
@@ -2713,7 +2716,7 @@ ${emailResult.message}`;
                             id="productService"
                             value={socInfo.productService}
                             onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
-                          />
+                            />
                         </div>
 
                         <div>
@@ -2756,7 +2759,7 @@ ${emailResult.message}`;
                           id="subserviceOrganizations"
                           value={socInfo.subserviceOrganizations}
                           onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
-                        />
+                          />
                       </div>
 
                       <div className="mt-6">
@@ -2994,7 +2997,7 @@ ${emailResult.message}`;
                           value={delegateForm.recipientName}
                           onChange={(e) => setDelegateForm({ ...delegateForm, recipientName: e.target.value })}
                           placeholder="Enter recipient's full name"
-                        />
+                          />
                       </div>
                       <div>
                         <Label htmlFor="recipientEmail">Recipient Email *</Label>
@@ -3004,7 +3007,7 @@ ${emailResult.message}`;
                           value={delegateForm.recipientEmail}
                           onChange={(e) => setDelegateForm({ ...delegateForm, recipientEmail: e.target.value })}
                           placeholder="Enter recipient's email address"
-                        />
+                          />
                       </div>
                       {delegationType === "third-party" && (
                         <div>
@@ -3014,7 +3017,7 @@ ${emailResult.message}`;
                             value={delegateForm.companyName}
                             onChange={(e) => setDelegateForm({ ...delegateForm, companyName: e.target.value })}
                             placeholder="Enter company name"
-                          />
+                            />
                         </div>
                       )}
                       <div>
@@ -3024,7 +3027,7 @@ ${emailResult.message}`;
                           type="date"
                           value={delegateForm.dueDate}
                           onChange={(e) => setDelegateForm({ ...delegateForm, dueDate: e.target.value })}
-                        />
+                          />
                       </div>
                       <div>
                         <Label htmlFor="customMessage">Custom Message</Label>
@@ -3034,7 +3037,7 @@ ${emailResult.message}`;
                           onChange={(e) => setDelegateForm({ ...delegateForm, customMessage: e.target.value })}
                           placeholder="Add any additional instructions or context..."
                           rows={3}
-                        />
+                          />
                       </div>
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <h4 className="font-semibold text-blue-900 mb-2">Assessment Details</h4>
