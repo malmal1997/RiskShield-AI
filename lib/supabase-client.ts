@@ -15,10 +15,10 @@ const createMockClient = () => ({
     getSession: () => Promise.resolve({ data: { session: null }, error: null }), // Added getSession
   },
   from: () => ({
-    select: () => Promise.resolve({ data: [], error: null, count: 0 }), // Added count
-    insert: () => Promise.resolve({ data: null, error: null }),
-    update: () => Promise.resolve({ data: null, error: null }),
-    delete: () => Promise.resolve({ data: null, error: null }),
+    select: function () { return this }, // Return this for chaining
+    insert: function () { return this }, // Return this for chaining
+    update: function () { return this }, // Return this for chaining
+    delete: function () { return this }, // Return this for chaining
     eq: function () {
       return this
     },
