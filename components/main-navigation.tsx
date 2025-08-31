@@ -34,6 +34,7 @@ export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }:
     { name: "Policy Generator", href: "/policy-generator" },
     { name: "Policy Library", href: "/policy-library" },
     { name: "Dashboard", href: "/dashboard" },
+    { name: "Settings", href: "/settings" }, // Added Settings link to navigation menu
   ]
 
   const isActive = (href: string) => {
