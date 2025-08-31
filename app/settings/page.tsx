@@ -25,19 +25,11 @@ import {
   Upload,
   Trash2,
   Plus,
-  EyeOff,
-  Eye,
-  ExternalLink, // Added ExternalLink icon
-  Bot, // Added Bot icon
-  Brain, // Added Brain icon
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 import { updateUserProfile } from "@/lib/auth-service"
 import { useToast } from "@/components/ui/use-toast"
-import { createUserApiKey, getUserApiKeys, deleteUserApiKey, type EncryptedApiKey } from "@/lib/user-api-key-service"
-import Link from "next/link" // Import Link
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Import Select components
 
 export default function SettingsPage() {
   return (
@@ -85,14 +77,6 @@ function SettingsContent() {
     password_expiry: 90,
   })
 
-  // API Keys state
-  const [apiKeys, setApiKeys] = useState<EncryptedApiKey[]>([])
-  const [newApiKeyName, setNewApiKeyName] = useState("")
-  const [newApiKeyValue, setNewApiKeyValue] = useState("")
-  const [showApiKeyValue, setShowApiKeyValue] = useState(false)
-  const [isAddingApiKey, setIsAddingApiKey] = useState(false)
-  const [newApiKeyProvider, setNewApiKeyProvider] = useState<"google" | "groq" | "huggingface" | "">("") // New state for provider selection
-
   useEffect(() => {
     if (profile) {
       setProfileForm({
@@ -112,83 +96,25 @@ function SettingsContent() {
     }
   }, [profile, organization])
 
-  // Load API keys when component mounts or tab changes
-  useEffect(() => {
-    if (activeTab === "integrations" && user) {
-      fetchApiKeys();
-    }
-  }, [activeTab, user]);
-
-  const fetchApiKeys = async () => {
-    setLoading(true);
-    const { data, error } = await getUserApiKeys();
-    if (error) {
+  const handleProfileUpdate = async () => {
+    try {
+      setLoading(true)
+      await updateUserProfile(profileForm)
+      await refreshProfile()
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      })
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error,
-      });
-    } else {
-      setApiKeys(data || []);
+        description: "Failed to update profile. Please try again.",
+      })
+    } finally {
+      setLoading(false)
     }
-    setLoading(false);
-  };
-
-  const handleAddApiKey = async () => {
-    if (!newApiKeyName || !newApiKeyValue || !newApiKeyProvider) {
-      toast({
-        variant: "destructive",
-        title: "Missing Information",
-        description: "Please provide an API key name, the key value, and select a provider.",
-      });
-      return;
-    }
-
-    setIsAddingApiKey(true);
-    // Prepend provider to key name for easier identification in backend
-    const fullApiKeyName = `${newApiKeyProvider}-${newApiKeyName}`;
-    const { success, message } = await createUserApiKey(fullApiKeyName, newApiKeyValue);
-    if (success) {
-      toast({
-        title: "Success",
-        description: message,
-      });
-      setNewApiKeyName("");
-      setNewApiKeyValue("");
-      setNewApiKeyProvider("");
-      fetchApiKeys(); // Refresh the list of keys
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: message,
-      });
-    }
-    setIsAddingApiKey(false);
-  };
-
-  const handleDeleteApiKey = async (keyId: string) => {
-    if (!confirm("Are you sure you want to delete this API key?")) {
-      return;
-    }
-
-    setLoading(true);
-    const { success, message } = await deleteUserApiKey(keyId);
-    if (success) {
-      toast({
-        title: "Success",
-        description: message,
-      });
-      fetchApiKeys(); // Refresh the list
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: message,
-      });
-    }
-    setLoading(false);
-  };
+  }
 
   const timezones = [
     "UTC",
@@ -448,12 +374,10 @@ function SettingsContent() {
               <CardContent>
                 <div className="flex justify-between items-center mb-4">
                   <p className="text-sm text-gray-600">Manage who has access to your organization.</p>
-                  <Link href="/settings/users"> {/* Link to the new user management page */}
-                    <Button size="sm">
-                      <Users className="mr-2 h-4 w-4" />
-                      Manage Users
-                    </Button>
-                  </Link>
+                  <Button size="sm">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Invite Member
+                  </Button>
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -745,181 +669,6 @@ function SettingsContent() {
                     </Card>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* User API Keys Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Key className="h-5 w-5" />
-                  <span>Your AI API Keys</span>
-                </CardTitle>
-                <CardDescription>
-                  Manage your personal API keys for third-party AI services (e.g., Google Gemini, Groq, Hugging Face).
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="apiKeyProvider">AI Provider</Label>
-                    <Select
-                      value={newApiKeyProvider}
-                      onValueChange={(value: "google" | "groq" | "huggingface") => setNewApiKeyProvider(value)}
-                    >
-                      <SelectTrigger id="apiKeyProvider">
-                        <SelectValue placeholder="Select AI Provider" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="google">Google Gemini</SelectItem>
-                        <SelectItem value="groq">Groq Cloud</SelectItem>
-                        <SelectItem value="huggingface">Hugging Face</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="apiKeyName">API Key Name</Label>
-                    <Input
-                      id="apiKeyName"
-                      value={newApiKeyName}
-                      onChange={(e) => setNewApiKeyName(e.target.value)}
-                      placeholder="e.g., My Gemini Key"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="apiKeyValue">API Key Value</Label>
-                    <div className="relative">
-                      <Input
-                        id="apiKeyValue"
-                        type={showApiKeyValue ? "text" : "password"}
-                        value={newApiKeyValue}
-                        onChange={(e) => setNewApiKeyValue(e.target.value)}
-                        placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowApiKeyValue(!showApiKeyValue)}
-                      >
-                        {showApiKeyValue ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
-                        )}
-                      </Button>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Your API keys are encrypted and stored securely. They are never exposed to the client-side.
-                    </p>
-                  </div>
-                  <Button onClick={handleAddApiKey} disabled={isAddingApiKey || !newApiKeyName || !newApiKeyValue || !newApiKeyProvider}>
-                    {isAddingApiKey ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Adding Key...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add API Key
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                <Separator />
-
-                <h3 className="text-lg font-medium mb-4">Get Free API Keys</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <a
-                    href="https://aistudio.google.com/app/apikey"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 p-4 border border-blue-200 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
-                  >
-                    <Bot className="h-6 w-6 text-blue-600" />
-                    <div>
-                      <p className="font-medium text-blue-800">Google AI Studio (Gemini)</p>
-                      <p className="text-sm text-blue-700">Get your free Gemini API key</p>
-                    </div>
-                    <ExternalLink className="h-4 w-4 text-blue-600 ml-auto" />
-                  </a>
-                  <a
-                    href="https://console.groq.com/keys"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 p-4 border border-green-200 rounded-lg bg-green-50 hover:bg-green-100 transition-colors"
-                  >
-                    <Zap className="h-6 w-6 text-green-600" />
-                    <div>
-                      <p className="font-medium text-green-800">Groq Cloud</p>
-                      <p className="text-sm text-green-700">Access fast inference models</p>
-                    </div>
-                    <ExternalLink className="h-4 w-4 text-green-600 ml-auto" />
-                  </a>
-                  <a
-                    href="https://huggingface.co/settings/tokens"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 p-4 border border-purple-200 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors"
-                  >
-                    <Brain className="h-6 w-6 text-purple-600" />
-                    <div>
-                      <p className="font-medium text-purple-800">Hugging Face</p>
-                      <p className="text-sm text-purple-700">Explore open-source AI models</p>
-                    </div>
-                    <ExternalLink className="h-4 w-4 text-purple-600 ml-auto" />
-                  </a>
-                  <a
-                    href="https://openrouter.ai/keys"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                  >
-                    <Bot className="h-6 w-6 text-gray-600" />
-                    <div>
-                      <p className="font-medium text-gray-800">OpenRouter</p>
-                      <p className="text-sm text-gray-700">Access various models through a unified API</p>
-                    </div>
-                    <ExternalLink className="h-4 w-4 text-gray-600 ml-auto" />
-                  </a>
-                </div>
-
-                <Separator />
-
-                <h3 className="text-lg font-medium mb-4">Existing AI API Keys</h3>
-                {loading ? (
-                  <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-2 text-gray-600">Loading keys...</p>
-                  </div>
-                ) : apiKeys.length === 0 ? (
-                  <p className="text-gray-600">No API keys added yet.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {apiKeys.map((key) => (
-                      <div key={key.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <p className="font-medium">{key.api_key_name}</p>
-                          <p className="text-sm text-gray-600">
-                            Added: {new Date(key.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteApiKey(key.id)}
-                          disabled={loading}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -12,7 +12,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Shield, Building, User, CheckCircle, AlertCircle, FileText, Clock, Bot, Upload } from "lucide-react"
 import { getAssessmentById, submitAssessmentResponse } from "@/lib/assessment-service"
-import { supabaseClient } from "@/lib/supabase-client" // Import supabaseClient
 
 console.log("🔍 Environment check:", {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? "✅ Set" : "❌ Missing",
@@ -490,26 +489,48 @@ function VendorAssessmentComponent() {
 
         // For internal delegations - redirect to appropriate internal assessment page
         if (assessmentId.startsWith("internal-")) {
-          // Fetch delegation info from the database
-          const { data: delegation, error: delegationError } = await supabaseClient
-            .from("delegated_assessments")
-            .select("*")
-            .eq("id", assessmentId)
-            .single();
+          // Get delegation info
+          const delegationKey = `delegation-${assessmentId}`
+          const delegationInfo = localStorage.getItem(delegationKey)
 
-          if (delegationError || !delegation) {
-            console.error("Error fetching delegated assessment:", delegationError);
-            setError("Delegated assessment not found or unauthorized.");
-            setIsValidToken(false);
-            return;
+          let isAiPowered = isAiFromUrl // Start with URL parameter
+          let assessmentType = "Internal Risk Assessment"
+          let delegationType = "team"
+          let method = "manual"
+
+          if (delegationInfo) {
+            try {
+              const delegation = JSON.parse(delegationInfo)
+              isAiPowered = delegation.isAiPowered || isAiFromUrl
+              assessmentType = delegation.assessmentType || "Internal Risk Assessment"
+              delegationType = delegation.delegationType || "team"
+              method = delegation.method || "manual"
+              console.log("📋 Delegation info found:", delegation)
+            } catch (error) {
+              console.error("Error parsing delegation info:", error)
+            }
           }
 
-          let isAiPowered = delegation.method === "ai" || isAiFromUrl;
-          let assessmentType = delegation.assessment_type;
-          let delegationType = delegation.delegation_type;
-          let method = delegation.method;
+          // Also check delegated assessments
+          try {
+            const delegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
+            const delegation = delegated.find((d: any) => d.assessmentId === assessmentId)
+            if (delegation) {
+              assessmentType = delegation.assessmentType
+              isAiPowered =
+                delegation.method === "ai" || delegation.assessmentType.includes("(AI-Powered)") || isAiFromUrl
+              delegationType = delegation.delegationType || "team"
+              method = delegation.method || "manual"
+              console.log("📋 Delegated assessment found:", delegation)
+            }
+          } catch (error) {
+            console.error("Error loading delegation data:", error)
+          }
 
-          console.log("📋 Delegated assessment found in DB:", delegation);
+          console.log("🤖 Final AI-powered status:", isAiPowered)
+          console.log("📋 Final assessment type:", assessmentType)
+          console.log("👥 Delegation type:", delegationType)
+          console.log("⚙️ Method:", method)
 
           // Store the assessment info for the internal pages to use
           const internalAssessmentInfo = {
@@ -519,19 +540,19 @@ function VendorAssessmentComponent() {
             delegationType,
             method,
             token,
-          };
+          }
 
-          localStorage.setItem("internalAssessmentInfo", JSON.stringify(internalAssessmentInfo));
+          localStorage.setItem("internalAssessmentInfo", JSON.stringify(internalAssessmentInfo))
 
           // Redirect to appropriate internal assessment page
           if (isAiPowered || method === "ai") {
             // Redirect to AI assessment page
-            window.location.href = `/risk-assessment/ai-assessment?delegated=true&id=${assessmentId}&token=${token}`;
+            window.location.href = `/risk-assessment/ai-assessment?delegated=true&id=${assessmentId}&token=${token}`
           } else {
             // Redirect to manual assessment page
-            window.location.href = `/risk-assessment?delegated=true&id=${assessmentId}&token=${token}`;
+            window.location.href = `/risk-assessment?delegated=true&id=${assessmentId}&token=${token}`
           }
-          return;
+          return
         }
 
         // Load assessment from database for external assessments
@@ -668,28 +689,43 @@ function VendorAssessmentComponent() {
       console.log("🏢 Is Internal Delegation:", isInternalDelegation)
 
       if (isInternalDelegation) {
+        // For internal delegations, we'll simulate the submission since the assessment
+        // doesn't exist in the database yet
         console.log("🔄 Processing internal delegation submission...")
 
         // Simulate delay
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
-        // Update the delegated assessment in the database
-        const { error: updateError } = await supabaseClient
-          .from("delegated_assessments")
-          .update({
-            status: "completed",
-            completed_date: new Date().toISOString(),
-            // For manual internal assessments, risk_score and risk_level might be calculated later by delegator
-            // or based on a simpler internal logic. For now, we'll leave them null or set a default.
-            // risk_score: calculateRiskScore(answers),
-            // risk_level: getRiskLevel(calculateRiskScore(answers)),
-          })
-          .eq("id", assessmentId)
-          .eq("recipient_email", vendorInfo.email); // Ensure only the recipient can update
+        // Store the completed assessment data locally for the delegator to see
+        const completedAssessment = {
+          id: assessmentId,
+          vendorInfo,
+          answers,
+          completedDate: new Date().toISOString(),
+          status: "completed",
+        }
 
-        if (updateError) throw updateError;
-        console.log("✅ Internal delegation completed successfully in DB");
+        console.log("💾 Saving completed assessment data...")
 
+        // Save to localStorage for the delegator to see
+        try {
+          const existingDelegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
+          console.log("📂 Existing delegated assessments:", existingDelegated)
+
+          const updatedDelegated = existingDelegated.map((delegation: any) =>
+            delegation.assessmentId === assessmentId
+              ? { ...delegation, status: "completed", completedDate: new Date().toISOString() }
+              : delegation,
+          )
+
+          localStorage.setItem("delegatedAssessments", JSON.stringify(updatedDelegated))
+          console.log("✅ Updated delegated assessments saved")
+        } catch (localStorageError) {
+          console.error("❌ Error updating localStorage:", localStorageError)
+          // Don't fail the submission for localStorage errors
+        }
+
+        console.log("✅ Internal delegation completed successfully")
       } else {
         console.log("🔄 Processing external vendor assessment submission...")
         // Submit to database for external vendor assessments
@@ -1352,7 +1388,7 @@ function VendorAssessmentComponent() {
                     <Textarea
                       id={`additional-${question.id}`}
                       value={answers[`${question.id}_additional`] || ""}
-                      onChange={(e) => handleAnswer(`${question.id}_additional`, e.target.value)}
+                      onChange={(e) => handleAnswerChange(`${question.id}_additional`, e.target.value)}
                       placeholder="Add any additional context, notes, or explanations for this question..."
                       rows={2}
                       className="mt-1 text-sm"

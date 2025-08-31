@@ -4,9 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
-import { Brain, Zap, CheckCircle, XCircle, AlertCircle, FileText, Upload, Bot } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Brain, Zap, CheckCircle, XCircle, AlertCircle, FileText, Upload } from "lucide-react"
 
 interface ProviderStatus {
   configured: boolean
@@ -17,9 +15,8 @@ interface ProviderStatus {
 
 interface TestResult {
   providers: {
-    google: ProviderStatus
-    groq?: ProviderStatus
-    huggingface?: ProviderStatus
+    groq: ProviderStatus
+    huggingface: ProviderStatus
   }
   summary: {
     totalProviders: number
@@ -42,7 +39,6 @@ export default function AITestPage() {
   const [isTestingProviders, setIsTestingProviders] = useState(false)
   const [isTestingAnalysis, setIsTestingAnalysis] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selectedAnalysisProvider, setSelectedAnalysisProvider] = useState<"google" | "groq" | "huggingface">("google")
 
   const testProviders = async () => {
     setIsTestingProviders(true)
@@ -76,10 +72,6 @@ export default function AITestPage() {
     try {
       const response = await fetch("/api/ai-assessment/test", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ selectedProvider: selectedAnalysisProvider }),
       })
 
       if (!response.ok) {
@@ -121,12 +113,12 @@ export default function AITestPage() {
                   <li>• .md (Markdown)</li>
                   <li>• .json (JSON data)</li>
                   <li>• .csv (CSV data)</li>
-                  <li>• .pdf (PDF documents - direct upload to Google AI)</li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold text-red-800 mb-2">❌ Not Supported:</h4>
                 <ul className="text-sm text-red-700 space-y-1">
+                  <li>• .pdf (PDF documents)</li>
                   <li>• .doc/.docx (Word documents)</li>
                   <li>• .xls/.xlsx (Excel files)</li>
                 </ul>
@@ -134,8 +126,8 @@ export default function AITestPage() {
             </div>
             <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
               <p className="text-sm text-yellow-800">
-                <strong>Workaround:</strong> Convert Word documents to PDF or .txt files. Convert Excel files to .csv
-                files.
+                <strong>Workaround:</strong> Convert PDF/Word documents to .txt files for analysis. Copy the text
+                content and save as a plain text file.
               </p>
             </div>
           </CardContent>
@@ -158,41 +150,56 @@ export default function AITestPage() {
 
               {testResult && (
                 <div className="space-y-3">
-                  {Object.entries(testResult.providers).map(([providerName, status]) => (
-                    <div key={providerName} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-2">
-                        {providerName === "google" && <Bot className="h-4 w-4 text-blue-600" />}
-                        {providerName === "groq" && <Zap className="h-4 w-4 text-green-600" />}
-                        {providerName === "huggingface" && <Brain className="h-4 w-4 text-purple-600" />}
-                        <span className="font-medium">
-                          {providerName === "google" && "Google Gemini (FREE)"}
-                          {providerName === "groq" && "Groq Cloud"}
-                          {providerName === "huggingface" && "Hugging Face"}
-                        </span>
-                      </div>
-                      <Badge
-                        className={
-                          status.working
-                            ? "bg-green-100 text-green-800"
-                            : status.configured
-                              ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-800"
-                        }
-                      >
-                        {status.working ? (
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                        ) : (
-                          <XCircle className="h-3 w-3 mr-1" />
-                        )}
-                        {status.status}
-                      </Badge>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <Zap className="h-4 w-4 text-green-600" />
+                      <span className="font-medium">Groq (FREE)</span>
                     </div>
-                  ))}
+                    <Badge
+                      className={
+                        testResult.providers.groq.working
+                          ? "bg-green-100 text-green-800"
+                          : testResult.providers.groq.configured
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                      }
+                    >
+                      {testResult.providers.groq.working ? (
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                      ) : (
+                        <XCircle className="h-3 w-3 mr-1" />
+                      )}
+                      {testResult.providers.groq.status}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <Zap className="h-4 w-4 text-green-600" />
+                      <span className="font-medium">Hugging Face (FREE)</span>
+                    </div>
+                    <Badge
+                      className={
+                        testResult.providers.huggingface.working
+                          ? "bg-green-100 text-green-800"
+                          : testResult.providers.huggingface.configured
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                      }
+                    >
+                      {testResult.providers.huggingface.working ? (
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                      ) : (
+                        <XCircle className="h-3 w-3 mr-1" />
+                      )}
+                      {testResult.providers.huggingface.status}
+                    </Badge>
+                  </div>
 
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-800">
                       <strong>Summary:</strong> {testResult.summary.workingProviders} of{" "}
-                      {testResult.summary.totalProviders} configured providers working
+                      {testResult.summary.totalProviders} providers working
                     </p>
                     <p className="text-sm text-blue-700 mt-1">{testResult.summary.recommendation}</p>
                   </div>
@@ -211,22 +218,6 @@ export default function AITestPage() {
               <CardDescription>Test AI analysis with a sample security policy</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="select-provider">Select AI Provider for Analysis Test</Label>
-                <Select
-                  value={selectedAnalysisProvider}
-                  onValueChange={(value: "google" | "groq" | "huggingface") => setSelectedAnalysisProvider(value)}
-                >
-                  <SelectTrigger id="select-provider">
-                    <SelectValue placeholder="Select a provider" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="google">Google Gemini</SelectItem>
-                    <SelectItem value="groq">Groq Cloud</SelectItem>
-                    <SelectItem value="huggingface">Hugging Face</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
               <Button onClick={testAnalysis} disabled={isTestingAnalysis} className="w-full">
                 {isTestingAnalysis ? "Analyzing..." : "Test Document Analysis"}
               </Button>
@@ -304,8 +295,9 @@ export default function AITestPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm">
-              <p>✅ If tests pass: Go to AI Assessment and upload your documents for analysis</p>
-              <p>❌ If tests fail: Check your API keys in environment variables or in Settings &gt; Integrations</p>
+              <p>✅ If tests pass: Go to AI Assessment and upload .txt files for analysis</p>
+              <p>❌ If tests fail: Check your API keys in environment variables</p>
+              <p>📄 For PDF analysis: Convert PDFs to .txt files first</p>
               <p>🔍 For debugging: Check /api/ai-assessment/debug for detailed info</p>
             </div>
             <div className="mt-4 space-x-2">

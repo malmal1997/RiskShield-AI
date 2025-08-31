@@ -38,7 +38,6 @@ import { MainNavigation } from "@/components/main-navigation"
 import type { RiskMetrics, VendorMetrics } from "@/lib/analytics-service"
 import type { Notification } from "@/lib/notification-service"
 import Link from "next/link"
-import { useAuth } from "@/components/auth-context" // Import useAuth
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
 
@@ -111,7 +110,6 @@ const sampleNotifications: Notification[] = [
 ]
 
 export default function DashboardPage() {
-  const { signOut } = useAuth() // Use signOut from AuthContext
   const [riskMetrics, setRiskMetrics] = useState<RiskMetrics>(sampleRiskMetrics)
   const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics>(sampleVendorMetrics)
   const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications)
@@ -161,15 +159,14 @@ export default function DashboardPage() {
   }
 
   const handleSignOut = () => {
-    localStorage.removeItem("demo_session") // Clear demo session if it exists
-    signOut() // Use the signOut from AuthContext
-    window.location.href = "/" // Redirect to home page
+    localStorage.removeItem("demo_session")
+    window.location.href = "/"
   }
 
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <MainNavigation onSignOut={handleSignOut} />
+      <MainNavigation userEmail="demo@riskguard.ai" onSignOut={handleSignOut} />
 
       {/* Hero Section - matching other pages style */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">

@@ -4,10 +4,9 @@ export async function GET() {
   try {
     console.log("AI Assessment Debug Info")
 
-    // Check environment variables for all providers
-    const hasGoogleAI = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
+    // Check environment variables
     const hasGroq = !!process.env.GROQ_API_KEY
-    const hasHuggingFace = !!process.env.HF_API_KEY
+    const hasHuggingFace = !!process.env.HUGGINGFACE_API_KEY
 
     // System information
     const systemInfo = {
@@ -19,23 +18,17 @@ export async function GET() {
 
     // AI Provider status
     const aiProviders = {
-      google: {
-        configured: hasGoogleAI,
-        keyLength: hasGoogleAI ? process.env.GOOGLE_GENERATIVE_AI_API_KEY?.length : 0,
-        status: hasGoogleAI ? "Configured" : "Missing GOOGLE_GENERATIVE_AI_API_KEY",
-        models: ["gemini-1.5-flash"],
-      },
       groq: {
         configured: hasGroq,
         keyLength: hasGroq ? process.env.GROQ_API_KEY?.length : 0,
         status: hasGroq ? "Configured" : "Missing GROQ_API_KEY",
-        models: ["llama3-8b-8192"],
+        models: ["llama-3.1-8b-instant", "mixtral-8x7b-32768"],
       },
       huggingface: {
         configured: hasHuggingFace,
-        keyLength: hasHuggingFace ? process.env.HF_API_KEY?.length : 0,
-        status: hasHuggingFace ? "Configured" : "Missing HF_API_KEY",
-        models: ["mixtral-8x7b-instruct-v0.1"],
+        keyLength: hasHuggingFace ? process.env.HUGGINGFACE_API_KEY?.length : 0,
+        status: hasHuggingFace ? "Configured" : "Missing HUGGINGFACE_API_KEY",
+        models: ["meta-llama/Llama-3.1-8B-Instruct"],
       },
     }
 
@@ -46,34 +39,25 @@ export async function GET() {
         ".md": "Markdown files - Full support",
         ".json": "JSON files - Full support",
         ".csv": "CSV files - Full support",
-        ".pdf": "PDF files - Direct upload to Google AI (Full support)",
       },
       unsupported: {
-        ".doc/.docx": "Word documents - Not supported directly, convert to PDF or TXT",
-        ".xls/.xlsx": "Excel files - Not supported directly, convert to CSV",
+        ".pdf": "PDF files - Not supported in browser environment",
+        ".doc/.docx": "Word documents - Not supported in browser environment",
+        ".xls/.xlsx": "Excel files - Not supported in browser environment",
       },
-      workaround: "Convert unsupported files to supported formats for analysis",
+      workaround: "Convert unsupported files to .txt format for analysis",
     }
 
     // Feature status
     const features = {
-      aiAnalysis: (hasGoogleAI || hasGroq || hasHuggingFace) ? "Available" : "Requires at least one API key",
-      documentExtraction: "Supported formats (PDF, TXT, MD, CSV, JSON, HTML, XML)",
+      aiAnalysis: hasGroq || hasHuggingFace ? "Available" : "Requires API keys",
+      documentExtraction: "Text files only",
       antiHallucination: "Enabled - strict content validation",
       confidenceScoring: "Enabled",
       evidenceExtraction: "Enabled - exact quotes only",
       riskAssessment: "Enabled",
-      batchProcessing: "Enabled - multiple documents per analysis",
+      batchProcessing: "Enabled - 3 questions per batch",
     }
-
-    const recommendations = [];
-    if (hasGoogleAI) recommendations.push("✅ Google AI provider configured"); else recommendations.push("❌ Add GOOGLE_GENERATIVE_AI_API_KEY");
-    if (hasGroq) recommendations.push("✅ Groq AI provider configured"); else recommendations.push("❌ Add GROQ_API_KEY");
-    if (hasHuggingFace) recommendations.push("✅ Hugging Face AI provider configured"); else recommendations.push("❌ Add HF_API_KEY");
-    recommendations.push("✅ Upload PDF, TXT, MD, CSV, JSON, HTML, XML files for best results");
-    recommendations.push("✅ Convert Word/Excel documents to supported formats");
-    recommendations.push("✅ Anti-hallucination measures active");
-
 
     return NextResponse.json({
       status: "AI Assessment System Debug Info",
@@ -81,7 +65,12 @@ export async function GET() {
       aiProviders,
       fileSupport,
       features,
-      recommendations,
+      recommendations: [
+        hasGroq || hasHuggingFace ? "✅ AI providers configured" : "❌ Add GROQ_API_KEY or HUGGINGFACE_API_KEY",
+        "✅ Upload .txt files for best results",
+        "✅ Convert PDF/Word documents to text format",
+        "✅ Anti-hallucination measures active",
+      ],
       testEndpoints: {
         providerTest: "/api/ai-assessment/test (GET)",
         sampleAnalysis: "/api/ai-assessment/test (POST)",

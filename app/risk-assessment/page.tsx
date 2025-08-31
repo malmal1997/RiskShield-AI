@@ -21,8 +21,6 @@ import {
   ArrowLeft,
   Building2,
   CheckCircle2,
-  Plus,
-  CheckCircle, // Added CheckCircle import
 } from "lucide-react"
 import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
@@ -30,9 +28,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
-import { useAuth } from "@/components/auth-context" // Import useAuth
-import { supabaseClient } from "@/lib/supabase-client" // Import supabaseClient
-import { useToast } from "@/components/ui/use-toast" // Import useToast
 
 // Assessment categories and questions
 const assessmentCategories = [
@@ -1061,6 +1056,21 @@ const assessmentCategories = [
       {
         id: "soc38",
         question: "Is there a centralized logging system for security monitoring?",
+        question: "Are logs regularly reviewed for suspicious activities?",
+        type: "tested",
+        weight: 8,
+      },
+      {
+        id: "soc38",
+        question: "Is there a centralized logging system for security monitoring?",
+        type: "tested",
+        weight: 8,
+      },
+
+      // Third-Party Management
+      {
+        id: "soc38",
+        question: "Is there a centralized logging system for security monitoring?",
         type: "tested",
         weight: 8,
       },
@@ -1172,8 +1182,6 @@ const mockAssessments = [
 ]
 
 export default function RiskAssessmentPage() {
-  const { user, profile, organization, signOut } = useAuth() // Use signOut from AuthContext
-  const { toast } = useToast() // Initialize useToast hook
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<"select" | "choose-method" | "manual-assessment" | "soc-info">(
     "select",
@@ -1225,36 +1233,10 @@ export default function RiskAssessmentPage() {
     setSavedAssessments(saved)
   }, [])
 
-  // Fetch delegated assessments from Supabase
-  const fetchDelegatedAssessments = async () => {
-    if (!user?.id || !organization?.id) return;
-
-    try {
-      const { data, error } = await supabaseClient
-        .from("delegated_assessments")
-        .select("*")
-        .eq("delegator_user_id", user.id)
-        .eq("organization_id", organization.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setDelegatedAssessments(data || []);
-    } catch (error) {
-      console.error("Error fetching delegated assessments:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load delegated assessments.",
-      });
-    }
-  };
-
   useEffect(() => {
-    if (user?.id && organization?.id) {
-      fetchDelegatedAssessments();
-    }
-  }, [user?.id, organization?.id]);
-
+    const delegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
+    setDelegatedAssessments(delegated)
+  }, [])
 
   // Add this useEffect after the existing useEffects
   useEffect(() => {
@@ -1364,7 +1346,7 @@ export default function RiskAssessmentPage() {
   }
 
   // Update the completeAssessment function to handle delegated assessments
-  const completeAssessment = async () => {
+  const completeAssessment = () => {
     // Remove from saved assessments when completing
     const saved = savedAssessments.filter((s) => s.category !== selectedCategory)
     localStorage.setItem("savedAssessments", JSON.stringify(saved))
@@ -1470,37 +1452,25 @@ export default function RiskAssessmentPage() {
     })
     setAssessmentCompleted(true)
 
-    // If this is a delegated assessment, mark it as completed in the database
-    if (isDelegatedAssessment && delegatedAssessmentInfo && user?.id) {
+    // If this is a delegated assessment, mark it as completed
+    if (isDelegatedAssessment && delegatedAssessmentInfo) {
       try {
-        const { error } = await supabaseClient
-          .from("delegated_assessments")
-          .update({
-            status: "completed",
-            completed_date: new Date().toISOString(),
-            risk_score: riskScore,
-            risk_level: riskLevel,
-          })
-          .eq("id", delegatedAssessmentInfo.assessmentId)
-          .eq("recipient_user_id", user.id); // Ensure only the recipient can update
-
-        if (error) throw error;
-        console.log("✅ Delegated assessment marked as completed in DB");
-        // Optionally notify the delegator
-        // await createNotification({
-        //   user_id: delegatedAssessmentInfo.delegator_user_id,
-        //   type: "assessment_completed",
-        //   title: `Delegated Assessment Completed: ${delegatedAssessmentInfo.assessmentType}`,
-        //   message: `${delegatedAssessmentInfo.recipientName} has completed the assessment.`,
-        //   data: { assessmentId: delegatedAssessmentInfo.assessmentId },
-        // });
+        const existingDelegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
+        const updatedDelegated = existingDelegated.map((delegation: any) =>
+          delegation.assessmentId === delegatedAssessmentInfo.assessmentId
+            ? {
+                ...delegation,
+                status: "completed",
+                completedDate: new Date().toISOString(),
+                riskScore: riskScore,
+                riskLevel: riskLevel,
+              }
+            : delegation,
+        )
+        localStorage.setItem("delegatedAssessments", JSON.stringify(updatedDelegated))
+        console.log("✅ Delegated assessment marked as completed")
       } catch (error) {
-        console.error("❌ Error updating delegated assessment in DB:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to update delegated assessment status in the database.",
-        });
+        console.error("❌ Error updating delegated assessment:", error)
       }
     }
   }
@@ -1585,104 +1555,45 @@ export default function RiskAssessmentPage() {
 
   const handleSendDelegation = async () => {
     if (!delegateForm.recipientName || !delegateForm.recipientEmail || !delegateForm.assessmentType) {
-      toast({
-        variant: "destructive",
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-      });
-      return;
+      alert("Please fill in all required fields")
+      return
     }
 
     if (delegationType === "third-party" && !delegateForm.companyName) {
-      toast({
-        variant: "destructive",
-        title: "Missing Information",
-        description: "Please enter the company name for third-party delegation.",
-      });
-      return;
-    }
-
-    if (!user?.id || !organization?.id) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "User or organization not found. Please sign in again.",
-      });
-      return;
+      alert("Please enter the company name for third-party delegation")
+      return
     }
 
     try {
-      // First, check if the recipient user exists in the organization
-      let recipientUserId: string | null = null;
-      const { data: existingRecipientProfile, error: recipientProfileError } = await supabaseClient
-        .from("user_profiles")
-        .select("user_id")
-        .eq("email", delegateForm.recipientEmail)
-        .eq("organization_id", organization.id)
-        .single();
-
-      if (recipientProfileError && recipientProfileError.code !== 'PGRST116') { // PGRST116 means no rows found
-        throw recipientProfileError;
-      }
-
-      if (existingRecipientProfile) {
-        recipientUserId = existingRecipientProfile.user_id;
-      } else {
-        // If recipient not found in current organization, try to invite them
-        const inviteResponse = await fetch("/api/user-management/invite", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: delegateForm.recipientEmail,
-            role: "viewer", // Default role for invited delegates
-            organizationId: organization.id,
-            inviterUserId: user.id,
-          }),
-        });
-        const inviteResult = await inviteResponse.json();
-        if (!inviteResponse.ok) {
-          throw new Error(inviteResult.error || "Failed to invite recipient user.");
-        }
-        recipientUserId = inviteResult.userId;
-        toast({
-          title: "User Invited",
-          description: `New user ${delegateForm.recipientEmail} invited to organization.`,
-        });
-      }
-
-      if (!recipientUserId) {
-        throw new Error("Could not determine recipient user ID.");
-      }
+      // Generate a unique assessment ID for the delegation
+      const assessmentId = `internal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
       // Create assessment type with method indicator
       const assessmentTypeWithMethod =
-        delegateMethod === "ai" ? `${delegateForm.assessmentType} (AI-Powered)` : delegateForm.assessmentType;
+        delegateMethod === "ai" ? `${delegateForm.assessmentType} (AI-Powered)` : delegateForm.assessmentType
 
-      // Store delegation in the database
-      const { data: newDelegation, error: dbError } = await supabaseClient
-        .from("delegated_assessments")
-        .insert({
-          delegator_user_id: user.id,
-          recipient_user_id: recipientUserId,
-          organization_id: organization.id,
-          assessment_type: assessmentTypeWithMethod,
-          delegation_type: delegationType,
-          method: delegateMethod,
-          recipient_name: delegateForm.recipientName,
-          recipient_email: delegateForm.recipientEmail,
-          company_name: delegateForm.companyName || null,
-          due_date: delegateForm.dueDate || null,
-          custom_message: delegateForm.customMessage || null,
-          status: "pending",
-        })
-        .select()
-        .single();
+      // Store delegation info
+      const delegationInfo = {
+        assessmentId: assessmentId,
+        assessmentType: assessmentTypeWithMethod,
+        isAiPowered: delegateMethod === "ai",
+        recipientEmail: delegateForm.recipientEmail,
+        recipientName: delegateForm.recipientName,
+        companyName: delegateForm.companyName,
+        dueDate: delegateForm.dueDate,
+        customMessage: delegateForm.customMessage,
+        createdAt: new Date().toISOString(),
+        delegationType: delegationType,
+        method: delegateMethod,
+      }
 
-      if (dbError) throw dbError;
+      // Store in localStorage for the vendor assessment page to access
+      const delegationKey = `delegation-${assessmentId}`
+      localStorage.setItem(delegationKey, JSON.stringify(delegationInfo))
 
       // Send the actual email using the existing email service
       const emailResult = await sendAssessmentEmail({
-        vendorName: delegationType === "third-party" ? delegateForm.companyName : organization.name,
+        vendorName: delegationType === "third-party" ? delegateForm.companyName : "Internal Team",
         vendorEmail: delegateForm.recipientEmail,
         contactPerson: delegateForm.recipientName,
         assessmentType: assessmentTypeWithMethod,
@@ -1692,9 +1603,30 @@ export default function RiskAssessmentPage() {
           `You have been assigned to complete the ${assessmentTypeWithMethod} assessment${
             delegationType === "third-party" ? " for your organization" : " for our organization"
           }.`,
-        assessmentId: newDelegation.id, // Use the ID from the new DB entry
-        companyName: organization.name,
-      });
+        assessmentId: assessmentId,
+        companyName: delegationType === "third-party" ? "Your Organization" : "Your Organization",
+      })
+
+      const newDelegation = {
+        id: `delegation-${Date.now()}`,
+        assessmentType: assessmentTypeWithMethod,
+        recipientName: delegateForm.recipientName,
+        recipientEmail: delegateForm.recipientEmail,
+        companyName: delegateForm.companyName,
+        dueDate: delegateForm.dueDate,
+        customMessage: delegateForm.customMessage,
+        status: "pending",
+        sentDate: new Date().toISOString(),
+        delegatedBy: "Current User",
+        assessmentId: assessmentId,
+        emailResult: emailResult,
+        delegationType: delegationType,
+        method: delegateMethod,
+      }
+
+      const delegated = [...delegatedAssessments, newDelegation]
+      localStorage.setItem("delegatedAssessments", JSON.stringify(delegated))
+      setDelegatedAssessments(delegated)
 
       setDelegateForm({
         assessmentType: "",
@@ -1703,39 +1635,29 @@ export default function RiskAssessmentPage() {
         companyName: "",
         dueDate: "",
         customMessage: "",
-      });
-      setShowDelegateForm(false);
-      setDelegateStep("choose-type");
-      setDelegationType(null);
-      setDelegateMethod(null);
-      fetchDelegatedAssessments(); // Refresh the list
+      })
+      setShowDelegateForm(false)
+      setDelegateStep("choose-type")
+      setDelegationType(null)
+      setDelegateMethod(null)
 
       // Show the actual email result message
       const alertMessage = `Assessment delegation created successfully!
 
-${emailResult.message}`;
+${emailResult.message}`
 
       if (emailResult.success) {
-        toast({
-          title: "Delegation Sent",
-          description: alertMessage,
-        });
+        alert(alertMessage)
       } else {
-        toast({
-          variant: "destructive",
-          title: "Delegation Created, Email Failed",
-          description: alertMessage,
-        });
+        alert(`Assessment delegation created but email delivery failed:
+
+${emailResult.message}`)
       }
     } catch (error) {
-      console.error("Error sending delegation:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send assessment delegation. Please try again.",
-      });
+      console.error("Error sending delegation:", error)
+      alert("Failed to send assessment delegation. Please try again.")
     }
-  };
+  }
 
   const downloadRegularReport = () => {
     if (!riskResults || !currentCategory) return
@@ -2119,7 +2041,7 @@ ${emailResult.message}`;
               </div>
               `
                   : ""
-          }
+              }
           </div>
           `
               : ""
@@ -2233,7 +2155,7 @@ ${emailResult.message}`;
     >
       <div className="min-h-screen bg-white">
         {/* Header */}
-        <MainNavigation onSignOut={signOut} />
+        <MainNavigation showAuthButtons={true} />
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
@@ -2406,12 +2328,12 @@ ${emailResult.message}`;
                         <CardHeader>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                              {delegation.delegation_type === "third-party" ? (
+                              {delegation.delegationType === "third-party" ? (
                                 <Building2 className="h-5 w-5 text-purple-600" />
                               ) : (
                                 <Users className="h-5 w-5 text-purple-600" />
                               )}
-                              <CardTitle className="text-lg text-purple-900">{delegation.assessment_type}</CardTitle>
+                              <CardTitle className="text-lg text-purple-900">{delegation.assessmentType}</CardTitle>
                             </div>
                             <div className="flex flex-col items-end space-y-1">
                               <Badge className="bg-purple-200 text-purple-800">
@@ -2423,21 +2345,23 @@ ${emailResult.message}`;
                             </div>
                           </div>
                           <CardDescription className="text-purple-700">
-                            {delegation.delegation_type === "third-party" ? "Third-Party" : "Team Member"}:{" "}
-                            {delegation.recipient_name}
+                            {delegation.delegationType === "third-party" ? "Third-Party" : "Team Member"}:{" "}
+                            {delegation.recipientName}
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-2 text-sm text-purple-700">
-                            <div>Email: {delegation.recipient_email}</div>
-                            {delegation.company_name && <div>Company: {delegation.company_name}</div>}
-                            {delegation.due_date && <div>Due: {new Date(delegation.due_date).toLocaleDateString()}</div>}
-                            <div>Sent: {new Date(delegation.sent_date).toLocaleDateString()}</div>
-                            {delegation.status === "completed" && delegation.completed_date && (
-                              <div>Completed: {new Date(delegation.completed_date).toLocaleDateString()}</div>
-                            )}
-                            {delegation.status === "completed" && delegation.risk_score && (
-                              <div>Risk Score: {delegation.risk_score}% ({delegation.risk_level})</div>
+                            <div>Email: {delegation.recipientEmail}</div>
+                            {delegation.companyName && <div>Company: {delegation.companyName}</div>}
+                            {delegation.dueDate && <div>Due: {new Date(delegation.dueDate).toLocaleDateString()}</div>}
+                            <div>Sent: {new Date(delegation.sentDate).toLocaleDateString()}</div>
+                            {delegation.emailResult && (
+                              <div className="text-xs">
+                                Email Status:{" "}
+                                <span className={delegation.emailResult.success ? "text-green-600" : "text-red-600"}>
+                                  {delegation.emailResult.success ? "Delivered" : "Failed"}
+                                </span>
+                              </div>
                             )}
                           </div>
                         </CardContent>
@@ -2546,15 +2470,15 @@ ${emailResult.message}`;
                     </CardDescription>
                     <div className="space-y-3 mb-6">
                       <div className="flex items-center text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
                         Step-by-step question flow
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
                         Full control over answers
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
                         Detailed explanations
                       </div>
                     </div>
@@ -2574,8 +2498,8 @@ ${emailResult.message}`;
                       <div>
                         <CardTitle className="text-xl">AI Assessment</CardTitle>
                       </div>
-                    </div
->                  </CardHeader>
+                    </div>
+                  </CardHeader>
                   <CardContent>
                     <CardDescription className="mb-6 text-base">
                       Upload your documents and let AI analyze them automatically. Fast, comprehensive analysis with
@@ -2583,15 +2507,15 @@ ${emailResult.message}`;
                     </CardDescription>
                     <div className="space-y-3 mb-6">
                       <div className="flex items-center text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
                         Automated document analysis
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
                         Evidence extraction
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
                         Fast and comprehensive
                       </div>
                     </div>
@@ -2666,7 +2590,7 @@ ${emailResult.message}`;
                               id="auditor"
                               value={socInfo.auditor}
                               onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
-                              />
+                            />
                           </div>
                           <div>
                             <Label htmlFor="auditorOpinion">Expected Auditor Opinion</Label>
@@ -2708,7 +2632,7 @@ ${emailResult.message}`;
                             id="companyName"
                             value={socInfo.companyName}
                             onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
-                            />
+                          />
                         </div>
                         <div>
                           <Label htmlFor="productService">Product/Service Being Assessed *</Label>
@@ -2717,7 +2641,7 @@ ${emailResult.message}`;
                             id="productService"
                             value={socInfo.productService}
                             onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
-                            />
+                          />
                         </div>
 
                         <div>
@@ -2760,7 +2684,7 @@ ${emailResult.message}`;
                           id="subserviceOrganizations"
                           value={socInfo.subserviceOrganizations}
                           onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
-                          />
+                        />
                       </div>
 
                       <div className="mt-6">
@@ -2998,7 +2922,7 @@ ${emailResult.message}`;
                           value={delegateForm.recipientName}
                           onChange={(e) => setDelegateForm({ ...delegateForm, recipientName: e.target.value })}
                           placeholder="Enter recipient's full name"
-                          />
+                        />
                       </div>
                       <div>
                         <Label htmlFor="recipientEmail">Recipient Email *</Label>
@@ -3008,7 +2932,7 @@ ${emailResult.message}`;
                           value={delegateForm.recipientEmail}
                           onChange={(e) => setDelegateForm({ ...delegateForm, recipientEmail: e.target.value })}
                           placeholder="Enter recipient's email address"
-                          />
+                        />
                       </div>
                       {delegationType === "third-party" && (
                         <div>
@@ -3018,7 +2942,7 @@ ${emailResult.message}`;
                             value={delegateForm.companyName}
                             onChange={(e) => setDelegateForm({ ...delegateForm, companyName: e.target.value })}
                             placeholder="Enter company name"
-                            />
+                          />
                         </div>
                       )}
                       <div>
@@ -3028,7 +2952,7 @@ ${emailResult.message}`;
                           type="date"
                           value={delegateForm.dueDate}
                           onChange={(e) => setDelegateForm({ ...delegateForm, dueDate: e.target.value })}
-                          />
+                        />
                       </div>
                       <div>
                         <Label htmlFor="customMessage">Custom Message</Label>
@@ -3038,7 +2962,7 @@ ${emailResult.message}`;
                           onChange={(e) => setDelegateForm({ ...delegateForm, customMessage: e.target.value })}
                           placeholder="Add any additional instructions or context..."
                           rows={3}
-                          />
+                        />
                       </div>
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <h4 className="font-semibold text-blue-900 mb-2">Assessment Details</h4>

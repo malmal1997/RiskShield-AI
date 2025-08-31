@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useEffect, useState, useCallback } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import { supabaseClient } from "@/lib/supabase-client"
 import type { User } from "@supabase/supabase-js"
 
@@ -45,132 +45,136 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<any | null>(null)
   const [organization, setOrganization] = useState<any | null>(null)
   const [role, setRole] = useState<any | null>(null)
-  const [loading, setLoading] = useState(true) // Initialize loading to true
+  const [loading, setLoading] = useState(true)
   const [isDemo, setIsDemo] = useState(false)
 
-  const refreshProfile = useCallback(async () => {
-    setLoading(true)
-
-    // Only attempt localStorage access and Supabase auth if mounted on client
-    if (typeof window !== "undefined") {
-      const demoSession = localStorage.getItem("demo_session")
-      if (demoSession) {
-        try {
-          const session: DemoSession = JSON.parse(demoSession)
-          setUser(session.user)
-          setOrganization(session.organization)
-          setRole({ role: session.role, permissions: { all: true } })
-          setProfile({
-            first_name: "Demo",
-            last_name: "User",
-            organization_id: session.organization.id,
-            avatar_url: "/placeholder.svg?height=32&width=32",
-          })
-          setIsDemo(true)
-          setLoading(false)
-          return
-        } catch (error) {
-          console.error("Error parsing demo session:", error)
-          localStorage.removeItem("demo_session")
-        }
-      }
-
-      // Regular Supabase auth flow continues...
+  const refreshProfile = async () => {
+    // Check for demo session first
+    const demoSession = localStorage.getItem("demo_session")
+    if (demoSession) {
       try {
-        const {
-          data: { user },
-          error: userError,
-        } = await supabaseClient.auth.getUser()
-
-        if (userError || !user) {
-          setUser(null)
-          setProfile(null)
-          setOrganization(null)
-          setRole(null)
-          setIsDemo(false)
-          return // Do not set loading to false here, let finally block handle it
-        }
-
-        // Get user profile from Supabase
-        const { data: profile, error: profileError } = await supabaseClient
-          .from("user_profiles")
-          .select("*")
-          .eq("user_id", user.id)
-          .single()
-
-        if (profileError || !profile) {
-          setUser(user)
-          setProfile(null)
-          setOrganization(null)
-          setRole(null)
-          setIsDemo(false)
-          return // Do not set loading to false here, let finally block handle it
-        }
-
-        // Get organization
-        const { data: organization, error: orgError } = await supabaseClient
-          .from("organizations")
-          .select("*")
-          .eq("id", profile.organization_id)
-          .single()
-
-        // Get user role
-        const { data: roleData, error: roleError } = await supabaseClient
-          .from("user_roles")
-          .select("*")
-          .eq("user_id", user.id)
-          .eq("organization_id", profile.organization_id)
-          .single()
-
-        setUser(user)
-        setProfile(profile)
-        setOrganization(orgError ? null : organization)
-        setRole(roleError ? null : roleData)
-        setIsDemo(false)
+        const session: DemoSession = JSON.parse(demoSession)
+        setUser(session.user)
+        setOrganization(session.organization)
+        setRole({ role: session.role, permissions: { all: true } })
+        setProfile({
+          first_name: "Demo",
+          last_name: "User",
+          organization_id: session.organization.id,
+          avatar_url: "/placeholder.svg?height=32&width=32",
+        })
+        setIsDemo(true)
+        setLoading(false)
+        return
       } catch (error) {
-        console.error("Error getting user with profile:", error)
+        console.error("Error parsing demo session:", error)
+        localStorage.removeItem("demo_session")
+      }
+    }
+
+    // Regular Supabase auth flow continues...
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabaseClient.auth.getUser()
+
+      if (userError || !user) {
         setUser(null)
         setProfile(null)
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
-      } finally {
-        setLoading(false) // Ensure loading is always set to false after attempts
+        return
       }
-    } else {
-      // On server, ensure loading is false after initial render
-      setLoading(false)
+
+      // Get user profile from Supabase
+      const { data: profile, error: profileError } = await supabaseClient
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single()
+
+      if (profileError || !profile) {
+        setUser(user)
+        setProfile(null)
+        setOrganization(null)
+        setRole(null)
+        setIsDemo(false)
+        return
+      }
+
+      // Get organization
+      const { data: organization, error: orgError } = await supabaseClient
+        .from("organizations")
+        .select("*")
+        .eq("id", profile.organization_id)
+        .single()
+
+      // Get user role
+      const { data: roleData, error: roleError } = await supabaseClient
+        .from("user_roles")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("organization_id", profile.organization_id)
+        .single()
+
+      setUser(user)
+      setProfile(profile)
+      setOrganization(orgError ? null : organization)
+      setRole(roleError ? null : roleData)
+      setIsDemo(false)
+    } catch (error) {
+      console.error("Error getting user with profile:", error)
+      setUser(null)
+      setProfile(null)
+      setOrganization(null)
+      setRole(null)
+      setIsDemo(false)
     }
-  }, [])
+  }
 
   useEffect(() => {
     let subscription: any = null
 
-    // Only call refreshProfile and set up listener if on client
-    if (typeof window !== "undefined") {
-      const getInitialSession = async () => {
+    const getInitialSession = async () => {
+      // Check for demo session immediately
+      const demoSession = localStorage.getItem("demo_session")
+      if (demoSession) {
         await refreshProfile()
+        setLoading(false)
+        return
       }
-      getInitialSession()
 
+      // Regular auth flow
+      await refreshProfile()
+      setLoading(false)
+    }
+
+    getInitialSession()
+
+    // Listen for auth changes (only for non-demo sessions)
+    try {
       const {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        if (session?.user) {
-          await refreshProfile()
-        } else {
-          // If signed out, clear all state and set loading to false
-          setUser(null)
-          setProfile(null)
-          setOrganization(null)
-          setRole(null)
-          setIsDemo(false)
-          setLoading(false)
+        if (!localStorage.getItem("demo_session")) {
+          if (session?.user) {
+            await refreshProfile()
+          } else {
+            setUser(null)
+            setProfile(null)
+            setOrganization(null)
+            setRole(null)
+            setIsDemo(false)
+          }
         }
+        setLoading(false)
       })
+
       subscription = authSubscription
-    } else {
-      // On server, ensure loading is false after initial render
+    } catch (error) {
+      console.error("Error setting up auth listener:", error)
       setLoading(false)
     }
 
@@ -183,7 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [refreshProfile])
+  }, [])
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabaseClient.auth.signInWithPassword({
@@ -203,9 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     // Clear demo session
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("demo_session")
-    }
+    localStorage.removeItem("demo_session")
     setIsDemo(false)
 
     // Sign out from Supabase

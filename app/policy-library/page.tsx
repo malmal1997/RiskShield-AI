@@ -24,7 +24,7 @@ import {
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { MainNavigation } from "@/components/main-navigation"
-import { useAuth } from "@/components/auth-context" // Import useAuth
+import { useAuth } from "@/components/auth-context"
 
 // Mock data for saved policies
 const mockPolicies = [
@@ -118,10 +118,10 @@ export default function PolicyLibrary() {
 
   // Check preview mode and show sample data
   useEffect(() => {
-    // Rely on the user object from useAuth
-    setIsPreviewMode(!user)
+    const hasAuth = localStorage.getItem("demo_session") || user
+    setIsPreviewMode(!hasAuth)
 
-    if (!user) {
+    if (!hasAuth) {
       // Show sample policies for preview
       setPolicies(mockPolicies.slice(0, 3)) // Show only first 3 as preview
     }
@@ -222,7 +222,7 @@ export default function PolicyLibrary() {
     >
       <div className="min-h-screen bg-white">
         {/* Navigation */}
-        <MainNavigation onSignOut={signOut} />
+        <MainNavigation userEmail={user?.email || "Guest"} onSignOut={signOut} />
 
         {/* Rest of the page content remains exactly the same... */}
         {/* Hero Section */}

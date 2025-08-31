@@ -5,48 +5,26 @@ export async function GET() {
   try {
     console.log("Testing AI providers...")
 
+    // Test all available AI providers
     const providerResults = await testAIProviders()
 
-    const providersStatus = {
-      google: {
-        configured: !!process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-        working: providerResults.google,
-        status: !!process.env.GOOGLE_GENERATIVE_AI_API_KEY ? (providerResults.google ? "✅ Working" : "❌ Failed") : "❌ Not configured",
-        model: "gemini-1.5-flash",
-      },
-      groq: {
-        configured: !!process.env.GROQ_API_KEY,
-        working: providerResults.groq,
-        status: !!process.env.GROQ_API_KEY ? (providerResults.groq ? "✅ Working" : "❌ Failed") : "❌ Not configured",
-        model: "llama3-8b-8192",
-      },
-      huggingface: {
-        configured: !!process.env.HF_API_KEY,
-        working: providerResults.huggingface,
-        status: !!process.env.HF_API_KEY ? (providerResults.huggingface ? "✅ Working" : "❌ Failed") : "❌ Not configured",
-        model: "mixtral-8x7b-instruct-v0.1",
-      },
-    }
-
-    const configuredProviders = Object.values(providersStatus).filter(p => p.configured).length;
-    const workingProviders = Object.values(providersStatus).filter(p => p.working).length;
-    
-    let recommendation = "All configured AI providers are working. Ready for AI analysis.";
-    if (configuredProviders === 0) {
-      recommendation = "No AI providers are configured. Add GOOGLE_GENERATIVE_AI_API_KEY, GROQ_API_KEY, or HF_API_KEY to enable AI analysis.";
-    } else if (workingProviders < configuredProviders) {
-      recommendation = "Some AI providers are configured but failing. Check API keys and network connectivity.";
-    }
-
+    const hasGoogle = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
 
     return NextResponse.json({
       status: "AI Provider Test Complete",
       timestamp: new Date().toISOString(),
-      providers: providersStatus,
+      providers: {
+        google: {
+          configured: hasGoogle,
+          working: providerResults.google,
+          status: hasGoogle ? (providerResults.google ? "✅ Working" : "❌ Failed") : "❌ Not configured",
+          model: "gemini-1.5-flash",
+        },
+      },
       summary: {
-        totalProviders: configuredProviders,
-        workingProviders: workingProviders,
-        recommendation: recommendation,
+        totalProviders: Object.keys(providerResults).length,
+        workingProviders: Object.values(providerResults).filter(Boolean).length,
+        recommendation: hasGoogle ? "Ready for AI analysis" : "Add GOOGLE_GENERATIVE_AI_API_KEY to enable AI analysis",
       },
     })
   } catch (error) {
@@ -121,9 +99,8 @@ Security policies are reviewed and updated yearly.
     // Create a mock file for testing
     const mockFile = new File([sampleDocument], "sample-policy.txt", { type: "text/plain" })
 
-    // Run the analysis using Google as the default provider for the sample test
-    const dummyUserId = "test-user-id-123"; 
-    const result = await analyzeDocuments([mockFile], sampleQuestions, "Sample Security Assessment", dummyUserId, "google")
+    // Run the analysis
+    const result = await analyzeDocuments([mockFile], sampleQuestions, "Sample Security Assessment")
 
     return NextResponse.json({
       status: "Sample analysis complete",
@@ -136,7 +113,7 @@ Security policies are reviewed and updated yearly.
       },
     })
   } catch (error) {
-    console.error("Analysis test failed:", error)
+    console.error("Sample analysis test failed:", error)
     return NextResponse.json(
       {
         error: "Sample analysis failed",
