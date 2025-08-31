@@ -42,9 +42,8 @@ import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
 import { useAuth } from "@/components/auth-context"
-import html2canvas from "html2canvas" // Corrected import
-import ReportContent from "@/components/reports/ReportContent" // Import the new ReportContent component
 import ReactDOM from 'react-dom/client'; // Import ReactDOM for client-side rendering
+import ReportContent from "@/components/reports/ReportContent" // Import the new ReportContent component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 
@@ -1270,6 +1269,24 @@ export default function AIAssessmentPage() {
   const [socExceptionStatus, setSocExceptionStatus] = useState<Record<string, "operational" | "exception" | "non-operational" | "">>({})
   const [selectedAIProvider, setSelectedAIProvider] = useState<"google" | "groq" | "huggingface">("google") // New state for AI provider selection
 
+  // State for dynamically imported libraries
+  const [Html2Canvas, setHtml2Canvas] = useState<any>(null);
+  const [JsPDF, setJsPDF] = useState<any>(null);
+
+  useEffect(() => {
+    import('html2canvas').then(mod => {
+      setHtml2Canvas(() => mod.default);
+    }).catch(err => {
+      console.error("Failed to load html2canvas:", err);
+    });
+
+    import('jspdf').then(mod => {
+      setJsPDF(() => mod.jsPDF);
+    }).catch(err => {
+      console.error("Failed to load jspdf:", err);
+    });
+  }, []);
+
 
   const determineSOCStatus = (questionId: string, answer: any, reasoning: string, excerpts: any[]) => {
     const answerStr = String(answer).toLowerCase()
@@ -1982,11 +1999,12 @@ export default function AIAssessmentPage() {
   const selectedFramework = assessmentCategories.find((cat) => cat.id === selectedCategory)
 
   const generateAndDownloadReport = async () => {
-    if (!aiAnalysisResult || !currentCategory) return
+    if (!aiAnalysisResult || !currentCategory || !Html2Canvas || !JsPDF) {
+      alert("Report generation libraries not loaded yet. Please try again in a moment.")
+      return
+    }
 
     try {
-      const { jsPDF } = await import("jspdf")
-
       // Create a temporary div to render the ReportContent component
       const reportContainer = document.createElement("div")
       reportContainer.style.position = "absolute"
@@ -1995,12 +2013,6 @@ export default function AIAssessmentPage() {
       document.body.appendChild(reportContainer)
 
       // Render the ReportContent component into the temporary div
-      // We need to use ReactDOM.render or similar for React 18, but for simplicity,
-      // we'll directly inject the HTML string from a virtual render.
-      // A more robust solution would involve a dedicated server-side rendering or
-      // a client-side render-to-string utility.
-      // For now, we'll simulate by creating a React element and converting it to HTML.
-      // This is a simplification and might not capture all React lifecycle effects.
       const root = ReactDOM.createRoot(reportContainer);
       root.render(
         <ReportContent
@@ -2021,7 +2033,7 @@ export default function AIAssessmentPage() {
       // Wait for rendering to complete (a small delay might be needed for complex components)
       await new Promise(resolve => setTimeout(resolve, 100)); 
 
-      const canvas = await html2canvas(reportContainer, {
+      const canvas = await Html2Canvas(reportContainer, {
         scale: 3, // Increased scale for better resolution
         useCORS: true,
         logging: false,
@@ -2030,7 +2042,7 @@ export default function AIAssessmentPage() {
       document.body.removeChild(reportContainer) // Clean up the temporary div
 
       const imgData = canvas.toDataURL("image/png")
-      const pdf = new jsPDF({
+      const pdf = new JsPDF({
         orientation: "portrait",
         unit: "px",
         format: "a4",
