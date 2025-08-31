@@ -22,6 +22,8 @@ export interface DocumentAnalysisResult {
       relevance: string
       pageOrSection?: string
       pageNumber?: number // Added pageNumber
+      documentType?: 'primary' | '4th-party'; // Added documentType
+      documentRelationship?: string; // Added documentRelationship
     }>
   >
   directUploadResults?: Array<{
@@ -39,6 +41,12 @@ interface Question {
   type: "boolean" | "multiple" | "tested"
   options?: string[]
   weight: number
+}
+
+interface DocumentMetadata {
+  fileName: string;
+  type: 'primary' | '4th-party';
+  relationship?: string;
 }
 
 // Convert file to buffer for Google AI API
@@ -379,6 +387,7 @@ async function performDirectAIAnalysis(
   assessmentType: string,
   userId: string, // Added userId parameter
   assessmentId?: string, // Added optional assessmentId
+  documentMetadata: DocumentMetadata[] = [], // Added documentMetadata
 ): Promise<DocumentAnalysisResult> {
   console.log("🤖 Starting direct Google AI analysis with file upload support...")
 
@@ -468,12 +477,13 @@ async function performDirectAIAnalysis(
   // Process files - separate PDFs from text files
   console.log("📁 Processing files for Google AI...")
   const pdfFiles: File[] = []
-  const textFiles: Array<{ file: File; text: string }> = []
+  const textFiles: Array<{ file: File; text: string; metadata: DocumentMetadata }> = []
   const processingResults: Array<{ fileName: string; success: boolean; method: string }> = []
 
   for (const file of supportedFiles) {
     const fileType = file.type.toLowerCase()
     const fileName = file.name.toLowerCase()
+    const metadata = documentMetadata.find(m => m.fileName === file.name) || { fileName: file.name, type: 'primary' };
 
     if (fileType.includes("application/pdf") || fileName.endsWith(".pdf")) {
       pdfFiles.push(file)
@@ -483,7 +493,7 @@ async function performDirectAIAnalysis(
       // Extract text from non-PDF files
       const extraction = await extractTextFromFile(file)
       if (extraction.success && extraction.text.length > 0) {
-        textFiles.push({ file, text: extraction.text })
+        textFiles.push({ file, text: extraction.text, metadata })
         processingResults.push({ fileName: file.name, success: true, method: extraction.method })
         console.log(`📝 Text extracted from ${file.name}: ${extraction.text.length} characters`)
       } else {
@@ -498,6 +508,9 @@ async function performDirectAIAnalysis(
 
 CRITICAL INSTRUCTIONS:
 - Analyze ALL provided documents (both attached files and text content provided below)
+- Documents are classified as 'Primary' or '4th Party'.
+- Prioritize information from 'Primary' documents. Only use information from '4th Party' documents if the required information cannot be found in 'Primary' documents.
+- If using a '4th Party' document, explicitly state its type and relationship in the reasoning and evidence.
 - Answer questions based ONLY on information that is DIRECTLY and SPECIFICALLY found in the documents
 - THOROUGHLY scan ALL sections, pages, and content areas of each document
 - Look for ALL cybersecurity-related content including but not limited to:
@@ -521,21 +534,35 @@ CRITICAL INSTRUCTIONS:
 
 `
 
-  // Add text file content directly to the prompt
+  // Add text file content directly to the prompt, grouped by type
   if (textFiles.length > 0) {
-    textPromptPart += "--- TEXT DOCUMENTS CONTENT ---\n"
-    textFiles.forEach(({ file, text }) => {
-      textPromptPart += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
-    })
-    textPromptPart += "----------------------------\n\n"
+    const primaryTextDocs = textFiles.filter(d => d.metadata.type === 'primary');
+    const fourthPartyTextDocs = textFiles.filter(d => d.metadata.type === '4th-party');
+
+    if (primaryTextDocs.length > 0) {
+      textPromptPart += "--- PRIMARY TEXT DOCUMENTS CONTENT ---\n";
+      primaryTextDocs.forEach(({ file, text }) => {
+        textPromptPart += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`;
+      });
+      textPromptPart += "------------------------------------\n\n";
+    }
+
+    if (fourthPartyTextDocs.length > 0) {
+      textPromptPart += "--- 4TH PARTY TEXT DOCUMENTS CONTENT ---\n";
+      fourthPartyTextDocs.forEach(({ file, text, metadata }) => {
+        textPromptPart += `\n=== DOCUMENT: ${file.name} (Relationship: ${metadata.relationship || 'N/A'}) ===\n${text}\n`;
+      });
+      textPromptPart += "--------------------------------------\n\n";
+    }
   }
 
   // List all files (including PDFs) and indicate if they are attached
   textPromptPart += "--- ATTACHED DOCUMENTS FOR ANALYSIS ---\n"
   supportedFiles.forEach((file, index) => {
+    const metadata = documentMetadata.find(m => m.fileName === file.name) || { fileName: file.name, type: 'primary' };
     textPromptPart += `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)}) - ${
       file.type.includes("application/pdf") || file.name.endsWith(".pdf") ? "Attached as file" : "Content included above"
-    }\n`
+    } (Type: ${metadata.type}${metadata.type === '4th-party' ? `, Relationship: ${metadata.relationship || 'N/A'}` : ''})\n`
   })
   textPromptPart += "-------------------------------------\n\n"
 
@@ -552,6 +579,7 @@ For each question, you must:
 6. If absolutely NO evidence exists anywhere in the documents, answer "No" or use the most conservative option
 7. Provide the EXACT QUOTE from the document content (NOT titles, headers, or metadata) that supports your answer. Include the document name and page number if available.
 8. Be especially thorough for technical security topics like vulnerability assessments, scans, and testing procedures
+9. When providing evidence, also include the document type ('primary' or '4th-party') and, if '4th-party', its relationship.
 
 Respond in this exact JSON format:
 {
@@ -565,7 +593,7 @@ Respond in this exact JSON format:
     ${questions.map((q) => `"${q.id}": "explanation based on evidence or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q) => `"${q.id}": [ { "quote": "EXACT TEXT FROM DOCUMENT CONTENT", "fileName": "document_name.pdf", "pageNumber": 1, "relevance": "explanation of relevance" } ]`).join(",\n    ")}
+    ${questions.map((q) => `"${q.id}": [ { "quote": "EXACT TEXT FROM DOCUMENT CONTENT", "fileName": "document_name.pdf", "pageNumber": 1, "relevance": "explanation of relevance", "documentType": "primary", "documentRelationship": "N/A" } ]`).join(",\n    ")}
   }
 }`
 
@@ -667,6 +695,8 @@ Respond in this exact JSON format:
               const fileName = item.fileName || (supportedFiles.length > 0 ? supportedFiles[0].name : "Document");
               const pageNumber = item.pageNumber || undefined;
               const relevance = item.relevance || `Evidence found in ${fileName}`;
+              const documentType = item.documentType || 'primary'; // Default to primary
+              const documentRelationship = item.documentRelationship || undefined;
 
               // Perform semantic relevance check on the quote
               const relevanceCheck = checkSemanticRelevance(question.question, quote);
@@ -680,6 +710,8 @@ Respond in this exact JSON format:
                 quote: quote.trim(), // Ensure no leading/trailing whitespace
                 relevance,
                 pageNumber,
+                documentType,
+                documentRelationship,
               };
             }).filter(Boolean); // Filter out nulls (irrelevant quotes)
 
@@ -857,6 +889,7 @@ export async function analyzeDocuments(
   assessmentType: string,
   userId: string, // Added userId parameter
   assessmentId?: string, // Added optional assessmentId
+  documentMetadata: DocumentMetadata[] = [], // Added documentMetadata
 ): Promise<DocumentAnalysisResult> {
   console.log(`🚀 Starting Google AI analysis of ${files.length} files for ${assessmentType}`)
 
@@ -880,7 +913,7 @@ export async function analyzeDocuments(
     })
 
     // Perform direct AI analysis
-    const result = await performDirectAIAnalysis(files, questions, assessmentType, userId, assessmentId)
+    const result = await performDirectAIAnalysis(files, questions, assessmentType, userId, assessmentId, documentMetadata)
 
     console.log("🎉 Google AI analysis completed successfully")
     return result

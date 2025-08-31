@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     const files = formData.getAll("files") as File[]
     const questionsJson = formData.get("questions") as string
     const assessmentType = formData.get("assessmentType") as string
+    const documentMetadataJson = formData.get("documentMetadata") as string; // Get document metadata
     const assessmentId = formData.get("assessmentId") as string | undefined; // Get optional assessmentId
 
     if (!files || files.length === 0) {
@@ -43,6 +44,16 @@ export async function POST(request: NextRequest) {
       questions = JSON.parse(questionsJson)
     } catch (error) {
       return NextResponse.json({ error: "Invalid questions format" }, { status: 400 })
+    }
+
+    let documentMetadata: Array<{ fileName: string; type: 'primary' | '4th-party'; relationship?: string }> = [];
+    if (documentMetadataJson) {
+      try {
+        documentMetadata = JSON.parse(documentMetadataJson);
+      } catch (error) {
+        console.error("Invalid document metadata format:", error);
+        return NextResponse.json({ error: "Invalid document metadata format" }, { status: 400 });
+      }
     }
 
     console.log(`Processing ${files.length} files for ${assessmentType} assessment by user ${user.id}`)
@@ -62,8 +73,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Perform analysis, passing the user ID and optional assessment ID
-    const result = await analyzeDocuments(files, questions, assessmentType || "Unknown", user.id, assessmentId);
+    // Perform analysis, passing the user ID, optional assessment ID, and document metadata
+    const result = await analyzeDocuments(files, questions, assessmentType || "Unknown", user.id, assessmentId, documentMetadata);
 
     console.log("Analysis completed successfully")
     return NextResponse.json(result)

@@ -9,6 +9,12 @@ interface Question {
   weight: number
 }
 
+interface DocumentMetadata {
+  fileName: string;
+  type: 'primary' | '4th-party';
+  relationship?: string;
+}
+
 interface AIAnalysisResult {
   answers: Record<string, boolean | string>
   confidenceScores: Record<string, number>
@@ -29,6 +35,8 @@ interface AIAnalysisResult {
       relevance: string
       pageOrSection?: string
       pageNumber?: number // Added pageNumber
+      documentType?: 'primary' | '4th-party'; // Added documentType
+      documentRelationship?: string; // Added documentRelationship
     }>
   >
 }
@@ -76,6 +84,7 @@ interface ReportContentProps {
   companyInfo: CompanyInfo
   socInfo?: SocInfo
   approvedQuestions: Set<string> // Added approvedQuestions prop
+  uploadedDocumentMetadata: DocumentMetadata[]; // Added uploadedDocumentMetadata
 }
 
 const getRiskLevelColorClass = (level: string) => {
@@ -100,6 +109,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
   companyInfo,
   socInfo,
   approvedQuestions, // Destructure approvedQuestions
+  uploadedDocumentMetadata, // Destructure uploadedDocumentMetadata
 }) => {
   return (
     <div className="p-8 bg-white font-sans text-gray-800">
@@ -147,6 +157,25 @@ const ReportContent: React.FC<ReportContentProps> = ({
           </p>
         </div>
       </div>
+
+      {/* Uploaded Documents Summary */}
+      {uploadedDocumentMetadata && uploadedDocumentMetadata.length > 0 && (
+        <div className="mb-10" style={{ pageBreakBefore: 'always', pageBreakInside: 'avoid' }}>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Uploaded Documents</h2>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-3">
+            {uploadedDocumentMetadata.map((doc, index) => (
+              <div key={index} className="text-lg">
+                <p>
+                  <strong>{doc.fileName}</strong> (Type: {doc.type === 'primary' ? 'Primary' : '4th Party'})
+                  {doc.type === '4th-party' && doc.relationship && (
+                    <span> - Relationship: {doc.relationship}</span>
+                  )}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* SOC Information (if applicable) */}
       {currentCategory.id === "soc-compliance" && socInfo && (
@@ -256,7 +285,13 @@ const ReportContent: React.FC<ReportContentProps> = ({
                       {(excerpt.fileName || excerpt.pageNumber) && (
                         <p className="text-xs text-green-600 mt-1">
                           (Document: {excerpt.fileName}
-                          {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`})
+                          {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`}
+                          {excerpt.documentType === '4th-party' && (
+                            <span className="ml-1 font-semibold text-purple-700">
+                              (4th Party: {excerpt.documentRelationship || 'N/A'})
+                            </span>
+                          )}
+                          )
                         </p>
                       )}
                       {excerpt.relevance && (
@@ -310,6 +345,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
                 <span className="mr-3 mt-1">•</span>
                 <span className="text-lg">{recommendation}</span>
               </li>
+              
             ))}
           </ul>
         </div>

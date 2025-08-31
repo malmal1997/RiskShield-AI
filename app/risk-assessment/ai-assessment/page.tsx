@@ -1153,6 +1153,12 @@ interface Question {
   weight: number
 }
 
+interface DocumentMetadata {
+  file: File;
+  type: 'primary' | '4th-party';
+  relationship?: string; // Only for 4th-party documents
+}
+
 interface AIAnalysisResult {
   answers: Record<string, boolean | string>
   confidenceScores: Record<string, number>
@@ -1173,6 +1179,8 @@ interface AIAnalysisResult {
       relevance: string
       pageOrSection?: string
       pageNumber?: number // Added pageNumber
+      documentType?: 'primary' | '4th-party'; // Added documentType
+      documentRelationship?: string; // Added documentRelationship
     }>
   >
 }
@@ -1183,7 +1191,7 @@ export default function AIAssessmentPage() {
   const [currentStep, setCurrentStep] = useState<
     "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
   >("select")
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<DocumentMetadata[]>([]) // Updated to store metadata
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AIAnalysisResult | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -1241,6 +1249,8 @@ export default function AIAssessmentPage() {
         relevance: string
         pageOrSection?: string
         pageNumber?: number // Added pageNumber
+        documentType?: 'primary' | '4th-party'; // Added documentType
+        documentRelationship?: string; // Added documentRelationship
       }>
     >
   >({})
@@ -1474,6 +1484,8 @@ export default function AIAssessmentPage() {
       relevance: string
       pageOrSection?: string
       pageNumber?: number // Added pageNumber
+      documentType?: 'primary' | '4th-party'; // Added documentType
+      documentRelationship?: string; // Added documentRelationship
     }>,
   ) => {
     setEditedEvidence((prev) => ({
@@ -1499,6 +1511,8 @@ export default function AIAssessmentPage() {
       quote: "", // Changed from excerpt
       relevance: "",
       pageNumber: undefined, // Added pageNumber
+      documentType: 'primary' as 'primary' | '4th-party', // Default to primary
+      documentRelationship: undefined,
     }
     handleEvidenceEdit(questionId, [...currentEvidence, newItem])
   }
@@ -1509,7 +1523,7 @@ export default function AIAssessmentPage() {
     handleEvidenceEdit(questionId, updatedEvidence)
   }
 
-  const updateEvidenceItem = (questionId: string, index: number, field: string, value: string | number) => {
+  const updateEvidenceItem = (questionId: string, index: number, field: string, value: string | number | 'primary' | '4th-party') => {
     const currentEvidence = editedEvidence[questionId] || aiAnalysisResult?.documentExcerpts?.[question.id] || []
     const updatedEvidence = [...currentEvidence]
     updatedEvidence[index] = { ...updatedEvidence[index], [field]: value }
@@ -1656,13 +1670,26 @@ export default function AIAssessmentPage() {
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(event.target.files || [])
-    setUploadedFiles([...uploadedFiles, ...newFiles])
-  }
+    const newFiles = Array.from(event.target.files || []).map(file => ({
+      file,
+      type: 'primary', // Default to primary
+      relationship: undefined,
+    }));
+    setUploadedFiles([...uploadedFiles, ...newFiles]);
+  };
 
   const removeFile = (index: number) => {
     setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
   }
+
+  const updateFileMetadata = (index: number, field: 'type' | 'relationship', value: 'primary' | '4th-party' | string) => {
+    setUploadedFiles(prev => prev.map((doc, i) => {
+      if (i === index) {
+        return { ...doc, [field]: value };
+      }
+      return doc;
+    }));
+  };
 
   const getFileStatusIcon = (file: File) => {
     const fileName = file.name.toLowerCase()
@@ -1757,11 +1784,16 @@ export default function AIAssessmentPage() {
 
     try {
       const formData = new FormData()
-      uploadedFiles.forEach((file) => {
-        formData.append("files", file)
+      uploadedFiles.forEach((doc) => {
+        formData.append("files", doc.file)
       })
       formData.append("questions", JSON.stringify(category.questions))
       formData.append("assessmentType", category.name)
+      formData.append("documentMetadata", JSON.stringify(uploadedFiles.map(d => ({
+        fileName: d.file.name,
+        type: d.type,
+        relationship: d.relationship,
+      }))));
 
       // Progress simulation
       const progressSteps = [
@@ -1970,6 +2002,11 @@ export default function AIAssessmentPage() {
           companyInfo={companyInfo}
           socInfo={socInfo}
           approvedQuestions={approvedQuestions} // Pass approvedQuestions here
+          uploadedDocumentMetadata={uploadedFiles.map(d => ({
+            fileName: d.file.name,
+            type: d.type,
+            relationship: d.relationship,
+          }))}
         />
       );
 
@@ -2632,27 +2669,72 @@ export default function AIAssessmentPage() {
                       {uploadedFiles.length > 0 && (
                         <div className="mt-6">
                           <h4 className="font-medium text-gray-900 mb-3">Uploaded Files ({uploadedFiles.length})</h4>
-                          <div className="space-y-2">
-                            {uploadedFiles.map((file, index) => (
-                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div className="flex items-center space-x-3">
-                                  <FileText className="h-5 w-5 text-gray-400" />
-                                  <div>
-                                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                                    <div className="flex items-center space-x-2">
-                                      {getFileStatusIcon(file)}
-                                      <p className="text-xs text-gray-500">{getFileStatusText(file)}</p>
+                          <div className="space-y-4">
+                            {uploadedFiles.map((doc, index) => (
+                              <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="flex items-center space-x-3">
+                                    <FileText className="h-5 w-5 text-gray-400" />
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-900">{doc.file.name}</p>
+                                      <div className="flex items-center space-x-2">
+                                        {getFileStatusIcon(doc.file)}
+                                        <p className="text-xs text-gray-500">{getFileStatusText(doc.file)}</p>
+                                      </div>
                                     </div>
                                   </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeFile(index)}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
                                 </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeFile(index)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
+                                {/* Document Type Selection */}
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-gray-700">Document Type:</Label>
+                                  <div className="flex items-center space-x-4">
+                                    <label className="flex items-center space-x-2">
+                                      <input
+                                        type="radio"
+                                        name={`doc-type-${index}`}
+                                        value="primary"
+                                        checked={doc.type === 'primary'}
+                                        onChange={() => updateFileMetadata(index, 'type', 'primary')}
+                                        className="form-radio text-blue-600"
+                                      />
+                                      <span className="text-sm text-gray-700">Primary Document</span>
+                                    </label>
+                                    <label className="flex items-center space-x-2">
+                                      <input
+                                        type="radio"
+                                        name={`doc-type-${index}`}
+                                        value="4th-party"
+                                        checked={doc.type === '4th-party'}
+                                        onChange={() => updateFileMetadata(index, 'type', '4th-party')}
+                                        className="form-radio text-blue-600"
+                                      />
+                                      <span className="text-sm text-gray-700">4th Party Document</span>
+                                    </label>
+                                  </div>
+                                  {doc.type === '4th-party' && (
+                                    <div className="mt-2">
+                                      <Label htmlFor={`relationship-${index}`} className="text-sm font-medium text-gray-700">
+                                        Relationship to Primary Document:
+                                      </Label>
+                                      <Textarea
+                                        id={`relationship-${index}`}
+                                        value={doc.relationship || ''}
+                                        onChange={(e) => updateFileMetadata(index, 'relationship', e.target.value)}
+                                        placeholder="e.g., 'Sub-processor's SOC 2 report', 'Vendor's privacy policy'"
+                                        rows={2}
+                                        className="mt-1 text-sm"
+                                      />
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -3090,6 +3172,27 @@ export default function AIAssessmentPage() {
                                                 placeholder="Page number"
                                                 className="w-full p-1 border border-gray-300 rounded text-sm"
                                               />
+                                              {/* Document Type and Relationship for Evidence */}
+                                              <div className="flex items-center space-x-2 mt-2">
+                                                <Label className="text-sm font-medium text-gray-700">Doc Type:</Label>
+                                                <select
+                                                  value={excerpt.documentType || 'primary'}
+                                                  onChange={(e) => updateEvidenceItem(question.id, excerptIndex, 'documentType', e.target.value as 'primary' | '4th-party')}
+                                                  className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                                >
+                                                  <option value="primary">Primary</option>
+                                                  <option value="4th-party">4th Party</option>
+                                                </select>
+                                              </div>
+                                              {excerpt.documentType === '4th-party' && (
+                                                <Textarea
+                                                  value={excerpt.documentRelationship || ''}
+                                                  onChange={(e) => updateEvidenceItem(question.id, excerptIndex, 'documentRelationship', e.target.value)}
+                                                  placeholder="Relationship description"
+                                                  rows={1}
+                                                  className="mt-1 text-sm"
+                                                />
+                                              )}
                                             </div>
                                           ) : (
                                             <>
@@ -3099,7 +3202,13 @@ export default function AIAssessmentPage() {
                                               {(excerpt.fileName || excerpt.pageNumber) && (
                                                 <p className="text-xs text-green-600">
                                                   (Document: {excerpt.fileName}
-                                                  {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`})
+                                                  {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`}
+                                                  {excerpt.documentType === '4th-party' && (
+                                                    <span className="ml-1 font-semibold text-purple-700">
+                                                      (4th Party: {excerpt.documentRelationship || 'N/A'})
+                                                    </span>
+                                                  )}
+                                                  )
                                                 </p>
                                               )}
                                               {excerpt.relevance && (
