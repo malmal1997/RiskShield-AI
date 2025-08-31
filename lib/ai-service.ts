@@ -463,6 +463,7 @@ async function performDirectAIAnalysis(
       prompt: "Reply with 'OK' if you can read this.",
       maxTokens: 10,
       temperature: 0.1,
+      response_format: { type: 'json_object' }, // Ensure JSON output for test
     })
 
     if (!testResult.text.toLowerCase().includes("ok")) {
@@ -656,9 +657,7 @@ Respond in this exact JSON format:
 
     console.log("🧠 Processing documents with Google AI (including PDFs)...")
 
-    let result;
-    
-    result = await generateText({
+    const result = await generateText({
       model: google("gemini-1.5-flash"),
       messages: [
         {
@@ -668,39 +667,17 @@ Respond in this exact JSON format:
       ],
       temperature: 0.1,
       maxTokens: 4000,
+      response_format: { type: 'json_object' }, // CRITICAL: Instruct Gemini to output pure JSON
     })
     
     console.log(`📝 Google AI response received (${result.text.length} characters)`)
     console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
 
-    // Parse AI response
-    let rawAiText = result.text;
-    console.log("Raw AI response before extraction attempts:", rawAiText);
-
-    let jsonString = "";
-
-    // 1. Attempt to extract JSON from markdown code block
-    const markdownJsonMatch = rawAiText.match(/```json\s*([\s\S]*?)\s*```/);
-    if (markdownJsonMatch && markdownJsonMatch[1]) {
-      jsonString = markdownJsonMatch[1].trim();
-      console.log("Extracted JSON from markdown block.");
-    } else {
-      // 2. If no markdown block, try to find the outermost JSON object by curly braces
-      const firstCurly = rawAiText.indexOf('{');
-      const lastCurly = rawAiText.lastIndexOf('}');
-
-      if (firstCurly !== -1 && lastCurly !== -1 && lastCurly > firstCurly) {
-        jsonString = rawAiText.substring(firstCurly, lastCurly + 1).trim();
-        console.log("Extracted JSON using first '{' and last '}' indices.");
-      } else {
-        // 3. Fallback: if still no clear JSON, log and throw
-        console.error("❌ No valid JSON structure (markdown or curly braces) found in AI response.");
-        console.log("Raw AI response:", rawAiText);
-        throw new Error("Invalid AI response format - no JSON object found.");
-      }
-    }
-
-    console.log("Attempting to parse JSON string (after extraction):", jsonString);
+    // With response_format: 'json_object', result.text should be pure JSON.
+    // No need for markdown or greedy curly brace extraction.
+    const jsonString = result.text.trim(); 
+    console.log("Attempting to parse JSON string (after direct extraction):", jsonString);
+    
     try {
       const aiResponse = JSON.parse(jsonString);
       console.log(`✅ Successfully parsed AI response JSON`);
@@ -777,7 +754,7 @@ Respond in this exact JSON format:
     } catch (parseError) {
       console.error("❌ Failed to parse AI response JSON:", parseError)
       console.log("Problematic JSON string (attempted parse):", jsonString)
-      console.log("Original AI response:", rawAiText)
+      console.log("Original AI response:", result.text)
       throw new Error("Invalid AI response format - JSON parsing failed")
     }
 
@@ -960,6 +937,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
         prompt: 'Respond with "OK" if you can read this.',
         maxTokens: 10,
         temperature: 0.1,
+        response_format: { type: 'json_object' }, // Ensure JSON output for test
       })
       results.google = result.text.toLowerCase().includes("ok")
       console.log("Google AI test result:", results.google)
