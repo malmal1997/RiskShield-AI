@@ -35,6 +35,7 @@ import { useAuth } from "@/components/auth-context"
 import { updateUserProfile } from "@/lib/auth-service"
 import { useToast } from "@/components/ui/use-toast"
 import { createUserApiKey, getUserApiKeys, deleteUserApiKey, type EncryptedApiKey } from "@/lib/user-api-key-service"
+import Link from "next/link" // Import Link
 
 export default function SettingsPage() {
   return (
@@ -461,10 +462,12 @@ function SettingsContent() {
               <CardContent>
                 <div className="flex justify-between items-center mb-4">
                   <p className="text-sm text-gray-600">Manage who has access to your organization.</p>
-                  <Button size="sm">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Invite Member
-                  </Button>
+                  <Link href="/settings/users"> {/* Link to the new user management page */}
+                    <Button size="sm">
+                      <Users className="mr-2 h-4 w-4" />
+                      Manage Users
+                    </Button>
+                  </Link>
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 border rounded-lg">
