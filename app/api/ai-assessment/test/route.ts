@@ -5,12 +5,10 @@ export async function GET() {
   try {
     console.log("Testing AI providers...")
 
-    // Test all available AI providers
+    // Test only Google AI provider
     const providerResults = await testAIProviders()
 
     const hasGoogle = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
-    const hasGroq = !!process.env.GROQ_API_KEY
-    const hasHuggingFace = !!process.env.HUGGINGFACE_API_KEY
 
     const providersStatus = {
       google: {
@@ -19,32 +17,16 @@ export async function GET() {
         status: hasGoogle ? (providerResults.google ? "✅ Working" : "❌ Failed") : "❌ Not configured",
         model: "gemini-1.5-flash",
       },
-      groq: {
-        configured: hasGroq,
-        working: providerResults.groq,
-        status: hasGroq ? (providerResults.groq ? "✅ Working" : "❌ Failed") : "❌ Not configured",
-        model: "llama-3.1-8b-instant", // Example model
-      },
-      huggingface: {
-        configured: hasHuggingFace,
-        working: providerResults.huggingface,
-        status: hasHuggingFace ? (providerResults.huggingface ? "✅ Working" : "❌ Failed") : "❌ Not configured",
-        model: "meta-llama/Llama-3.1-8B-Instruct", // Example model
-      },
     }
 
     const configuredProviders = Object.values(providersStatus).filter(p => p.configured).length;
     const workingProviders = Object.values(providersStatus).filter(p => p.working).length;
     
-    let recommendation = "All configured AI providers are working. Ready for AI analysis.";
+    let recommendation = "Google AI provider is configured and working. Ready for AI analysis.";
     if (configuredProviders === 0) {
-      recommendation = "No AI providers are configured. Add GOOGLE_GENERATIVE_AI_API_KEY, GROQ_API_KEY, or HUGGINGFACE_API_KEY to enable AI analysis.";
-    } else if (workingProviders < configuredProviders) {
-      recommendation = "Some configured AI providers are not working. Check API keys and network connectivity.";
+      recommendation = "No AI providers are configured. Add GOOGLE_GENERATIVE_AI_API_KEY to enable AI analysis.";
     } else if (workingProviders === 0 && configuredProviders > 0) {
-      recommendation = "All configured AI providers are failing. Check API keys and network connectivity.";
-    } else if (workingProviders > 0 && workingProviders < configuredProviders) {
-      recommendation = "Some AI providers are configured and working. Consider configuring more for redundancy.";
+      recommendation = "Google AI provider is configured but failing. Check API key and network connectivity.";
     }
 
 

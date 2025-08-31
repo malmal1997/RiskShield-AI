@@ -5,8 +5,7 @@ export async function GET() {
     console.log("AI Assessment Debug Info")
 
     // Check environment variables
-    const hasGroq = !!process.env.GROQ_API_KEY
-    const hasHuggingFace = !!process.env.HUGGINGFACE_API_KEY
+    const hasGoogleAI = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
 
     // System information
     const systemInfo = {
@@ -18,17 +17,11 @@ export async function GET() {
 
     // AI Provider status
     const aiProviders = {
-      groq: {
-        configured: hasGroq,
-        keyLength: hasGroq ? process.env.GROQ_API_KEY?.length : 0,
-        status: hasGroq ? "Configured" : "Missing GROQ_API_KEY",
-        models: ["llama-3.1-8b-instant", "mixtral-8x7b-32768"],
-      },
-      huggingface: {
-        configured: hasHuggingFace,
-        keyLength: hasHuggingFace ? process.env.HUGGINGFACE_API_KEY?.length : 0,
-        status: hasHuggingFace ? "Configured" : "Missing HUGGINGFACE_API_KEY",
-        models: ["meta-llama/Llama-3.1-8B-Instruct"],
+      google: {
+        configured: hasGoogleAI,
+        keyLength: hasGoogleAI ? process.env.GOOGLE_GENERATIVE_AI_API_KEY?.length : 0,
+        status: hasGoogleAI ? "Configured" : "Missing GOOGLE_GENERATIVE_AI_API_KEY",
+        models: ["gemini-1.5-flash"],
       },
     }
 
@@ -39,24 +32,24 @@ export async function GET() {
         ".md": "Markdown files - Full support",
         ".json": "JSON files - Full support",
         ".csv": "CSV files - Full support",
+        ".pdf": "PDF files - Direct upload to Google AI (Full support)",
       },
       unsupported: {
-        ".pdf": "PDF files - Not supported in browser environment",
-        ".doc/.docx": "Word documents - Not supported in browser environment",
-        ".xls/.xlsx": "Excel files - Not supported in browser environment",
+        ".doc/.docx": "Word documents - Not supported directly, convert to PDF or TXT",
+        ".xls/.xlsx": "Excel files - Not supported directly, convert to CSV",
       },
-      workaround: "Convert unsupported files to .txt format for analysis",
+      workaround: "Convert unsupported files to supported formats for analysis",
     }
 
     // Feature status
     const features = {
-      aiAnalysis: hasGroq || hasHuggingFace ? "Available" : "Requires API keys",
-      documentExtraction: "Text files only",
+      aiAnalysis: hasGoogleAI ? "Available" : "Requires API key",
+      documentExtraction: "Supported formats (PDF, TXT, MD, CSV, JSON, HTML, XML)",
       antiHallucination: "Enabled - strict content validation",
       confidenceScoring: "Enabled",
       evidenceExtraction: "Enabled - exact quotes only",
       riskAssessment: "Enabled",
-      batchProcessing: "Enabled - 3 questions per batch",
+      batchProcessing: "Enabled - multiple documents per analysis",
     }
 
     return NextResponse.json({
@@ -66,9 +59,9 @@ export async function GET() {
       fileSupport,
       features,
       recommendations: [
-        hasGroq || hasHuggingFace ? "✅ AI providers configured" : "❌ Add GROQ_API_KEY or HUGGINGFACE_API_KEY",
-        "✅ Upload .txt files for best results",
-        "✅ Convert PDF/Word documents to text format",
+        hasGoogleAI ? "✅ Google AI provider configured" : "❌ Add GOOGLE_GENERATIVE_AI_API_KEY",
+        "✅ Upload PDF, TXT, MD, CSV, JSON, HTML, XML files for best results",
+        "✅ Convert Word/Excel documents to supported formats",
         "✅ Anti-hallucination measures active",
       ],
       testEndpoints: {

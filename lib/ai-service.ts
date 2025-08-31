@@ -1,7 +1,5 @@
 import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
-import { groq } from "@ai-sdk/groq"
-import { huggingface } from "@ai-sdk/huggingface"
 import { supabaseClient } from "./supabase-client" // Import supabaseClient
 
 export interface DocumentAnalysisResult {
@@ -978,48 +976,6 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
   } else {
     console.log("Google AI API key not found")
     results.google = false
-  }
-
-  // Test Groq
-  if (process.env.GROQ_API_KEY) {
-    try {
-      const result = await generateText({
-        model: groq("llama-3.1-8b-instant"), // Using a common Groq model
-        prompt: 'Respond with "OK" if you can read this.',
-        maxTokens: 10,
-        temperature: 0.1,
-        response_format: { type: 'json_object' },
-      })
-      results.groq = result.text.toLowerCase().includes("ok")
-      console.log("Groq AI test result:", results.groq)
-    } catch (error) {
-      console.error("Groq AI test failed:", error)
-      results.groq = false
-    }
-  } else {
-    console.log("Groq API key not found")
-    results.groq = false
-  }
-
-  // Test Hugging Face
-  if (process.env.HUGGINGFACE_API_KEY) {
-    try {
-      const result = await generateText({
-        model: huggingface("meta-llama/Llama-3.1-8B-Instruct"), // Using a common Hugging Face model
-        prompt: 'Respond with "OK" if you can read this.',
-        maxTokens: 10,
-        temperature: 0.1,
-        response_format: { type: 'json_object' },
-      })
-      results.huggingface = result.text.toLowerCase().includes("ok")
-      console.log("Hugging Face AI test result:", results.huggingface)
-    } catch (error) {
-      console.error("Hugging Face AI test failed:", error)
-      results.huggingface = false
-    }
-  } else {
-    console.log("Hugging Face API key not found")
-    results.huggingface = false
   }
 
   return results
