@@ -507,6 +507,8 @@ async function performDirectAIAnalysis(
   let textPromptPart = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with the following documents and questions.
 
 CRITICAL INSTRUCTIONS:
+- Your response MUST be a single, valid JSON object.
+- DO NOT include any conversational text, markdown code block delimiters (like \`\`\`json\`\`\` or \`\`\`\`), or any other text outside the JSON object.
 - Analyze ALL provided documents (both attached files and text content provided below)
 - Documents are classified as 'Primary' or '4th Party'.
 - Prioritize information from 'Primary' documents. Only use information from '4th Party' documents if the required information cannot be found in 'Primary' documents.
@@ -690,6 +692,7 @@ Respond in this exact JSON format:
     }
 
     jsonString = jsonString.trim(); // Trim any whitespace or newlines
+    console.log("Attempting to parse JSON string:", jsonString); // Log the string before parsing
     try {
       const aiResponse = JSON.parse(jsonString);
       console.log(`✅ Successfully parsed AI response JSON`);
@@ -748,7 +751,7 @@ Respond in this exact JSON format:
             }
             confidenceScores[question.id] = 0.1; // Low confidence if no relevant evidence
             reasoning[question.id] = "No directly relevant evidence found in documents after semantic filtering.";
-            documentExcerpi[questionId] = [];
+            documentExcerpts[questionId] = [];
           }
         } else {
           // No evidence array or empty array provided by AI
