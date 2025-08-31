@@ -27,6 +27,8 @@ import {
   Plus,
   EyeOff,
   Eye,
+  ExternalLink, // Added ExternalLink icon
+  Bot, // Added Bot icon
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
@@ -820,6 +822,51 @@ function SettingsContent() {
                       </>
                     )}
                   </Button>
+                </div>
+
+                <Separator />
+
+                <h3 className="text-lg font-medium mb-4">Get Free API Keys</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <a
+                    href="https://aistudio.google.com/app/apikey"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 p-4 border border-blue-200 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
+                  >
+                    <Bot className="h-6 w-6 text-blue-600" />
+                    <div>
+                      <p className="font-medium text-blue-800">Google AI Studio (Gemini)</p>
+                      <p className="text-sm text-blue-700">Get your free Gemini API key</p>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-blue-600 ml-auto" />
+                  </a>
+                  <a
+                    href="https://console.groq.com/keys"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 p-4 border border-green-200 rounded-lg bg-green-50 hover:bg-green-100 transition-colors"
+                  >
+                    <Zap className="h-6 w-6 text-green-600" />
+                    <div>
+                      <p className="font-medium text-green-800">Groq Cloud</p>
+                      <p className="text-sm text-green-700">Access fast inference models</p>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-green-600 ml-auto" />
+                  </a>
+                  <a
+                    href="https://huggingface.co/settings/tokens"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 p-4 border border-purple-200 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors"
+                  >
+                    <Brain className="h-6 w-6 text-purple-600" />
+                    <div>
+                      <p className="font-medium text-purple-800">Hugging Face</p>
+                      <p className="text-sm text-purple-700">Explore open-source AI models</p>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-purple-600 ml-auto" />
+                  </a>
                 </div>
 
                 <Separator />
