@@ -1186,7 +1186,7 @@ interface AIAnalysisResult {
 }
 
 export default function AIAssessmentPage() {
-  const { signOut } = useAuth()
+  const { user, isDemo, signOut } = useAuth()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
@@ -1264,7 +1264,7 @@ export default function AIAssessmentPage() {
 
   // Add new state for SOC compliance dropdowns
   const [socTestingStatus, setSocTestingStatus] = useState<Record<string, "tested" | "un-tested">>({})
-  const [socExceptionStatus, setSocExceptionStatus] = useState<Record<string, "exception" | "non-operational" | "">>({})
+  const [socExceptionStatus, setSocExceptionStatus] = useState<Record<string, "operational" | "exception" | "non-operational" | "">>({})
 
   const determineSOCStatus = (questionId: string, answer: any, reasoning: string, excerpts: any[]) => {
     const answerStr = String(answer).toLowerCase()
@@ -1794,6 +1794,8 @@ export default function AIAssessmentPage() {
         type: d.type,
         relationship: d.relationship,
       }))));
+      formData.append("userId", user?.id || "anonymous"); // Send user ID
+      formData.append("isDemo", String(isDemo)); // Send demo status
 
       // Progress simulation
       const progressSteps = [
