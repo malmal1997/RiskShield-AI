@@ -8,6 +8,8 @@ export async function GET() {
     timestamp: new Date().toISOString(),
     providers: {
       google: !!process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+      groq: !!process.env.GROQ_API_KEY,
+      huggingface: !!process.env.HF_API_KEY,
     },
   })
 }
@@ -24,6 +26,7 @@ export async function POST(request: NextRequest) {
     const assessmentId = formData.get("assessmentId") as string | undefined; // Get optional assessmentId
     const userIdFromClient = formData.get("userId") as string; // Get userId from client
     const isDemoFromClient = formData.get("isDemo") === "true"; // Get isDemo status from client
+    const selectedProvider = formData.get("selectedProvider") as "google" | "groq" | "huggingface"; // Get selectedProvider
 
     if (!files || files.length === 0) {
       return NextResponse.json({ error: "No files provided" }, { status: 400 })
@@ -78,19 +81,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized: User ID could not be determined." }, { status: 401 });
     }
 
-    console.log(`Processing ${files.length} files for ${assessmentType} assessment by user ${userIdToUse}`)
-
-    // Check if Google AI is available
-    const hasGoogleAI = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-
-    // Note: The actual API key selection (client vs default) happens inside analyzeDocuments
-    // We only need to ensure the default is configured if no client key is expected.
-    if (!hasGoogleAI && !isDemoFromClient) { // If not demo and no default key, it will fail if no client key is provided
-      console.warn("Default Google AI API key not configured. Analysis might fail if client key is not provided.");
-    }
+    console.log(`Processing ${files.length} files for ${assessmentType} assessment by user ${userIdToUse} using provider ${selectedProvider}`)
 
     // Perform analysis, passing the user ID, optional assessment ID, and document metadata
-    const result = await analyzeDocuments(files, questions, assessmentType || "Unknown", userIdToUse, assessmentId, documentMetadata);
+    const result = await analyzeDocuments(files, questions, assessmentType || "Unknown", userIdToUse, selectedProvider, assessmentId, documentMetadata);
 
     console.log("Analysis completed successfully")
     return NextResponse.json(result)

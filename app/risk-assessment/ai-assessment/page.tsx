@@ -36,14 +36,17 @@ import {
   CheckCircle2,
   Plus,
   ArrowRight,
+  Zap, // Added Zap icon for Groq
 } from "lucide-react"
 import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
 import { useAuth } from "@/components/auth-context"
-import html2canvas from "html2canvas" // Import html2canvas
+import html2canvas from "html22canvas" // Import html2canvas
 import ReportContent from "@/components/reports/ReportContent" // Import the new ReportContent component
 import ReactDOM from 'react-dom/client'; // Import ReactDOM for client-side rendering
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 
 // Complete assessment categories for AI assessment
 const assessmentCategories = [
@@ -1265,6 +1268,8 @@ export default function AIAssessmentPage() {
   // Add new state for SOC compliance dropdowns
   const [socTestingStatus, setSocTestingStatus] = useState<Record<string, "tested" | "un-tested">>({})
   const [socExceptionStatus, setSocExceptionStatus] = useState<Record<string, "operational" | "exception" | "non-operational" | "">>({})
+  const [selectedAIProvider, setSelectedAIProvider] = useState<"google" | "groq" | "huggingface">("google") // New state for AI provider selection
+
 
   const determineSOCStatus = (questionId: string, answer: any, reasoning: string, excerpts: any[]) => {
     const answerStr = String(answer).toLowerCase()
@@ -1796,6 +1801,7 @@ export default function AIAssessmentPage() {
       }))));
       formData.append("userId", user?.id || "anonymous"); // Send user ID
       formData.append("isDemo", String(isDemo)); // Send demo status
+      formData.append("selectedProvider", selectedAIProvider); // Send selected AI provider
 
       // Progress simulation
       const progressSteps = [
@@ -2598,8 +2604,9 @@ export default function AIAssessmentPage() {
                   </Button>
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents for AI Analysis</h2>
                   <p className="text-lg text-gray-600">
-                    Upload your documents for{" "}
-                    <span className="font-semibold text-blue-600">{currentCategory?.name}</span>
+                    Upload your documents related to your{" "}
+                    <span className="font-semibold text-blue-600">{currentCategory?.name?.toLowerCase()}</span>{" "}
+                    practices
                   </p>
                 </div>
 
@@ -2635,6 +2642,36 @@ export default function AIAssessmentPage() {
                           />
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* AI Provider Selection */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Brain className="mr-2 h-5 w-5" />
+                        Select AI Provider
+                      </CardTitle>
+                      <CardDescription>Choose which AI model to use for analysis</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Select
+                        value={selectedAIProvider}
+                        onValueChange={(value: "google" | "groq" | "huggingface") => setSelectedAIProvider(value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an AI provider" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="google">Google Gemini (Default)</SelectItem>
+                          <SelectItem value="groq">Groq Cloud</SelectItem>
+                          <SelectItem value="huggingface">Hugging Face</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-gray-500 mt-2">
+                        If you have configured your own API key for a provider in Settings &gt; Integrations, it will be
+                        used. Otherwise, the default API key (if available) will be used.
+                      </p>
                     </CardContent>
                   </Card>
 
@@ -3145,20 +3182,6 @@ export default function AIAssessmentPage() {
                                                 }
                                                 placeholder="Evidence quote"
                                                 className="w-full p-2 border border-gray-300 rounded text-sm min-h-[60px]"
-                                              />
-                                              <input
-                                                type="text"
-                                                value={excerpt.relevance || ""}
-                                                onChange={(e) =>
-                                                  updateEvidenceItem(
-                                                    question.id,
-                                                    excerptIndex,
-                                                    "relevance",
-                                                    e.target.value,
-                                                  )
-                                                }
-                                                placeholder="Relevance explanation"
-                                                className="w-full p-1 border border-gray-300 rounded text-sm"
                                               />
                                               <input
                                                 type="number" // Input for page number

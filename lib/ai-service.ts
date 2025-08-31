@@ -1,5 +1,7 @@
 import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
+import { groq } from "@ai-sdk/groq"
+import { huggingface } from "@ai-sdk/huggingface"
 import { supabaseClient } from "./supabase-client" // Import supabaseClient
 import { getUserApiKeys, decryptUserApiKey } from "./user-api-key-service" // Import API key services
 
@@ -50,7 +52,7 @@ interface DocumentMetadata {
   relationship?: string;
 }
 
-// Convert file to buffer for Google AI API
+// Convert file to buffer for AI API
 async function fileToBuffer(file: File): Promise<ArrayBuffer> {
   return await file.arrayBuffer()
 }
@@ -387,7 +389,14 @@ const MOCK_PRICING = {
     input: 0.00000035, // $0.35 per 1M tokens
     output: 0.00000105, // $1.05 per 1M tokens
   },
-  // Add other models if needed
+  "groq-llama3-8b": {
+    input: 0.00000005, // $0.05 per 1M tokens
+    output: 0.00000015, // $0.15 per 1M tokens
+  },
+  "huggingface-mixtral-8x7b": {
+    input: 0.0000006, // $0.60 per 1M tokens
+    output: 0.0000006, // $0.60 per 1M tokens
+  },
 };
 
 // Calculate mock cost
@@ -401,42 +410,44 @@ function calculateMockCost(modelName: string, inputTokens: number = 0, outputTok
   return inputCost + outputCost;
 }
 
-// Direct Google AI analysis with file upload support
+// Direct AI analysis with file upload support for multiple providers
 async function performDirectAIAnalysis(
   files: File[],
   questions: Question[],
   assessmentType: string,
-  userId: string, // Added userId parameter
-  assessmentId?: string, // Added optional assessmentId
-  documentMetadata: DocumentMetadata[] = [], // Added documentMetadata
+  userId: string,
+  selectedProvider: "google" | "groq" | "huggingface", // Added selectedProvider
+  assessmentId?: string,
+  documentMetadata: DocumentMetadata[] = [],
 ): Promise<DocumentAnalysisResult> {
-  console.log("🤖 Starting direct Google AI analysis with file upload support...")
+  console.log(`🤖 Starting direct ${selectedProvider.toUpperCase()} AI analysis with file upload support...`)
 
-  let googleApiKey: string | undefined = undefined;
+  let apiKey: string | undefined = undefined;
   let keySource: 'client_key' | 'default_key' = 'default_key';
+  let modelInstance: any;
+  let modelName: string;
 
-  // 1. Try to get client's API key
-  if (userId && userId !== "anonymous") { // "anonymous" is used for preview mode
+  // 1. Try to get client's API key for the selected provider
+  if (userId && userId !== "anonymous") {
     try {
       const { data: userApiKeys, error: keysError } = await getUserApiKeys();
       if (keysError) {
         console.warn("Error fetching user API keys:", keysError);
       } else if (userApiKeys && userApiKeys.length > 0) {
-        // Find a Google Gemini key (or the first one if no specific name)
-        const geminiKeyEntry = userApiKeys.find(key => key.api_key_name.toLowerCase().includes("gemini") || key.api_key_name.toLowerCase().includes("google"));
+        const providerKeyEntry = userApiKeys.find(key => key.api_key_name.toLowerCase().includes(selectedProvider));
         
-        if (geminiKeyEntry) {
-          console.log(`Attempting to decrypt client's API key: ${geminiKeyEntry.api_key_name}`);
-          const { apiKey, error: decryptError } = await decryptUserApiKey(geminiKeyEntry.id, userId);
+        if (providerKeyEntry) {
+          console.log(`Attempting to decrypt client's API key for ${selectedProvider}: ${providerKeyEntry.api_key_name}`);
+          const { apiKey: decryptedKey, error: decryptError } = await decryptUserApiKey(providerKeyEntry.id, userId);
           if (decryptError) {
-            console.warn(`Failed to decrypt client's API key (${geminiKeyEntry.api_key_name}):`, decryptError);
-          } else if (apiKey) {
-            googleApiKey = apiKey;
+            console.warn(`Failed to decrypt client's API key (${providerKeyEntry.api_key_name}):`, decryptError);
+          } else if (decryptedKey) {
+            apiKey = decryptedKey;
             keySource = 'client_key';
-            console.log("✅ Successfully retrieved client's Google Gemini API key.");
+            console.log(`✅ Successfully retrieved client's ${selectedProvider} API key.`);
           }
         } else {
-          console.log("No specific Google Gemini API key found for client. Falling back to default.");
+          console.log(`No specific ${selectedProvider} API key found for client. Falling back to default.`);
         }
       } else {
         console.log("No API keys configured for client. Falling back to default.");
@@ -448,16 +459,39 @@ async function performDirectAIAnalysis(
     console.log("Anonymous user or no user ID provided. Using default Google API key.");
   }
 
-  // 2. Fallback to default if client key not found or failed
-  if (!googleApiKey) {
-    googleApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-    keySource = 'default_key';
-    console.log("Using default Google Gemini API key from environment variables.");
+  // 2. Configure model instance and name based on selected provider and API key
+  switch (selectedProvider) {
+    case "google":
+      modelName = "gemini-1.5-flash";
+      modelInstance = google(modelName, { apiKey: apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY });
+      if (!apiKey && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+        apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        keySource = 'default_key';
+      }
+      break;
+    case "groq":
+      modelName = "llama3-8b-8192"; // Example Groq model
+      modelInstance = groq(modelName, { apiKey: apiKey || process.env.GROQ_API_KEY });
+      if (!apiKey && process.env.GROQ_API_KEY) {
+        apiKey = process.env.GROQ_API_KEY;
+        keySource = 'default_key';
+      }
+      break;
+    case "huggingface":
+      modelName = "mixtral-8x7b-instruct-v0.1"; // Example Hugging Face model
+      modelInstance = huggingface(modelName, { apiKey: apiKey || process.env.HF_API_KEY });
+      if (!apiKey && process.env.HF_API_KEY) {
+        apiKey = process.env.HF_API_KEY;
+        keySource = 'default_key';
+      }
+      break;
+    default:
+      throw new Error(`Unsupported AI provider: ${selectedProvider}`);
   }
 
-  // 3. Final check for any Google API key
-  if (!googleApiKey) {
-    throw new Error("Google AI API key not found. Please add GOOGLE_GENERATIVE_AI_API_KEY environment variable or configure a client API key.");
+  // 3. Final check for any API key for the selected provider
+  if (!apiKey) {
+    throw new Error(`${selectedProvider.toUpperCase()} AI API key not found. Please add a client API key or configure the default ${selectedProvider.toUpperCase()}_API_KEY environment variable.`);
   }
 
   // Filter and process supported files
@@ -491,7 +525,7 @@ async function performDirectAIAnalysis(
       answers,
       confidenceScores,
       reasoning,
-      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFiles.map((f) => f.name).join(", ")}`,
+      overallAnalysis: `No supported documents were available for ${selectedProvider.toUpperCase()} AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFiles.map((f) => f.name).join(", ")}`,
       riskFactors: [
         "No supported document content available for analysis",
         "Unable to assess actual security posture from uploaded files",
@@ -507,7 +541,7 @@ async function performDirectAIAnalysis(
       riskLevel: "High",
       analysisDate: new Date().toISOString(),
       documentsAnalyzed: files.length,
-      aiProvider: `Google AI (Gemini 1.5 Flash) - ${keySource === 'client_key' ? 'Client Key' : 'Default Key'} (Conservative Analysis)`,
+      aiProvider: `${selectedProvider.toUpperCase()} AI (${modelName}) - ${keySource === 'client_key' ? 'Client Key' : 'Default Key'} (Conservative Analysis)`,
       documentExcerpts: {},
       directUploadResults: files.map((file) => ({
         fileName: file.name,
@@ -519,28 +553,28 @@ async function performDirectAIAnalysis(
     }
   }
 
-  // Test Google AI connection with the selected API key
+  // Test AI connection with the selected API key
   try {
-    console.log("🔗 Testing Google AI connection with selected API key...")
+    console.log(`🔗 Testing ${selectedProvider.toUpperCase()} AI connection with selected API key...`)
     const testResult = await generateText({
-      model: google("gemini-1.5-flash", { apiKey: googleApiKey }),
+      model: modelInstance,
       prompt: "Reply with 'OK' if you can read this.",
       maxTokens: 10,
       temperature: 0.1,
-      response_format: { type: 'json_object' }, // Ensure JSON output for test
+      response_format: { type: 'json_object' },
     })
 
     if (!testResult.text.toLowerCase().includes("ok")) {
-      throw new Error("Google AI test failed - unexpected response")
+      throw new Error(`${selectedProvider.toUpperCase()} AI test failed - unexpected response`)
     }
-    console.log("✅ Google AI connection successful with selected API key.")
+    console.log(`✅ ${selectedProvider.toUpperCase()} AI connection successful with selected API key.`)
   } catch (error) {
-    console.error("❌ Google AI test failed with selected API key:", error)
-    throw new Error(`Google AI is not available with the provided API key: ${error instanceof Error ? error.message : "Unknown error"}`)
+    console.error(`❌ ${selectedProvider.toUpperCase()} AI test failed with selected API key:`, error)
+    throw new Error(`${selectedProvider.toUpperCase()} AI is not available with the provided API key: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 
-  // Process files - separate PDFs from text files
-  console.log("📁 Processing files for Google AI...")
+  // Process files - separate PDFs from text files (only Google supports direct PDF upload)
+  console.log("📁 Processing files for AI...")
   const pdfFiles: File[] = []
   const textFiles: Array<{ file: File; text: string; metadata: DocumentMetadata }> = []
   const processingResults: Array<{ fileName: string; success: boolean; method: string }> = []
@@ -550,12 +584,12 @@ async function performDirectAIAnalysis(
     const fileName = file.name.toLowerCase()
     const metadata = documentMetadata.find(m => m.fileName === file.name) || { fileName: file.name, type: 'primary' };
 
-    if (fileType.includes("application/pdf") || fileName.endsWith(".pdf")) {
+    if ((fileType.includes("application/pdf") || fileName.endsWith(".pdf")) && selectedProvider === "google") {
       pdfFiles.push(file)
       processingResults.push({ fileName: file.name, success: true, method: "pdf-upload" })
       console.log(`📄 PDF file prepared for upload: ${file.name}`)
     } else {
-      // Extract text from non-PDF files
+      // Extract text from all files (including PDFs for non-Google providers)
       const extraction = await extractTextFromFile(file)
       if (extraction.success && extraction.text.length > 0) {
         textFiles.push({ file, text: extraction.text, metadata })
@@ -630,7 +664,7 @@ CRITICAL INSTRUCTIONS:
   supportedFiles.forEach((file, index) => {
     const metadata = documentMetadata.find(m => m.fileName === file.name) || { fileName: file.name, type: 'primary' };
     textPromptPart += `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)}) - ${
-      file.type.includes("application/pdf") || file.name.endsWith(".pdf") ? "Attached as file" : "Content included above"
+      (file.type.includes("application/pdf") || file.name.endsWith(".pdf")) && selectedProvider === "google" ? "Attached as file" : "Content included above"
     } (Type: ${metadata.type}${metadata.type === '4th-party' ? `, Relationship: ${metadata.relationship || 'N/A'}` : ''})\n`
   })
   textPromptPart += "-------------------------------------\n\n"
@@ -669,27 +703,30 @@ Respond in this exact JSON format:
   // Prepare message content for generateText
   const messageContent: Array<any> = [{ type: "text" as const, text: textPromptPart }]
 
-  // Add PDF files as attachments
-  const pdfAttachments = await Promise.all(
-    pdfFiles.map(async (file) => {
-      try {
-        const bufferData = await fileToBuffer(file)
-        console.log(`✅ Converted ${file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
-        return {
-          type: "file" as const,
-          name: file.name,
-          data: bufferData,
-          mediaType: getGoogleAIMediaType(file),
+  // Add PDF files as attachments (only for Google provider)
+  if (selectedProvider === "google") {
+    const pdfAttachments = await Promise.all(
+      pdfFiles.map(async (file) => {
+        try {
+          const bufferData = await fileToBuffer(file)
+          console.log(`✅ Converted ${file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
+          return {
+            type: "file" as const,
+            name: file.name,
+            data: bufferData,
+            mediaType: getGoogleAIMediaType(file),
+          }
+        } catch (error) {
+          console.error(`❌ Failed to convert ${file.name} to buffer for attachment:`, error)
+          return null
         }
-      } catch (error) {
-        console.error(`❌ Failed to convert ${file.name} to buffer for attachment:`, error)
-        return null
-      }
-    }),
-  )
-  messageContent.push(...pdfAttachments.filter(Boolean)); // Add valid attachments
+      }),
+    )
+    messageContent.push(...pdfAttachments.filter(Boolean)); // Add valid attachments
+  }
 
-  // Process questions with Google AI - include PDF files if present
+
+  // Process questions with AI
   const answers: Record<string, boolean | string> = {}
   const confidenceScores: Record<string, number> = {}
   const reasoning: Record<string, string> = {}
@@ -704,12 +741,12 @@ Respond in this exact JSON format:
       .insert({
         user_id: userId,
         assessment_id: assessmentId,
-        ai_provider: "Google AI",
-        model_name: "gemini-1.5-flash",
+        ai_provider: selectedProvider,
+        model_name: modelName,
         document_count: files.length,
         question_count: questions.length,
         status: "pending",
-        key_source: keySource, // Store the key source
+        key_source: keySource,
       })
       .select('id')
       .single();
@@ -720,10 +757,10 @@ Respond in this exact JSON format:
       aiUsageLogId = logData.id;
     }
 
-    console.log("🧠 Processing documents with Google AI (including PDFs)...")
+    console.log(`🧠 Processing documents with ${selectedProvider.toUpperCase()} AI...`)
 
     const result = await generateText({
-      model: google("gemini-1.5-flash", { apiKey: googleApiKey }), // Use the selected API key
+      model: modelInstance,
       messages: [
         {
           role: "user" as const,
@@ -732,10 +769,10 @@ Respond in this exact JSON format:
       ],
       temperature: 0.1,
       maxTokens: 4000,
-      response_format: { type: 'json_object' }, // CRITICAL: Instruct Gemini to output pure JSON
+      response_format: { type: 'json_object' },
     })
     
-    console.log(`📝 Google AI response received (${result.text.length} characters)`)
+    console.log(`📝 ${selectedProvider.toUpperCase()} AI response received (${result.text.length} characters)`)
     console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
 
     let rawAiText = result.text;
@@ -853,7 +890,7 @@ Respond in this exact JSON format:
 
     // Update AI usage log with success status and token usage
     if (aiUsageLogId) {
-      const cost = calculateMockCost("gemini-1.5-flash", result.usage?.inputTokens, result.usage?.outputTokens);
+      const cost = calculateMockCost(modelName, result.usage?.inputTokens, result.usage?.outputTokens);
       const { error: updateLogError } = await supabaseClient
         .from('ai_usage_logs')
         .update({
@@ -870,7 +907,7 @@ Respond in this exact JSON format:
     }
 
   } catch (error) {
-    console.error("❌ Google AI processing failed:", error)
+    console.error(`❌ ${selectedProvider.toUpperCase()} AI processing failed:`, error)
     // Fallback to conservative answers
     questions.forEach((question) => {
       answers[question.id] = question.type === "boolean" ? false : question.options?.[0] || "Never"
@@ -925,7 +962,7 @@ Respond in this exact JSON format:
   const successfulProcessing = processingResults.filter((r) => r.success).length
   const failedProcessing = processingResults.filter((r) => !r.success).length
 
-  let analysisNote = `Analysis completed using Google AI with direct document processing.`
+  let analysisNote = `Analysis completed using ${selectedProvider.toUpperCase()} AI with direct document processing.`
   if (successfulProcessing > 0) {
     analysisNote += ` Successfully processed ${successfulProcessing} document(s).`
   }
@@ -939,7 +976,7 @@ Respond in this exact JSON format:
     analysisNote += ` ${unsupportedFiles.length} file(s) in unsupported formats were skipped.`
   }
 
-  console.log(`✅ Google AI analysis completed. Risk score: ${riskScore}, Risk level: ${riskLevel}`)
+  console.log(`✅ ${selectedProvider.toUpperCase()} AI analysis completed. Risk score: ${riskScore}, Risk level: ${riskLevel}`)
 
   return {
     answers,
@@ -947,7 +984,7 @@ Respond in this exact JSON format:
     reasoning,
     overallAnalysis: analysisNote,
     riskFactors: [
-      "Analysis based on direct Google AI document processing",
+      `Analysis based on direct ${selectedProvider.toUpperCase()} AI document processing`,
       "Conservative approach taken where evidence was unclear or missing",
       "Semantic validation applied to all evidence",
       ...(failedProcessing > 0 ? [`${failedProcessing} files failed to process`] : []),
@@ -964,7 +1001,7 @@ Respond in this exact JSON format:
     riskLevel,
     analysisDate: new Date().toISOString(),
     documentsAnalyzed: files.length,
-    aiProvider: `Google AI (Gemini 1.5 Flash) - ${keySource === 'client_key' ? 'Client Key' : 'Default Key'}`,
+    aiProvider: `${selectedProvider.toUpperCase()} AI (${modelName}) - ${keySource === 'client_key' ? 'Client Key' : 'Default Key'}`,
     documentExcerpts,
     directUploadResults: files.map((file, index) => {
       const result = processingResults.find((r) => r.fileName === file.name)
@@ -984,11 +1021,12 @@ export async function analyzeDocuments(
   files: File[],
   questions: Question[],
   assessmentType: string,
-  userId: string, // Added userId parameter
-  assessmentId?: string, // Added optional assessmentId
-  documentMetadata: DocumentMetadata[] = [], // Added documentMetadata
+  userId: string,
+  selectedProvider: "google" | "groq" | "huggingface", // Added selectedProvider
+  assessmentId?: string,
+  documentMetadata: DocumentMetadata[] = [],
 ): Promise<DocumentAnalysisResult> {
-  console.log(`🚀 Starting Google AI analysis of ${files.length} files for ${assessmentType}`)
+  console.log(`🚀 Starting ${selectedProvider.toUpperCase()} AI analysis of ${files.length} files for ${assessmentType}`)
 
   if (!files || files.length === 0) {
     throw new Error("No files provided for analysis")
@@ -1010,9 +1048,9 @@ export async function analyzeDocuments(
     })
 
     // Perform direct AI analysis
-    const result = await performDirectAIAnalysis(files, questions, assessmentType, userId, assessmentId, documentMetadata)
+    const result = await performDirectAIAnalysis(files, questions, assessmentType, userId, selectedProvider, assessmentId, documentMetadata)
 
-    console.log("🎉 Google AI analysis completed successfully")
+    console.log("🎉 AI analysis completed successfully")
     return result
   } catch (error) {
     console.error("💥 Analysis failed:", error)
@@ -1020,7 +1058,7 @@ export async function analyzeDocuments(
   }
 }
 
-// Test Google AI provider
+// Test AI providers
 export async function testAIProviders(): Promise<Record<string, boolean>> {
   const results: Record<string, boolean> = {}
 
@@ -1028,11 +1066,11 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
   if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
     try {
       const result = await generateText({
-        model: google("gemini-1.5-flash", { apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY }), // Use default key for test
+        model: google("gemini-1.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
         maxTokens: 10,
         temperature: 0.1,
-        response_format: { type: 'json_object' }, // Ensure JSON output for test
+        response_format: { type: 'json_object' },
       })
       results.google = result.text.toLowerCase().includes("ok")
       console.log("Google AI test result:", results.google)
@@ -1043,6 +1081,48 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
   } else {
     console.log("Google AI API key not found")
     results.google = false
+  }
+
+  // Test Groq
+  if (process.env.GROQ_API_KEY) {
+    try {
+      const result = await generateText({
+        model: groq("llama3-8b-8192"),
+        prompt: 'Respond with "OK" if you can read this.',
+        maxTokens: 10,
+        temperature: 0.1,
+        response_format: { type: 'json_object' },
+      })
+      results.groq = result.text.toLowerCase().includes("ok")
+      console.log("Groq AI test result:", results.groq)
+    } catch (error) {
+      console.error("Groq AI test failed:", error)
+      results.groq = false
+    }
+  } else {
+    console.log("Groq API key not found")
+    results.groq = false
+  }
+
+  // Test Hugging Face
+  if (process.env.HF_API_KEY) {
+    try {
+      const result = await generateText({
+        model: huggingface("mixtral-8x7b-instruct-v0.1"),
+        prompt: 'Respond with "OK" if you can read this.',
+        maxTokens: 10,
+        temperature: 0.1,
+        response_format: { type: 'json_object' },
+      })
+      results.huggingface = result.text.toLowerCase().includes("ok")
+      console.log("Hugging Face AI test result:", results.huggingface)
+    } catch (error) {
+      console.error("Hugging Face AI test failed:", error)
+      results.huggingface = false
+    }
+  } else {
+    console.log("Hugging Face API key not found")
+    results.huggingface = false
   }
 
   return results

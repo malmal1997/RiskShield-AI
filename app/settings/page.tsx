@@ -37,6 +37,7 @@ import { updateUserProfile } from "@/lib/auth-service"
 import { useToast } from "@/components/ui/use-toast"
 import { createUserApiKey, getUserApiKeys, deleteUserApiKey, type EncryptedApiKey } from "@/lib/user-api-key-service"
 import Link from "next/link" // Import Link
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Import Select components
 
 export default function SettingsPage() {
   return (
@@ -90,6 +91,7 @@ function SettingsContent() {
   const [newApiKeyValue, setNewApiKeyValue] = useState("")
   const [showApiKeyValue, setShowApiKeyValue] = useState(false)
   const [isAddingApiKey, setIsAddingApiKey] = useState(false)
+  const [newApiKeyProvider, setNewApiKeyProvider] = useState<"google" | "groq" | "huggingface" | "">("") // New state for provider selection
 
   useEffect(() => {
     if (profile) {
@@ -132,38 +134,20 @@ function SettingsContent() {
     setLoading(false);
   };
 
-  const handleProfileUpdate = async () => {
-    try {
-      setLoading(true)
-      await updateUserProfile(profileForm)
-      await refreshProfile()
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
-      })
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleAddApiKey = async () => {
-    if (!newApiKeyName || !newApiKeyValue) {
+    if (!newApiKeyName || !newApiKeyValue || !newApiKeyProvider) {
       toast({
         variant: "destructive",
         title: "Missing Information",
-        description: "Please provide both an API key name and the key value.",
+        description: "Please provide an API key name, the key value, and select a provider.",
       });
       return;
     }
 
     setIsAddingApiKey(true);
-    const { success, message } = await createUserApiKey(newApiKeyName, newApiKeyValue);
+    // Prepend provider to key name for easier identification in backend
+    const fullApiKeyName = `${newApiKeyProvider}-${newApiKeyName}`;
+    const { success, message } = await createUserApiKey(fullApiKeyName, newApiKeyValue);
     if (success) {
       toast({
         title: "Success",
@@ -171,6 +155,7 @@ function SettingsContent() {
       });
       setNewApiKeyName("");
       setNewApiKeyValue("");
+      setNewApiKeyProvider("");
       fetchApiKeys(); // Refresh the list of keys
     } else {
       toast({
@@ -768,21 +753,37 @@ function SettingsContent() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Key className="h-5 w-5" />
-                  <span>Your API Keys</span>
+                  <span>Your AI API Keys</span>
                 </CardTitle>
                 <CardDescription>
-                  Manage your personal API keys for third-party AI services (e.g., Google Gemini, Groq).
+                  Manage your personal API keys for third-party AI services (e.g., Google Gemini, Groq, Hugging Face).
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="apiKeyProvider">AI Provider</Label>
+                    <Select
+                      value={newApiKeyProvider}
+                      onValueChange={(value: "google" | "groq" | "huggingface") => setNewApiKeyProvider(value)}
+                    >
+                      <SelectTrigger id="apiKeyProvider">
+                        <SelectValue placeholder="Select AI Provider" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="google">Google Gemini</SelectItem>
+                        <SelectItem value="groq">Groq Cloud</SelectItem>
+                        <SelectItem value="huggingface">Hugging Face</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div>
                     <Label htmlFor="apiKeyName">API Key Name</Label>
                     <Input
                       id="apiKeyName"
                       value={newApiKeyName}
                       onChange={(e) => setNewApiKeyName(e.target.value)}
-                      placeholder="e.g., My Google Gemini Key"
+                      placeholder="e.g., My Gemini Key"
                     />
                   </div>
                   <div>
@@ -813,7 +814,7 @@ function SettingsContent() {
                       Your API keys are encrypted and stored securely. They are never exposed to the client-side.
                     </p>
                   </div>
-                  <Button onClick={handleAddApiKey} disabled={isAddingApiKey || !newApiKeyName || !newApiKeyValue}>
+                  <Button onClick={handleAddApiKey} disabled={isAddingApiKey || !newApiKeyName || !newApiKeyValue || !newApiKeyProvider}>
                     {isAddingApiKey ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -888,7 +889,7 @@ function SettingsContent() {
 
                 <Separator />
 
-                <h3 className="text-lg font-medium mb-4">Existing API Keys</h3>
+                <h3 className="text-lg font-medium mb-4">Existing AI API Keys</h3>
                 {loading ? (
                   <div className="text-center py-4">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>

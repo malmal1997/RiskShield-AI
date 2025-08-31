@@ -5,28 +5,37 @@ export async function GET() {
   try {
     console.log("Testing AI providers...")
 
-    // Test only Google AI provider
     const providerResults = await testAIProviders()
-
-    const hasGoogle = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
 
     const providersStatus = {
       google: {
-        configured: hasGoogle,
+        configured: !!process.env.GOOGLE_GENERATIVE_AI_API_KEY,
         working: providerResults.google,
-        status: hasGoogle ? (providerResults.google ? "✅ Working" : "❌ Failed") : "❌ Not configured",
+        status: !!process.env.GOOGLE_GENERATIVE_AI_API_KEY ? (providerResults.google ? "✅ Working" : "❌ Failed") : "❌ Not configured",
         model: "gemini-1.5-flash",
+      },
+      groq: {
+        configured: !!process.env.GROQ_API_KEY,
+        working: providerResults.groq,
+        status: !!process.env.GROQ_API_KEY ? (providerResults.groq ? "✅ Working" : "❌ Failed") : "❌ Not configured",
+        model: "llama3-8b-8192",
+      },
+      huggingface: {
+        configured: !!process.env.HF_API_KEY,
+        working: providerResults.huggingface,
+        status: !!process.env.HF_API_KEY ? (providerResults.huggingface ? "✅ Working" : "❌ Failed") : "❌ Not configured",
+        model: "mixtral-8x7b-instruct-v0.1",
       },
     }
 
     const configuredProviders = Object.values(providersStatus).filter(p => p.configured).length;
     const workingProviders = Object.values(providersStatus).filter(p => p.working).length;
     
-    let recommendation = "Google AI provider is configured and working. Ready for AI analysis.";
+    let recommendation = "All configured AI providers are working. Ready for AI analysis.";
     if (configuredProviders === 0) {
-      recommendation = "No AI providers are configured. Add GOOGLE_GENERATIVE_AI_API_KEY to enable AI analysis.";
-    } else if (workingProviders === 0 && configuredProviders > 0) {
-      recommendation = "Google AI provider is configured but failing. Check API key and network connectivity.";
+      recommendation = "No AI providers are configured. Add GOOGLE_GENERATIVE_AI_API_KEY, GROQ_API_KEY, or HF_API_KEY to enable AI analysis.";
+    } else if (workingProviders < configuredProviders) {
+      recommendation = "Some AI providers are configured but failing. Check API keys and network connectivity.";
     }
 
 
@@ -35,7 +44,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       providers: providersStatus,
       summary: {
-        totalProviders: configuredProviders, // Only count configured ones for summary
+        totalProviders: configuredProviders,
         workingProviders: workingProviders,
         recommendation: recommendation,
       },
@@ -112,10 +121,9 @@ Security policies are reviewed and updated yearly.
     // Create a mock file for testing
     const mockFile = new File([sampleDocument], "sample-policy.txt", { type: "text/plain" })
 
-    // Run the analysis
-    // For testing, we need a dummy userId. In a real scenario, this would come from authentication.
+    // Run the analysis using Google as the default provider for the sample test
     const dummyUserId = "test-user-id-123"; 
-    const result = await analyzeDocuments([mockFile], sampleQuestions, "Sample Security Assessment", dummyUserId)
+    const result = await analyzeDocuments([mockFile], sampleQuestions, "Sample Security Assessment", dummyUserId, "google")
 
     return NextResponse.json({
       status: "Sample analysis complete",

@@ -4,8 +4,10 @@ export async function GET() {
   try {
     console.log("AI Assessment Debug Info")
 
-    // Check environment variables
+    // Check environment variables for all providers
     const hasGoogleAI = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
+    const hasGroq = !!process.env.GROQ_API_KEY
+    const hasHuggingFace = !!process.env.HF_API_KEY
 
     // System information
     const systemInfo = {
@@ -22,6 +24,18 @@ export async function GET() {
         keyLength: hasGoogleAI ? process.env.GOOGLE_GENERATIVE_AI_API_KEY?.length : 0,
         status: hasGoogleAI ? "Configured" : "Missing GOOGLE_GENERATIVE_AI_API_KEY",
         models: ["gemini-1.5-flash"],
+      },
+      groq: {
+        configured: hasGroq,
+        keyLength: hasGroq ? process.env.GROQ_API_KEY?.length : 0,
+        status: hasGroq ? "Configured" : "Missing GROQ_API_KEY",
+        models: ["llama3-8b-8192"],
+      },
+      huggingface: {
+        configured: hasHuggingFace,
+        keyLength: hasHuggingFace ? process.env.HF_API_KEY?.length : 0,
+        status: hasHuggingFace ? "Configured" : "Missing HF_API_KEY",
+        models: ["mixtral-8x7b-instruct-v0.1"],
       },
     }
 
@@ -43,7 +57,7 @@ export async function GET() {
 
     // Feature status
     const features = {
-      aiAnalysis: hasGoogleAI ? "Available" : "Requires API key",
+      aiAnalysis: (hasGoogleAI || hasGroq || hasHuggingFace) ? "Available" : "Requires at least one API key",
       documentExtraction: "Supported formats (PDF, TXT, MD, CSV, JSON, HTML, XML)",
       antiHallucination: "Enabled - strict content validation",
       confidenceScoring: "Enabled",
@@ -52,18 +66,22 @@ export async function GET() {
       batchProcessing: "Enabled - multiple documents per analysis",
     }
 
+    const recommendations = [];
+    if (hasGoogleAI) recommendations.push("✅ Google AI provider configured"); else recommendations.push("❌ Add GOOGLE_GENERATIVE_AI_API_KEY");
+    if (hasGroq) recommendations.push("✅ Groq AI provider configured"); else recommendations.push("❌ Add GROQ_API_KEY");
+    if (hasHuggingFace) recommendations.push("✅ Hugging Face AI provider configured"); else recommendations.push("❌ Add HF_API_KEY");
+    recommendations.push("✅ Upload PDF, TXT, MD, CSV, JSON, HTML, XML files for best results");
+    recommendations.push("✅ Convert Word/Excel documents to supported formats");
+    recommendations.push("✅ Anti-hallucination measures active");
+
+
     return NextResponse.json({
       status: "AI Assessment System Debug Info",
       system: systemInfo,
       aiProviders,
       fileSupport,
       features,
-      recommendations: [
-        hasGoogleAI ? "✅ Google AI provider configured" : "❌ Add GOOGLE_GENERATIVE_AI_API_KEY",
-        "✅ Upload PDF, TXT, MD, CSV, JSON, HTML, XML files for best results",
-        "✅ Convert Word/Excel documents to supported formats",
-        "✅ Anti-hallucination measures active",
-      ],
+      recommendations,
       testEndpoints: {
         providerTest: "/api/ai-assessment/test (GET)",
         sampleAnalysis: "/api/ai-assessment/test (POST)",
