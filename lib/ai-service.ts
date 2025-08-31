@@ -673,11 +673,39 @@ Respond in this exact JSON format:
     console.log(`📝 Google AI response received (${result.text.length} characters)`)
     console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
 
-    // With response_format: 'json_object', result.text should be pure JSON.
-    // No need for markdown or greedy curly brace extraction.
-    const jsonString = result.text.trim(); 
-    console.log("Attempting to parse JSON string (after direct extraction):", jsonString);
-    
+    let rawAiText = result.text;
+    let jsonString = "";
+
+    try {
+      // Attempt direct parse first
+      const directParse = JSON.parse(rawAiText);
+      jsonString = rawAiText; // If successful, use the raw text
+      console.log("Successfully parsed AI response directly.");
+    } catch (directParseError) {
+      console.log("Direct JSON parse failed, attempting fallback extraction...");
+      // 1. Attempt to extract JSON from markdown code block
+      const markdownJsonMatch = rawAiText.match(/```json\s*([\s\S]*?)\s*```/);
+      if (markdownJsonMatch && markdownJsonMatch[1]) {
+        jsonString = markdownJsonMatch[1].trim();
+        console.log("Extracted JSON from markdown block.");
+      } else {
+        // 2. If no markdown block, try to find the outermost JSON object by curly braces
+        const firstCurly = rawAiText.indexOf('{');
+        const lastCurly = rawAiText.lastIndexOf('}');
+
+        if (firstCurly !== -1 && lastCurly !== -1 && lastCurly > firstCurly) {
+          jsonString = rawAiText.substring(firstCurly, lastCurly + 1).trim();
+          console.log("Extracted JSON using first '{' and last '}' indices.");
+        } else {
+          // 3. Fallback: if still no clear JSON, log and throw
+          console.error("❌ No valid JSON structure (markdown or curly braces) found in AI response.");
+          console.log("Raw AI response:", rawAiText);
+          throw new Error("Invalid AI response format - no JSON object found.");
+        }
+      }
+    }
+
+    console.log("Attempting final JSON parse (after extraction/direct attempt):", jsonString);
     try {
       const aiResponse = JSON.parse(jsonString);
       console.log(`✅ Successfully parsed AI response JSON`);
@@ -754,7 +782,7 @@ Respond in this exact JSON format:
     } catch (parseError) {
       console.error("❌ Failed to parse AI response JSON:", parseError)
       console.log("Problematic JSON string (attempted parse):", jsonString)
-      console.log("Original AI response:", result.text)
+      console.log("Original AI response:", rawAiText)
       throw new Error("Invalid AI response format - JSON parsing failed")
     }
 
