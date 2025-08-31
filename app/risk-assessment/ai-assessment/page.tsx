@@ -42,7 +42,7 @@ import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
 import { useAuth } from "@/components/auth-context"
-import html2canvas from "html22canvas" // Import html2canvas
+import html2canvas from "html2canvas" // Corrected import from html22canvas
 import ReportContent from "@/components/reports/ReportContent" // Import the new ReportContent component
 import ReactDOM from 'react-dom/client'; // Import ReactDOM for client-side rendering
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -2663,7 +2663,7 @@ export default function AIAssessmentPage() {
                           <SelectValue placeholder="Select an AI provider" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="google">Google Gemini (Default)</SelectItem>
+                          <SelectItem value="google">Google Gemini</SelectItem>
                           <SelectItem value="groq">Groq Cloud</SelectItem>
                           <SelectItem value="huggingface">Hugging Face</SelectItem>
                         </SelectContent>
