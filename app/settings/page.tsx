@@ -25,11 +25,14 @@ import {
   Upload,
   Trash2,
   Plus,
+  EyeOff,
+  Eye,
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 import { updateUserProfile } from "@/lib/auth-service"
 import { useToast } from "@/components/ui/use-toast"
+import { createUserApiKey, getUserApiKeys, deleteUserApiKey, type EncryptedApiKey } from "@/lib/user-api-key-service"
 
 export default function SettingsPage() {
   return (
@@ -77,6 +80,13 @@ function SettingsContent() {
     password_expiry: 90,
   })
 
+  // API Keys state
+  const [apiKeys, setApiKeys] = useState<EncryptedApiKey[]>([])
+  const [newApiKeyName, setNewApiKeyName] = useState("")
+  const [newApiKeyValue, setNewApiKeyValue] = useState("")
+  const [showApiKeyValue, setShowApiKeyValue] = useState(false)
+  const [isAddingApiKey, setIsAddingApiKey] = useState(false)
+
   useEffect(() => {
     if (profile) {
       setProfileForm({
@@ -95,6 +105,28 @@ function SettingsContent() {
       })
     }
   }, [profile, organization])
+
+  // Load API keys when component mounts or tab changes
+  useEffect(() => {
+    if (activeTab === "integrations" && user) {
+      fetchApiKeys();
+    }
+  }, [activeTab, user]);
+
+  const fetchApiKeys = async () => {
+    setLoading(true);
+    const { data, error } = await getUserApiKeys();
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error,
+      });
+    } else {
+      setApiKeys(data || []);
+    }
+    setLoading(false);
+  };
 
   const handleProfileUpdate = async () => {
     try {
@@ -115,6 +147,59 @@ function SettingsContent() {
       setLoading(false)
     }
   }
+
+  const handleAddApiKey = async () => {
+    if (!newApiKeyName || !newApiKeyValue) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please provide both an API key name and the key value.",
+      });
+      return;
+    }
+
+    setIsAddingApiKey(true);
+    const { success, message } = await createUserApiKey(newApiKeyName, newApiKeyValue);
+    if (success) {
+      toast({
+        title: "Success",
+        description: message,
+      });
+      setNewApiKeyName("");
+      setNewApiKeyValue("");
+      fetchApiKeys(); // Refresh the list of keys
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: message,
+      });
+    }
+    setIsAddingApiKey(false);
+  };
+
+  const handleDeleteApiKey = async (keyId: string) => {
+    if (!confirm("Are you sure you want to delete this API key?")) {
+      return;
+    }
+
+    setLoading(true);
+    const { success, message } = await deleteUserApiKey(keyId);
+    if (success) {
+      toast({
+        title: "Success",
+        description: message,
+      });
+      fetchApiKeys(); // Refresh the list
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: message,
+      });
+    }
+    setLoading(false);
+  };
 
   const timezones = [
     "UTC",
@@ -669,6 +754,107 @@ function SettingsContent() {
                     </Card>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* User API Keys Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Key className="h-5 w-5" />
+                  <span>Your API Keys</span>
+                </CardTitle>
+                <CardDescription>
+                  Manage your personal API keys for third-party AI services (e.g., Google Gemini, Groq).
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="apiKeyName">API Key Name</Label>
+                    <Input
+                      id="apiKeyName"
+                      value={newApiKeyName}
+                      onChange={(e) => setNewApiKeyName(e.target.value)}
+                      placeholder="e.g., My Google Gemini Key"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="apiKeyValue">API Key Value</Label>
+                    <div className="relative">
+                      <Input
+                        id="apiKeyValue"
+                        type={showApiKeyValue ? "text" : "password"}
+                        value={newApiKeyValue}
+                        onChange={(e) => setNewApiKeyValue(e.target.value)}
+                        placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowApiKeyValue(!showApiKeyValue)}
+                      >
+                        {showApiKeyValue ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Your API keys are encrypted and stored securely. They are never exposed to the client-side.
+                    </p>
+                  </div>
+                  <Button onClick={handleAddApiKey} disabled={isAddingApiKey || !newApiKeyName || !newApiKeyValue}>
+                    {isAddingApiKey ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Adding Key...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add API Key
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <Separator />
+
+                <h3 className="text-lg font-medium mb-4">Existing API Keys</h3>
+                {loading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Loading keys...</p>
+                  </div>
+                ) : apiKeys.length === 0 ? (
+                  <p className="text-gray-600">No API keys added yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {apiKeys.map((key) => (
+                      <div key={key.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div>
+                          <p className="font-medium">{key.api_key_name}</p>
+                          <p className="text-sm text-gray-600">
+                            Added: {new Date(key.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteApiKey(key.id)}
+                          disabled={loading}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
