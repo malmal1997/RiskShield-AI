@@ -30,6 +30,7 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
     { name: "Policy Generator", href: "/policy-generator" },
     { name: "Policy Library", href: "/policy-library" },
     { name: "Dashboard", href: "/dashboard" },
+    { name: "Settings", href: "/settings" }, // Added Settings link here
   ]
 
   const isActive = (href: string) => {
