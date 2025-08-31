@@ -646,7 +646,7 @@ Respond in this exact JSON format:
 
     if (logError) {
       console.error("Error logging AI usage start:", logError);
-    } else {
+    } else if (logData) { // Add null check here
       aiUsageLogId = logData.id;
     }
 
