@@ -29,6 +29,7 @@ import {
   Eye,
   ExternalLink, // Added ExternalLink icon
   Bot, // Added Bot icon
+  Brain, // Added Brain icon
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
