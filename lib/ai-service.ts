@@ -1,5 +1,6 @@
 import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
+import { supabaseClient } from "./supabase-client" // Import supabaseClient
 
 export interface DocumentAnalysisResult {
   answers: Record<string, boolean | string>
@@ -376,6 +377,8 @@ async function performDirectAIAnalysis(
   files: File[],
   questions: Question[],
   assessmentType: string,
+  userId: string, // Added userId parameter
+  assessmentId?: string, // Added optional assessmentId
 ): Promise<DocumentAnalysisResult> {
   console.log("🤖 Starting direct Google AI analysis with file upload support...")
 
@@ -595,7 +598,30 @@ Respond in this exact JSON format:
   const reasoning: Record<string, string> = {}
   const documentExcerpts: Record<string, Array<any>> = {}
 
+  let aiUsageLogId: string | null = null; // To store the ID of the usage log entry
+
   try {
+    // Log AI call start
+    const { data: logData, error: logError } = await supabaseClient
+      .from('ai_usage_logs')
+      .insert({
+        user_id: userId,
+        assessment_id: assessmentId,
+        ai_provider: "Google AI",
+        model_name: "gemini-1.5-flash",
+        document_count: files.length,
+        question_count: questions.length,
+        status: "pending",
+      })
+      .select('id')
+      .single();
+
+    if (logError) {
+      console.error("Error logging AI usage start:", logError);
+    } else {
+      aiUsageLogId = logData.id;
+    }
+
     console.log("🧠 Processing documents with Google AI (including PDFs)...")
 
     let result;
@@ -659,7 +685,7 @@ Respond in this exact JSON format:
 
             if (relevantExcerpts.length > 0) {
               answers[questionId] = aiAnswer; // Use AI's answer if relevant evidence found
-              confidenceScores[questionId] = Math.min(aiConfidence, relevantExcerpts[0].confidence); // Use confidence from first relevant excerpt
+              confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence); // Use confidence from relevance check
               reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant";
               documentExcerpts[questionId] = relevantExcerpts;
             } else {
@@ -670,7 +696,7 @@ Respond in this exact JSON format:
               } else if (question.options && question.options.length > 0) {
                 answers[question.id] = question.options[0];
               }
-              confidenceScores[question.id] = 0.9;
+              confidenceScores[question.id] = 0.1; // Low confidence if no relevant evidence
               reasoning[question.id] = "No directly relevant evidence found in documents after semantic filtering.";
               documentExcerpts[question.id] = [];
             }
@@ -682,7 +708,7 @@ Respond in this exact JSON format:
             } else if (question.options && question.options.length > 0) {
               answers[question.id] = question.options[0];
             }
-            confidenceScores[question.id] = 0.9;
+            confidenceScores[question.id] = 0.1; // Low confidence if no evidence
             reasoning[question.id] = "No directly relevant evidence found in documents.";
             documentExcerpts[question.id] = [];
           }
@@ -697,6 +723,23 @@ Respond in this exact JSON format:
       console.log("Raw AI response:", result.text)
       throw new Error("Invalid AI response format - no JSON found")
     }
+
+    // Update AI usage log with success status and token usage
+    if (aiUsageLogId) {
+      const { error: updateLogError } = await supabaseClient
+        .from('ai_usage_logs')
+        .update({
+          input_tokens: result.usage?.inputTokens,
+          output_tokens: result.usage?.outputTokens,
+          status: "success",
+        })
+        .eq('id', aiUsageLogId);
+
+      if (updateLogError) {
+        console.error("Error updating AI usage log (success):", updateLogError);
+      }
+    }
+
   } catch (error) {
     console.error("❌ Google AI processing failed:", error)
     // Fallback to conservative answers
@@ -706,6 +749,22 @@ Respond in this exact JSON format:
       reasoning[question.id] = `AI analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
       documentExcerpts[question.id] = []
     })
+
+    // Update AI usage log with failure status
+    if (aiUsageLogId) {
+      const { error: updateLogError } = await supabaseClient
+        .from('ai_usage_logs')
+        .update({
+          status: "failed",
+          error_message: error instanceof Error ? error.message : "Unknown AI processing error",
+        })
+        .eq('id', aiUsageLogId);
+
+      if (updateLogError) {
+        console.error("Error updating AI usage log (failure):", updateLogError);
+      }
+    }
+    throw error; // Re-throw the error after logging
   }
 
   // Calculate risk score
@@ -796,6 +855,8 @@ export async function analyzeDocuments(
   files: File[],
   questions: Question[],
   assessmentType: string,
+  userId: string, // Added userId parameter
+  assessmentId?: string, // Added optional assessmentId
 ): Promise<DocumentAnalysisResult> {
   console.log(`🚀 Starting Google AI analysis of ${files.length} files for ${assessmentType}`)
 
@@ -819,7 +880,7 @@ export async function analyzeDocuments(
     })
 
     // Perform direct AI analysis
-    const result = await performDirectAIAnalysis(files, questions, assessmentType)
+    const result = await performDirectAIAnalysis(files, questions, assessmentType, userId, assessmentId)
 
     console.log("🎉 Google AI analysis completed successfully")
     return result

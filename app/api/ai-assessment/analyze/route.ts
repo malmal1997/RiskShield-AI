@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { analyzeDocuments } from "@/lib/ai-service"
+import { supabaseClient } from "@/lib/supabase-client" // Import supabaseClient
 
 export async function GET() {
   return NextResponse.json({
@@ -15,10 +16,19 @@ export async function POST(request: NextRequest) {
   try {
     console.log("AI Assessment API called")
 
+    // Get the authenticated user ID
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+
+    if (authError || !user) {
+      console.warn("Unauthorized AI Assessment API call: No authenticated user.");
+      return NextResponse.json({ error: "Unauthorized: User not authenticated." }, { status: 401 });
+    }
+
     const formData = await request.formData()
     const files = formData.getAll("files") as File[]
     const questionsJson = formData.get("questions") as string
     const assessmentType = formData.get("assessmentType") as string
+    const assessmentId = formData.get("assessmentId") as string | undefined; // Get optional assessmentId
 
     if (!files || files.length === 0) {
       return NextResponse.json({ error: "No files provided" }, { status: 400 })
@@ -35,10 +45,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid questions format" }, { status: 400 })
     }
 
-    console.log(`Processing ${files.length} files for ${assessmentType} assessment`)
+    console.log(`Processing ${files.length} files for ${assessmentType} assessment by user ${user.id}`)
 
     // Check if Google AI is available
-    const hasGoogleAI = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
+    const hasGoogleAI = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
     if (!hasGoogleAI) {
       return NextResponse.json(
@@ -52,8 +62,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Perform analysis
-    const result = await analyzeDocuments(files, questions, assessmentType || "Unknown")
+    // Perform analysis, passing the user ID and optional assessment ID
+    const result = await analyzeDocuments(files, questions, assessmentType || "Unknown", user.id, assessmentId);
 
     console.log("Analysis completed successfully")
     return NextResponse.json(result)
