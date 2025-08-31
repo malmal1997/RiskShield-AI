@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Brain, Zap, CheckCircle, XCircle, AlertCircle, FileText, Upload } from "lucide-react"
+import { Brain, Zap, CheckCircle, XCircle, AlertCircle, FileText, Upload, Bot } from "lucide-react"
 
 interface ProviderStatus {
   configured: boolean
@@ -15,6 +15,7 @@ interface ProviderStatus {
 
 interface TestResult {
   providers: {
+    google: ProviderStatus
     groq: ProviderStatus
     huggingface: ProviderStatus
   }
@@ -150,6 +151,31 @@ export default function AITestPage() {
 
               {testResult && (
                 <div className="space-y-3">
+                  {/* Google Gemini Status */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <Bot className="h-4 w-4 text-blue-600" /> {/* Using Bot icon for Google Gemini */}
+                      <span className="font-medium">Google Gemini (FREE)</span>
+                    </div>
+                    <Badge
+                      className={
+                        testResult.providers.google.working
+                          ? "bg-green-100 text-green-800"
+                          : testResult.providers.google.configured
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                      }
+                    >
+                      {testResult.providers.google.working ? (
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                      ) : (
+                        <XCircle className="h-3 w-3 mr-1" />
+                      )}
+                      {testResult.providers.google.status}
+                    </Badge>
+                  </div>
+
+                  {/* Groq Status */}
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <Zap className="h-4 w-4 text-green-600" />
@@ -173,9 +199,10 @@ export default function AITestPage() {
                     </Badge>
                   </div>
 
+                  {/* Hugging Face Status */}
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-2">
-                      <Zap className="h-4 w-4 text-green-600" />
+                      <Brain className="h-4 w-4 text-purple-600" /> {/* Changed icon for Hugging Face */}
                       <span className="font-medium">Hugging Face (FREE)</span>
                     </div>
                     <Badge
@@ -199,7 +226,7 @@ export default function AITestPage() {
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-800">
                       <strong>Summary:</strong> {testResult.summary.workingProviders} of{" "}
-                      {testResult.summary.totalProviders} providers working
+                      {testResult.summary.totalProviders} configured providers working
                     </p>
                     <p className="text-sm text-blue-700 mt-1">{testResult.summary.recommendation}</p>
                   </div>

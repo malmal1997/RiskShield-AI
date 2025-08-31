@@ -9,22 +9,53 @@ export async function GET() {
     const providerResults = await testAIProviders()
 
     const hasGoogle = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
+    const hasGroq = !!process.env.GROQ_API_KEY
+    const hasHuggingFace = !!process.env.HUGGINGFACE_API_KEY
+
+    const providersStatus = {
+      google: {
+        configured: hasGoogle,
+        working: providerResults.google,
+        status: hasGoogle ? (providerResults.google ? "✅ Working" : "❌ Failed") : "❌ Not configured",
+        model: "gemini-1.5-flash",
+      },
+      groq: {
+        configured: hasGroq,
+        working: providerResults.groq,
+        status: hasGroq ? (providerResults.groq ? "✅ Working" : "❌ Failed") : "❌ Not configured",
+        model: "llama-3.1-8b-instant", // Example model
+      },
+      huggingface: {
+        configured: hasHuggingFace,
+        working: providerResults.huggingface,
+        status: hasHuggingFace ? (providerResults.huggingface ? "✅ Working" : "❌ Failed") : "❌ Not configured",
+        model: "meta-llama/Llama-3.1-8B-Instruct", // Example model
+      },
+    }
+
+    const configuredProviders = Object.values(providersStatus).filter(p => p.configured).length;
+    const workingProviders = Object.values(providersStatus).filter(p => p.working).length;
+    
+    let recommendation = "All configured AI providers are working. Ready for AI analysis.";
+    if (configuredProviders === 0) {
+      recommendation = "No AI providers are configured. Add GOOGLE_GENERATIVE_AI_API_KEY, GROQ_API_KEY, or HUGGINGFACE_API_KEY to enable AI analysis.";
+    } else if (workingProviders < configuredProviders) {
+      recommendation = "Some configured AI providers are not working. Check API keys and network connectivity.";
+    } else if (workingProviders === 0 && configuredProviders > 0) {
+      recommendation = "All configured AI providers are failing. Check API keys and network connectivity.";
+    } else if (workingProviders > 0 && workingProviders < configuredProviders) {
+      recommendation = "Some AI providers are configured and working. Consider configuring more for redundancy.";
+    }
+
 
     return NextResponse.json({
       status: "AI Provider Test Complete",
       timestamp: new Date().toISOString(),
-      providers: {
-        google: {
-          configured: hasGoogle,
-          working: providerResults.google,
-          status: hasGoogle ? (providerResults.google ? "✅ Working" : "❌ Failed") : "❌ Not configured",
-          model: "gemini-1.5-flash",
-        },
-      },
+      providers: providersStatus,
       summary: {
-        totalProviders: Object.keys(providerResults).length,
-        workingProviders: Object.values(providerResults).filter(Boolean).length,
-        recommendation: hasGoogle ? "Ready for AI analysis" : "Add GOOGLE_GENERATIVE_AI_API_KEY to enable AI analysis",
+        totalProviders: configuredProviders, // Only count configured ones for summary
+        workingProviders: workingProviders,
+        recommendation: recommendation,
       },
     })
   } catch (error) {
@@ -100,7 +131,9 @@ Security policies are reviewed and updated yearly.
     const mockFile = new File([sampleDocument], "sample-policy.txt", { type: "text/plain" })
 
     // Run the analysis
-    const result = await analyzeDocuments([mockFile], sampleQuestions, "Sample Security Assessment")
+    // For testing, we need a dummy userId. In a real scenario, this would come from authentication.
+    const dummyUserId = "test-user-id-123"; 
+    const result = await analyzeDocuments([mockFile], sampleQuestions, "Sample Security Assessment", dummyUserId)
 
     return NextResponse.json({
       status: "Sample analysis complete",
@@ -113,7 +146,7 @@ Security policies are reviewed and updated yearly.
       },
     })
   } catch (error) {
-    console.error("Sample analysis test failed:", error)
+    console.error("Analysis test failed:", error)
     return NextResponse.json(
       {
         error: "Sample analysis failed",
