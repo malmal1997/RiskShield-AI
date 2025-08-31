@@ -646,7 +646,7 @@ Respond in this exact JSON format:
 
     if (logError) {
       console.error("Error logging AI usage start:", logError);
-    } else if (logData) { // Add null check here
+    } else if (logData) {
       aiUsageLogId = logData.id;
     }
 
@@ -670,90 +670,104 @@ Respond in this exact JSON format:
     console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
 
     // Parse AI response
-    const jsonMatch = result.text.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      try {
-        const aiResponse = JSON.parse(jsonMatch[0])
-        console.log(`✅ Successfully parsed AI response JSON`)
+    let jsonString = result.text;
+    const markdownJsonMatch = result.text.match(/```json\s*([\s\S]*?)\s*```/);
 
-        // Process each question with enhanced validation
-        questions.forEach((question) => {
-          const questionId = question.id
-          const aiAnswer = aiResponse.answers?.[questionId]
-          const aiReasoning = aiResponse.reasoning?.[questionId]
-          const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
-          const aiEvidenceArray = aiResponse.evidence?.[questionId]; // Expect an array now
+    if (markdownJsonMatch && markdownJsonMatch[1]) {
+      jsonString = markdownJsonMatch[1];
+      console.log("Extracted JSON from markdown block.");
+    } else {
+      // Fallback to finding the outermost JSON object
+      const greedyJsonMatch = result.text.match(/\{[\s\S]*\}/);
+      if (greedyJsonMatch && greedyJsonMatch[0]) {
+        jsonString = greedyJsonMatch[0];
+        console.log("Extracted JSON using greedy match.");
+      } else {
+        console.error("❌ No JSON object found in AI response.");
+        console.log("Raw AI response:", result.text);
+        throw new Error("Invalid AI response format - no JSON object found.");
+      }
+    }
 
-          console.log(
-            `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence count=${Array.isArray(aiEvidenceArray) ? aiEvidenceArray.length : 0}`,
-          )
+    jsonString = jsonString.trim(); // Trim any whitespace or newlines
+    try {
+      const aiResponse = JSON.parse(jsonString);
+      console.log(`✅ Successfully parsed AI response JSON`);
 
-          if (Array.isArray(aiEvidenceArray) && aiEvidenceArray.length > 0) {
-            const relevantExcerpts = aiEvidenceArray.map((item: any) => {
-              // Ensure item has quote, fileName, pageNumber
-              const quote = item.quote || "";
-              const fileName = item.fileName || (supportedFiles.length > 0 ? supportedFiles[0].name : "Document");
-              const pageNumber = item.pageNumber || undefined;
-              const relevance = item.relevance || `Evidence found in ${fileName}`;
-              const documentType = item.documentType || 'primary'; // Default to primary
-              const documentRelationship = item.documentRelationship || undefined;
+      // Process each question with enhanced validation
+      questions.forEach((question) => {
+        const questionId = question.id
+        const aiAnswer = aiResponse.answers?.[questionId]
+        const aiReasoning = aiResponse.reasoning?.[questionId]
+        const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
+        const aiEvidenceArray = aiResponse.evidence?.[questionId]; // Expect an array now
 
-              // Perform semantic relevance check on the quote
-              const relevanceCheck = checkSemanticRelevance(question.question, quote);
-              if (!relevanceCheck.isRelevant) {
-                console.log(`❌ Question ${questionId}: Evidence quote rejected - ${relevanceCheck.reason}`);
-                return null; // Filter out irrelevant quotes
-              }
+        console.log(
+          `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence count=${Array.isArray(aiEvidenceArray) ? aiEvidenceArray.length : 0}`,
+        )
 
-              return {
-                fileName,
-                quote: quote.trim(), // Ensure no leading/trailing whitespace
-                relevance,
-                pageNumber,
-                documentType,
-                documentRelationship,
-              };
-            }).filter(Boolean); // Filter out nulls (irrelevant quotes)
+        if (Array.isArray(aiEvidenceArray) && aiEvidenceArray.length > 0) {
+          const relevantExcerpts = aiEvidenceArray.map((item: any) => {
+            // Ensure item has quote, fileName, pageNumber
+            const quote = item.quote || "";
+            const fileName = item.fileName || (supportedFiles.length > 0 ? supportedFiles[0].name : "Document");
+            const pageNumber = item.pageNumber || undefined;
+            const relevance = item.relevance || `Evidence found in ${fileName}`;
+            const documentType = item.documentType || 'primary'; // Default to primary
+            const documentRelationship = item.documentRelationship || undefined;
 
-            if (relevantExcerpts.length > 0) {
-              answers[questionId] = aiAnswer; // Use AI's answer if relevant evidence found
-              confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence); // Use confidence from relevance check
-              reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant";
-              documentExcerpts[questionId] = relevantExcerpts;
-            } else {
-              // No relevant excerpts found after filtering
-              console.log(`❌ Question ${questionId}: No relevant evidence found after semantic filtering.`);
-              if (question.type === "boolean") {
-                answers[question.id] = false;
-              } else if (question.options && question.options.length > 0) {
-                answers[question.id] = question.options[0];
-              }
-              confidenceScores[question.id] = 0.1; // Low confidence if no relevant evidence
-              reasoning[question.id] = "No directly relevant evidence found in documents after semantic filtering.";
-              documentExcerpts[question.id] = [];
+            // Perform semantic relevance check on the quote
+            const relevanceCheck = checkSemanticRelevance(question.question, quote);
+            if (!relevanceCheck.isRelevant) {
+              console.log(`❌ Question ${questionId}: Evidence quote rejected - ${relevanceCheck.reason}`);
+              return null; // Filter out irrelevant quotes
             }
+
+            return {
+              fileName,
+              quote: quote.trim(), // Ensure no leading/trailing whitespace
+              relevance,
+              pageNumber,
+              documentType,
+              documentRelationship,
+            };
+          }).filter(Boolean); // Filter out nulls (irrelevant quotes)
+
+          if (relevantExcerpts.length > 0) {
+            answers[questionId] = aiAnswer; // Use AI's answer if relevant evidence found
+            confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence); // Use confidence from relevance check
+            reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant";
+            documentExcerpts[questionId] = relevantExcerpts;
           } else {
-            // No evidence array or empty array provided by AI
-            console.log(`⚠️ Question ${questionId}: No evidence array or empty array provided by AI`);
+            // No relevant excerpts found after filtering
+            console.log(`❌ Question ${questionId}: No relevant evidence found after semantic filtering.`);
             if (question.type === "boolean") {
               answers[question.id] = false;
             } else if (question.options && question.options.length > 0) {
               answers[question.id] = question.options[0];
             }
-            confidenceScores[question.id] = 0.1; // Low confidence if no evidence
-            reasoning[question.id] = "No directly relevant evidence found in documents.";
-            documentExcerpts[question.id] = [];
+            confidenceScores[question.id] = 0.1; // Low confidence if no relevant evidence
+            reasoning[question.id] = "No directly relevant evidence found in documents after semantic filtering.";
+            documentExcerpi[questionId] = [];
           }
-        })
-      } catch (parseError) {
-        console.error("❌ Failed to parse AI response JSON:", parseError)
-        console.log("Raw AI response:", result.text)
-        throw new Error("Invalid AI response format - JSON parsing failed")
-      }
-    } else {
-      console.error("❌ No JSON found in AI response")
-      console.log("Raw AI response:", result.text)
-      throw new Error("Invalid AI response format - no JSON found")
+        } else {
+          // No evidence array or empty array provided by AI
+          console.log(`⚠️ Question ${questionId}: No evidence array or empty array provided by AI`);
+          if (question.type === "boolean") {
+            answers[question.id] = false;
+          } else if (question.options && question.options.length > 0) {
+            answers[question.id] = question.options[0];
+          }
+          confidenceScores[question.id] = 0.1; // Low confidence if no evidence
+          reasoning[question.id] = "No directly relevant evidence found in documents.";
+          documentExcerpts[questionId] = [];
+        }
+      })
+    } catch (parseError) {
+      console.error("❌ Failed to parse AI response JSON:", parseError)
+      console.log("Raw AI response (attempted parse):", jsonString)
+      console.log("Original AI response:", result.text)
+      throw new Error("Invalid AI response format - JSON parsing failed")
     }
 
     // Update AI usage log with success status and token usage
