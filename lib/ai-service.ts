@@ -1,7 +1,5 @@
 import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
-import { groq } from "@ai-sdk/groq"
-import { huggingface } from "@ai-sdk/huggingface"
 import { supabaseClient } from "./supabase-client" // Import supabaseClient
 import { getUserApiKeys, decryptUserApiKey } from "./user-api-key-service" // Import API key services
 
@@ -25,8 +23,9 @@ export interface DocumentAnalysisResult {
       relevance: string
       pageOrSection?: string
       pageNumber?: number // Added pageNumber
-      documentType?: 'primary' | '4th-party'; // Added documentType
-      documentRelationship?: string; // Added documentRelationship
+      documentType?: "primary" | "4th-party" // Added documentType
+      documentRelationship?: string // Added documentRelationship
+      confidence?: number // Added confidence
     }>
   >
   directUploadResults?: Array<{
@@ -47,9 +46,9 @@ interface Question {
 }
 
 interface DocumentMetadata {
-  fileName: string;
-  type: 'primary' | '4th-party';
-  relationship?: string;
+  fileName: string
+  type: "primary" | "4th-party"
+  relationship?: string
 }
 
 // Convert file to buffer for AI API
@@ -307,7 +306,7 @@ function checkSemanticRelevance(
       "pen test",
       "pentest",
       "security test",
-      "security scan",
+      "security scanning",
       "security assessment",
       "vulnerability scan",
       "vulnerability assessment",
@@ -315,6 +314,8 @@ function checkSemanticRelevance(
       "vulnerability testing",
       "security audit",
       "intrusion test",
+      "ethical hacking",
+      "red team",
     ]
 
     const hasVulnerabilityTerms = vulnerabilityTerms.some((term) => evidenceLower.includes(term))
@@ -384,30 +385,30 @@ function checkSemanticRelevance(
 }
 
 // Mock pricing for AI models (per 1000 tokens)
-const MOCK_PRICING = {
+const AI_PRICING = {
   "gemini-1.5-flash": {
-    input: 0.00000035, // $0.35 per 1M tokens
+    input: 0.000000075, // $0.075 per 1M tokens
+    output: 0.0000003, // $0.30 per 1M tokens
+  },
+  "gemini-1.5-pro": {
+    input: 0.00000125, // $1.25 per 1M tokens
+    output: 0.00000375, // $3.75 per 1M tokens
+  },
+  "gemini-1.0-pro": {
+    input: 0.0000005, // $0.50 per 1M tokens
     output: 0.00000105, // $1.05 per 1M tokens
   },
-  "groq-llama3-8b": {
-    input: 0.00000005, // $0.05 per 1M tokens
-    output: 0.00000015, // $0.15 per 1M tokens
-  },
-  "huggingface-mixtral-8x7b": {
-    input: 0.0000006, // $0.60 per 1M tokens
-    output: 0.0000006, // $0.60 per 1M tokens
-  },
-};
+}
 
 // Calculate mock cost
-function calculateMockCost(modelName: string, inputTokens: number = 0, outputTokens: number = 0): number {
-  const pricing = MOCK_PRICING[modelName as keyof typeof MOCK_PRICING];
+function calculateMockCost(modelName: string, inputTokens = 0, outputTokens = 0): number {
+  const pricing = AI_PRICING[modelName as keyof typeof AI_PRICING]
   if (!pricing) {
-    return 0;
+    return 0
   }
-  const inputCost = (inputTokens / 1000) * pricing.input;
-  const outputCost = (outputTokens / 1000) * pricing.output;
-  return inputCost + outputCost;
+  const inputCost = (inputTokens / 1000) * pricing.input
+  const outputCost = (outputTokens / 1000) * pricing.output
+  return inputCost + outputCost
 }
 
 // Direct AI analysis with file upload support for multiple providers
@@ -416,82 +417,70 @@ async function performDirectAIAnalysis(
   questions: Question[],
   assessmentType: string,
   userId: string,
-  selectedProvider: "google" | "groq" | "huggingface", // Added selectedProvider
+  selectedProvider: "google", // Added selectedProvider
   assessmentId?: string,
   documentMetadata: DocumentMetadata[] = [],
 ): Promise<DocumentAnalysisResult> {
   console.log(`🤖 Starting direct ${selectedProvider.toUpperCase()} AI analysis with file upload support...`)
 
-  let apiKey: string | undefined = undefined;
-  let keySource: 'client_key' | 'default_key' = 'default_key';
-  let modelInstance: any;
-  let modelName: string;
+  let apiKey: string | undefined = undefined
+  let keySource: "client_key" | "default_key" = "default_key"
+  let modelInstance: any
+  let modelName: string
 
   // 1. Try to get client's API key for the selected provider
   if (userId && userId !== "anonymous") {
     try {
-      const { data: userApiKeys, error: keysError } = await getUserApiKeys();
+      const { data: userApiKeys, error: keysError } = await getUserApiKeys()
       if (keysError) {
-        console.warn("Error fetching user API keys:", keysError);
+        console.warn("Error fetching user API keys:", keysError)
       } else if (userApiKeys && userApiKeys.length > 0) {
-        const providerKeyEntry = userApiKeys.find(key => key.api_key_name.toLowerCase().includes(selectedProvider));
-        
+        const providerKeyEntry = userApiKeys.find((key) => key.api_key_name.toLowerCase().includes(selectedProvider))
+
         if (providerKeyEntry) {
-          console.log(`Attempting to decrypt client's API key for ${selectedProvider}: ${providerKeyEntry.api_key_name}`);
-          const { apiKey: decryptedKey, error: decryptError } = await decryptUserApiKey(providerKeyEntry.id, userId);
+          console.log(
+            `Attempting to decrypt client's API key for ${selectedProvider}: ${providerKeyEntry.api_key_name}`,
+          )
+          const { apiKey: decryptedKey, error: decryptError } = await decryptUserApiKey(providerKeyEntry.id, userId)
           if (decryptError) {
-            console.warn(`Failed to decrypt client's API key (${providerKeyEntry.api_key_name}):`, decryptError);
+            console.warn(`Failed to decrypt client's API key (${providerKeyEntry.api_key_name}):`, decryptError)
           } else if (decryptedKey) {
-            apiKey = decryptedKey;
-            keySource = 'client_key';
-            console.log(`✅ Successfully retrieved client's ${selectedProvider} API key.`);
+            apiKey = decryptedKey
+            keySource = "client_key"
+            console.log(`✅ Successfully retrieved client's ${selectedProvider} API key.`)
           }
         } else {
-          console.log(`No specific ${selectedProvider} API key found for client. Falling back to default.`);
+          console.log(`No specific ${selectedProvider} API key found for client. Falling back to default.`)
         }
       } else {
-        console.log("No API keys configured for client. Falling back to default.");
+        console.log("No API keys configured for client. Falling back to default.")
       }
     } catch (error) {
-      console.error("Error in client API key retrieval/decryption process:", error);
+      console.error("Error in client API key retrieval/decryption process:", error)
     }
   } else {
-    console.log("Anonymous user or no user ID provided. Using default Google API key.");
+    console.log("Anonymous user or no user ID provided. Using default Google API key.")
   }
 
   // 2. Configure model instance and name based on selected provider and API key
   switch (selectedProvider) {
     case "google":
-      modelName = "gemini-1.5-flash";
-      modelInstance = google(modelName, { apiKey: apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY });
+      modelName = "gemini-1.5-flash"
+      modelInstance = google(modelName, { apiKey: apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY })
       if (!apiKey && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-        apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        keySource = 'default_key';
+        apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+        keySource = "default_key"
       }
-      break;
-    case "groq":
-      modelName = "llama3-8b-8192"; // Example Groq model
-      modelInstance = groq(modelName, { apiKey: apiKey || process.env.GROQ_API_KEY });
-      if (!apiKey && process.env.GROQ_API_KEY) {
-        apiKey = process.env.GROQ_API_KEY;
-        keySource = 'default_key';
-      }
-      break;
-    case "huggingface":
-      modelName = "mixtral-8x7b-instruct-v0.1"; // Example Hugging Face model
-      modelInstance = huggingface(modelName, { apiKey: apiKey || process.env.HF_API_KEY });
-      if (!apiKey && process.env.HF_API_KEY) {
-        apiKey = process.env.HF_API_KEY;
-        keySource = 'default_key';
-      }
-      break;
+      break
     default:
-      throw new Error(`Unsupported AI provider: ${selectedProvider}`);
+      throw new Error(`Unsupported provider: ${selectedProvider}`)
   }
 
   // 3. Final check for any API key for the selected provider
   if (!apiKey) {
-    throw new Error(`${selectedProvider.toUpperCase()} AI API key not found. Please add a client API key or configure the default ${selectedProvider.toUpperCase()}_API_KEY environment variable.`);
+    throw new Error(
+      `${selectedProvider.toUpperCase()} AI API key not found. Please add a client API key or configure the default ${selectedProvider.toUpperCase()}_API_KEY environment variable.`,
+    )
   }
 
   // Filter and process supported files
@@ -541,7 +530,7 @@ async function performDirectAIAnalysis(
       riskLevel: "High",
       analysisDate: new Date().toISOString(),
       documentsAnalyzed: files.length,
-      aiProvider: `${selectedProvider.toUpperCase()} AI (${modelName}) - ${keySource === 'client_key' ? 'Client Key' : 'Default Key'} (Conservative Analysis)`,
+      aiProvider: `${selectedProvider.toUpperCase()} AI (${modelName}) - ${keySource === "client_key" ? "Client Key" : "Default Key"} (Conservative Analysis)`,
       documentExcerpts: {},
       directUploadResults: files.map((file) => ({
         fileName: file.name,
@@ -561,7 +550,7 @@ async function performDirectAIAnalysis(
       prompt: "Reply with 'OK' if you can read this.",
       maxTokens: 10,
       temperature: 0.1,
-      response_format: { type: 'json_object' },
+      response_format: { type: "json_object" },
     })
 
     if (!testResult.text.toLowerCase().includes("ok")) {
@@ -570,7 +559,9 @@ async function performDirectAIAnalysis(
     console.log(`✅ ${selectedProvider.toUpperCase()} AI connection successful with selected API key.`)
   } catch (error) {
     console.error(`❌ ${selectedProvider.toUpperCase()} AI test failed with selected API key:`, error)
-    throw new Error(`${selectedProvider.toUpperCase()} AI is not available with the provided API key: ${error instanceof Error ? error.message : "Unknown error"}`)
+    throw new Error(
+      `${selectedProvider.toUpperCase()} AI is not available with the provided API key: ${error instanceof Error ? error.message : "Unknown error"}`,
+    )
   }
 
   // Process files - separate PDFs from text files (only Google supports direct PDF upload)
@@ -582,7 +573,7 @@ async function performDirectAIAnalysis(
   for (const file of supportedFiles) {
     const fileType = file.type.toLowerCase()
     const fileName = file.name.toLowerCase()
-    const metadata = documentMetadata.find(m => m.fileName === file.name) || { fileName: file.name, type: 'primary' };
+    const metadata = documentMetadata.find((m) => m.fileName === file.name) || { fileName: file.name, type: "primary" }
 
     if ((fileType.includes("application/pdf") || fileName.endsWith(".pdf")) && selectedProvider === "google") {
       pdfFiles.push(file)
@@ -639,36 +630,37 @@ CRITICAL INSTRUCTIONS:
 
   // Add text file content directly to the prompt, grouped by type
   if (textFiles.length > 0) {
-    const primaryTextDocs = textFiles.filter(d => d.metadata.type === 'primary');
-    const fourthPartyTextDocs = textFiles.filter(d => d.metadata.type === '4th-party');
+    const primaryTextDocs = textFiles.filter((d) => d.metadata.type === "primary")
+    const fourthPartyTextDocs = textFiles.filter((d) => d.metadata.type === "4th-party")
 
     if (primaryTextDocs.length > 0) {
-      textPromptPart += "--- PRIMARY TEXT DOCUMENTS CONTENT ---\n";
+      textPromptPart += "--- PRIMARY TEXT DOCUMENTS CONTENT ---\n"
       primaryTextDocs.forEach(({ file, text }) => {
-        textPromptPart += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`;
-      });
-      textPromptPart += "------------------------------------\n\n";
+        textPromptPart += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
+      })
+      textPromptPart += "------------------------------------\n\n"
     }
 
     if (fourthPartyTextDocs.length > 0) {
-      textPromptPart += "--- 4TH PARTY TEXT DOCUMENTS CONTENT ---\n";
+      textPromptPart += "--- 4TH PARTY TEXT DOCUMENTS CONTENT ---\n"
       fourthPartyTextDocs.forEach(({ file, text, metadata }) => {
-        textPromptPart += `\n=== DOCUMENT: ${file.name} (Relationship: ${metadata.relationship || 'N/A'}) ===\n${text}\n`;
-      });
-      textPromptPart += "--------------------------------------\n\n";
+        textPromptPart += `\n=== DOCUMENT: ${file.name} (Relationship: ${metadata.relationship || "N/A"}) ===\n${text}\n`
+      })
+      textPromptPart += "--------------------------------------\n\n"
     }
   }
 
   // List all files (including PDFs) and indicate if they are attached
   textPromptPart += "--- ATTACHED DOCUMENTS FOR ANALYSIS ---\n"
   supportedFiles.forEach((file, index) => {
-    const metadata = documentMetadata.find(m => m.fileName === file.name) || { fileName: file.name, type: 'primary' };
+    const metadata = documentMetadata.find((m) => m.fileName === file.name) || { fileName: file.name, type: "primary" }
     textPromptPart += `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)}) - ${
-      (file.type.includes("application/pdf") || file.name.endsWith(".pdf")) && selectedProvider === "google" ? "Attached as file" : "Content included above"
-    } (Type: ${metadata.type}${metadata.type === '4th-party' ? `, Relationship: ${metadata.relationship || 'N/A'}` : ''})\n`
+      (file.type.includes("application/pdf") || file.name.endsWith(".pdf")) && selectedProvider === "google"
+        ? "Attached as file"
+        : "Content included above"
+    } (Type: ${metadata.type}${metadata.type === "4th-party" ? `, Relationship: ${metadata.relationship || "N/A"}` : ""})\n`
   })
   textPromptPart += "-------------------------------------\n\n"
-
 
   textPromptPart += `ASSESSMENT QUESTIONS:
 ${questions.map((q, idx) => `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""})`).join("\n")}
@@ -722,9 +714,8 @@ Respond in this exact JSON format:
         }
       }),
     )
-    messageContent.push(...pdfAttachments.filter(Boolean)); // Add valid attachments
+    messageContent.push(...pdfAttachments.filter(Boolean)) // Add valid attachments
   }
-
 
   // Process questions with AI
   const answers: Record<string, boolean | string> = {}
@@ -732,12 +723,12 @@ Respond in this exact JSON format:
   const reasoning: Record<string, string> = {}
   const documentExcerpts: Record<string, Array<any>> = {}
 
-  let aiUsageLogId: string | null = null; // To store the ID of the usage log entry
+  let aiUsageLogId: string | null = null // To store the ID of the usage log entry
 
   try {
     // Log AI call start
     const { data: logData, error: logError } = await supabaseClient
-      .from('ai_usage_logs')
+      .from("ai_usage_logs")
       .insert({
         user_id: userId,
         assessment_id: assessmentId,
@@ -748,13 +739,13 @@ Respond in this exact JSON format:
         status: "pending",
         key_source: keySource,
       })
-      .select('id')
-      .single();
+      .select("id")
+      .single()
 
     if (logError) {
-      console.error("Error logging AI usage start:", logError);
+      console.error("Error logging AI usage start:", logError)
     } else if (logData) {
-      aiUsageLogId = logData.id;
+      aiUsageLogId = logData.id
     }
 
     console.log(`🧠 Processing documents with ${selectedProvider.toUpperCase()} AI...`)
@@ -769,48 +760,48 @@ Respond in this exact JSON format:
       ],
       temperature: 0.1,
       maxTokens: 4000,
-      response_format: { type: 'json_object' },
+      response_format: { type: "json_object" },
     })
-    
+
     console.log(`📝 ${selectedProvider.toUpperCase()} AI response received (${result.text.length} characters)`)
     console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
 
-    let rawAiText = result.text;
-    let jsonString = "";
+    const rawAiText = result.text
+    let jsonString = ""
 
     try {
       // Attempt direct parse first
-      const directParse = JSON.parse(rawAiText);
-      jsonString = rawAiText; // If successful, use the raw text
-      console.log("Successfully parsed AI response directly.");
+      const directParse = JSON.parse(rawAiText)
+      jsonString = rawAiText // If successful, use the raw text
+      console.log("Successfully parsed AI response directly.")
     } catch (directParseError) {
-      console.log("Direct JSON parse failed, attempting fallback extraction...");
+      console.log("Direct JSON parse failed, attempting fallback extraction...")
       // 1. Attempt to extract JSON from markdown code block
-      const markdownJsonMatch = rawAiText.match(/```json\s*([\s\S]*?)\s*```/);
+      const markdownJsonMatch = rawAiText.match(/```json\s*([\s\S]*?)\s*```/)
       if (markdownJsonMatch && markdownJsonMatch[1]) {
-        jsonString = markdownJsonMatch[1].trim();
-        console.log("Extracted JSON from markdown block.");
+        jsonString = markdownJsonMatch[1].trim()
+        console.log("Extracted JSON from markdown block.")
       } else {
         // 2. If no markdown block, try to find the outermost JSON object by curly braces
-        const firstCurly = rawAiText.indexOf('{');
-        const lastCurly = rawAiText.lastIndexOf('}');
+        const firstCurly = rawAiText.indexOf("{")
+        const lastCurly = rawAiText.lastIndexOf("}")
 
         if (firstCurly !== -1 && lastCurly !== -1 && lastCurly > firstCurly) {
-          jsonString = rawAiText.substring(firstCurly, lastCurly + 1).trim();
-          console.log("Extracted JSON using first '{' and last '}' indices.");
+          jsonString = rawAiText.substring(firstCurly, lastCurly + 1).trim()
+          console.log("Extracted JSON using first '{' and last '}' indices.")
         } else {
           // 3. Fallback: if still no clear JSON, log and throw
-          console.error("❌ No valid JSON structure (markdown or curly braces) found in AI response.");
-          console.log("Raw AI response:", rawAiText);
-          throw new Error("Invalid AI response format - no JSON object found.");
+          console.error("❌ No valid JSON structure (markdown or curly braces) found in AI response.")
+          console.log("Raw AI response:", rawAiText)
+          throw new Error("Invalid AI response format - no JSON object found.")
         }
       }
     }
 
-    console.log("Attempting final JSON parse (after extraction/direct attempt):", jsonString);
+    console.log("Attempting final JSON parse (after extraction/direct attempt):", jsonString)
     try {
-      const aiResponse = JSON.parse(jsonString);
-      console.log(`✅ Successfully parsed AI response JSON`);
+      const aiResponse = JSON.parse(jsonString)
+      console.log(`✅ Successfully parsed AI response JSON`)
 
       // Process each question with enhanced validation
       questions.forEach((question) => {
@@ -818,67 +809,72 @@ Respond in this exact JSON format:
         const aiAnswer = aiResponse.answers?.[questionId]
         const aiReasoning = aiResponse.reasoning?.[questionId]
         const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
-        const aiEvidenceArray = aiResponse.evidence?.[questionId]; // Expect an array now
+        const aiEvidenceArray = aiResponse.evidence?.[questionId] // Expect an array now
 
         console.log(
           `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence count=${Array.isArray(aiEvidenceArray) ? aiEvidenceArray.length : 0}`,
         )
 
         if (Array.isArray(aiEvidenceArray) && aiEvidenceArray.length > 0) {
-          const relevantExcerpts = aiEvidenceArray.map((item: any) => {
-            // Ensure item has quote, fileName, pageNumber
-            const quote = item.quote || "";
-            const fileName = item.fileName || (supportedFiles.length > 0 ? supportedFiles[0].name : "Document");
-            const pageNumber = item.pageNumber || undefined;
-            const relevance = item.relevance || `Evidence found in ${fileName}`;
-            const documentType = item.documentType || 'primary'; // Default to primary
-            const documentRelationship = item.documentRelationship || undefined;
+          const relevantExcerpts = aiEvidenceArray
+            .map((item: any) => {
+              // Ensure item has quote, fileName, pageNumber
+              const quote = item.quote || ""
+              const fileName = item.fileName || (supportedFiles.length > 0 ? supportedFiles[0].name : "Document")
+              const pageNumber = item.pageNumber || undefined
+              const relevance = item.relevance || `Evidence found in ${fileName}`
+              const documentType = item.documentType || "primary" // Default to primary
+              const documentRelationship = item.documentRelationship || undefined
 
-            // Perform semantic relevance check on the quote
-            const relevanceCheck = checkSemanticRelevance(question.question, quote);
-            if (!relevanceCheck.isRelevant) {
-              console.log(`❌ Question ${questionId}: Evidence quote rejected - ${relevanceCheck.reason}`);
-              return null; // Filter out irrelevant quotes
-            }
+              // Perform semantic relevance check on the quote
+              const relevanceCheck = checkSemanticRelevance(question.question, quote)
+              if (!relevanceCheck.isRelevant) {
+                console.log(`❌ Question ${questionId}: Evidence quote rejected - ${relevanceCheck.reason}`)
+                return null // Filter out irrelevant quotes
+              }
 
-            return {
-              fileName,
-              quote: quote.trim(), // Ensure no leading/trailing whitespace
-              relevance,
-              pageNumber,
-              documentType,
-              documentRelationship,
-            };
-          }).filter(Boolean); // Filter out nulls (irrelevant quotes)
+              return {
+                fileName,
+                quote: quote.trim(), // Ensure no leading/trailing whitespace
+                relevance,
+                pageNumber,
+                documentType,
+                documentRelationship,
+                confidence: relevanceCheck.confidence,
+              }
+            })
+            .filter(Boolean) // Filter out nulls (irrelevant quotes)
 
           if (relevantExcerpts.length > 0) {
-            answers[questionId] = aiAnswer; // Use AI's answer if relevant evidence found
-            confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence); // Use confidence from relevance check
-            reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant";
-            documentExcerpts[questionId] = relevantExcerpts;
+            answers[questionId] = aiAnswer // Use AI's answer if relevant evidence found
+            const avgConfidence =
+              relevantExcerpts.reduce((sum, excerpt) => sum + (excerpt.confidence || 0.5), 0) / relevantExcerpts.length
+            confidenceScores[questionId] = Math.min(aiConfidence, avgConfidence)
+            reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
+            documentExcerpts[questionId] = relevantExcerpts
           } else {
             // No relevant excerpts found after filtering
-            console.log(`❌ Question ${questionId}: No relevant evidence found after semantic filtering.`);
+            console.log(`❌ Question ${questionId}: No relevant evidence found after semantic filtering.`)
             if (question.type === "boolean") {
-              answers[question.id] = false;
+              answers[question.id] = false
             } else if (question.options && question.options.length > 0) {
-              answers[question.id] = question.options[0];
+              answers[question.id] = question.options[0]
             }
-            confidenceScores[question.id] = 0.1; // Low confidence if no relevant evidence
-            reasoning[question.id] = "No directly relevant evidence found in documents after semantic filtering.";
-            documentExcerpts[questionId] = [];
+            confidenceScores[question.id] = 0.1 // Low confidence if no relevant evidence
+            reasoning[question.id] = "No directly relevant evidence found in documents after semantic filtering."
+            documentExcerpts[questionId] = []
           }
         } else {
           // No evidence array or empty array provided by AI
-          console.log(`⚠️ Question ${questionId}: No evidence array or empty array provided by AI`);
+          console.log(`⚠️ Question ${questionId}: No evidence array or empty array provided by AI`)
           if (question.type === "boolean") {
-            answers[question.id] = false;
+            answers[question.id] = false
           } else if (question.options && question.options.length > 0) {
-            answers[question.id] = question.options[0];
+            answers[question.id] = question.options[0]
           }
-          confidenceScores[question.id] = 0.1; // Low confidence if no evidence
-          reasoning[question.id] = "No directly relevant evidence found in documents.";
-          documentExcerpts[questionId] = [];
+          confidenceScores[question.id] = 0.1 // Low confidence if no evidence
+          reasoning[question.id] = "No directly relevant evidence found in documents."
+          documentExcerpts[questionId] = []
         }
       })
     } catch (parseError) {
@@ -890,22 +886,21 @@ Respond in this exact JSON format:
 
     // Update AI usage log with success status and token usage
     if (aiUsageLogId) {
-      const cost = calculateMockCost(modelName, result.usage?.inputTokens, result.usage?.outputTokens);
+      const cost = calculateMockCost(modelName, result.usage?.inputTokens, result.usage?.outputTokens)
       const { error: updateLogError } = await supabaseClient
-        .from('ai_usage_logs')
+        .from("ai_usage_logs")
         .update({
           input_tokens: result.usage?.inputTokens,
           output_tokens: result.usage?.outputTokens,
           cost: cost, // Store the calculated cost
           status: "success",
         })
-        .eq('id', aiUsageLogId);
+        .eq("id", aiUsageLogId)
 
       if (updateLogError) {
-        console.error("Error updating AI usage log (success):", updateLogError);
+        console.error("Error updating AI usage log (success):", updateLogError)
       }
     }
-
   } catch (error) {
     console.error(`❌ ${selectedProvider.toUpperCase()} AI processing failed:`, error)
     // Fallback to conservative answers
@@ -919,18 +914,18 @@ Respond in this exact JSON format:
     // Update AI usage log with failure status
     if (aiUsageLogId) {
       const { error: updateLogError } = await supabaseClient
-        .from('ai_usage_logs')
+        .from("ai_usage_logs")
         .update({
           status: "failed",
           error_message: error instanceof Error ? error.message : "Unknown AI processing error",
         })
-        .eq('id', aiUsageLogId);
+        .eq("id", aiUsageLogId)
 
       if (updateLogError) {
-        console.error("Error updating AI usage log (failure):", updateLogError);
+        console.error("Error updating AI usage log (failure):", updateLogError)
       }
     }
-    throw error; // Re-throw the error after logging
+    throw error // Re-throw the error after logging
   }
 
   // Calculate risk score
@@ -976,7 +971,9 @@ Respond in this exact JSON format:
     analysisNote += ` ${unsupportedFiles.length} file(s) in unsupported formats were skipped.`
   }
 
-  console.log(`✅ ${selectedProvider.toUpperCase()} AI analysis completed. Risk score: ${riskScore}, Risk level: ${riskLevel}`)
+  console.log(
+    `✅ ${selectedProvider.toUpperCase()} AI analysis completed. Risk score: ${riskScore}, Risk level: ${riskLevel}`,
+  )
 
   return {
     answers,
@@ -1001,7 +998,7 @@ Respond in this exact JSON format:
     riskLevel,
     analysisDate: new Date().toISOString(),
     documentsAnalyzed: files.length,
-    aiProvider: `${selectedProvider.toUpperCase()} AI (${modelName}) - ${keySource === 'client_key' ? 'Client Key' : 'Default Key'}`,
+    aiProvider: `${selectedProvider.toUpperCase()} AI (${modelName}) - ${keySource === "client_key" ? "Client Key" : "Default Key"}`,
     documentExcerpts,
     directUploadResults: files.map((file, index) => {
       const result = processingResults.find((r) => r.fileName === file.name)
@@ -1022,11 +1019,13 @@ export async function analyzeDocuments(
   questions: Question[],
   assessmentType: string,
   userId: string,
-  selectedProvider: "google" | "groq" | "huggingface", // Added selectedProvider
+  selectedProvider: "google", // Added selectedProvider
   assessmentId?: string,
   documentMetadata: DocumentMetadata[] = [],
 ): Promise<DocumentAnalysisResult> {
-  console.log(`🚀 Starting ${selectedProvider.toUpperCase()} AI analysis of ${files.length} files for ${assessmentType}`)
+  console.log(
+    `🚀 Starting ${selectedProvider.toUpperCase()} AI analysis of ${files.length} files for ${assessmentType}`,
+  )
 
   if (!files || files.length === 0) {
     throw new Error("No files provided for analysis")
@@ -1048,7 +1047,15 @@ export async function analyzeDocuments(
     })
 
     // Perform direct AI analysis
-    const result = await performDirectAIAnalysis(files, questions, assessmentType, userId, selectedProvider, assessmentId, documentMetadata)
+    const result = await performDirectAIAnalysis(
+      files,
+      questions,
+      assessmentType,
+      userId,
+      selectedProvider,
+      assessmentId,
+      documentMetadata,
+    )
 
     console.log("🎉 AI analysis completed successfully")
     return result
@@ -1059,7 +1066,7 @@ export async function analyzeDocuments(
 }
 
 // Test AI providers
-export async function testAIProviders(): Promise<Record<string, boolean>> {
+export async function testAIProviders() {
   const results: Record<string, boolean> = {}
 
   // Test Google AI
@@ -1070,7 +1077,6 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
         prompt: 'Respond with "OK" if you can read this.',
         maxTokens: 10,
         temperature: 0.1,
-        response_format: { type: 'json_object' },
       })
       results.google = result.text.toLowerCase().includes("ok")
       console.log("Google AI test result:", results.google)
@@ -1081,48 +1087,6 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
   } else {
     console.log("Google AI API key not found")
     results.google = false
-  }
-
-  // Test Groq
-  if (process.env.GROQ_API_KEY) {
-    try {
-      const result = await generateText({
-        model: groq("llama3-8b-8192"),
-        prompt: 'Respond with "OK" if you can read this.',
-        maxTokens: 10,
-        temperature: 0.1,
-        response_format: { type: 'json_object' },
-      })
-      results.groq = result.text.toLowerCase().includes("ok")
-      console.log("Groq AI test result:", results.groq)
-    } catch (error) {
-      console.error("Groq AI test failed:", error)
-      results.groq = false
-    }
-  } else {
-    console.log("Groq API key not found")
-    results.groq = false
-  }
-
-  // Test Hugging Face
-  if (process.env.HF_API_KEY) {
-    try {
-      const result = await generateText({
-        model: huggingface("mixtral-8x7b-instruct-v0.1"),
-        prompt: 'Respond with "OK" if you can read this.',
-        maxTokens: 10,
-        temperature: 0.1,
-        response_format: { type: 'json_object' },
-      })
-      results.huggingface = result.text.toLowerCase().includes("ok")
-      console.log("Hugging Face AI test result:", results.huggingface)
-    } catch (error) {
-      console.error("Hugging Face AI test failed:", error)
-      results.huggingface = false
-    }
-  } else {
-    console.log("Hugging Face API key not found")
-    results.huggingface = false
   }
 
   return results
