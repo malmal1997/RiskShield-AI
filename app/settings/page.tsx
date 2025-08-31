@@ -867,6 +867,19 @@ function SettingsContent() {
                     </div>
                     <ExternalLink className="h-4 w-4 text-purple-600 ml-auto" />
                   </a>
+                  <a
+                    href="https://openrouter.ai/keys"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <Bot className="h-6 w-6 text-gray-600" />
+                    <div>
+                      <p className="font-medium text-gray-800">OpenRouter</p>
+                      <p className="text-sm text-gray-700">Access various models through a unified API</p>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-gray-600 ml-auto" />
+                  </a>
                 </div>
 
                 <Separator />
