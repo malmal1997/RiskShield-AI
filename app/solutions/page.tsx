@@ -32,6 +32,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay" // Import Autoplay
 
 // Data for solution categories
 const coreSolutions = [
@@ -290,9 +291,9 @@ export default function SolutionsPage() {
 
           <Tabs defaultValue="core-solutions" className="w-full">
             <TabsList className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto mb-8 h-auto p-2">
-              <TabsTrigger value="core-solutions" className="flex-1 min-w-[150px]">Core Solutions</TabsTrigger>
-              <TabsTrigger value="specialized-assessments" className="flex-1 min-w-[150px]">Specialized Assessments</TabsTrigger>
-              <TabsTrigger value="internal-risk-assessments" className="flex-1 min-w-[150px]">Internal Risk Assessments</TabsTrigger>
+              <TabsTrigger value="core-solutions" className="flex-1 min-w-[150px] px-4 py-2 text-sm">Core Solutions</TabsTrigger>
+              <TabsTrigger value="specialized-assessments" className="flex-1 min-w-[150px] px-4 py-2 text-sm">Specialized Assessments</TabsTrigger>
+              <TabsTrigger value="internal-risk-assessments" className="flex-1 min-w-[150px] px-4 py-2 text-sm">Internal Risk Assessments</TabsTrigger>
             </TabsList>
 
             <TabsContent value="core-solutions">
@@ -337,6 +338,12 @@ export default function SolutionsPage() {
               align: "start",
               loop: true, // Enable looping for continuous revolving
             }}
+            plugins={[
+              Autoplay({
+                delay: 3000, // 3 seconds delay
+                stopOnInteraction: false, // Keep revolving even if user interacts
+              }),
+            ]}
             className="w-full relative"
           >
             <CarouselContent className="-ml-4">
