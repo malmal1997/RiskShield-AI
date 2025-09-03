@@ -23,22 +23,12 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
   const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false);
   const [feedbackMessageCount, setFeedbackMessageCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isInitialRender = useRef(true); // New ref to track initial render
 
   const FEEDBACK_THRESHOLD = 2; // Show feedback prompt after 2 AI messages
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  useEffect(() => {
-    // Prevent scrolling on the very first render of the component
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
-    scrollToBottom();
-  }, [messages]); // Only scroll when messages change after initial render
 
   const sendMessage = async () => {
     if (input.trim() === "") return;
@@ -48,6 +38,9 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
     setInput("");
     setIsLoading(true);
     setShowFeedbackPrompt(false); // Hide feedback prompt when new message is sent
+
+    // Scroll to bottom immediately after user sends message
+    setTimeout(scrollToBottom, 0); 
 
     try {
       const response = await fetch("/api/chatbot", {
@@ -67,12 +60,16 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
       setMessages((prevMessages) => [...prevMessages, assistantMessage]);
       setFeedbackMessageCount((prevCount) => prevCount + 1);
 
+      // Scroll to bottom after AI response
+      setTimeout(scrollToBottom, 0);
+
     } catch (error) {
       console.error("Error sending message to AI:", error);
       setMessages((prevMessages) => [
         ...prevMessages,
         { role: "assistant", content: "Sorry, I'm having trouble connecting to the AI. Please try again later." },
       ]);
+      setTimeout(scrollToBottom, 0); // Scroll even on error message
     } finally {
       setIsLoading(false);
     }
