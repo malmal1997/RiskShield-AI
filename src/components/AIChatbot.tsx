@@ -99,7 +99,7 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
         <CardDescription>Ask questions about RiskGuard AI, risk assessments, or compliance.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col flex-1 p-4">
-        <ScrollArea className="flex-1 p-4 border rounded-md mb-4"> {/* Removed bg-gray-50 */}
+        <ScrollArea className="flex-1 p-4 border rounded-md mb-4 bg-gray-50">
           <div className="space-y-4">
             {messages.map((msg, index) => (
               <div
@@ -150,7 +150,7 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
 
         <div className="flex space-x-2 mt-auto">
           <Input
-            placeholder="Ask me anything..." {/* Re-added placeholder prop */}
+            // Removed placeholder prop
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => {
