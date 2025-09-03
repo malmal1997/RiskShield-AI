@@ -22,6 +22,11 @@ import {
   Zap, // For Fintech
   ArrowRight,
   Building, // Added Building icon
+  Building2, // For Real Estate
+  BriefcaseBusiness, // For Government
+  GraduationCap, // For Education
+  ShoppingCart, // For Retail
+  Factory, // For Manufacturing
 } from "lucide-react"
 import Link from "next/link"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -188,6 +193,41 @@ const industrySolutions = [
     icon: Zap,
     link: "/solutions/fintech",
   },
+  {
+    id: "real-estate",
+    title: "Real Estate",
+    description: "Risk management for property development, investment, and management firms.",
+    icon: Building2,
+    link: "/solutions/real-estate",
+  },
+  {
+    id: "government",
+    title: "Government",
+    description: "Compliance and security solutions for public sector agencies and municipalities.",
+    icon: BriefcaseBusiness,
+    link: "/solutions/government",
+  },
+  {
+    id: "education",
+    title: "Education",
+    description: "Protecting student data and ensuring operational resilience for educational institutions.",
+    icon: GraduationCap,
+    link: "/solutions/education",
+  },
+  {
+    id: "retail",
+    title: "Retail",
+    description: "Managing cybersecurity and operational risks for e-commerce and brick-and-mortar retailers.",
+    icon: ShoppingCart,
+    link: "/solutions/retail",
+  },
+  {
+    id: "manufacturing",
+    title: "Manufacturing",
+    description: "Supply chain risk, operational technology security, and compliance for manufacturers.",
+    icon: Factory,
+    link: "/solutions/manufacturing",
+  },
 ]
 
 // Component to render a solution card
@@ -325,7 +365,7 @@ export default function SolutionsPage() {
 
       {/* Industry-Specific Solutions Carousel */}
       <section className="py-20 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative"> {/* Added relative here */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900">Industry-Specific Solutions</h2>
             <p className="mt-4 text-lg text-gray-600">
@@ -344,7 +384,7 @@ export default function SolutionsPage() {
                 stopOnInteraction: false, // Keep revolving even if user interacts
               }),
             ]}
-            className="w-full" // Removed 'relative' here
+            className="w-full"
           >
             <CarouselContent className="-ml-4">
               {industrySolutions.map((solution, index) => (
@@ -353,8 +393,8 @@ export default function SolutionsPage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious /> {/* No custom class here, using default positioning */}
-            <CarouselNext /> {/* No custom class here, using default positioning */}
+            <CarouselPrevious />
+            <CarouselNext />
           </Carousel>
         </div>
       </section>

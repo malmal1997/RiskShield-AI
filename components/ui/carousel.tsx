@@ -108,11 +108,8 @@ const Carousel = React.forwardRef<
         setApi(api)
       }
 
-      // Explicitly start autoplay if the plugin is available
-      const autoplayPlugin = api.plugins.autoplay as any; 
-      if (autoplayPlugin) {
-        autoplayPlugin.play();
-      }
+      // Removed explicit autoplayPlugin.play() call.
+      // The Autoplay plugin should manage its own lifecycle when correctly configured.
 
     }, [api, onSelect, setApi])
 
@@ -132,7 +129,7 @@ const Carousel = React.forwardRef<
         <div
           ref={ref}
           onKeyDownCapture={handleKeyDown}
-          className={cn("relative w-full", className)} // Added 'relative' back here
+          className={cn("relative w-full", className)}
           role="region"
           aria-roledescription="carousel"
           {...props}
@@ -203,7 +200,7 @@ const CarouselPrevious = React.forwardRef<
       className={cn(
         "absolute h-8 w-8 rounded-full z-10",
         orientation === "horizontal"
-          ? "-left-12 top-1/2 -translate-y-1/2" // Adjusted positioning
+          ? "-left-12 top-1/2 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         className,
       )}
@@ -232,7 +229,7 @@ const CarouselNext = React.forwardRef<
       className={cn(
         "absolute h-8 w-8 rounded-full z-10",
         orientation === "horizontal"
-          ? "-right-12 top-1/2 -translate-y-1/2" // Adjusted positioning
+          ? "-right-12 top-1/2 -translate-y-1/2"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className,
       )}
