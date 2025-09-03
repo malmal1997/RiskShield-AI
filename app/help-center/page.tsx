@@ -6,11 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-// Removed: import { MainNavigation } from "@/components/main-navigation"
-import { Shield, Mail, Phone, MessageSquare, Send, CheckCircle, Bot } from "lucide-react"
+import { Shield, Mail, MessageSquare, Send, CheckCircle, Bot } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { AIChatbot } from "@/src/components/AIChatbot";
-// Removed: import { AppFooter } from "@/components/app-footer"; // Import AppFooter
 
 export default function HelpCenterPage() {
   const [formData, setFormData] = useState({
@@ -217,12 +215,7 @@ export default function HelpCenterPage() {
                   support@riskguard.ai
                 </a>
               </div>
-              <div className="flex items-center space-x-3 whitespace-nowrap">
-                <Phone className="h-6 w-6 text-blue-600" />
-                <a href="tel:+15551234567" className="text-lg text-blue-600 hover:underline">
-                  +1 (555) 123-4567
-                </a>
-              </div>
+              {/* Removed the Phone Number section */}
               <div className="flex items-center space-x-3 whitespace-nowrap">
                 <MessageSquare className="h-6 w-6 text-blue-600" />
                 <span className="text-lg text-blue-600">Live Chat (Coming Soon)</span>
