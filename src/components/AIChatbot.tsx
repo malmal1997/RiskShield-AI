@@ -96,7 +96,7 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
           <Bot className="h-5 w-5 text-blue-600" />
           <span>AI Assistant</span>
         </CardTitle>
-        <CardDescription>Ask questions about RiskGuard AI, risk assessments, or compliance.</CardDescription>
+        <CardDescription>Ask questions about RiskShield AI, risk assessments, or compliance.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col flex-1 p-4">
         <ScrollArea className="flex-1 p-4 border rounded-md mb-4 bg-gray-50">
