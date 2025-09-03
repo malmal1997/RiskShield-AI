@@ -101,7 +101,6 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
       <CardContent className="flex flex-col flex-1 p-4">
         <ScrollArea className="flex-1 p-4 border rounded-md mb-4 bg-gray-50">
           <div className="space-y-4">
-            {/* Removed the conditional rendering for the initial placeholder message */}
             {messages.map((msg, index) => (
               <div
                 key={index}
@@ -151,7 +150,7 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
 
         <div className="flex space-x-2 mt-auto">
           <Input
-            placeholder="Ask me anything..."
+            // Removed placeholder prop
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => {
