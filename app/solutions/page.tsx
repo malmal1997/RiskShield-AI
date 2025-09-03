@@ -289,10 +289,10 @@ export default function SolutionsPage() {
           </div>
 
           <Tabs defaultValue="core-solutions" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto mb-8">
-              <TabsTrigger value="core-solutions">Core Solutions</TabsTrigger>
-              <TabsTrigger value="specialized-assessments">Specialized Assessments</TabsTrigger>
-              <TabsTrigger value="internal-risk-assessments">Internal Risk Assessments</TabsTrigger>
+            <TabsList className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto mb-8 h-auto p-2">
+              <TabsTrigger value="core-solutions" className="flex-1 min-w-[150px]">Core Solutions</TabsTrigger>
+              <TabsTrigger value="specialized-assessments" className="flex-1 min-w-[150px]">Specialized Assessments</TabsTrigger>
+              <TabsTrigger value="internal-risk-assessments" className="flex-1 min-w-[150px]">Internal Risk Assessments</TabsTrigger>
             </TabsList>
 
             <TabsContent value="core-solutions">
@@ -335,8 +335,9 @@ export default function SolutionsPage() {
           <Carousel
             opts={{
               align: "start",
+              loop: true, // Enable looping for continuous revolving
             }}
-            className="w-full"
+            className="w-full relative"
           >
             <CarouselContent className="-ml-4">
               {industrySolutions.map((solution, index) => (
@@ -345,23 +346,23 @@ export default function SolutionsPage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />
+            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />
           </Carousel>
         </div>
       </section>
 
       {/* Case Study / CTA Section (from screenshot) */}
-      <section className="bg-blue-800 py-20">
+      <section className="bg-blue-700 py-20"> {/* Changed to bg-blue-700 */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="mb-4 bg-blue-600 text-white hover:bg-blue-600">Case Study</Badge>
+              <Badge className="mb-4 bg-blue-500 text-white hover:bg-blue-500">Case Study</Badge> {/* Adjusted badge color */}
               <h3 className="text-3xl font-bold text-white mb-4">How First Regional Bank Reduced Compliance Costs by 65%</h3>
-              <p className="text-blue-100 mb-6">
+              <p className="text-blue-100 mb-6"> {/* Adjusted text color for better contrast */}
                 Learn how First Regional Bank implemented RiskGuard AI's solutions to streamline their compliance processes, reduce manual work, and achieve significant cost savings while improving their risk posture.
               </p>
-              <Button variant="secondary" className="bg-white text-blue-800 hover:bg-gray-100">
+              <Button variant="secondary" className="bg-white text-blue-700 hover:bg-gray-100"> {/* Adjusted button text color */}
                 Read Case Study
               </Button>
             </div>
