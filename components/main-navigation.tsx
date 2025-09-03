@@ -25,9 +25,9 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
   const publicNavigationItems = [
     { name: "Platform", href: "/" },
     { name: "Solutions", href: "/solutions" },
-    { name: "Help Center", href: "/help-center" },
     { name: "About Us", href: "/about-us" }, // Added About Us
     { name: "Careers", href: "/careers" },   // Added Careers
+    { name: "Help Center", href: "/help-center" }, // Moved to the end
   ];
 
   const restrictedNavigationItems = [
