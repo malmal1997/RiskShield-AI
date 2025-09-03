@@ -109,8 +109,10 @@ const Carousel = React.forwardRef<
       }
 
       // Explicitly start autoplay if the plugin is available
-      if (api.plugins().autoplay) {
-        api.plugins().autoplay.play();
+      // Corrected: Access autoplay as a property, not a method call
+      const autoplayPlugin = api.plugins.autoplay as any; 
+      if (autoplayPlugin) {
+        autoplayPlugin.play();
       }
 
     }, [api, onSelect, setApi])
