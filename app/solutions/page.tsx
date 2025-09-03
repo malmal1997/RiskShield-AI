@@ -290,10 +290,10 @@ export default function SolutionsPage() {
           </div>
 
           <Tabs defaultValue="core-solutions" className="w-full">
-            <TabsList className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto mb-8 h-auto p-2">
-              <TabsTrigger value="core-solutions" className="flex-1 min-w-[150px] px-4 py-2 text-sm">Core Solutions</TabsTrigger>
-              <TabsTrigger value="specialized-assessments" className="flex-1 min-w-[150px] px-4 py-2 text-sm">Specialized Assessments</TabsTrigger>
-              <TabsTrigger value="internal-risk-assessments" className="flex-1 min-w-[150px] px-4 py-2 text-sm">Internal Risk Assessments</TabsTrigger>
+            <TabsList className="flex justify-center gap-1 max-w-fit mx-auto mb-8 h-auto p-1 rounded-lg bg-gray-100">
+              <TabsTrigger value="core-solutions" className="px-4 py-2 text-sm whitespace-nowrap data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600">Core Solutions</TabsTrigger>
+              <TabsTrigger value="specialized-assessments" className="px-4 py-2 text-sm whitespace-nowrap data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600">Specialized Assessments</TabsTrigger>
+              <TabsTrigger value="internal-risk-assessments" className="px-4 py-2 text-sm whitespace-nowrap data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600">Internal Risk Assessments</TabsTrigger>
             </TabsList>
 
             <TabsContent value="core-solutions">
