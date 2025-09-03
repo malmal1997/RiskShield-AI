@@ -25,9 +25,10 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
   const publicNavigationItems = [
     { name: "Platform", href: "/" },
     { name: "Solutions", href: "/solutions" },
-    { name: "About Us", href: "/about-us" }, // Added About Us
-    { name: "Careers", href: "/careers" },   // Added Careers
-    { name: "Help Center", href: "/help-center" }, // Moved to the end
+    { name: "About Us", href: "/about-us" },
+    { name: "Careers", href: "/careers" },
+    { name: "Documentation", href: "/documentation" }, // Added Documentation here
+    { name: "Help Center", href: "/help-center" },
   ];
 
   const restrictedNavigationItems = [
@@ -66,7 +67,7 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
   }
 
   return (
-    <header className="bg-white sticky top-0 z-40"> {/* Removed border-b border-gray-200 */}
+    <header className="bg-white sticky top-0 z-40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between w-full">
           {/* Logo */}
