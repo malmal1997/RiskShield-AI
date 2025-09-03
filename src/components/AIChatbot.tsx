@@ -101,11 +101,7 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
       <CardContent className="flex flex-col flex-1 p-4">
         <ScrollArea className="flex-1 p-4 border rounded-md mb-4 bg-gray-50">
           <div className="space-y-4">
-            {messages.length === 0 && (
-              <div className="text-center text-gray-500 italic">
-                Type a message to start chatting with the AI assistant.
-              </div>
-            )}
+            {/* Removed the conditional rendering for the initial placeholder message */}
             {messages.map((msg, index) => (
               <div
                 key={index}
