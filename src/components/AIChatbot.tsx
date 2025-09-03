@@ -150,7 +150,7 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
 
         <div className="flex space-x-2 mt-auto">
           <Input
-            // Removed placeholder prop
+            placeholder="Ask me anything..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => {
