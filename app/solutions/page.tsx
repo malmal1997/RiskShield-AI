@@ -21,6 +21,7 @@ import {
   CreditCard, // For Credit Unions
   Zap, // For Fintech
   ArrowRight,
+  Building, // Added Building icon
 } from "lucide-react"
 import Link from "next/link"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
