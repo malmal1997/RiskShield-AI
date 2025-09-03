@@ -8,7 +8,7 @@ export function DemoSessionSetup() {
     const demoSession = {
       user: {
         id: "demo-user-123",
-        email: "demo@riskguard.ai",
+        email: "demo@riskshield.ai",
         name: "Demo User",
       },
       organization: {

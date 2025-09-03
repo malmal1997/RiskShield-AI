@@ -10,14 +10,14 @@ interface DocumentationCategoryContentProps {
 
 export const documentationContent: Record<string, { title: string; description: string; articles: { title: string; content: string; icon: React.ElementType }[] }> = {
   "getting-started": {
-    title: "Getting Started with RiskGuard AI",
-    description: "Your first steps to setting up and using the RiskGuard AI platform.",
+    title: "Getting Started with RiskShield AI",
+    description: "Your first steps to setting up and using the RiskShield AI platform.",
     articles: [
       {
         title: "Account Creation & Login",
         icon: Users,
         content: `
-          <p>Welcome to RiskGuard AI! This guide will walk you through the process of creating your account and logging in for the first time.</p>
+          <p>Welcome to RiskShield AI! This guide will walk you through the process of creating your account and logging in for the first time.</p>
           <h3 class="text-lg font-semibold mt-4 mb-2">1. Register Your Institution</h3>
           <p>Navigate to the <a href="/auth/register" class="text-blue-600 hover:underline">registration page</a> and fill out the required information for your financial institution. This includes your company name, contact details, and desired credentials.</p>
           <h3 class="text-lg font-semibold mt-4 mb-2">2. Account Approval</h3>
@@ -30,7 +30,7 @@ export const documentationContent: Record<string, { title: string; description: 
         title: "Dashboard Navigation",
         icon: BarChart3,
         content: `
-          <p>The RiskGuard AI dashboard is your central hub for all risk management activities. Here's a quick overview of its key sections:</p>
+          <p>The RiskShield AI dashboard is your central hub for all risk management activities. Here's a quick overview of its key sections:</p>
           <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
             <li><strong>Overview:</strong> Get a high-level summary of your risk posture, compliance score, and active assessments.</li>
             <li><strong>Assessments:</strong> View all your ongoing and completed risk assessments.</li>
@@ -58,7 +58,7 @@ export const documentationContent: Record<string, { title: string; description: 
   },
   "risk-assessments": {
     title: "Conducting Risk Assessments",
-    description: "In-depth guides on performing various risk assessments with RiskGuard AI.",
+    description: "In-depth guides on performing various risk assessments with RiskShield AI.",
     articles: [
       {
         title: "Cybersecurity Assessments",
@@ -80,7 +80,7 @@ export const documentationContent: Record<string, { title: string; description: 
         title: "Third-Party Risk Evaluation",
         icon: Users,
         content: `
-          <p>Managing risks from third-party vendors is crucial. RiskGuard AI simplifies this process.</p>
+          <p>Managing risks from third-party vendors is crucial. RiskShield AI simplifies this process.</p>
           <h3 class="text-lg font-semibold mt-4 mb-2">Steps:</h3>
           <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
             <li><strong>Send Invitations:</strong> Use the <a href="/third-party-assessment" class="text-blue-600 hover:underline">Third-Party Assessment page</a> to send secure assessment links to your vendors.</li>
@@ -231,7 +231,7 @@ export const documentationContent: Record<string, { title: string; description: 
         title: "API Keys",
         icon: Settings,
         content: `
-          <p>Integrate RiskGuard AI with other systems using API keys.</p>
+          <p>Integrate RiskShield AI with other systems using API keys.</p>
           <h3 class="text-lg font-semibold mt-4 mb-2">Managing API Keys:</h3>
           <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
             <li>Generate new API keys for various AI providers (Google Gemini, Groq, Hugging Face).</li>
@@ -246,7 +246,7 @@ export const documentationContent: Record<string, { title: string; description: 
         title: "Notification Settings",
         icon: Bell,
         content: `
-          <p>Customize how you receive notifications from RiskGuard AI.</p>
+          <p>Customize how you receive notifications from RiskShield AI.</p>
           <h3 class="text-lg font-semibold mt-4 mb-2">Options:</h3>
           <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
             <li>Email notifications for assessments, reports, and alerts.</li>
@@ -283,7 +283,7 @@ export const documentationContent: Record<string, { title: string; description: 
           <p>Effective compliance is an ongoing process. Consider these strategies:</p>
           <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
             <li><strong>Stay Updated:</strong> Regularly monitor changes in relevant regulations (e.g., FDIC, NCUA, GDPR).</li>
-            <li><strong>Automate Tracking:</strong> Utilize RiskGuard AI's compliance tracking features to automate monitoring.</li>
+            <li><strong>Automate Tracking:</strong> Utilize RiskShield AI's compliance tracking features to automate monitoring.</li>
             <li><strong>Internal Audits:</strong> Conduct regular internal audits to identify and address compliance gaps proactively.</li>
             <li><strong>Training & Awareness:</strong> Ensure all staff are aware of their compliance responsibilities.</li>
             <li><strong>Documentation:</strong> Maintain meticulous records of all compliance activities and evidence.</li>
@@ -294,7 +294,7 @@ export const documentationContent: Record<string, { title: string; description: 
         title: "AI Usage Tips",
         icon: Bot,
         content: `
-          <p>Get the most out of RiskGuard AI's intelligent features:</p>
+          <p>Get the most out of RiskShield AI's intelligent features:</p>
           <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
             <li><strong>High-Quality Documents:</strong> Upload clear, comprehensive, and up-to-date documents for AI analysis.</li>
             <li><strong>Supported Formats:</strong> Prefer PDF, TXT, MD, CSV, JSON, HTML, XML. Convert Word/Excel files to supported formats.</li>

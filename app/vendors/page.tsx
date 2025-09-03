@@ -226,7 +226,7 @@ function VendorsContent() {
               <div className="flex items-center space-x-2">
                 <Shield className="h-8 w-8 text-blue-600" />
                 <div>
-                  <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
+                  <span className="text-xl font-bold text-gray-900">RiskShield AI</span>
                   {organization && <p className="text-sm text-gray-600">{organization.name}</p>}
                 </div>
               </div>

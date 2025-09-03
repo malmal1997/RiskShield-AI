@@ -32,19 +32,19 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
     try {
       // Check for demo credentials
-      if (email === "demo@riskguard.ai" && password === "demo123") {
+      if (email === "demo@riskshield.ai" && password === "demo123") {
         // Set demo session in localStorage
         localStorage.setItem(
           "demo_session",
           JSON.stringify({
             user: {
               id: "demo-user-id",
-              email: "demo@riskguard.ai",
+              email: "demo@riskshield.ai",
               name: "Demo User",
             },
             organization: {
               id: "demo-org-id",
-              name: "RiskGuard Demo Organization",
+              name: "RiskShield Demo Organization",
               plan: "enterprise",
             },
             role: "admin",
@@ -82,12 +82,12 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         JSON.stringify({
           user: {
             id: "demo-user-id",
-            email: "demo@riskguard.ai",
+            email: "demo@riskshield.ai",
             name: "Demo User",
           },
           organization: {
             id: "demo-org-id",
-            name: "RiskGuard Demo Organization",
+            name: "RiskShield Demo Organization",
             plan: "enterprise",
           },
           role: "admin",
@@ -158,7 +158,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
           <CardHeader className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <Shield className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
+              <span className="text-xl font-bold text-gray-900">RiskShield AI</span>
             </div>
             <CardTitle className="text-2xl">{isSignUp ? "Create Account" : "Sign In Required"}</CardTitle>
             <p className="text-gray-600">
@@ -175,7 +175,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
                   <h3 className="font-semibold text-blue-900">🚀 Try Demo Access</h3>
                   <p className="text-sm text-blue-700">Full enterprise platform access</p>
                   <p className="text-xs text-blue-600 mt-1">
-                    Email: demo@riskguard.ai
+                    Email: demo@riskshield.ai
                     <br />
                     Password: demo123
                   </p>

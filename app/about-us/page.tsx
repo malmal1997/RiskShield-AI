@@ -17,7 +17,7 @@ export default function AboutUsPage() {
           <div className="text-center">
             <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Our Story</Badge>
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-              About RiskGuard AI
+              About RiskShield AI
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
               Empowering organizations with intelligent risk assessment and compliance management.
@@ -33,7 +33,7 @@ export default function AboutUsPage() {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
               <p className="text-lg text-gray-700 mb-6">
-                At RiskGuard AI, our mission is to revolutionize risk management by providing cutting-edge, AI-powered solutions that enable organizations to proactively identify, assess, and mitigate risks. We believe in a future where compliance is seamless, and security is inherent.
+                At RiskShield AI, our mission is to revolutionize risk management by providing cutting-edge, AI-powered solutions that enable organizations to proactively identify, assess, and mitigate risks. We believe in a future where compliance is seamless, and security is inherent.
               </p>
               <p className="text-lg text-gray-700">
                 We are dedicated to helping financial institutions and other regulated industries navigate complex regulatory landscapes with confidence, ensuring data integrity, operational resilience, and sustained growth.

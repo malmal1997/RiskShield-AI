@@ -41,7 +41,7 @@ export default function PrivacyPolicyPage() {
                 <span>Introduction</span>
               </h2>
               <p className="text-gray-700 leading-relaxed">
-                RiskGuard AI ("we," "our," or "us") is committed to protecting the privacy of our users. This Privacy Policy describes how RiskGuard AI collects, uses, and discloses information, and what choices you have with respect to the information.
+                RiskShield AI ("we," "our," or "us") is committed to protecting the privacy of our users. This Privacy Policy describes how RiskShield AI collects, uses, and discloses information, and what choices you have with respect to the information.
               </p>
             </div>
 
@@ -129,7 +129,7 @@ export default function PrivacyPolicyPage() {
                 If you have any questions about this Privacy Policy, please contact us:
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4 mt-4">
-                <li>By email: support@riskguard.ai</li>
+                <li>By email: support@riskshield.ai</li>
                 <li>By visiting this page on our website: <Link href="/help-center" className="text-blue-600 hover:underline">Help Center</Link></li>
               </ul>
             </div>

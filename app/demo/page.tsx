@@ -209,7 +209,7 @@ export default function InteractiveDemo() {
           </div>
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
             <p className="text-sm text-amber-800 text-center">
-              ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+              ⚠️ RiskShield AI may make mistakes. Please use with discretion.
             </p>
           </div>
         </CardContent>
@@ -284,7 +284,7 @@ export default function InteractiveDemo() {
             </div>
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
               <p className="text-sm text-amber-800 text-center">
-                ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+                ⚠️ RiskShield AI may make mistakes. Please use with discretion.
               </p>
             </div>
           </div>
@@ -383,7 +383,7 @@ export default function InteractiveDemo() {
                   </div>
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
                     <p className="text-sm text-amber-800 text-center">
-                      ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+                      ⚠️ RiskShield AI may make mistakes. Please use with discretion.
                     </p>
                   </div>
                 </div>
@@ -420,20 +420,22 @@ export default function InteractiveDemo() {
           <div className="text-center">
             <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Interactive Demo</Badge>
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-              Experience RiskGuard AI
+              Experience RiskShield AI
               <br />
               <span className="text-blue-600">in Action</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
               Explore our comprehensive risk management platform through this interactive demonstration. See how
-              RiskGuard AI can transform your institution's risk assessment process.
+              RiskShield AI can transform your institution's risk assessment process.
             </p>
           </div>
         </div>
       </section>
 
       {/* Demo Controls */}
-      <section className="py-8 bg-white"> {/* Changed bg-gray-50 to bg-white */}
+      <section className="py-8 bg-white">
+        {" "}
+        {/* Changed bg-gray-50 to bg-white */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-4">
@@ -536,7 +538,7 @@ export default function InteractiveDemo() {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
             <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
-              Experience the full power of RiskGuard AI with a personalized demo tailored to your institution's needs.
+              Experience the full power of RiskShield AI with a personalized demo tailored to your institution's needs.
             </p>
             <div className="flex justify-center space-x-4">
               <Link href="/dashboard" asChild>

@@ -144,7 +144,7 @@ function VendorAssessmentComponent() {
 
         setAssessment({
           id: assessmentData.id,
-          companyName: "RiskGuard AI",
+          companyName: "RiskShield AI",
           assessmentType: assessmentData.assessment_type,
           dueDate: assessmentData.due_date || "2024-02-15",
           customMessage:
@@ -152,7 +152,7 @@ function VendorAssessmentComponent() {
             (isAiPowered
               ? "Please complete this AI-powered assessment. You can upload documents for automatic analysis and completion."
               : "Please complete this assessment to help us evaluate our partnership."),
-          contactEmail: "security@riskguard.ai",
+          contactEmail: "security@riskshield.ai",
           isAiPowered: isAiPowered,
         })
 

@@ -20,7 +20,7 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
   const { user, isDemo, signOut: authSignOut } = useAuth(); // Use useAuth hook
 
   // Determine userEmail from auth context
-  const currentUserEmail = user?.email || (isDemo ? "demo@riskguard.ai" : undefined);
+  const currentUserEmail = user?.email || (isDemo ? "demo@riskshield.ai" : undefined);
 
   const publicNavigationItems = [
     { name: "Platform", href: "/" },

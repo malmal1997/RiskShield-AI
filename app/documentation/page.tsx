@@ -71,9 +71,9 @@ export default function DocumentationPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Support & Learning</Badge>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">RiskGuard AI Documentation</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">RiskShield AI Documentation</h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-              Find guides, tutorials, and answers to your questions about using the RiskGuard AI platform.
+              Find guides, tutorials, and answers to your questions about using the RiskShield AI platform.
             </p>
             <div className="mt-8 max-w-md mx-auto">
               <div className="relative">

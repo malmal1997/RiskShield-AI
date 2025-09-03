@@ -23,7 +23,7 @@ export default function TermsOfServicePage() {
               Terms of Service
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-              These terms govern your use of the RiskGuard AI platform and services.
+              These terms govern your use of the RiskShield AI platform and services.
             </p>
             <div className="flex items-center justify-center mt-4 text-gray-600 text-sm">
               <Calendar className="h-4 w-4 mr-2" />
@@ -43,7 +43,7 @@ export default function TermsOfServicePage() {
                 <span>Agreement to Terms</span>
               </h2>
               <p className="text-gray-700 leading-relaxed">
-                By accessing or using the RiskGuard AI platform and services (the "Service"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of the terms, then you may not access the Service.
+                By accessing or using the RiskShield AI platform and services (the "Service"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of the terms, then you may not access the Service.
               </p>
             </div>
 
@@ -67,7 +67,7 @@ export default function TermsOfServicePage() {
                 <span>Intellectual Property</span>
               </h2>
               <p className="text-gray-700 leading-relaxed">
-                The Service and its original content, features, and functionality are and will remain the exclusive property of RiskGuard AI and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of RiskGuard AI.
+                The Service and its original content, features, and functionality are and will remain the exclusive property of RiskShield AI and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of RiskShield AI.
               </p>
             </div>
 
@@ -77,7 +77,7 @@ export default function TermsOfServicePage() {
                 <span>Links to Other Websites</span>
               </h2>
               <p className="text-gray-700 leading-relaxed">
-                Our Service may contain links to third-party web sites or services that are not owned or controlled by RiskGuard AI. RiskGuard AI has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services. You further acknowledge and agree that RiskGuard AI shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such web sites or services.
+                Our Service may contain links to third-party web sites or services that are not owned or controlled by RiskShield AI. RiskShield AI has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services. You further acknowledge and agree that RiskShield AI shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such web sites or services.
               </p>
             </div>
 
@@ -120,7 +120,7 @@ export default function TermsOfServicePage() {
                 If you have any questions about these Terms, please contact us:
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4 mt-4">
-                <li>By email: support@riskguard.ai</li>
+                <li>By email: support@riskshield.ai</li>
                 <li>By visiting this page on our website: <Link href="/help-center" className="text-blue-600 hover:underline">Help Center</Link></li>
               </ul>
             </div>

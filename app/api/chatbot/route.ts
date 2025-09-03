@@ -16,9 +16,9 @@ export async function POST(req: NextRequest) {
     const result = await streamText({
       model: google("gemini-1.5-flash"),
       messages,
-      system: `You are a helpful AI assistant for RiskGuard AI, a platform for risk assessment and compliance management.
+      system: `You are a helpful AI assistant for RiskShield AI, a platform for risk assessment and compliance management.
       Answer questions about the platform's features, risk management concepts, compliance standards (like SOC 2, ISO 27001, GDPR), and general cybersecurity.
-      Keep your responses concise and helpful. If a question is outside your knowledge base or the context of RiskGuard AI, politely decline to answer.`,
+      Keep your responses concise and helpful. If a question is outside your knowledge base or the context of RiskShield AI, politely decline to answer.`,
     });
 
     // The 'ai' SDK's streamText returns a ReadableStream.

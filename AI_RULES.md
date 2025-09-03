@@ -1,6 +1,6 @@
 # AI Application Rules
 
-This document outlines the core technologies and best practices for developing the RiskGuard AI application.
+This document outlines the core technologies and best practices for developing the RiskShield AI application.
 
 ## Tech Stack Overview
 
@@ -35,5 +35,4 @@ To maintain consistency and efficiency, please adhere to the following guideline
 *   **React Hook Form & Zod:** Use for defining form schemas and handling form state, validation, and submission.
 *   **Recharts:** Use for rendering all charts and graphs in analytics and dashboard views.
 *   **Resend:** Use the `sendAssessmentEmail` and `notifyAssessmentCompletion` functions (or similar) for all email sending functionality. Ensure `RESEND_API_KEY` is configured.
-*   **jsPDF:** Use for generating PDF reports on the client-side.
-*   **pdfjs-dist:** Use for advanced client-side PDF parsing and text extraction, particularly when dealing with complex PDF structures.
+*   **jsPDF & pdfjs-dist:** Use for client-side PDF generation and advanced PDF document parsing/text extraction, respectively.

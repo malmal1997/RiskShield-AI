@@ -186,7 +186,7 @@ function SystemStatusContent() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">RiskGuard AI System Status</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">RiskShield AI System Status</h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
               Real-time updates on our platform's availability and performance.
             </p>
@@ -207,7 +207,7 @@ function SystemStatusContent() {
                     <Globe className="h-12 w-12 text-blue-600 mr-3" />
                     <CardTitle className="text-3xl font-bold text-gray-900">System Status</CardTitle>
                   </div>
-                  <CardDescription className="text-lg text-gray-700">RiskGuard AI Platform Services</CardDescription>
+                  <CardDescription className="text-lg text-gray-700">RiskShield AI Platform Services</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {overallSimplifiedStatus === "operational" && !currentIncident && (
@@ -275,7 +275,7 @@ function SystemStatusContent() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h1 className="text-3xl font-bold text-gray-900">System Status</h1>
-                    <p className="mt-2 text-gray-600">Real-time status of all RiskGuard AI services</p>
+                    <p className="mt-2 text-gray-600">Real-time status of all RiskShield AI services</p>
                   </div>
                   <div className="text-right">
                     <div className="flex items-center space-x-2 mb-2">

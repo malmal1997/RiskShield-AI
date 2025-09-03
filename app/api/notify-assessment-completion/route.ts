@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
 
     // Generate completion notification email
     const completionEmail = {
-      from: "RiskGuard AI <noreply@yourdomain.com>", // Replace with your verified domain
-      to: ["admin@riskguard.ai"], // Replace with your admin email
+      from: "RiskShield AI <noreply@yourdomain.com>", // Replace with your verified domain
+      to: ["admin@riskshield.ai"], // Replace with your admin email
       subject: `✅ Vendor Assessment Completed - ${vendorName}`,
       html: `
         <!DOCTYPE html>
@@ -84,7 +84,7 @@ Assessment Type: ${assessmentType}
 Completed: ${new Date(completedDate).toLocaleString()}
 Assessment ID: ${assessmentId}
 
-Please review the assessment results in your RiskGuard AI dashboard.
+Please review the assessment results in your RiskShield AI dashboard.
 
 View results: ${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/third-party-assessment
       `,

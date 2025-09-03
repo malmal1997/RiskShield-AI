@@ -183,7 +183,7 @@ function DevDashboardContent() {
                 <Server className="h-8 w-8 text-blue-400" />
                 <div>
                   <span className="text-xl font-bold">DevOps Dashboard</span>
-                  <p className="text-xs text-gray-400">RiskGuard AI Platform</p>
+                  <p className="text-xs text-gray-400">RiskShield AI Platform</p>
                 </div>
               </div>
             </div>
