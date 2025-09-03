@@ -109,7 +109,6 @@ const Carousel = React.forwardRef<
       }
 
       // Explicitly start autoplay if the plugin is available
-      // Corrected: Access autoplay as a property, not a method call
       const autoplayPlugin = api.plugins.autoplay as any; 
       if (autoplayPlugin) {
         autoplayPlugin.play();
@@ -133,7 +132,7 @@ const Carousel = React.forwardRef<
         <div
           ref={ref}
           onKeyDownCapture={handleKeyDown}
-          className={cn("relative", className)}
+          className={cn("w-full", className)} // Removed 'relative' here
           role="region"
           aria-roledescription="carousel"
           {...props}
@@ -202,9 +201,9 @@ const CarouselPrevious = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute h-8 w-8 rounded-full",
+        "absolute h-8 w-8 rounded-full z-10", // Added z-10
         orientation === "horizontal"
-          ? "-left-12 top-1/2 -translate-y-1/2"
+          ? "left-4 sm:left-6 lg:left-8 top-1/2 -translate-y-1/2 -translate-x-full" // Position outside padding
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         className,
       )}
@@ -231,9 +230,9 @@ const CarouselNext = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute h-8 w-8 rounded-full",
+        "absolute h-8 w-8 rounded-full z-10", // Added z-10
         orientation === "horizontal"
-          ? "-right-12 top-1/2 -translate-y-1/2"
+          ? "right-4 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2 translate-x-full" // Position outside padding
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className,
       )}

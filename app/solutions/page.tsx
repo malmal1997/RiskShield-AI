@@ -325,7 +325,7 @@ export default function SolutionsPage() {
 
       {/* Industry-Specific Solutions Carousel */}
       <section className="py-20 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative"> {/* Added relative here */}
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900">Industry-Specific Solutions</h2>
             <p className="mt-4 text-lg text-gray-600">
@@ -344,7 +344,7 @@ export default function SolutionsPage() {
                 stopOnInteraction: false, // Keep revolving even if user interacts
               }),
             ]}
-            className="w-full relative"
+            className="w-full" // Removed 'relative' here
           >
             <CarouselContent className="-ml-4">
               {industrySolutions.map((solution, index) => (
@@ -353,8 +353,8 @@ export default function SolutionsPage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />
-            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />
+            <CarouselPrevious /> {/* No custom class here, using default positioning */}
+            <CarouselNext /> {/* No custom class here, using default positioning */}
           </Carousel>
         </div>
       </section>
