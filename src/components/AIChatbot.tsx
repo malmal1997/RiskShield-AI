@@ -23,6 +23,7 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
   const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false);
   const [feedbackMessageCount, setFeedbackMessageCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isInitialRender = useRef(true); // New ref to track initial render
 
   const FEEDBACK_THRESHOLD = 2; // Show feedback prompt after 2 AI messages
 
@@ -30,7 +31,14 @@ export function AIChatbot({ onAiCannotHelp }: AIChatbotProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(scrollToBottom, [messages]);
+  useEffect(() => {
+    // Prevent scrolling on the very first render of the component
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    scrollToBottom();
+  }, [messages]); // Only scroll when messages change after initial render
 
   const sendMessage = async () => {
     if (input.trim() === "") return;
