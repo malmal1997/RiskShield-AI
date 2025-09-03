@@ -71,7 +71,7 @@ export default function RegisterPage() {
                 <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
                 <h2 className="text-2xl font-bold text-gray-900">Registration Submitted!</h2>
                 <p className="text-gray-600">
-                  Thank you for your interest in RiskGuard AI. Our team will review your application and contact you
+                  Thank you for your interest in RiskShield AI. Our team will review your application and contact you
                   within 1-2 business days to complete the setup process.
                 </p>
                 <div className="pt-4">
@@ -93,7 +93,7 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-10 w-10 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">RiskGuard AI</span>
+            <span className="text-2xl font-bold text-gray-900">RiskShield AI</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Get Started</h1>
           <p className="text-gray-600 mt-2">Register your financial institution</p>
@@ -102,7 +102,7 @@ export default function RegisterPage() {
         <Card>
           <CardHeader>
             <CardTitle>Institution Registration</CardTitle>
-            <CardDescription>Complete this form to request access to RiskGuard AI</CardDescription>
+            <CardDescription>Complete this form to request access to RiskShield AI</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">

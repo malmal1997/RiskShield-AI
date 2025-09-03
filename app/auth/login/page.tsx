@@ -27,7 +27,7 @@ export default function LoginPage() {
 
     try {
       // Check for demo credentials
-      if (email === "demo@riskguard.ai" && password === "demo123") {
+      if (email === "demo@riskshield.ai" && password === "demo123") {
         // Simulate successful demo login
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
@@ -37,12 +37,12 @@ export default function LoginPage() {
           JSON.stringify({
             user: {
               id: "demo-user-id",
-              email: "demo@riskguard.ai",
+              email: "demo@riskshield.ai",
               name: "Demo User",
             },
             organization: {
               id: "demo-org-id",
-              name: "RiskGuard Demo Organization",
+              name: "RiskShield Demo Organization",
               plan: "enterprise",
             },
             role: "admin",
@@ -56,7 +56,7 @@ export default function LoginPage() {
       }
 
       // For other credentials, show the configuration message
-      setError("Authentication system not yet configured. Use demo credentials: demo@riskguard.ai / demo123")
+      setError("Authentication system not yet configured. Use demo credentials: demo@riskshield.ai / demo123")
     } catch (err) {
       setError("An error occurred. Please try again.")
     } finally {
@@ -65,7 +65,7 @@ export default function LoginPage() {
   }
 
   const handleDemoLogin = async () => {
-    setEmail("demo@riskguard.ai")
+    setEmail("demo@riskshield.ai")
     setPassword("demo123")
     setIsLoading(true)
 
@@ -78,12 +78,12 @@ export default function LoginPage() {
         JSON.stringify({
           user: {
             id: "demo-user-id",
-            email: "demo@riskguard.ai",
+            email: "demo@riskshield.ai",
             name: "Demo User",
           },
           organization: {
             id: "demo-org-id",
-            name: "RiskGuard Demo Organization",
+            name: "RiskShield Demo Organization",
             plan: "enterprise",
           },
           role: "admin",
@@ -105,7 +105,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-10 w-10 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">RiskGuard AI</span>
+            <span className="text-2xl font-bold text-gray-900">RiskShield AI</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
           <p className="text-gray-600 mt-2">Sign in to your financial institution account</p>
@@ -124,7 +124,7 @@ export default function LoginPage() {
                   <h3 className="font-semibold text-blue-900">Demo Access</h3>
                   <p className="text-sm text-blue-700">Try the full enterprise platform</p>
                   <p className="text-xs text-blue-600 mt-1">
-                    Email: demo@riskguard.ai
+                    Email: demo@riskshield.ai
                     <br />
                     Password: demo123
                   </p>

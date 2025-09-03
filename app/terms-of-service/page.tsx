@@ -48,7 +48,7 @@ export default function TermsOfServicePage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <h2 className="2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
                 <FileText className="h-6 w-6 text-blue-600" />
                 <span>Your Account</span>
               </h2>
@@ -62,7 +62,7 @@ export default function TermsOfServicePage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <h2 className="2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
                 <FileText className="h-6 w-6 text-blue-600" />
                 <span>Intellectual Property</span>
               </h2>
@@ -72,7 +72,7 @@ export default function TermsOfServicePage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <h2 className="2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
                 <FileText className="h-6 w-6 text-blue-600" />
                 <span>Links to Other Websites</span>
               </h2>
@@ -82,7 +82,7 @@ export default function TermsOfServicePage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <h2 className="2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
                 <FileText className="h-6 w-6 text-blue-600" />
                 <span>Termination</span>
               </h2>
@@ -92,7 +92,7 @@ export default function TermsOfServicePage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <h2 className="2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
                 <FileText className="h-6 w-6 text-blue-600" />
                 <span>Governing Law</span>
               </h2>
@@ -102,7 +102,7 @@ export default function TermsOfServicePage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <h2 className="2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
                 <FileText className="h-6 w-6 text-blue-600" />
                 <span>Changes to Terms</span>
               </h2>
@@ -112,7 +112,7 @@ export default function TermsOfServicePage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <h2 className="2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
                 <FileText className="h-6 w-6 text-blue-600" />
                 <span>Contact Us</span>
               </h2>

@@ -80,7 +80,7 @@ export default function HelpCenterPage() {
           <div className="text-center">
             <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-              RiskGuard AI Help Center
+              RiskShield AI Help Center
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
               Get instant answers from our AI assistant or submit a support ticket.
@@ -211,8 +211,8 @@ export default function HelpCenterPage() {
             <div className="flex flex-col md:flex-row justify-center gap-6">
               <div className="flex items-center space-x-3 whitespace-nowrap">
                 <Mail className="h-6 w-6 text-blue-600" />
-                <a href="mailto:support@riskguard.ai" className="text-lg text-blue-600 hover:underline">
-                  support@riskguard.ai
+                <a href="mailto:support@riskshield.ai" className="text-lg text-blue-600 hover:underline">
+                  support@riskshield.ai
                 </a>
               </div>
               {/* Removed the Phone Number section */}

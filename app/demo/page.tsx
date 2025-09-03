@@ -287,8 +287,7 @@ export default function InteractiveDemo() {
                 ⚠️ RiskShield AI may make mistakes. Please use with discretion.
               </p>
             </div>
-          </div>
-        </CardContent>
+          </CardContent>
       </Card>
     </div>
   )

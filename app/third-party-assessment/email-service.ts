@@ -263,8 +263,8 @@ The assessment is ready to be completed.`,
 
 The vendor should receive the email shortly with ${isAiPowered ? "AI-powered features for document upload and analysis" : "the standard assessment form"}.`,
       messageId: result.id,
-      assessmentLink: assessmentLink,
       isAiPowered: isAiPowered,
+      assessmentLink: assessmentLink,
     }
   } catch (error) {
     console.error("💥 Email service error:", error)
