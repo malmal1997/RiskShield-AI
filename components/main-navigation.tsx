@@ -22,17 +22,24 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
   // Determine userEmail from auth context
   const currentUserEmail = user?.email || (isDemo ? "demo@riskguard.ai" : undefined);
 
-  const navigationItems = [
+  const publicNavigationItems = [
     { name: "Platform", href: "/" },
     { name: "Solutions", href: "/solutions" },
+    { name: "Help Center", href: "/help-center" },
+  ];
+
+  const restrictedNavigationItems = [
     { name: "Risk Assessment", href: "/risk-assessment" },
     { name: "Third-Party Assessment", href: "/third-party-assessment" },
     { name: "Policy Generator", href: "/policy-generator" },
     { name: "Policy Library", href: "/policy-library" },
     { name: "Dashboard", href: "/dashboard" },
-    { name: "Settings", href: "/settings" }, // Added Settings link here
-    { name: "Help Center", href: "/help-center" }, // Updated Help Center link
-  ]
+    { name: "Settings", href: "/settings" },
+  ];
+
+  const allNavigationItems = (user || isDemo)
+    ? [...publicNavigationItems, ...restrictedNavigationItems]
+    : publicNavigationItems;
 
   const isActive = (href: string) => {
     if (href === "/" && pathname === "/") return true
@@ -70,7 +77,7 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex lg:items-center lg:space-x-6 xl:space-x-8 lg:ml-12 xl:ml-16">
-            {navigationItems.map((item) => (
+            {allNavigationItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
@@ -137,7 +144,7 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-gray-200 py-4">
             <nav className="flex flex-col space-y-4">
-              {navigationItems.map((item) => (
+              {allNavigationItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
