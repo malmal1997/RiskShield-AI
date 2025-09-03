@@ -359,30 +359,6 @@ export default function SolutionsPage() {
         </div>
       </section>
 
-      {/* Case Study / CTA Section (from screenshot) */}
-      <section className="bg-blue-700 py-20"> {/* Changed to bg-blue-700 */}
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <Badge className="mb-4 bg-blue-500 text-white hover:bg-blue-500">Case Study</Badge> {/* Adjusted badge color */}
-              <h3 className="text-3xl font-bold text-white mb-4">How First Regional Bank Reduced Compliance Costs by 65%</h3>
-              <p className="text-blue-100 mb-6"> {/* Adjusted text color for better contrast */}
-                Learn how First Regional Bank implemented RiskGuard AI's solutions to streamline their compliance processes, reduce manual work, and achieve significant cost savings while improving their risk posture.
-              </p>
-              <Button variant="secondary" className="bg-white text-blue-700 hover:bg-gray-100"> {/* Adjusted button text color */}
-                Read Case Study
-              </Button>
-            </div>
-            <div className="text-center">
-              <p className="text-6xl font-bold text-white mb-4">65%</p>
-              <p className="text-blue-100 text-lg mb-6">Reduction in compliance costs</p>
-              <p className="text-6xl font-bold text-white mb-4">80%</p>
-              <p className="text-blue-100 text-lg">Less time spent on assessments</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Call to Action */}
       <section className="bg-blue-600 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
