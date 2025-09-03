@@ -54,7 +54,7 @@ const coreSolutions = [
       "Audit preparation",
       "Gap analysis",
     ],
-    link: "/risk-assessment",
+    link: "/solutions/compliance-management", // Updated link
   },
   {
     id: "cybersecurity-risk",
@@ -69,7 +69,7 @@ const coreSolutions = [
       "Custom frameworks",
       "Security policy management",
     ],
-    link: "/risk-assessment",
+    link: "/solutions/cybersecurity-risk", // Updated link
   },
   {
     id: "third-party-risk",
@@ -83,7 +83,7 @@ const coreSolutions = [
       "Contract management",
       "Risk scoring",
     ],
-    link: "/third-party-assessment",
+    link: "/solutions/third-party-risk", // Updated link
   },
 ]
 
@@ -100,7 +100,7 @@ const specializedAssessments = [
       "Privacy impact assessments",
       "Data breach response",
     ],
-    link: "/risk-assessment",
+    link: "/solutions/data-privacy-assessment", // Updated link
   },
   {
     id: "infrastructure-security",
@@ -114,7 +114,7 @@ const specializedAssessments = [
       "Vulnerability scanning",
       "Network security assessment",
     ],
-    link: "/risk-assessment",
+    link: "/solutions/infrastructure-security", // Updated link
   },
   {
     id: "financial-services-assessment",
@@ -128,7 +128,7 @@ const specializedAssessments = [
       "Anti-money laundering",
       "Credit risk evaluation",
     ],
-    link: "/risk-assessment",
+    link: "/solutions/financial-services-assessment", // Updated link
   },
 ]
 
@@ -145,7 +145,7 @@ const internalRiskAssessments = [
       "Performance monitoring",
       "Quality assurance",
     ],
-    link: "/risk-assessment",
+    link: "/solutions/operational-risk-assessment", // Updated link
   },
   {
     id: "business-continuity-assessment",
@@ -159,7 +159,7 @@ const internalRiskAssessments = [
       "Crisis management",
       "Recovery testing",
     ],
-    link: "/risk-assessment",
+    link: "/solutions/business-continuity-assessment", // Updated link
   },
 ]
 
