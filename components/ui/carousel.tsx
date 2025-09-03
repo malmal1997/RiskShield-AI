@@ -107,6 +107,12 @@ const Carousel = React.forwardRef<
       if (setApi) {
         setApi(api)
       }
+
+      // Explicitly start autoplay if the plugin is available
+      if (api.plugins().autoplay) {
+        api.plugins().autoplay.play();
+      }
+
     }, [api, onSelect, setApi])
 
     return (
