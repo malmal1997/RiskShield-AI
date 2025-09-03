@@ -3,8 +3,8 @@
 import type React from "react"
 
 import { useState, useEffect, useMemo } from "react"
-import { MainNavigation } from "@/components/main-navigation"
-import { AppFooter } from "@/components/app-footer"
+// Removed: import { MainNavigation } from "@/components/main-navigation"
+// Removed: import { AppFooter } from "@/components/app-footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { BookOpen, Search } from "lucide-react"
@@ -65,9 +65,7 @@ export default function DocumentationPage() {
   }, [searchTerm, categories])
 
   return (
-    <div className="min-h-screen bg-white">
-      <MainNavigation showAuthButtons={true} />
-
+    <>
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -94,7 +92,7 @@ export default function DocumentationPage() {
       </section>
 
       {/* Main Content - Categories */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900">Explore Our Guides</h2>
@@ -160,8 +158,6 @@ export default function DocumentationPage() {
           </div>
         </div>
       </section>
-
-      <AppFooter />
-    </div>
+    </>
   )
 }

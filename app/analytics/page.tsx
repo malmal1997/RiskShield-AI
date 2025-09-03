@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Users, Eye, Clock, MousePointer, TrendingUp, Mail, Phone, Building, RefreshCw } from "lucide-react"
 import { supabaseClient } from "@/lib/supabase-client"
-import { MainNavigation } from "@/components/main-navigation"
+// Removed: import { MainNavigation } from "@/components/main-navigation"
 
 interface AnalyticsData {
   sessions: any[]
@@ -152,8 +152,8 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <MainNavigation showAuthButtons={false} />
+    <div className="bg-white">
+      {/* MainNavigation is now in RootLayout */}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">

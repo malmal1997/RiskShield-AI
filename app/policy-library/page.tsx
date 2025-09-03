@@ -22,8 +22,8 @@ import {
   Plus,
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
-import { MainNavigation } from "@/components/main-navigation"
-import { AppFooter } from "@/components/app-footer" // Added AppFooter import
+// Removed: import { MainNavigation } from "@/components/main-navigation"
+// Removed: import { AppFooter } from "@/components/app-footer" // Added AppFooter import
 import { useAuth } from "@/components/auth-context" // Import useAuth
 
 // Mock data for saved policies
@@ -220,9 +220,8 @@ export default function PolicyLibrary() {
       allowPreview={true}
       previewMessage="Preview Mode: Viewing sample policies. Sign up to create and manage your policy library."
     >
-      <div className="min-h-screen bg-white">
-        {/* Navigation */}
-        <MainNavigation onSignOut={signOut} />
+      <div className="bg-white">
+        {/* Navigation is now in RootLayout */}
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
@@ -289,7 +288,7 @@ export default function PolicyLibrary() {
         </section>
 
         {/* Main Content */}
-        <section className="py-20">
+        <section className="py-20 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Search and Filter */}
             <div className="mb-8">
@@ -496,9 +495,6 @@ export default function PolicyLibrary() {
             </div>
           </div>
         )}
-
-        {/* Footer */}
-        <AppFooter />
       </div>
     </AuthGuard>
   )

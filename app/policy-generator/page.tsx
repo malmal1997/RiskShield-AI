@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { FileText, Loader2, Download, Copy, CheckCircle, Edit3, Save, X, FileCheck, Calendar, User } from "lucide-react"
 import { generatePolicy } from "./actions"
-import { MainNavigation } from "@/components/main-navigation"
-import { AppFooter } from "@/components/app-footer"
+// Removed: import { MainNavigation } from "@/components/main-navigation"
+// Removed: import { AppFooter } from "@/components/app-footer"
 import { AuthGuard } from "@/components/auth-guard"
 
 const policyTypes = [
@@ -467,10 +467,7 @@ export default function PolicyGenerator() {
       allowPreview={true}
       previewMessage="Preview Mode: Generate policies for free! Sign up to save, edit, and export them."
     >
-      <div className="min-h-screen bg-white">
-        {/* Header */}
-        <MainNavigation showAuthButtons={true} />
-
+      <>
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -587,7 +584,7 @@ export default function PolicyGenerator() {
         </section>
 
         {/* Main Content */}
-        <section className="py-20">
+        <section className="py-20 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Step 1: Form */}
             {currentStep === "form" && (
@@ -1148,10 +1145,7 @@ export default function PolicyGenerator() {
             </div>
           </div>
         </section>
-
-        {/* Footer */}
-        <AppFooter />
-      </div>
+      </>
     </AuthGuard>
   )
 }

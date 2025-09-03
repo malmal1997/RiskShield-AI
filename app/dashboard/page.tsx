@@ -34,8 +34,8 @@ import {
   BarChart,
   Bar,
 } from "recharts"
-import { MainNavigation } from "@/components/main-navigation"
-import { AppFooter } from "@/components/app-footer"
+// Removed: import { MainNavigation } from "@/components/main-navigation"
+// Removed: import { AppFooter } from "@/components/app-footer"
 import type { RiskMetrics, VendorMetrics } from "@/lib/analytics-service"
 import type { Notification } from "@/lib/notification-service"
 import Link from "next/link"
@@ -168,9 +168,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <MainNavigation onSignOut={handleSignOut} />
+    <div className="bg-white">
+      {/* Navigation is now in RootLayout */}
 
       {/* Hero Section - matching other pages style */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
@@ -263,7 +262,7 @@ export default function DashboardPage() {
       </section>
 
       {/* Main Analytics Section */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Analytics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -621,9 +620,6 @@ export default function DashboardPage() {
           </Tabs>
         </div>
       </section>
-
-      {/* Footer - matching other pages */}
-      <AppFooter />
     </div>
   )
 }

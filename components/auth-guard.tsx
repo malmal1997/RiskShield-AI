@@ -105,7 +105,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="mt-2 text-gray-600">Loading...</p>
@@ -118,7 +118,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   // The actual authentication status (user, isDemo) will be used by components within children
   if (allowPreview) {
     return (
-      <div className="min-h-screen bg-white">
+      <>
         {/* Preview Banner */}
         <div className="bg-blue-600 text-white py-3 px-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -146,7 +146,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
           </div>
         </div>
         {children}
-      </div>
+      </>
     )
   }
 

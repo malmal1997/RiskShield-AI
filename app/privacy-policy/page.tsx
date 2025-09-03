@@ -1,7 +1,7 @@
 "use client";
 
-import { MainNavigation } from "@/components/main-navigation";
-import { AppFooter } from "@/components/app-footer";
+// Removed: import { MainNavigation } from "@/components/main-navigation";
+// Removed: import { AppFooter } from "@/components/app-footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Lock, FileText, Calendar } from "lucide-react";
@@ -11,9 +11,7 @@ export default function PrivacyPolicyPage() {
   const lastUpdated = "August 31, 2024";
 
   return (
-    <div className="min-h-screen bg-white">
-      <MainNavigation showAuthButtons={true} />
-
+    <>
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -34,7 +32,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       {/* Main Content - Policy Details */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Card className="border border-gray-200 p-8 space-y-8">
             <div>
@@ -138,8 +136,6 @@ export default function PrivacyPolicyPage() {
           </Card>
         </div>
       </section>
-
-      <AppFooter />
-    </div>
+    </>
   );
 }

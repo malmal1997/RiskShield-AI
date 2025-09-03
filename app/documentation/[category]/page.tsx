@@ -1,8 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { MainNavigation } from "@/components/main-navigation";
-import { AppFooter } from "@/components/app-footer";
+// Removed: import { MainNavigation } from "@/components/main-navigation";
+// Removed: import { AppFooter } from "@/components/app-footer";
 import { DocumentationCategoryContent } from "@/components/documentation-category-content";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -19,9 +19,7 @@ export default function DocumentationCategoryPage() {
     .join(" ");
 
   return (
-    <div className="min-h-screen bg-white">
-      <MainNavigation showAuthButtons={true} />
-
+    <>
       <section className="bg-gradient-to-b from-blue-50 to-white py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -40,13 +38,11 @@ export default function DocumentationCategoryPage() {
         </div>
       </section>
 
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <DocumentationCategoryContent category={category} />
         </div>
       </section>
-
-      <AppFooter />
-    </div>
+    </>
   );
 }

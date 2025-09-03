@@ -6,11 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { MainNavigation } from "@/components/main-navigation"
+// Removed: import { MainNavigation } from "@/components/main-navigation"
 import { Shield, Mail, Phone, MessageSquare, Send, CheckCircle, Bot } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { AIChatbot } from "@/src/components/AIChatbot";
-import { AppFooter } from "@/components/app-footer"; // Import AppFooter
+// Removed: import { AppFooter } from "@/components/app-footer"; // Import AppFooter
 
 export default function HelpCenterPage() {
   const [formData, setFormData] = useState({
@@ -76,9 +76,7 @@ export default function HelpCenterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <MainNavigation showAuthButtons={true} />
-
+    <>
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -93,7 +91,7 @@ export default function HelpCenterPage() {
         </div>
       </section>
 
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           {/* AI Chatbot Section - Always visible */}
           <div className="mb-12">
@@ -233,7 +231,6 @@ export default function HelpCenterPage() {
           </div>
         </div>
       </section>
-      <AppFooter />
-    </div>
+    </>
   );
 }

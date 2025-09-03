@@ -97,7 +97,7 @@ function ReportsContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-white">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
@@ -150,7 +150,7 @@ function ReportsContent() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Risk Trend</p>
+                <p className className="text-sm font-medium text-gray-600">Risk Trend</p>
                 <p className="text-2xl font-bold text-green-600">+5%</p>
               </div>
               <TrendingUp className="w-8 h-8 text-green-600" />

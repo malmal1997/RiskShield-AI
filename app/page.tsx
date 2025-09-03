@@ -3,15 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { BarChart3, Shield, FileText, BadgeCheck, TrendingUp, CheckCircle } from "lucide-react"
 import Link from "next/link"
-import { MainNavigation } from "@/components/main-navigation"
-import { AppFooter } from "@/components/app-footer" // Import AppFooter
+// Removed: import { MainNavigation } from "@/components/main-navigation"
+// Removed: import { AppFooter } from "@/components/app-footer" // Import AppFooter
 
 export default function RiskGuardLanding() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <MainNavigation showAuthButtons={true} />
-
+    <>
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-blue-100 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -48,7 +45,7 @@ export default function RiskGuardLanding() {
       </section>
 
       {/* Experience the Platform Section */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-blue-600">Experience the Platform</h2>
@@ -361,9 +358,6 @@ export default function RiskGuardLanding() {
           </div>
         </div>
       </section>
-
-      {/* Footer - Replaced with AppFooter */}
-      <AppFooter />
-    </div>
+    </>
   )
 }

@@ -5,6 +5,8 @@ import "./globals.css"
 import { AuthProvider } from "@/components/auth-context"
 import { Toaster } from "@/components/ui/toaster"
 import { TrackingProvider } from "@/components/tracking-provider"
+import { MainNavigation } from "@/components/main-navigation" // Import MainNavigation
+import { AppFooter } from "@/components/app-footer" // Import AppFooter
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,13 +23,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} flex flex-col min-h-screen bg-background text-foreground`}>
         <AuthProvider>
           <TrackingProvider>
-            {children}
-            <Toaster />
+            <MainNavigation showAuthButtons={true} /> {/* Moved here */}
+            <main className="flex-grow"> {/* Main content area, takes remaining space */}
+              {children}
+            </main>
+            <AppFooter /> {/* Moved here */}
           </TrackingProvider>
         </AuthProvider>
+        <Toaster /> {/* Moved outside TrackingProvider, but still in body */}
       </body>
     </html>
   )

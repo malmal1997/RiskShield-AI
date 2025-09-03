@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function DocumentationLoading() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       {/* Header skeleton */}
       <div className="border-b">
         <div className="container mx-auto px-4 py-4">

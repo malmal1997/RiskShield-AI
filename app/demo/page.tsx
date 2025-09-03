@@ -411,49 +411,8 @@ export default function InteractiveDemo() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
-              </div>
-            </div>
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="/" className="text-gray-600 hover:text-gray-900">
-                Platform
-              </a>
-              <a href="/solutions" className="text-gray-600 hover:text-gray-900">
-                Solutions
-              </a>
-              <a href="/policy-generator" className="text-gray-600 hover:text-gray-900">
-                Policy Generator
-              </a>
-              <a href="/policy-library" className="text-gray-600 hover:text-gray-900">
-                Policy Library
-              </a>
-              <a href="/risk-assessment" className="text-gray-600 hover:text-gray-900">
-                Risk Assessment
-              </a>
-              <a href="/dashboard" className="text-gray-600 hover:text-gray-900">
-                Dashboard
-              </a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">
-                Pricing
-              </a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">
-                About
-              </a>
-              <Button variant="outline" size="sm">
-                Sign In
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
+    <>
+      {/* Header is now in RootLayout */}
 
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
@@ -539,7 +498,7 @@ export default function InteractiveDemo() {
       </section>
 
       {/* Demo Content */}
-      <section className="py-12">
+      <section className="py-12 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -602,6 +561,6 @@ export default function InteractiveDemo() {
           </div>
         </div>
       </section>
-    </div>
+    </>
   )
 }

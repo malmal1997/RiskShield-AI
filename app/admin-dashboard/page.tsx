@@ -6,7 +6,7 @@ import { Shield, Users, Send, BarChart3, Settings, Building, FileText, Plus, Ser
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 import Link from "next/link"
-import { MainNavigation } from "@/components/main-navigation" // Import MainNavigation
+// Removed: import { MainNavigation } from "@/components/main-navigation" // Import MainNavigation
 
 export default function AdminDashboard() {
   return (
@@ -20,9 +20,9 @@ function AdminDashboardContent() {
   const { user, profile, organization, signOut } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50">
       {/* Header */}
-      <MainNavigation onSignOut={signOut} showAuthButtons={false} />
+      {/* MainNavigation is now in RootLayout */}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
