@@ -22,27 +22,7 @@ import type { Assessment } from "@/lib/supabase"
 import { AuthGuard } from "@/components/auth-guard"
 
 // Simple demo session setup
-function setupDemoSession() {
-  if (typeof window !== "undefined" && !localStorage.getItem("demo_session")) {
-    const demoSession = {
-      user: {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        email: "demo@riskshield.ai",
-        name: "Demo User",
-      },
-      organization: {
-        id: "demo-org-123",
-        name: "Demo Organization",
-        plan: "enterprise",
-      },
-      role: "admin",
-      loginTime: new Date().toISOString(),
-    }
-
-    localStorage.setItem("demo_session", JSON.stringify(demoSession))
-    console.log("🎭 Demo session created for testing")
-  }
-}
+// Removed setupDemoSession function as it was causing automatic sign-in.
 
 export default function ThirdPartyAssessment() {
   // Add a preview mode state
@@ -71,7 +51,7 @@ export default function ThirdPartyAssessment() {
 
   // Set up demo session immediately
   useEffect(() => {
-    setupDemoSession()
+    // Removed the call to setupDemoSession() here.
   }, [])
 
   const assessmentTypes = [
