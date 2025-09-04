@@ -1189,6 +1189,7 @@ interface AIAnalysisResult {
 
 export default function AIAssessmentPage() {
   const { user, isDemo, signOut } = useAuth()
+  console.log("AIAssessmentPage: user =", user?.email, "isDemo =", isDemo, "signOut =", typeof signOut); // Added log
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
@@ -1889,21 +1890,15 @@ export default function AIAssessmentPage() {
   }
 
   const handleChooseManual = () => {
-    setCurrentStep("manual-assessment")
-    setAssessmentStarted(true)
-    setCurrentQuestion(0)
-    setAnswers({})
-    setAssessmentCompleted(false)
+    // This function is not used in this file, but kept for consistency with the other assessment page
+    // It would typically navigate to a manual assessment flow.
+    console.log("Starting manual assessment (not implemented in AI flow)");
   }
 
   const handleChooseAI = () => {
-    const category = assessmentCategories.find((cat) => cat.id === selectedCategory)
-    if (category) {
-      // Store both the selected category and skip method selection
-      localStorage.setItem("selectedAssessmentCategory", selectedCategory!)
-      localStorage.setItem("skipMethodSelection", "true")
-      window.location.href = "/risk-assessment/ai-assessment"
-    }
+    // This function is not used in this file, as this is already the AI assessment page.
+    // It would typically navigate to this page.
+    console.log("Already on AI assessment page");
   }
 
   const handleSOCInfoComplete = () => {
@@ -2342,7 +2337,15 @@ export default function AIAssessmentPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseAI}>
+                  <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={() => {
+                    // For SOC assessments, go to SOC info collection first
+                    if (selectedCategory === "soc-compliance") {
+                      setCurrentStep("soc-info");
+                    } else {
+                      // For other assessments, go directly to upload
+                      setCurrentStep("upload");
+                    }
+                  }}>
                     <CardHeader>
                       <div className="flex items-center space-x-3">
                         <div className="p-3 bg-blue-100 rounded-lg">
@@ -2805,7 +2808,6 @@ export default function AIAssessmentPage() {
                             <div className="text-sm text-green-800 space-y-1">
                               <p>✅ {aiAnalysisResult.documentsAnalyzed} documents successfully analyzed</p>
                               <p>📊 {Math.round(aiAnalysisResult.confidenceScores.overall || 0)}% average confidence score</p>
-                              <p>🎯 All assessment questions have been automatically completed</p>
                               <p className="font-medium mt-2">
                                 👀 Please review the AI-generated answers below and make any necessary adjustments before
                                 submitting.
