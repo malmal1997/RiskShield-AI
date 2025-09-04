@@ -50,8 +50,8 @@ export default function LoginPage() {
           }),
         )
 
-        // Redirect to dashboard
-        router.push("/dashboard")
+        // Redirect to dashboard with a full page reload
+        window.location.reload()
         return
       }
 
@@ -91,7 +91,8 @@ export default function LoginPage() {
         }),
       )
 
-      router.push("/dashboard")
+      // Redirect to dashboard with a full page reload
+      window.location.reload()
     } catch (err) {
       setError("Demo login failed. Please try again.")
     } finally {
