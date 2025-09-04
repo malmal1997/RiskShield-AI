@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building, CheckCircle, Copy, Download, Eye, Trash2, Users } from "lucide-react";
+import { Building, CheckCircle, Copy, Download, Eye, Trash2, Users, Send } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import type { Assessment } from "@/lib/supabase";
 
