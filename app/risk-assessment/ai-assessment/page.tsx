@@ -1540,8 +1540,10 @@ export default function AIAssessmentPage() {
     handleEvidenceEdit(questionId, [...currentEvidence, newItem])
   }
 
-  const removeFile = (index: number) => {
-    setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
+  const removeEvidenceItem = (questionId: string, index: number) => {
+    const currentEvidence = editedEvidence[questionId] || aiAnalysisResult?.documentExcerpts?.[questionId] || []
+    const updatedEvidence = currentEvidence.filter((_, i) => i !== index)
+    handleEvidenceEdit(questionId, updatedEvidence)
   }
 
   const updateEvidenceItem = (questionId: string, index: number, field: string, value: string | number | 'primary' | '4th-party') => {
@@ -2924,7 +2926,7 @@ export default function AIAssessmentPage() {
                                         : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {socTestingStatus[question.id]}
+                                    {socTestingStatus[question.id] === "tested" ? "Tested" : "Un-tested"}
                                   </Badge>
                                 )}
                                 {question.type === "tested" && socExceptionStatus[question.id] && (
