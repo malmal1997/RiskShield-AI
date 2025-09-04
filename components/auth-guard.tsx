@@ -47,7 +47,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
               name: "RiskShield Demo Organization",
               plan: "enterprise",
             },
-            role: "admin",
+            role: "admin", // Explicitly set admin role for demo
             loginTime: new Date().toISOString(),
           }),
         )
@@ -90,7 +90,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
             name: "RiskShield Demo Organization",
             plan: "enterprise",
           },
-          role: "admin",
+          role: "admin", // Explicitly set admin role for demo
           loginTime: new Date().toISOString(),
         }),
       )
@@ -137,7 +137,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
                 className="bg-white text-blue-600 hover:bg-gray-100"
               >
                 <Play className="h-4 w-4 mr-1" />
-                Try Demo
+                Try Demo (Admin)
               </Button>
               <a href="/auth/register" className="text-white hover:text-blue-100 text-sm font-medium">
                 Sign Up Free
@@ -172,7 +172,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-blue-900">🚀 Try Demo Access</h3>
+                  <h3 className="font-semibold text-blue-900">🚀 Try Demo Access (Admin)</h3>
                   <p className="text-sm text-blue-700">Full enterprise platform access</p>
                   <p className="text-xs text-blue-600 mt-1">
                     Email: demo@riskshield.ai

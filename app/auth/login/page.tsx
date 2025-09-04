@@ -45,7 +45,7 @@ export default function LoginPage() {
               name: "RiskShield Demo Organization",
               plan: "enterprise",
             },
-            role: "admin",
+            role: "admin", // Explicitly set admin role for demo
             loginTime: new Date().toISOString(),
           }),
         )
@@ -86,7 +86,7 @@ export default function LoginPage() {
             name: "RiskShield Demo Organization",
             plan: "enterprise",
           },
-          role: "admin",
+          role: "admin", // Explicitly set admin role for demo
           loginTime: new Date().toISOString(),
         }),
       )
@@ -121,7 +121,7 @@ export default function LoginPage() {
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-blue-900">Demo Access</h3>
+                  <h3 className="font-semibold text-blue-900">Demo Access (Admin)</h3>
                   <p className="text-sm text-blue-700">Try the full enterprise platform</p>
                   <p className="text-xs text-blue-600 mt-1">
                     Email: demo@riskshield.ai
