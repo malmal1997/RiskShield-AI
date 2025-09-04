@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { MainNavigation } from "@/components/main-navigation"
 import { AppFooter } from "@/components/app-footer" // Added AppFooter import
 import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Info } from "lucide-react"
 import { sendAssessmentEmail } from "./email-service"
@@ -396,7 +395,7 @@ ${assessmentLink}
     >
       <div className="min-h-screen bg-white">
         {/* Navigation */}
-        <MainNavigation userEmail="demo@riskshield.ai" onSignOut={handleSignOut} />
+        {/* MainNavigation is now handled by RootLayout */}
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
