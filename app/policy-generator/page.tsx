@@ -106,7 +106,7 @@ export default function PolicyGenerator() {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
-    const hasAuth = localStorage.getItem("demo_session");
+    const hasAuth = sessionStorage.getItem("demo_session");
     setIsPreviewMode(!hasAuth);
   }, []);
 

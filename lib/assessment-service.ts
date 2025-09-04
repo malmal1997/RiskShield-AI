@@ -62,7 +62,7 @@ export async function getCurrentUser() {
 
     // Check for demo session first
     try {
-      const demoSession = localStorage.getItem("demo_session")
+      const demoSession = sessionStorage.getItem("demo_session")
       if (demoSession) {
         console.log("🎭 Found demo session")
         const session = JSON.parse(demoSession)
@@ -77,7 +77,7 @@ export async function getCurrentUser() {
     } catch (demoError) {
       console.error("❌ Error parsing demo session:", demoError)
       if (typeof window !== "undefined") {
-        localStorage.removeItem("demo_session")
+        sessionStorage.removeItem("demo_session")
       }
     }
 
@@ -188,10 +188,10 @@ export async function getAssessments(): Promise<Assessment[]> {
 
     let assessments = [...mockAssessments]
 
-    // Add AI assessments from localStorage
+    // Add AI assessments from sessionStorage
     try {
-      const aiAssessments = JSON.parse(localStorage.getItem("riskAssessments") || "[]")
-      const assessmentsList = JSON.parse(localStorage.getItem("assessmentsList") || "[]")
+      const aiAssessments = JSON.parse(sessionStorage.getItem("riskAssessments") || "[]")
+      const assessmentsList = JSON.parse(sessionStorage.getItem("assessmentsList") || "[]")
 
       // Combine both sources and remove duplicates
       const combinedAIAssessments = [...aiAssessments, ...assessmentsList]
@@ -200,9 +200,9 @@ export async function getAssessments(): Promise<Assessment[]> {
       )
 
       assessments = [...assessments, ...uniqueAIAssessments]
-      console.log(`📝 Added ${uniqueAIAssessments.length} AI assessments from localStorage`)
+      console.log(`📝 Added ${uniqueAIAssessments.length} AI assessments from sessionStorage`)
     } catch (error) {
-      console.error("Error loading AI assessments from localStorage:", error)
+      console.error("Error loading AI assessments from sessionStorage:", error)
     }
 
     // If no Supabase config, return combined mock + AI data
