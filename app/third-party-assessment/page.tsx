@@ -1,67 +1,32 @@
 "use client"
 
-import { CardDescription } from "@/components/ui/card"
-
-import { CardTitle } from "@/components/ui/card"
-
-import { CardHeader } from "@/components/ui/card"
-
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { AppFooter } from "@/components/app-footer" // Added AppFooter import
-import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Info } from "lucide-react"
+import { AppFooter } from "@/components/app-footer"
 import { sendAssessmentEmail } from "./email-service"
 import { getAssessments, createAssessment, deleteAssessment } from "@/lib/assessment-service"
 import type { Assessment } from "@/lib/supabase"
 import { AuthGuard } from "@/components/auth-guard"
+import { ThirdPartyAssessmentHero } from "@/components/third-party-assessment/ThirdPartyAssessmentHero"
+import { AssessmentStats } from "@/components/third-party-assessment/AssessmentStats"
+import { AssessmentFilters } from "@/components/third-party-assessment/AssessmentFilters"
+import { AssessmentList } from "@/components/third-party-assessment/AssessmentList"
+import { InviteAssessmentModal } from "@/components/third-party-assessment/InviteAssessmentModal"
+import { AssessmentDetailsModal } from "@/components/third-party-assessment/AssessmentDetailsModal"
 
-// Simple demo session setup
-// Removed setupDemoSession function as it was causing automatic sign-in.
+// Define assessment types as a constant outside the component
+const ASSESSMENT_TYPES = [
+  "Cybersecurity Assessment",
+  "Data Privacy Assessment",
+  "Infrastructure Security",
+  "Financial Services Assessment",
+  "Operational Risk Assessment",
+  "Compliance Assessment",
+  "Business Continuity Assessment",
+]
 
 export default function ThirdPartyAssessment() {
-  // Add a preview mode state
   const [isPreviewMode, setIsPreviewMode] = useState(false)
-
   const [userEmail, setUserEmail] = useState<string | null>(null)
-
-  // Check if user is in preview mode
-  useEffect(() => {
-    const storedSession = sessionStorage.getItem("demo_session")
-    if (storedSession) {
-      try {
-        const sessionData = JSON.parse(storedSession)
-        setUserEmail(sessionData.user?.email || null)
-      } catch (error) {
-        console.error("Error parsing demo session:", error)
-        setUserEmail(null)
-      }
-    } else {
-      setUserEmail(null)
-    }
-
-    const hasAuth = sessionStorage.getItem("demo_session") || userEmail
-    setIsPreviewMode(!hasAuth)
-  }, [userEmail])
-
-  // Set up demo session immediately
-  useEffect(() => {
-    // Removed the call to setupDemoSession() here.
-  }, [])
-
-  const assessmentTypes = [
-    "Cybersecurity Assessment",
-    "Data Privacy Assessment",
-    "Infrastructure Security",
-    "Financial Services Assessment",
-    "Operational Risk Assessment",
-    "Compliance Assessment",
-    "Business Continuity Assessment",
-  ]
 
   const [assessments, setAssessments] = useState<Assessment[]>([])
   const [showInviteForm, setShowInviteForm] = useState(false)
@@ -76,11 +41,31 @@ export default function ThirdPartyAssessment() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [copiedLink, setCopiedLink] = useState<string | null>(null)
-  const [selectedAssessment, setSelectedAssessment] = useState<any>(null)
+  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null)
   const [showAssessmentDetails, setShowAssessmentDetails] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [debugInfo, setDebugInfo] = useState<string>("")
+  const [debugInfo, setDebugInfo] = useState<string>("") // Kept for potential debugging
+
+  // Check if user is in preview mode
+  useEffect(() => {
+    const storedSession = sessionStorage.getItem("demo_session")
+    if (storedSession) {
+      try {
+        const sessionData = JSON.parse(storedSession)
+        setUserEmail(sessionData.user?.email || null)
+      } catch (error) {
+        console.error("Error parsing demo session:", error)
+        sessionStorage.removeItem("demo_session") // Clear invalid session
+        setUserEmail(null)
+      }
+    } else {
+      setUserEmail(null)
+    }
+
+    const hasAuth = sessionStorage.getItem("demo_session") || userEmail
+    setIsPreviewMode(!hasAuth)
+  }, [userEmail])
 
   // Load assessments from Supabase
   const loadAssessments = async () => {
@@ -95,18 +80,18 @@ export default function ThirdPartyAssessment() {
       // Transform data to match our component expectations
       const transformedData = data.map((assessment: any) => ({
         id: assessment.id,
-        vendorName: assessment.vendor_name,
-        vendorEmail: assessment.vendor_email,
-        contactPerson: assessment.contact_person,
-        assessmentType: assessment.assessment_type,
+        vendor_name: assessment.vendor_name,
+        vendor_email: assessment.vendor_email,
+        contact_person: assessment.contact_person,
+        assessment_type: assessment.assessment_type,
         status: assessment.status,
-        sentDate: assessment.sent_date,
-        completedDate: assessment.completed_date,
-        dueDate: assessment.due_date,
-        riskScore: assessment.risk_score,
-        riskLevel: assessment.risk_level || "pending",
-        companySize: assessment.company_size,
-        customMessage: assessment.custom_message,
+        sent_date: assessment.sent_date,
+        completed_date: assessment.completed_date,
+        due_date: assessment.due_date,
+        risk_score: assessment.risk_score,
+        risk_level: assessment.risk_level || "pending",
+        company_size: assessment.company_size,
+        custom_message: assessment.custom_message,
         responses: assessment.assessment_responses?.[0] || null,
         // Add vendor info from responses if available
         completedVendorInfo: assessment.assessment_responses?.[0]?.vendor_info || null,
@@ -134,7 +119,15 @@ export default function ThirdPartyAssessment() {
     loadAssessments()
   }, [])
 
-  // Modify handleSendInvite to show preview limitation
+  const handleInviteFormChange = (field: keyof typeof inviteForm, value: string) => {
+    setInviteForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const generateAssessmentLink = (assessmentId: string) => {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin
+    return `${baseUrl}/vendor-assessment/${assessmentId}?token=abc123xyz`
+  }
+
   const handleSendInvite = async () => {
     if (isPreviewMode) {
       alert(
@@ -149,7 +142,7 @@ export default function ThirdPartyAssessment() {
       return
     }
 
-    let newAssessment = null
+    let newAssessment: Assessment | null = null
 
     try {
       console.log("🚀 Starting assessment creation process...")
@@ -294,12 +287,7 @@ ${assessmentLink}
     }
   }
 
-  const generateAssessmentLink = (assessmentId: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin
-    return `${baseUrl}/vendor-assessment/${assessmentId}?token=abc123xyz`
-  }
-
-  const copyAssessmentLink = (assessmentId: string) => {
+  const handleCopyAssessmentLink = (assessmentId: string) => {
     const link = generateAssessmentLink(assessmentId)
     navigator.clipboard.writeText(link)
     setCopiedLink(assessmentId)
@@ -321,22 +309,20 @@ ${assessmentLink}
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Completed</Badge>
-      case "in_progress":
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">In Progress</Badge>
-      case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pending</Badge>
-      case "overdue":
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Overdue</Badge>
-      default:
-        return <Badge variant="outline">{status}</Badge>
+  const handleViewAssessmentDetails = (assessmentId: string) => {
+    const assessment = assessments.find((a) => a.id === assessmentId)
+    if (assessment) {
+      setSelectedAssessment(assessment)
+      setShowAssessmentDetails(true)
     }
   }
 
-  const getRiskLevelColor = (level: string) => {
+  const handlePreviewAssessmentForm = () => {
+    const testUrl = `/vendor-assessment/demo-assessment-1?token=abc123xyz`
+    window.open(testUrl, "_blank")
+  }
+
+  const getRiskLevelColorForModal = (level: string) => {
     const normalizedLevel = level?.toLowerCase() || "pending"
     switch (normalizedLevel) {
       case "low":
@@ -352,40 +338,12 @@ ${assessmentLink}
     }
   }
 
-  const filteredAssessments = assessments.filter((assessment) => {
-    const matchesSearch =
-      assessment.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assessment.vendorEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assessment.assessmentType?.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesStatus = statusFilter === "all" || assessment.status === statusFilter
-
-    return matchesSearch && matchesStatus
-  })
-
-  const getAssessmentStats = () => {
-    const total = assessments.length
-    const completed = assessments.filter((a) => a.status === "completed").length
-    const pending = assessments.filter((a) => a.status === "pending").length
-    const inProgress = assessments.filter((a) => a.status === "in_progress").length
-    const overdue = assessments.filter((a) => a.status === "overdue").length
-
-    return { total, completed, pending, inProgress, overdue }
-  }
-
-  const stats = getAssessmentStats()
-
-  const viewAssessmentDetails = (assessmentId: string) => {
-    const assessment = assessments.find((a) => a.id === assessmentId)
-    if (assessment) {
-      setSelectedAssessment(assessment)
-      setShowAssessmentDetails(true)
-    }
-  }
-
-  const handleSignOut = () => {
-    sessionStorage.removeItem("demo_session")
-    window.location.href = "/"
+  const assessmentStats = {
+    total: assessments.length,
+    completed: assessments.filter((a) => a.status === "completed").length,
+    pending: assessments.filter((a) => a.status === "pending").length,
+    inProgress: assessments.filter((a) => a.status === "in_progress").length,
+    overdue: assessments.filter((a) => a.status === "overdue").length,
   }
 
   return (
@@ -394,487 +352,51 @@ ${assessmentLink}
       previewMessage="Preview Mode: Sign up to send real vendor assessments and manage your portfolio"
     >
       <div className="min-h-screen bg-white">
-        {/* Navigation */}
-        {/* MainNavigation is now handled by RootLayout */}
+        <ThirdPartyAssessmentHero onSendInvitationClick={() => setShowInviteForm(true)} />
+        <AssessmentStats stats={assessmentStats} />
 
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-blue-50 to-white py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Vendor Risk Management</Badge>
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-                Third-Party Assessment
-                <br />
-                <span className="text-blue-600">Vendor Risk Evaluation</span>
-              </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-                Send secure assessment invitations to your vendors and third-party partners. Evaluate their risk posture
-                and compliance status through comprehensive questionnaires.
-              </p>
-              <div className="mt-8">
-                <Button
-                  size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => setShowInviteForm(true)}
-                >
-                  <Send className="mr-2 h-4 w-4" />
-                  Send Assessment Invitation
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="py-12 bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-              <Card className="text-center">
-                <CardContent className="p-6">
-                  <div className="text-3xl font-bold text-blue-600">{stats.total}</div>
-                  <div className="text-sm text-gray-600 mt-1">Total Assessments</div>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent className="p-6">
-                  <div className="text-3xl font-bold text-green-600">{stats.completed}</div>
-                  <div className="text-sm text-gray-600 mt-1">Completed</div>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent className="p-6">
-                  <div className="text-3xl font-bold text-blue-600">{stats.inProgress}</div>
-                  <div className="text-sm text-gray-600 mt-1">In Progress</div>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent className="p-6">
-                  <div className="text-3xl font-bold text-yellow-600">{stats.pending}</div>
-                  <div className="text-sm text-gray-600 mt-1">Pending</div>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent className="p-6">
-                  <div className="text-3xl font-bold text-red-600">{stats.overdue}</div>
-                  <div className="text-sm text-gray-600 mt-1">Overdue</div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Main Content */}
         <section className="py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {/* Search and Filter */}
-            <div className="mb-8">
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="relative flex-1 max-w-md">
-                  <Input
-                    type="text"
-                    placeholder="Search vendors or assessments..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-4"
-                  />
-                </div>
-                <div className="flex items-center space-x-4">
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="completed">Completed</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="pending">Pending</option>
-                    <option value="overdue">Overdue</option>
-                  </select>
-                  <Button
-                    variant="outline"
-                    onClick={async () => {
-                      setIsRefreshing(true)
-                      setDebugInfo("Force refreshing...")
-                      await loadAssessments()
-                      console.log("🔄 Force refreshing assessment data...")
-                    }}
-                    disabled={isRefreshing}
-                    title="Force refresh all assessment data"
-                    className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                  >
-                    <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                    {isRefreshing ? "Refreshing..." : "Force Refresh"}
-                  </Button>
-                  <Button onClick={() => setShowInviteForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
-                    <Plus className="mr-2 h-4 w-4" />
-                    New Assessment
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <AssessmentFilters
+              searchTerm={searchTerm}
+              onSearchTermChange={setSearchTerm}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+              onForceRefresh={loadAssessments}
+              isRefreshing={isRefreshing}
+              onNewAssessmentClick={() => setShowInviteForm(true)}
+            />
 
-            {/* Assessments List */}
-            <div className="space-y-4">
-              {filteredAssessments.map((assessment) => (
-                <Card key={assessment.id} className="border border-gray-200 hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="p-2 bg-gray-100 rounded-lg">
-                          <Building className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{assessment.vendorName}</h3>
-                          <p className="text-sm text-gray-600">{assessment.vendorEmail}</p>
-                          <div className="flex items-center space-x-4 mt-1">
-                            {getStatusBadge(assessment.status)}
-                            <span className="text-sm text-gray-500">{assessment.assessmentType}</span>
-                            {assessment.riskLevel && assessment.riskLevel !== "pending" && (
-                              <Badge className={getRiskLevelColor(assessment.riskLevel)}>
-                                {assessment.riskLevel} Risk
-                              </Badge>
-                            )}
-                            {assessment.responses && <Badge className="bg-blue-100 text-blue-800">Has Data</Badge>}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="text-sm text-gray-600">
-                            <div>
-                              Sent: {assessment.sentDate ? new Date(assessment.sentDate).toLocaleDateString() : "N/A"}
-                            </div>
-                            {assessment.dueDate && <div>Due: {new Date(assessment.dueDate).toLocaleDateString()}</div>}
-                            {assessment.completedDate && (
-                              <div>Completed: {new Date(assessment.completedDate).toLocaleDateString()}</div>
-                            )}
-                          </div>
-                          {assessment.riskScore && (
-                            <div className="text-lg font-semibold text-gray-900 mt-1">{assessment.riskScore}/100</div>
-                          )}
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => copyAssessmentLink(assessment.id)}
-                            title="Copy assessment link"
-                          >
-                            {copiedLink === assessment.id ? (
-                              <CheckCircle className="h-4 w-4 text-green-600" />
-                            ) : (
-                              <Copy className="h-4 w-4" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            title="View details"
-                            onClick={() => viewAssessmentDetails(assessment.id)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="sm" title="Download report">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700 bg-transparent"
-                            title="Delete assessment"
-                            onClick={() => handleDeleteAssessment(assessment.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {filteredAssessments.length === 0 && (
-              <div className="text-center py-12">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No assessments found</h3>
-                <p className="text-gray-600 mb-4">
-                  {searchTerm || statusFilter !== "all"
-                    ? "Try adjusting your search or filter criteria."
-                    : "Get started by sending your first vendor assessment invitation."}
-                </p>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setShowInviteForm(true)}>
-                  <Send className="mr-2 h-4 w-4" />
-                  Send First Assessment
-                </Button>
-              </div>
-            )}
+            <AssessmentList
+              assessments={assessments}
+              searchTerm={searchTerm}
+              statusFilter={statusFilter}
+              copiedLink={copiedLink}
+              onCopyLink={handleCopyAssessmentLink}
+              onViewDetails={handleViewAssessmentDetails}
+              onDeleteAssessment={handleDeleteAssessment}
+              onNewAssessmentClick={() => setShowInviteForm(true)}
+            />
           </div>
         </section>
 
-        {/* Invite Form Modal */}
-        {showInviteForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900">Send Assessment Invitation</h2>
-                  <Button variant="outline" onClick={() => setShowInviteForm(false)}>
-                    ×
-                  </Button>
-                </div>
-              </div>
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="vendorName">Vendor Company Name *</Label>
-                    <Input
-                      id="vendorName"
-                      value={inviteForm.vendorName}
-                      onChange={(e) => setInviteForm({ ...inviteForm, vendorName: e.target.value })}
-                      placeholder="Enter vendor company name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="contactPerson">Contact Person</Label>
-                    <Input
-                      id="contactPerson"
-                      value={inviteForm.contactPerson}
-                      onChange={(e) => setInviteForm({ ...inviteForm, contactPerson: e.target.value })}
-                      placeholder="Contact person name"
-                    />
-                  </div>
-                </div>
+        <InviteAssessmentModal
+          isOpen={showInviteForm}
+          onClose={() => setShowInviteForm(false)}
+          onSubmit={handleSendInvite}
+          form={inviteForm}
+          onFormChange={handleInviteFormChange}
+          assessmentTypes={ASSESSMENT_TYPES}
+          onPreviewAssessment={handlePreviewAssessmentForm}
+        />
 
-                <div>
-                  <Label htmlFor="vendorEmail">Vendor Email Address *</Label>
-                  <Input
-                    id="vendorEmail"
-                    type="email"
-                    value={inviteForm.vendorEmail}
-                    onChange={(e) => setInviteForm({ ...inviteForm, vendorEmail: e.target.value })}
-                    placeholder="vendor@company.com"
-                  />
-                </div>
+        <AssessmentDetailsModal
+          isOpen={showAssessmentDetails}
+          onClose={() => setShowAssessmentDetails(false)}
+          assessment={selectedAssessment}
+          getRiskLevelColor={getRiskLevelColorForModal}
+        />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="assessmentType">Assessment Type *</Label>
-                    <select
-                      id="assessmentType"
-                      value={inviteForm.assessmentType}
-                      onChange={(e) => setInviteForm({ ...inviteForm, assessmentType: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select assessment type</option>
-                      {assessmentTypes.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="dueDate">Due Date</Label>
-                    <Input
-                      id="dueDate"
-                      type="date"
-                      value={inviteForm.dueDate}
-                      onChange={(e) => setInviteForm({ ...inviteForm, dueDate: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="customMessage">Custom Message (Optional)</Label>
-                  <Textarea
-                    id="customMessage"
-                    value={inviteForm.customMessage}
-                    onChange={(e) => setInviteForm({ ...inviteForm, customMessage: e.target.value })}
-                    placeholder="Add a custom message for the vendor..."
-                    rows={4}
-                  />
-                </div>
-
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 mb-2">What happens next?</h4>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>The vendor will receive an email with a secure assessment link</li>
-                    <li>They can complete the assessment at their convenience</li>
-                    <li>You'll receive notifications when the assessment is completed</li>
-                    <li>Risk scores and reports will be automatically generated</li>
-                  </ul>
-                </div>
-
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                  <p className="text-sm text-amber-800 text-center">
-                    ⚠️ RiskShield AI may make mistakes. Please use with discretion.
-                  </p>
-                </div>
-
-                <div className="flex space-x-4">
-                  <Button variant="outline" onClick={() => setShowInviteForm(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSendInvite} className="bg-blue-600 hover:bg-blue-700 text-white">
-                    <Send className="mr-2 h-4 w-4" />
-                    Send Invitation
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const testUrl = `/vendor-assessment/demo-assessment-1?token=abc123xyz`
-                      window.open(testUrl, "_blank")
-                    }}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    <Eye className="mr-2 h-4 w-4" />
-                    Preview Assessment Form
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Assessment Details Modal */}
-        {showAssessmentDetails && selectedAssessment && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Assessment Results</h2>
-                    <p className="text-gray-600">
-                      {selectedAssessment.vendorName} - {selectedAssessment.assessmentType}
-                    </p>
-                  </div>
-                  <Button variant="outline" onClick={() => setShowAssessmentDetails(false)}>
-                    ×
-                  </Button>
-                </div>
-              </div>
-
-              <div className="p-6 space-y-6">
-                {/* Show if this has real data */}
-                {selectedAssessment.responses && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <h3 className="font-semibold text-green-900 mb-2">✅ Assessment Completed</h3>
-                    <p className="text-sm text-green-800">
-                      This assessment was completed on{" "}
-                      {new Date(selectedAssessment.responses.submitted_at).toLocaleString()}
-                    </p>
-                  </div>
-                )}
-
-                {/* Support Reference */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Info className="mr-2 h-5 w-5" />
-                      Support Reference
-                    </CardTitle>
-                    <CardDescription>
-                      Use this ID if you need to contact support regarding this assessment.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="bg-gray-100 p-3 rounded-md flex items-center justify-between">
-                      <span className="font-mono text-sm text-gray-800">{selectedAssessment.id}</span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          navigator.clipboard.writeText(selectedAssessment.id)
-                          alert("Assessment ID copied to clipboard!")
-                        }}
-                      >
-                        Copy ID
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Risk Score Summary */}
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">Risk Assessment Summary</h3>
-                      <div className="flex items-center space-x-4">
-                        <Badge className={getRiskLevelColor(selectedAssessment.riskLevel)}>
-                          {selectedAssessment.riskLevel} Risk
-                        </Badge>
-                        {selectedAssessment.riskScore && (
-                          <div className="text-2xl font-bold text-gray-900">{selectedAssessment.riskScore}/100</div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-600">Completed Date</p>
-                        <p className="font-medium">
-                          {selectedAssessment.completedDate
-                            ? new Date(selectedAssessment.completedDate).toLocaleDateString()
-                            : "Not completed"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Assessment Type</p>
-                        <p className="font-medium">{selectedAssessment.assessmentType}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Contact Person</p>
-                        <p className="font-medium">{selectedAssessment.contactPerson || "Not provided"}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Vendor Information */}
-                {selectedAssessment.responses && (
-                  <Card>
-                    <CardContent className="p-6">
-                      <h3 className="text-lg font-semibold mb-4">Vendor Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-600">Vendor Name</p>
-                          <p className="font-medium">{selectedAssessment.vendorName}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Contact Person</p>
-                          <p className="font-medium">{selectedAssessment.contactPerson || "Not provided"}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Assessment Responses */}
-                {selectedAssessment.responses && selectedAssessment.assessmentAnswers && (
-                  <Card>
-                    <CardContent className="p-6">
-                      <h3 className="text-lg font-semibold mb-4">Assessment Responses</h3>
-                      <div className="space-y-4">
-                        {Object.entries(selectedAssessment.assessmentAnswers).map(([questionId, answer]) => (
-                          <div key={questionId} className="border-b border-gray-200 pb-3">
-                            <p className="text-sm font-medium text-gray-700 mb-1">
-                              {questionId.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {Array.isArray(answer) ? answer.join(", ") : answer}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Footer */}
         <AppFooter />
       </div>
     </AuthGuard>
