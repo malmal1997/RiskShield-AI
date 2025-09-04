@@ -38,8 +38,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { createUserApiKey, getUserApiKeys, deleteUserApiKey, type EncryptedApiKey } from "@/lib/user-api-key-service"
 import Link from "next/link" // Import Link
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Import Select components
-import { MainNavigation } from "@/components/main-navigation" // Import MainNavigation
-import { AppFooter } from "@/components/app-footer" // Import AppFooter
 
 export default function SettingsPage() {
   return (
@@ -89,8 +87,8 @@ function SettingsContent() {
 
   // API Keys state
   const [apiKeys, setApiKeys] = useState<EncryptedApiKey[]>([])
-  const [newApiKeyName, setNewApiKeyName] = ""
-  const [newApiKeyValue, setNewApiKeyValue] = ""
+  const [newApiKeyName, setNewApiKeyName] = useState("")
+  const [newApiKeyValue, setNewApiKeyValue] = useState("")
   const [showApiKeyValue, setShowApiKeyValue] = useState(false)
   const [isAddingApiKey, setIsAddingApiKey] = useState(false)
   const [newApiKeyProvider, setNewApiKeyProvider] = useState<"google" | "groq" | "huggingface" | "">("") // New state for provider selection
@@ -335,8 +333,7 @@ function SettingsContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <MainNavigation onSignOut={signOut} showAuthButtons={false} />
+      {/* MainNavigation is now in RootLayout */}
 
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -1079,7 +1076,7 @@ function SettingsContent() {
           </TabsContent>
         </Tabs>
       </div>
-      <AppFooter />
+      {/* AppFooter is now in RootLayout */}
     </div>
   )
 }

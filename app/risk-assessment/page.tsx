@@ -23,7 +23,6 @@ import {
   CheckCircle2,
   CheckCircle,
 } from "lucide-react"
-import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -2495,7 +2494,7 @@ ${emailResult.message}`
     >
       <div className="min-h-screen bg-white">
         {/* Header */}
-        <MainNavigation onSignOut={signOut} />
+        {/* MainNavigation is now in RootLayout */}
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">

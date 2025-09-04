@@ -38,10 +38,7 @@ import {
   ArrowRight,
   Zap, // Added Zap icon for Groq
 } from "lucide-react"
-import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
-import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
-import { useAuth } from "@/components/auth-context"
 import ReactDOM from 'react-dom/client'; // Import ReactDOM for client-side rendering
 import ReportContent from "@/components/reports/ReportContent" // Import the new ReportContent component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -1241,7 +1238,7 @@ export default function AIAssessmentPage() {
   const [questionEditModes, setQuestionEditModes] = useState<Record<string, boolean>>({})
   const [questionUnsavedChanges, setQuestionUnsavedChanges] = useState<Record<string, boolean>>({})
   const [editedAnswers, setEditedAnswers] = useState<Record<string, boolean | string>>({})
-  const [approvedQuestions, setApprovedQuestions] = useState<Set<string>>(new Set())
+  const [approvedQuestions, setApprovedQuestions] = new useState<Set<string>>(new Set())
   const [editedReasoning, setEditedReasoning] = useState<Record<string, string>>({})
   const [editedEvidence, setEditedEvidence] = useState<
     Record<
@@ -2196,7 +2193,7 @@ export default function AIAssessmentPage() {
       previewMessage="Preview Mode: Sign up to save assessments and access full AI features"
     >
       <div className="min-h-screen bg-white">
-        <MainNavigation onSignOut={signOut} />
+        {/* MainNavigation is now in RootLayout */}
 
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -3971,7 +3968,6 @@ export default function AIAssessmentPage() {
                               nonOperationalControls: "",
                               companyName: "",
                               productService: "",
-                              subserviceOrganizations: "",
                               userEntityControls: "",
                               socDateAsOf: "",
                             })
