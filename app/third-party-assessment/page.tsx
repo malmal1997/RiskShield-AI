@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { AppFooter } from "@/components/app-footer"
+// Removed: import { AppFooter } from "@/components/app-footer"
 import { sendAssessmentEmail } from "./email-service"
 import { getAssessments, createAssessment, deleteAssessment } from "@/lib/assessment-service"
 import type { Assessment } from "@/lib/supabase"
@@ -397,7 +397,7 @@ ${assessmentLink}
           getRiskLevelColor={getRiskLevelColorForModal}
         />
 
-        <AppFooter />
+        {/* Removed: <AppFooter /> */}
       </div>
     </AuthGuard>
   )

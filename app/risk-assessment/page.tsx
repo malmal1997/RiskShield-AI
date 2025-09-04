@@ -31,7 +31,7 @@ import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
 import { useAuth } from "@/components/auth-context" // Import useAuth
 import { supabaseClient } from "@/lib/supabase-client" // Import supabaseClient
 import { useToast } from "@/components/ui/use-toast" // Import useToast
-import { AppFooter } from "@/components/app-footer" // Import AppFooter
+// Removed: import { AppFooter } from "@/components/app-footer" // Import AppFooter
 
 // Assessment categories and questions
 const assessmentCategories = [
@@ -3338,7 +3338,7 @@ ${emailResult.message}`
             </div>
           )}
         </div>
-        <AppFooter />
+        {/* Removed: <AppFooter /> */}
       </div>
     </AuthGuard>
   )
