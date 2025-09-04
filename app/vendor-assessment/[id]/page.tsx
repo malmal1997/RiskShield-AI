@@ -144,6 +144,7 @@ function VendorAssessmentComponent() {
 
         setAssessment({
           id: assessmentData.id,
+          ticket_id: assessmentData.ticket_id, // Include ticket_id
           companyName: "RiskShield AI",
           assessmentType: assessmentData.assessment_type,
           dueDate: assessmentData.due_date || "2024-02-15",
@@ -434,6 +435,11 @@ function VendorAssessmentComponent() {
                 <Clock className="h-3 w-3" />
                 <span>Due: {new Date(assessment.dueDate).toLocaleDateString()}</span>
               </Badge>
+              {assessment.ticket_id && (
+                <Badge variant="outline" className="flex items-center space-x-1">
+                  <span>ID: {assessment.ticket_id}</span>
+                </Badge>
+              )}
             </div>
           </div>
         </div>

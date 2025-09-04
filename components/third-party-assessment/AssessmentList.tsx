@@ -65,7 +65,8 @@ export function AssessmentList({
     const matchesSearch =
       assessment.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       assessment.vendor_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assessment.assessment_type?.toLowerCase().includes(searchTerm.toLowerCase());
+      assessment.assessment_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      assessment.ticket_id?.toLowerCase().includes(searchTerm.toLowerCase()); // Search by ticket_id
 
     const matchesStatus = statusFilter === "all" || assessment.status === statusFilter;
 
@@ -96,6 +97,9 @@ export function AssessmentList({
                     {/* Assuming 'responses' is a property indicating if data exists */}
                     {(assessment as any).responses && <Badge className="bg-blue-100 text-blue-800">Has Data</Badge>}
                   </div>
+                  {assessment.ticket_id && (
+                    <p className="text-xs text-gray-500 mt-1">ID: {assessment.ticket_id}</p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center space-x-4">

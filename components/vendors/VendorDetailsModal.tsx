@@ -8,27 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Edit, Mail, Phone, Globe, Users } from "lucide-react";
-
-interface Vendor {
-  id: string;
-  name: string;
-  email: string;
-  website?: string;
-  industry: string;
-  size: string;
-  contact_person: string;
-  contact_email: string;
-  contact_phone?: string;
-  risk_level: string;
-  status: string;
-  tags: string[];
-  last_assessment_date?: string;
-  next_assessment_date?: string;
-  total_assessments: number;
-  completed_assessments: number;
-  average_risk_score: number;
-  created_at: string;
-}
+import type { Vendor } from "@/components/vendors/VendorList"; // Import Vendor type
 
 interface VendorDetailsModalProps {
   isOpen: boolean;
@@ -95,6 +75,9 @@ export function VendorDetailsModal({ isOpen, onClose, vendor }: VendorDetailsMod
                     {vendor.risk_level} Risk
                   </Badge>
                 </div>
+                {vendor.ticket_id && (
+                  <p className="text-sm text-gray-500 mt-1">ID: {vendor.ticket_id}</p>
+                )}
               </div>
             </div>
             <div className="flex items-center space-x-2">

@@ -66,6 +66,7 @@ export const isSupabaseConfigured = (): boolean => {
 // Types for our database tables
 export interface Assessment {
   id: string
+  ticket_id?: string // Added for Salesforce-like ID
   vendor_name: string
   vendor_email: string
   contact_person?: string

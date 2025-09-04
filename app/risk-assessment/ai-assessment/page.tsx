@@ -42,6 +42,7 @@ import { AuthGuard } from "@/components/auth-guard"
 import ReactDOM from 'react-dom/client'; // Import ReactDOM for client-side rendering
 import ReportContent from "@/components/reports/ReportContent" // Import the new ReportContent component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { generateTicketId } from "@/lib/utils" // Import generateTicketId
 
 
 // Complete assessment categories for AI assessment
@@ -1183,6 +1184,7 @@ interface AIAnalysisResult {
     }>
   >
   assessmentId?: string; // Added assessmentId
+  ticket_id?: string; // Added ticket_id
 }
 
 export default function AIAssessmentPage() {
@@ -1817,7 +1819,10 @@ export default function AIAssessmentPage() {
       formData.append("userId", user?.id || "anonymous"); // Send user ID
       formData.append("isDemo", String(isDemo)); // Send demo status
       formData.append("selectedProvider", selectedAIProvider); // Send selected AI provider
+      
+      const assessmentTicketId = generateTicketId("AIASSESS"); // Generate ticket_id for AI assessment
       formData.append("assessmentId", aiAnalysisResult?.assessmentId || delegatedAssessmentInfo?.assessmentId || `ai-assessment-${Date.now()}`); // Pass assessmentId
+      formData.append("ticketId", assessmentTicketId); // Pass ticket_id
 
       // Progress simulation
       const progressSteps = [
@@ -1854,7 +1859,7 @@ export default function AIAssessmentPage() {
       const result: AIAnalysisResult = await response.json()
       setAnalysisProgress(100)
       setCompletedSteps([0, 1, 2, 3])
-      setAiAnalysisResult(result)
+      setAiAnalysisResult({ ...result, ticket_id: assessmentTicketId }); // Add ticket_id to result
 
       setTimeout(() => {
         setCurrentStep("review")
@@ -1884,18 +1889,20 @@ export default function AIAssessmentPage() {
   }
 
   const handleChooseManual = () => {
-    const category = assessmentCategories.find((cat) => cat.id === selectedCategory)
-    if (category) {
-      localStorage.setItem("selectedAssessmentCategory", selectedCategory!)
-      window.location.href = "/risk-assessment"
-    }
+    setCurrentStep("manual-assessment")
+    setAssessmentStarted(true)
+    setCurrentQuestion(0)
+    setAnswers({})
+    setAssessmentCompleted(false)
   }
 
   const handleChooseAI = () => {
-    if (selectedCategory === "soc-compliance") {
-      setCurrentStep("soc-info")
-    } else {
-      setCurrentStep("upload")
+    const category = assessmentCategories.find((cat) => cat.id === selectedCategory)
+    if (category) {
+      // Store both the selected category and skip method selection
+      localStorage.setItem("selectedAssessmentCategory", selectedCategory!)
+      localStorage.setItem("skipMethodSelection", "true")
+      window.location.href = "/risk-assessment/ai-assessment"
     }
   }
 
@@ -1922,6 +1929,7 @@ export default function AIAssessmentPage() {
 
     try {
       const assessmentId = `ai-internal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const ticketId = generateTicketId("DELEGATE"); // Generate ticket_id for delegation
 
       const emailResult = await sendAssessmentEmail({
         vendorName: "Internal Team",
@@ -2063,7 +2071,7 @@ export default function AIAssessmentPage() {
         heightLeft -= pdf.internal.pageSize.getHeight()
       }
 
-      const fileName = `${currentCategory.name.replace(/\s+/g, "_")}_AI_Risk_Assessment_Report_${new Date().toISOString().split("T")[0]}.pdf`
+      const fileName = `${currentCategory.name.replace(/\s+/g, "_")}_AI_Risk_Assessment_Report_${aiAnalysisResult.ticket_id || new Date().toISOString().split("T")[0]}.pdf`
       pdf.save(fileName)
     } catch (error) {
       console.error("Error generating PDF:", error)
@@ -2327,7 +2335,7 @@ export default function AIAssessmentPage() {
                           Detailed explanations
                         </div>
                       </div>
-                      <Button className="w-full bg-green-600 hover:bg-green-500">
+                      <Button className="w-full bg-green-600 hover:bg-green-700">
                         <User className="mr-2 h-4 w-4" />
                         Start Manual Assessment
                       </Button>
@@ -2343,7 +2351,7 @@ export default function AIAssessmentPage() {
                         <div>
                           <CardTitle className="text-xl">AI Assessment</CardTitle>
                         </div>
-                      </div>
+                      </div>{" "}
                     </CardHeader>
                     <CardContent>
                       <CardDescription className="mb-6 text-base">
@@ -2583,7 +2591,7 @@ export default function AIAssessmentPage() {
                       </Button>
                       <Button
                         type="button"
-                        onClick={handleSOCInfoSubmit}
+                        onClick={handleSOCInfoComplete}
                         className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
                       >
                         Continue to Upload
@@ -2595,1478 +2603,469 @@ export default function AIAssessmentPage() {
               </div>
             )}
 
-            {/* Step 3: Upload Documents */}
-            {currentStep === "upload" && currentCategory && (
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      if (selectedCategory === "soc-compliance") {
-                        setCurrentStep("soc-info")
-                      } else {
-                        setCurrentStep("choose-method")
-                      }
-                    }}
-                    className="mb-4 hover:bg-blue-50"
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to {selectedCategory === "soc-compliance" ? "SOC Information" : "Method Selection"}
-                  </Button>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents for AI Analysis</h2>
-                  <p className="text-lg text-gray-600">
-                    Upload your documents related to your{" "}
-                    <span className="font-semibold text-blue-600">{currentCategory?.name?.toLowerCase()}</span>{" "}
-                    practices
-                  </p>
-                </div>
-
-                <div className="space-y-8">
-                  {/* Company Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Building className="mr-2 h-5 w-5" />
-                        Company Information
-                      </CardTitle>
-                      <CardDescription>Provide basic information about your organization</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="companyName">Company Name *</Label>
-                          <Input
-                            id="companyName"
-                            value={companyInfo.companyName}
-                            onChange={(e) => setCompanyInfo((prev) => ({ ...prev, companyName: e.target.value }))}
-                            placeholder="Enter your company name"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="productName">Product/Service (Optional)</Label>
-                          <Input
-                            id="productName"
-                            value={companyInfo.productName}
-                            onChange={(e) => setCompanyInfo((prev) => ({ ...prev, productName: e.target.value }))}
-                            placeholder="Main product or service"
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* AI Provider Selection */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Brain className="mr-2 h-5 w-5" />
-                        Select AI Provider
-                      </CardTitle>
-                      <CardDescription>Choose which AI model to use for analysis</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Select
-                        value={selectedAIProvider}
-                        onValueChange={(value: "google" | "groq" | "huggingface") => setSelectedAIProvider(value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an AI provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="google">Google Gemini</SelectItem>
-                          <SelectItem value="groq">Groq Cloud</SelectItem>
-                          <SelectItem value="huggingface">Hugging Face</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-sm text-gray-500 mt-2">
-                        If you have configured your own API key for a provider in Settings &gt; Integrations, it will be
-                        used. Otherwise, the default API key (if available) will be used.
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  {/* File Upload */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Upload className="mr-2 h-5 w-5" />
-                        Document Upload
-                      </CardTitle>
-                      <CardDescription>
-                        Upload documents related to your {currentCategory?.name?.toLowerCase()} practices
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
-                        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                        <div className="space-y-2">
-                          <p className="text-lg font-medium text-gray-900">Upload your documents</p>
-                          <p className="text-sm text-gray-600">Drag and drop files here, or click to browse</p>
-                          <p className="text-xs text-gray-500">
-                            Supported: TXT, PDF, MD, CSV, JSON, HTML, XML, JS, TS, YML
-                          </p>
-                        </div>
-                        <Input
-                          type="file"
-                          multiple
-                          onChange={handleFileUpload}
-                          className="mt-4"
-                          accept=".txt,.pdf,.md,.csv,.json,.html,.xml,.js,.ts,.yml,.yaml"
-                        />
-                      </div>
-
-                      {uploadedFiles.length > 0 && (
-                        <div className="mt-6">
-                          <h4 className="font-medium text-gray-900 mb-3">Uploaded Files ({uploadedFiles.length})</h4>
-                          <div className="space-y-4">
-                            {uploadedFiles.map((doc, index) => (
-                              <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                <div className="flex items-center justify-between mb-3">
-                                  <div className="flex items-center space-x-3">
-                                    <FileText className="h-5 w-5 text-gray-400" />
-                                    <div>
-                                      <p className="text-sm font-medium text-gray-900">{doc.file.name}</p>
-                                      <div className="flex items-center space-x-2">
-                                        {getFileStatusIcon(doc.file)}
-                                        <p className="text-xs text-gray-500">{getFileStatusText(doc.file)}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removeFile(index)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                {/* Document Type Selection */}
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium text-gray-700">Document Type:</Label>
-                                  <div className="flex items-center space-x-4">
-                                    <label className="flex items-center space-x-2">
-                                      <input
-                                        type="radio"
-                                        name={`doc-type-${index}`}
-                                        value="primary"
-                                        checked={doc.type === 'primary'}
-                                        onChange={() => updateFileMetadata(index, 'type', 'primary')}
-                                        className="form-radio text-blue-600"
-                                      />
-                                      <span className="text-sm text-gray-700">Primary Document</span>
-                                    </label>
-                                    <label className="flex items-center space-x-2">
-                                      <input
-                                        type="radio"
-                                        name={`doc-type-${index}`}
-                                        value="4th-party"
-                                        checked={doc.type === '4th-party'}
-                                        onChange={() => updateFileMetadata(index, 'type', '4th-party')}
-                                        className="form-radio text-blue-600"
-                                      />
-                                      <span className="text-sm text-gray-700">4th Party Document</span>
-                                    </label>
-                                  </div>
-                                  {doc.type === '4th-party' && (
-                                    <div className="mt-2">
-                                      <Label htmlFor={`relationship-${index}`} className="text-sm font-medium text-gray-700">
-                                        Relationship to Primary Document:
-                                      </Label>
-                                      <Textarea
-                                        id={`relationship-${index}`}
-                                        value={doc.relationship || ''}
-                                        onChange={(e) => updateFileMetadata(index, 'relationship', e.target.value)}
-                                        placeholder="e.g., 'Sub-processor's SOC 2 report', 'Vendor's privacy policy'"
-                                        rows={2}
-                                        className="mt-1 text-sm"
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="mt-6 flex justify-between">
-                        <div className="text-sm text-gray-600">
-                          <p className="font-medium mb-2">File Support Status:</p>
-                          <div className="space-y-1">
-                            <div className="flex items-center">
-                              <Check className="h-4 w-4 text-green-600 mr-2" />
-                              <span>Fully supported: TXT, MD, CSV, JSON, HTML, XML, JS, TS, YML</span>
-                            </div>
-                            <div className="flex items-center">
-                              <AlertCircle className="h-4 w-4 text-yellow-600 mr-2" />
-                              <span>Limited support: PDF (convert to TXT for best results)</span>
-                            </div>
-                            <div className="flex items-center">
-                              <XCircle className="h-4 w-4 text-red-600 mr-2" />
-                              <span>Not supported: DOC, DOCX, XLS, XLSX</span>
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          onClick={startAnalysis}
-                          disabled={uploadedFiles.length === 0 || !companyInfo.companyName.trim()}
-                          className="px-8 bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          <Cpu className="mr-2 h-4 w-4" />
-                          Start AI Analysis
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            )}
-
-            {/* Step 4: AI Processing */}
-            {currentStep === "processing" && (
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">AI Analysis in Progress</h2>
-                  <p className="text-lg text-gray-600">
-                    Our AI is analyzing your documents for {currentCategory?.name} assessment
-                  </p>
-                </div>
-
-                <Card>
-                  <CardContent className="p-8">
-                    <div className="space-y-8">
-                      <div className="text-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                          <Bot className="h-8 w-8 text-blue-600 animate-pulse" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Processing Your Documents</h3>
-                        <p className="text-gray-600">This may take a few minutes depending on document size</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progress</span>
-                          <span>{analysisProgress}%</span>
-                        </div>
-                        <Progress value={analysisProgress} className="w-full" />
-                      </div>
-
-                      <div className="space-y-4">
-                        {analysisSteps.map((step) => (
-                          <div key={step.id} className="flex items-center space-x-4">
-                            <div
-                              className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                                completedSteps.includes(step.id)
-                                  ? "bg-green-600 border-green-600 text-white"
-                                  : analysisProgress > step.id * 25
-                                    ? "bg-blue-600 border-blue-600 text-white animate-pulse"
-                                    : "bg-white border-gray-300 text-gray-500"
-                              }`}
-                            >
-                              {completedSteps.includes(step.id) ? (
-                                <CheckCircle className="h-5 w-5" />
-                              ) : (
-                                <span className="text-sm font-semibold">{step.id + 1}</span>
-                              )}
+            {/* Step 3: Manual Assessment in Progress */}
+            {currentStep === "manual-assessment" && !assessmentCompleted && (
+              <>
+                {/* SOC Information Collection - Show before questions if SOC assessment and not filled */}
+                {selectedCategory === "soc-compliance" && !socInfo.socType && (
+                  <div className="max-w-3xl mx-auto mt-8">
+                    <Card className="border border-gray-200">
+                      <CardHeader>
+                        <CardTitle>SOC Assessment Information</CardTitle>
+                        <CardDescription>
+                          Please provide information about your SOC assessment requirements before proceeding
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="socType">SOC Type *</Label>
+                              <select
+                                id="socType"
+                                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                                value={socInfo.socType}
+                                onChange={(e) => setSocInfo({ ...socInfo, socType: e.target.value })}
+                              >
+                                <option value="">Select SOC Type</option>
+                                <option value="SOC 1 - Internal Controls over Financial Reporting">
+                                  SOC 1 - Internal Controls over Financial Reporting
+                                </option>
+                                <option value="SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy">
+                                  SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy
+                                </option>
+                                <option value="SOC 3 - General Use Report">SOC 3 - General Use Report</option>
+                              </select>
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900">{step.title}</p>
-                              <p className="text-sm text-gray-600">{step.description}</p>
+                              <Label htmlFor="reportType">Report Type *</Label>
+                              <select
+                                id="reportType"
+                                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                                value={socInfo.reportType}
+                                onChange={(e) => setSocInfo({ ...socInfo, reportType: e.target.value })}
+                              >
+                                <option value="">Select Report Type</option>
+                                <option value="Type 1 - Design and Implementation">
+                                  Type 1 - Design and Implementation
+                                </option>
+                                <option value="Type 2 - Design, Implementation, and Operating Effectiveness">
+                                  Type 2 - Design, Implementation, and Operating Effectiveness
+                                </option>
+                              </select>
                             </div>
                           </div>
-                        ))}
-                      </div>
 
-                      {analysisError && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                          <div className="flex items-center">
-                            <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
-                            <p className="text-red-800 font-medium">Analysis Error</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="auditor">Auditor/CPA Firm</Label>
+                              <Input
+                                type="text"
+                                id="auditor"
+                                value={socInfo.auditor}
+                                onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="auditorOpinion">Expected Auditor Opinion</Label>
+                              <select
+                                id="auditorOpinion"
+                                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                                value={socInfo.auditorOpinion}
+                                onChange={(e) => setSocInfo({ ...socInfo, auditorOpinion: e.target.value })}
+                              >
+                                <option value="">Select Expected Opinion</option>
+                                <option value="Unqualified (Clean Opinion)">Unqualified (Clean Opinion)</option>
+                                <option value="Qualified">Qualified</option>
+                                <option value="Adverse">Adverse</option>
+                                <option value="Disclaimer">Disclaimer</option>
+                              </select>
+                            </div>
                           </div>
-                          <p className="text-red-700 mt-1">{analysisError}</p>
-                          <p className="text-red-600 text-sm mt-2">Returning to upload step...</p>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="testedStatus">Testing Status</Label>
+                              <select
+                                id="testedStatus"
+                                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                                value={socInfo.testedStatus}
+                                onChange={(e) => setSocInfo({ ...socInfo, testedStatus: e.target.value })}
+                              >
+                                <option value="">Select Testing Status</option>
+                                <option value="Tested">Tested</option>
+                                <option value="Untested">Untested</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label htmlFor="companyName">Company Name *</Label>
+                            <Input
+                              type="text"
+                              id="companyName"
+                              value={socInfo.companyName}
+                              onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="productService">Product/Service Being Assessed *</Label>
+                            <Input
+                              type="text"
+                              id="productService"
+                              value={socInfo.productService}
+                              onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
+                            />
+                          </div>
+
+                          <div>
+                            <Label>Trust Service Criteria Included in Report *</Label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                              {["Security", "Availability", "Processing Integrity", "Confidentiality", "Privacy"].map(
+                                (criteria) => (
+                                  <label key={criteria} className="flex items-center space-x-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={socInfo.trustServiceCriteria.includes(criteria)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setSocInfo({
+                                            ...socInfo,
+                                            trustServiceCriteria: [...socInfo.trustServiceCriteria, criteria],
+                                          })
+                                        } else {
+                                          setSocInfo({
+                                            ...socInfo,
+                                            trustServiceCriteria: socInfo.trustServiceCriteria.filter(
+                                              (c) => c !== criteria,
+                                            ),
+                                          })
+                                        }
+                                      }}
+                                      className="rounded border-gray-300"
+                                    />
+                                    <span className="text-sm">{criteria}</span>
+                                  </label>
+                                ),
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      )}
+
+                        <div className="mt-4">
+                          <Label htmlFor="subserviceOrganizations">Subservice Organizations</Label>
+                          <Textarea
+                            id="subserviceOrganizations"
+                            value={socInfo.subserviceOrganizations}
+                            onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
+                          />
+                        </div>
+
+                        <div className="mt-6">
+                          <Button onClick={() => setCurrentStep("manual-assessment")}>Continue to Questions</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Regular Assessment Questions - Show if not SOC or SOC info is filled */}
+                {(selectedCategory !== "soc-compliance" || socInfo.socType) && (
+                  <div className="max-w-3xl mx-auto mt-8">
+                    <Card className="border border-gray-200">
+                      <CardHeader>
+                        <CardTitle>{currentCategory?.name} Assessment</CardTitle>
+                        <CardDescription>
+                          Question {currentQuestion + 1} of {currentCategory?.questions.length}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Progress value={Math.round(progress)} />
+                        <div className="mt-4">
+                          <Label htmlFor="question">
+                            {currentQuestion + 1}. {currentQuestionData.question}
+                          </Label>
+                          <div className="mt-2">
+                            {currentQuestionData.type === "boolean" ? (
+                              <div className="flex space-x-4">
+                                <Button
+                                  variant={answers[currentQuestionData.id] === true ? "default" : "outline"}
+                                  onClick={() => handleAnswer(currentQuestionData.id, true)}
+                                >
+                                  Yes
+                                </Button>
+                                <Button
+                                  variant={answers[currentQuestionData.id] === false ? "default" : "outline"}
+                                  onClick={() => handleAnswer(currentQuestionData.id, false)}
+                                >
+                                  No
+                                </Button>
+                              </div>
+                            ) : currentQuestionData.type === "tested" ? (
+                              <div className="flex space-x-4">
+                                <Button
+                                  variant={answers[currentQuestionData.id] === "tested" ? "default" : "outline"}
+                                  onClick={() => handleAnswer(currentQuestionData.id, "tested")}
+                                >
+                                  Tested
+                                </Button>
+                                <Button
+                                  variant={answers[currentQuestionData.id] === "not_tested" ? "default" : "outline"}
+                                  onClick={() => handleAnswer(currentQuestionData.id, "not_tested")}
+                                >
+                                  Not Tested
+                                </Button>
+                                <p className="text-sm text-gray-500 mt-1">
+                                  <strong>Tested</strong> means the control has been implemented and its effectiveness has
+                                  been verified through testing.
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="grid gap-2">
+                                {currentQuestionData.options?.map((option) => (
+                                  <Button
+                                    key={option}
+                                    variant={answers[currentQuestionData.id] === option ? "default" : "outline"}
+                                    onClick={() => handleAnswer(currentQuestionData.id, option)}
+                                  >
+                                    {option}
+                                  </Button>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="mt-4">
+                              <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+                              <Textarea
+                                id="additionalInfo"
+                                value={answers[`${currentQuestionData.id}_additional`] || ""}
+                                onChange={(e) => handleAnswer(`${currentQuestionData.id}_additional`, e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 flex justify-between">
+                          <Button variant="outline" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
+                            Previous
+                          </Button>
+                          <Button onClick={handleNextQuestion}>
+                            {currentQuestion === (currentCategory?.questions.length || 0) - 1 ? "Complete" : "Next"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Assessment Completed */}
+            {currentStep === "manual-assessment" && assessmentCompleted && (
+              <div className="max-w-3xl mx-auto mt-12">
+                <Card className="border border-green-200 bg-green-50">
+                  <CardHeader>
+                    <CardTitle>
+                      <CheckCircle2 className="mr-2 h-6 w-6 inline-block align-middle" />
+                      Assessment Complete!
+                    </CardTitle>
+                    <CardDescription>Your {riskResults?.category} has been completed.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-green-700">{riskResults?.recommendations.length}</div>
+                        <div className="text-sm text-gray-600">Recommendations</div>
+                      </div>
+                    </div>
+
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommendations</h3>
+                      <ul className="list-disc pl-5">
+                        {riskResults?.recommendations.map((recommendation, index) => (
+                          <li key={index} className="text-gray-700">
+                            {recommendation}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="flex justify-center">
+                      <Button onClick={downloadRegularReport} className="mr-4">
+                        Download Report
+                      </Button>
+                      <Button variant="outline" onClick={() => setCurrentStep("select")}>
+                        Start New Assessment
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
               </div>
             )}
 
-            {/* Step 5: Review Results */}
-            {currentStep === "review" && aiAnalysisResult && currentCategory && (
-              <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">AI Analysis Results</h2>
-                  <p className="text-lg text-gray-600">
-                    Review the AI-generated assessment for {currentCategory?.name}
-                  </p>
-                </div>
-
-                <div className="space-y-8">
-                  {/* Summary Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card>
-                      <CardContent className="p-6 text-center">
-                        <div className="text-3xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}%</div>
-                        <p className="text-sm text-gray-600">Risk Score</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6 text-center">
-                        <Badge className={`text-sm px-3 py-1 ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
-                          {aiAnalysisResult.riskLevel} Risk
-                        </Badge>
-                        <p className="text-sm text-gray-600 mt-2">Risk Level</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6 text-center">
-                        <div className="text-3xl font-bold text-gray-900 mb-2">
-                          {aiAnalysisResult.documentsAnalyzed}
-                        </div>
-                        <p className="text-sm text-gray-600">Documents Analyzed</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Questions and Answers */}
-                  <div className="space-y-6">
-                    {currentCategory.questions.map((question, index) => {
-                      const answer = editedAnswers[question.id] ?? aiAnalysisResult.answers[question.id]
-                      const reasoning =
-                        editedReasoning[question.id] ??
-                        aiAnalysisResult.reasoning[question.id] ??
-                        "No reasoning provided"
-                      const excerpts =
-                        editedEvidence[question.id] ?? aiAnalysisResult.documentExcerpts?.[question.id] ?? []
-                      const isApproved = approvedQuestions.has(question.id)
-
-                      return (
-                        <Card key={question.id} className={`${isApproved ? "border-green-500 bg-green-50" : ""}`}>
-                          <CardContent className="p-6">
-                            <div className="space-y-6">
-                              {/* Edit Controls - Remove global edit mode, keep only approval counter */}
-                              <div className="flex justify-end items-center">
-                                <div className="text-sm text-gray-600">
-                                  Approved: {approvedQuestions.size} / {currentCategory.questions.length}
-                                </div>
-                              </div>
-
-                              {/* Question Header */}
-                              <div className="flex justify-between items-start">
-                                <div className="flex-1">
-                                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                    {index + 1}. {question.question}
-                                  </h3>
-                                  <div className="flex items-center space-x-4">
-                                    {!isApproved && ( // Conditionally render Weight badge
-                                      <Badge variant="outline">Weight: {question.weight}</Badge>
-                                    )}
-                                    {!isApproved && ( // Conditionally render Confidence badge
-                                      <Badge variant="outline">
-                                        Confidence:{" "}
-                                        {Math.round((aiAnalysisResult.confidenceScores[question.id] || 0) * 100)}%
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  {questionEditModes[question.id] ? (
-                                    <div className="flex space-x-2">
-                                      <Button
-                                        size="sm"
-                                        onClick={() => saveQuestionEdits(question.id)}
-                                        disabled={!questionUnsavedChanges[question.id]}
-                                        className="bg-blue-600 hover:bg-blue-500 text-white"
-                                      >
-                                        <Save className="mr-1 h-4 w-4" />
-                                        Save
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => cancelQuestionEdits(question.id)}
-                                        className="hover:bg-gray-50"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  ) : (
-                                    <>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => toggleQuestionEditMode(question.id)}
-                                        className="hover:bg-blue-50"
-                                      >
-                                        <Edit className="mr-1 h-4 w-4" />
-                                        Edit
-                                      </Button>
-                                      {isApproved ? (
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => handleQuestionUnapproval(question.id)}
-                                          className="text-green-600 border-green-600 hover:bg-green-50"
-                                        >
-                                          <CheckCircle className="mr-1 h-4 w-4" />
-                                          Approved
-                                        </Button>
-                                      ) : (
-                                        <Button
-                                          size="sm"
-                                          onClick={() => handleQuestionApproval(question.id)}
-                                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                                        >
-                                          <Check className="mr-1 h-4 w-4" />
-                                          Approve
-                                        </Button>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* Answer Section */}
-                                <div className="space-y-4">
-                                  <h4 className="font-medium text-gray-900">{isApproved ? "Answer" : "AI Answer"}</h4>
-                                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    {questionEditModes[question.id] ? (
-                                      question.type === "boolean" ? (
-                                        <div className="flex space-x-4">
-                                          <label className="flex items-center">
-                                            <input
-                                              type="radio"
-                                              name={`question-${question.id}`}
-                                              checked={answer === true}
-                                              onChange={() => handleAnswerEdit(question.id, true)}
-                                              className="mr-2"
-                                            />
-                                            Yes
-                                          </label>
-                                          <label className="flex items-center">
-                                            <input
-                                              type="radio"
-                                              name={`question-${question.id}`}
-                                              checked={answer === false}
-                                              onChange={() => handleAnswerEdit(question.id, false)}
-                                              className="mr-2"
-                                            />
-                                            No
-                                          </label>
-                                        </div>
-                                      ) : question.type === "tested" ? (
-                                        <div className="flex space-x-4">
-                                          <label className="flex items-center">
-                                            <input
-                                              type="radio"
-                                              name={`question-${question.id}`}
-                                              checked={answer === "tested"}
-                                              onChange={() => handleAnswerEdit(question.id, "tested")}
-                                              className="mr-2"
-                                            />
-                                            Tested
-                                          </label>
-                                          <label className="flex items-center">
-                                            <input
-                                              type="radio"
-                                              name={`question-${question.id}`}
-                                              checked={answer === "not_tested"}
-                                              onChange={() => handleAnswerEdit(question.id, "not_tested")}
-                                              className="mr-2"
-                                            />
-                                            Not Tested
-                                          </label>
-                                        </div>
-                                      ) : (
-                                        <select
-                                          value={answer as string}
-                                          onChange={(e) => handleAnswerEdit(question.id, e.target.value)}
-                                          className="w-full p-2 border border-gray-300 rounded"
-                                        >
-                                          {question.options?.map((option) => (
-                                            <option key={option} value={option}>
-                                              {option}
-                                            </option>
-                                          ))}
-                                        </select>
-                                      )
-                                    ) : (
-                                      <p className="font-semibold text-blue-800">
-                                        {question.type === "boolean"
-                                          ? typeof answer === "boolean"
-                                            ? answer
-                                              ? "Yes"
-                                              : "No"
-                                            : String(answer)
-                                          : question.type === "tested"
-                                            ? answer === "tested"
-                                              ? "Tested"
-                                              : answer === "not_tested"
-                                                ? "Not Tested"
-                                                : String(answer)
-                                            : String(answer)}
-                                      </p>
-                                    )}
-                                  </div>
-
-                                  <h4 className="font-medium text-gray-900">
-                                    {isApproved ? "Reasoning" : "AI Reasoning"}
-                                  </h4>
-                                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                    {questionEditModes[question.id] ? (
-                                      <textarea
-                                        value={reasoning}
-                                        onChange={(e) => handleReasoningEdit(question.id, e.target.value)}
-                                        className="w-full p-2 border border-gray-300 rounded min-h-[100px]"
-                                      />
-                                    ) : (
-                                      <p className="text-gray-700">{reasoning}</p>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Evidence Section - Show ALL evidence */}
-                                <div className="space-y-4">
-                                  <div className="flex justify-between items-center">
-                                    <h4 className="font-medium text-gray-900">
-                                      {isApproved ? "Document Evidence" : "Document Analysis"}
-                                    </h4>
-                                    {questionEditModes[question.id] && (
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => addEvidenceItem(question.id)}
-                                        className="hover:bg-blue-50"
-                                      >
-                                        <Plus className="mr-1 h-4 w-4" />
-                                        Add Evidence
-                                      </Button>
-                                    )}
-                                  </div>
-                                  <div className="space-y-3">
-                                    {excerpts.length > 0 ? (
-                                      excerpts.map((excerpt, excerptIndex) => (
-                                        <div
-                                          key={excerptIndex}
-                                          className="bg-green-50 border border-green-200 rounded-lg p-4"
-                                        >
-                                          {questionEditModes[question.id] ? (
-                                            <div className="space-y-2">
-                                              <div className="flex justify-between items-center">
-                                                <input
-                                                  type="text"
-                                                  value={excerpt.fileName}
-                                                  onChange={(e) =>
-                                                    updateEvidenceItem(
-                                                      question.id,
-                                                      excerptIndex,
-                                                      "fileName",
-                                                      e.target.value,
-                                                    )
-                                                  }
-                                                  placeholder="File name"
-                                                  className="flex-1 p-1 border border-gray-300 rounded text-sm"
-                                                />
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  onClick={() => removeEvidenceItem(question.id, excerptIndex)}
-                                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 ml-2"
-                                                >
-                                                  <X className="h-4 w-4" />
-                                                </Button>
-                                              </div>
-                                              <textarea
-                                                value={excerpt.quote} // Use excerpt.quote
-                                                onChange={(e) =>
-                                                  updateEvidenceItem(
-                                                    question.id,
-                                                    excerptIndex,
-                                                    "quote", // Update 'quote' field
-                                                    e.target.value,
-                                                  )
-                                                }
-                                                placeholder="Evidence quote"
-                                                className="w-full p-2 border border-gray-300 rounded text-sm min-h-[60px]"
-                                              />
-                                              <input
-                                                type="number" // Input for page number
-                                                value={excerpt.pageNumber || ""}
-                                                onChange={(e) =>
-                                                  updateEvidenceItem(
-                                                    question.id,
-                                                    excerptIndex,
-                                                    "pageNumber",
-                                                    Number(e.target.value),
-                                                  )
-                                                }
-                                                placeholder="Page number"
-                                                className="w-full p-1 border border-gray-300 rounded text-sm"
-                                              />
-                                              {/* Document Type and Relationship for Evidence */}
-                                              <div className="flex items-center space-x-2 mt-2">
-                                                <Label className="text-sm font-medium text-gray-700">Doc Type:</Label>
-                                                <select
-                                                  value={excerpt.documentType || 'primary'}
-                                                  onChange={(e) => updateEvidenceItem(question.id, excerptIndex, 'documentType', e.target.value as 'primary' | '4th-party')}
-                                                  className="px-2 py-1 border border-gray-300 rounded text-sm"
-                                                >
-                                                  <option value="primary">Primary</option>
-                                                  <option value="4th-party">4th Party</option>
-                                                </select>
-                                              </div>
-                                              {excerpt.documentType === '4th-party' && (
-                                                <Textarea
-                                                  value={excerpt.documentRelationship || ''}
-                                                  onChange={(e) => updateEvidenceItem(question.id, excerptIndex, 'documentRelationship', e.target.value)}
-                                                  placeholder="Relationship description"
-                                                  rows={1}
-                                                  className="mt-1 text-sm"
-                                                />
-                                              )}
-                                            </div>
-                                          ) : (
-                                            <>
-                                              <p className="text-sm text-green-800 italic mb-1">
-                                                "{excerpt.quote}"
-                                              </p>
-                                              {(excerpt.fileName || excerpt.pageNumber) && (
-                                                <p className="text-xs text-green-600">
-                                                  (Document: {excerpt.fileName}
-                                                  {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`}
-                                                  {excerpt.documentType === '4th-party' && (
-                                                    <span className="ml-1 font-semibold text-purple-700">
-                                                      (4th Party: {excerpt.documentRelationship || 'N/A'})
-                                                    </span>
-                                                  )}
-                                                  )
-                                                </p>
-                                              )}
-                                              {excerpt.relevance && (
-                                                <p className="text-xs text-green-600">Relevance: {excerpt.relevance}</p>
-                                              )}
-                                            </>
-                                          )}
-                                        </div>
-                                      ))
-                                    ) : (
-                                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                        <p className="text-sm text-yellow-800">
-                                          No specific evidence found in documents
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {selectedCategory === "soc-compliance" && (
-                                    <div className="flex justify-end mt-4">
-                                      <div className="flex flex-col space-y-2">
-                                        <div className="flex items-center space-x-2">
-                                          <label className="text-sm font-medium text-gray-700 min-w-[60px]">
-                                            Status:
-                                          </label>
-                                          <select
-                                            value={socTestingStatus[question.id] || ""}
-                                            onChange={(e) =>
-                                              handleSocTestingStatusChange(
-                                                question.id,
-                                                e.target.value as "tested" | "un-tested",
-                                              )
-                                            }
-                                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                          >
-                                            <option value="">Select...</option>
-                                            <option value="tested">Tested</option>
-                                            <option value="un-tested">Un-tested</option>
-                                          </select>
-                                        </div>
-
-                                        {socTestingStatus[question.id] === "tested" && (
-                                          <div className="flex items-center space-x-2">
-                                            <label className="text-sm font-medium text-gray-700 min-w-[60px]">
-                                              Result:
-                                            </label>
-                                            <select
-                                              value={socExceptionStatus[question.id] || ""}
-                                              onChange={(e) =>
-                                                handleSocExceptionStatusChange(
-                                                  question.id,
-                                                  e.target.value as
-                                                    | "operational"
-                                                    | "exception"
-                                                    | "non-operational"
-                                                    | "",
-                                                )
-                                              }
-                                              className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            >
-                                              <option value="">Select...</option>
-                                              <option value="operational">Operational</option>
-                                              <option value="exception">Exception</option>
-                                              <option value="non-operational">Non-Operational</option>
-                                            </select>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )
-                    })}
-                  </div>
-
-                  {selectedCategory === "soc-compliance" && (
-                    <Card className="mt-8">
-                      <CardHeader>
-                        <CardTitle className="flex items-center">
-                          <FileText className="mr-2 h-5 w-5" />
-                          SOC Compliance Management
-                        </CardTitle>
-                        <CardDescription>
-                          Manage exceptions, deficiencies, and user entity controls for your SOC assessment
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-8">
-                        {/* Exceptions Section */}
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-900">Exceptions</h3>
-                            <Button
-                              size="sm"
-                              onClick={() => addSOCItem("exceptions")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              <Plus className="mr-1 h-4 w-4" />
-                              Add Exception
-                            </Button>
-                          </div>
-                          {socManagementData.exceptions.map((exception, index) => (
-                            <Card key={index} className="border-orange-200 bg-orange-50">
-                              <CardContent className="p-4">
-                                <div className="flex justify-between items-start mb-4">
-                                  <h4 className="font-medium text-gray-900">Exception {index + 1}</h4>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => removeSOCItem("exceptions", index)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <Label htmlFor={`exception-control-${index}`}>Referenced Control</Label>
-                                    <Input
-                                      id={`exception-control-${index}`}
-                                      value={exception.referencedControl}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "referencedControl", e.target.value)
-                                      }
-                                      placeholder="e.g., CC6.1"
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor={`exception-description-${index}`}>Control Description</Label>
-                                    <Input
-                                      id={`exception-description-${index}`}
-                                      value={exception.controlDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "controlDescription", e.target.value)
-                                      }
-                                      placeholder="Brief description of the control"
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`exception-testing-${index}`}>Testing Description</Label>
-                                    <Textarea
-                                      id={`exception-testing-${index}`}
-                                      value={exception.testingDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "testingDescription", e.target.value)
-                                      }
-                                      placeholder="Describe the testing performed"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`exception-auditor-${index}`}>Auditor's Response</Label>
-                                    <Textarea
-                                      id={`exception-auditor-${index}`}
-                                      value={exception.auditorResponse}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "auditorResponse", e.target.value)
-                                      }
-                                      placeholder="Auditor's findings and response"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`exception-mgmt-${index}`}>Management Response (if provided)</Label>
-                                    <Textarea
-                                      id={`exception-mgmt-${index}`}
-                                      value={exception.managementResponse}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "managementResponse", e.target.value)
-                                      }
-                                      placeholder="Management's response to the exception (optional)"
-                                      rows={3}
-                                    />
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                          {socManagementData.exceptions.length === 0 && (
-                            <div className="text-center py-8 text-gray-500">
-                              No exceptions added yet. Click "Add Exception" to get started.
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Deficiencies/Non-Operational Controls Section */}
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              Deficiencies/Non-Operational Controls
-                            </h3>
-                            <Button
-                              size="sm"
-                              onClick={() => addSOCItem("deficiencies")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              <Plus className="mr-1 h-4 w-4" />
-                              Add Deficiency
-                            </Button>
-                          </div>
-                          {socManagementData.deficiencies.map((deficiency, index) => (
-                            <Card key={index} className="border-red-200 bg-red-50">
-                              <CardContent className="p-4">
-                                <div className="flex justify-between items-start mb-4">
-                                  <h4 className="font-medium text-gray-900">
-                                    Deficiency/Non-Operational Control {index + 1}
-                                  </h4>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => removeSOCItem("deficiencies", index)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <Label htmlFor={`deficiency-control-${index}`}>Referenced Control</Label>
-                                    <Input
-                                      id={`deficiency-control-${index}`}
-                                      value={deficiency.referencedControl}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "referencedControl", e.target.value)
-                                      }
-                                      placeholder="e.g., CC6.1"
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor={`deficiency-description-${index}`}>Control Description</Label>
-                                    <Input
-                                      id={`deficiency-description-${index}`}
-                                      value={deficiency.controlDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "controlDescription", e.target.value)
-                                      }
-                                      placeholder="Brief description of the control"
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`deficiency-testing-${index}`}>Testing Description</Label>
-                                    <Textarea
-                                      id={`deficiency-testing-${index}`}
-                                      value={deficiency.testingDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "testingDescription", e.target.value)
-                                      }
-                                      placeholder="Describe the testing performed"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`deficiency-auditor-${index}`}>Auditor's Response</Label>
-                                    <Textarea
-                                      id={`deficiency-auditor-${index}`}
-                                      value={deficiency.auditorResponse}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "auditorResponse", e.target.value)
-                                      }
-                                      placeholder="Auditor's findings and response"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`deficiency-mgmt-${index}`}>
-                                      Management Response (if provided)
-                                    </Label>
-                                    <Textarea
-                                      id={`deficiency-mgmt-${index}`}
-                                      value={deficiency.managementResponse}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "managementResponse", e.target.value)
-                                      }
-                                      placeholder="Management's response to the deficiency (optional)"
-                                      rows={3}
-                                    />
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                          {socManagementData.deficiencies.length === 0 && (
-                            <div className="text-center py-8 text-gray-500">
-                              No deficiencies added yet. Click "Add Deficiency" to get started.
-                            </div>
-                          )}
-                        </div>
-
-                        {/* User Entity Controls Section */}
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-900">User Entity Controls</h3>
-                            <Button
-                              size="sm"
-                              onClick={() => addSOCItem("userEntityControls")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              <Plus className="mr-1 h-4 w-4" />
-                              Add User Entity Control
-                            </Button>
-                          </div>
-                          {socManagementData.userEntityControls.map((control, index) => (
-                            <Card key={index} className="border-blue-200 bg-blue-50">
-                              <CardContent className="p-4">
-                                <div className="flex justify-between items-start mb-4">
-                                  <h4 className="font-medium text-gray-900">User Entity Control {index + 1}</h4>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => removeSOCItem("userEntityControls", index)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <div className="space-y-4">
-                                  <div>
-                                    <Label htmlFor={`uec-common-criteria-${index}`}>Common Criteria Description</Label>
-                                    <Textarea
-                                      id={`uec-common-criteria-${index}`}
-                                      value={control.commonCriteriaDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem(
-                                          "userEntityControls",
-                                          index,
-                                          "commonCriteriaDescription",
-                                          e.target.value,
-                                        )
-                                      }
-                                      placeholder="Describe the common criteria that applies to this control"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor={`uec-description-${index}`}>Control Description</Label>
-                                    <Textarea
-                                      id={`uec-description-${index}`}
-                                      value={control.description}
-                                      onChange={(e) =>
-                                        updateSOCItem("userEntityControls", index, "description", e.target.value)
-                                      }
-                                      placeholder="Describe the specific control that user entities should implement"
-                                      rows={4}
-                                    />
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                          {socManagementData.userEntityControls.length === 0 && (
-                            <div className="text-center py-8 text-gray-500">
-                              No user entity controls added yet. Click "Add User Entity Control" to get started.
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Overall Analysis */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <BarChart3 className="mr-2 h-5 w-5" />
-                        Overall Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                        <p className="text-blue-900">{aiAnalysisResult.overallAnalysis}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Important Disclaimer */}
-                  <Card className="border-yellow-200 bg-yellow-50">
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-3">
-                        <AlertCircle className="h-6 w-6 text-yellow-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <h3 className="font-semibold text-yellow-800 mb-2">⚠️ Important Disclaimer</h3>
-                          <p className="text-yellow-700">
-                            This assessment was generated using AI technology and should be reviewed by qualified
-                            professionals. RiskGuard AI may make mistakes. Please use with discretion and verify results
-                            with internal expertise.
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Risk Factors and Recommendations */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {aiAnalysisResult.riskFactors.length > 0 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-red-600">
-                            <AlertCircle className="mr-2 h-5 w-5" />
-                            Risk Factors
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {aiAnalysisResult.riskFactors.map((factor, index) => (
-                              <li key={index} className="flex items-start">
-                                <span className="text-red-500 mr-2">•</span>
-                                <span className="text-gray-700">{factor}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {aiAnalysisResult.recommendations.length > 0 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-green-600">
-                            <CheckCircle className="mr-2 h-5 w-5" />
-                            Recommendations
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {aiAnalysisResult.recommendations.map((recommendation, index) => (
-                              <li key={index} className="flex items-start">
-                                <span className="text-green-500 mr-2">•</span>
-                                <span className="text-gray-700">{recommendation}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setCurrentStep("upload")} className="hover:bg-gray-50">
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Upload
-                    </Button>
-                    <Button
-                      onClick={() => setCurrentStep("approve")}
-                      disabled={!allQuestionsApproved}
-                      className="px-8 bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      Proceed to Approval
-                      <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 6: Approval */}
-            {currentStep === "approve" && aiAnalysisResult && currentCategory && (
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Approval</h2>
-                  <p className="text-lg text-gray-600">
-                    Provide approval information and download your assessment report
-                  </p>
-                </div>
-
-                <div className="space-y-8">
-                  {/* Assessment Summary */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Assessment Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                        <div>
-                          <div className="text-3xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}%</div>
-                          <p className="text-sm text-gray-600">Risk Score</p>
-                        </div>
-                        <div>
-                          <Badge className={`text-sm px-3 py-1 ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
-                            {aiAnalysisResult.riskLevel} Risk
-                          </Badge>
-                          <p className="text-sm text-gray-600 mt-2">Risk Level</p>
-                        </div>
-                        <div>
-                          <div className="text-3xl font-bold text-gray-900 mb-2">
-                            {currentCategory.questions.length}
-                          </div>
-                          <p className="text-sm text-gray-600">Questions Approved</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Approver Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <FileCheck className="mr-2 h-5 w-5" />
-                        Approver Information
-                      </CardTitle>
-                      <CardDescription>Provide information about the person approving this assessment</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="approverName">Full Name *</Label>
-                          <Input
-                            id="approverName"
-                            value={approverInfo.name}
-                            onChange={(e) => setApproverInfo((prev) => ({ ...prev, name: e.target.value }))}
-                            placeholder="Enter your full name"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="approverTitle">Job Title *</Label>
-                          <Input
-                            id="approverTitle"
-                            value={approverInfo.title}
-                            onChange={(e) => setApproverInfo((prev) => ({ ...prev, title: e.target.value }))}
-                            placeholder="e.g., Chief Risk Officer"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="approverRole">Role in Assessment *</Label>
-                          <Input
-                            id="approverRole"
-                            value={approverInfo.role}
-                            onChange={(e) => setApproverInfo((prev) => ({ ...prev, role: e.target.value }))}
-                            placeholder="e.g., Assessment Reviewer"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="approverSignature">Digital Signature *</Label>
-                          <Input
-                            id="approverSignature"
-                            value={approverInfo.signature}
-                            onChange={(e) => setApproverInfo((prev) => ({ ...prev, signature: e.target.value }))}
-                            placeholder="Type your name as signature"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Action Buttons */}
-                  <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setCurrentStep("review")} className="hover:bg-gray-50">
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Review
-                    </Button>
-                    <Button
-                      onClick={moveToResults}
-                      disabled={
-                        !approverInfo.name || !approverInfo.title || !approverInfo.role || !approverInfo.signature
-                      }
-                      className="px-8 bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      Complete Assessment
-                      <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 7: Results */}
-            {currentStep === "results" && aiAnalysisResult && currentCategory && (
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                    <CheckCircle className="h-8 w-8 text-green-600" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Complete!</h2>
-                  <p className="text-lg text-gray-600">Your {currentCategory.name} has been completed and approved</p>
-                  {isDelegatedAssessment && (
-                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg max-w-md mx-auto">
-                      <p className="text-sm text-green-800">
-                        ✅ This delegated assessment has been completed and the results have been saved.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-8">
-                  {/* Final Summary */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Final Assessment Results</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-                        <div>
-                          <div className="text-3xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}%</div>
-                          <p className="text-sm text-gray-600">Risk Score</p>
-                        </div>
-                        <div>
-                          <Badge className={`text-sm px-3 py-1 ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
-                            {aiAnalysisResult.riskLevel} Risk
-                          </Badge>
-                          <p className="text-sm text-gray-600 mt-2">Risk Level</p>
-                        </div>
-                        <div>
-                          <div className="text-3xl font-bold text-gray-900 mb-2">
-                            {aiAnalysisResult.documentsAnalyzed}
-                          </div>
-                          <p className="text-sm text-gray-600">Documents Analyzed</p>
-                        </div>
-                        <div>
-                          <div className="text-3xl font-bold text-gray-900 mb-2">
-                            {currentCategory.questions.length}
-                          </div>
-                          <p className="text-sm text-gray-600">Questions Assessed</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Download Report */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Download className="mr-2 h-5 w-5" />
-                        Download Assessment Report
-                      </CardTitle>
-                      <CardDescription>
-                        Generate and download a comprehensive PDF report of your assessment results
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <Button
-                          onClick={generateAndDownloadReport}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Download PDF Report
-                        </Button>
-                        <Button variant="outline" className="flex-1 hover:bg-gray-50 bg-transparent">
-                          <Send className="mr-2 h-4 w-4" />
-                          Email Report
-                        </Button>
-                      </div>
-                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-start">
-                          <Info className="h-5 w-5 text-blue-600 mr-2 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-medium text-blue-900">PDF Report Contents</p>
-                            <p className="text-sm text-blue-700 mt-1">
-                              The PDF report includes all assessment questions, AI-generated answers, evidence excerpts,
-                              risk analysis, recommendations, and approval information in a professional format.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Support Reference */}
-                  {aiAnalysisResult.assessmentId && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center">
-                          <Info className="mr-2 h-5 w-5" />
-                          Support Reference
-                        </CardTitle>
-                        <CardDescription>
-                          Use this ID if you need to contact support regarding this assessment.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="bg-gray-100 p-3 rounded-md flex items-center justify-between">
-                          <span className="font-mono text-sm text-gray-800">{aiAnalysisResult.assessmentId}</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              navigator.clipboard.writeText(aiAnalysisResult.assessmentId || "");
-                              alert("Assessment ID copied to clipboard!");
-                            }}
-                          >
-                            Copy ID
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Next Steps */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Next Steps</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setCurrentStep("select")
-                            setSelectedCategory(null)
-                            setUploadedFiles([])
-                            setAiAnalysisResult(null)
-                            setApprovedQuestions(new Set())
-                            setApproverInfo({ name: "", title: "", role: "", signature: "" })
-                            setCompanyInfo({ companyName: "", productName: "" })
-                            setSocInfo({
-                              socType: "",
-                              reportType: "",
-                              auditor: "",
-                              auditorOpinion: "",
-                              auditorOpinionDate: "",
-                              socStartDate: "",
-                              socEndDate: "",
-                              exceptions: "",
-                              nonOperationalControls: "",
-                              companyName: "",
-                              productService: "",
-                              userEntityControls: "",
-                              socDateAsOf: "",
-                            })
-                          }}
-                          className="h-auto p-4 flex flex-col items-start hover:bg-gray-50"
-                        >
-                          <div className="font-medium mb-1">Start New Assessment</div>
-                          <div className="text-sm text-gray-600">Begin another risk assessment</div>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => (window.location.href = "/dashboard")}
-                          className="h-auto p-4 flex flex-col items-start hover:bg-gray-50"
-                        >
-                          <div className="font-medium mb-1">Go to Dashboard</div>
-                          <div className="text-sm text-gray-600">View all your assessments</div>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            )}
-
             {/* Delegate Assessment Modal */}
             {showDelegateForm && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <Card className="w-full max-w-md">
+                <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                   <CardHeader>
-                    <div className="flex justify-between items-center">
-                      <CardTitle>Delegate AI Assessment</CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowDelegateForm(false)}
-                        className="hover:bg-gray-100"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <CardDescription>Send an AI-powered assessment to a team member</CardDescription>
+                    <CardTitle>Delegate Assessment</CardTitle>
+                    <CardDescription>
+                      {delegateStep === "choose-type" && "Choose who will complete this assessment"}
+                      {delegateStep === "choose-method" && "Choose the assessment method"}
+                      {delegateStep === "form" && "Enter delegation details"}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="assessmentType">Assessment Type</Label>
-                      <Input id="assessmentType" value={delegateForm.assessmentType} disabled className="bg-gray-50" />
-                    </div>
-                    <div>
-                      <Label htmlFor="recipientName">Recipient Name *</Label>
-                      <Input
-                        id="recipientName"
-                        value={delegateForm.recipientName}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, recipientName: e.target.value }))}
-                        placeholder="Enter recipient's name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="recipientEmail">Recipient Email *</Label>
-                      <Input
-                        id="recipientEmail"
-                        type="email"
-                        value={delegateForm.recipientEmail}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, recipientEmail: e.target.value }))}
-                        placeholder="Enter recipient's email"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="dueDate">Due Date (Optional)</Label>
-                      <Input
-                        id="dueDate"
-                        type="date"
-                        value={delegateForm.dueDate}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, dueDate: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="customMessage">Custom Message (Optional)</Label>
-                      <textarea
-                        id="customMessage"
-                        value={delegateForm.customMessage}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, customMessage: e.target.value }))}
-                        placeholder="Add any additional instructions..."
-                        className="w-full p-2 border border-gray-300 rounded-md min-h-[80px]"
-                      />
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        onClick={handleSendDelegation}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <Send className="mr-2 h-4 w-4" />
-                        Send Assessment
-                      </Button>
-                      <Button variant="outline" onClick={() => setShowDelegateForm(false)} className="hover:bg-gray-50">
-                        Cancel
-                      </Button>
-                    </div>
+                  <CardContent>
+                    {delegateStep === "choose-type" && (
+                      <div className="space-y-4">
+                        <div className="grid gap-4">
+                          <Button
+                            variant="outline"
+                            className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                            onClick={() => handleDelegateTypeSelection("team")}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Users className="h-5 w-5 text-blue-600" />
+                              <span className="font-semibold">Team Member</span>
+                            </div>
+                            <span className="text-sm text-gray-600">Delegate to someone within your organization</span>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                            onClick={() => handleDelegateTypeSelection("third-party")}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Building2 className="h-5 w-5 text-purple-600" />
+                              <span className="font-semibold">Third-Party</span>
+                            </div>
+                            <span className="text-sm text-gray-600">Delegate to an external vendor or partner</span>
+                          </Button>
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {delegateStep === "choose-method" && (
+                      <div className="space-y-4">
+                        <div className="grid gap-4">
+                          <Button
+                            variant="outline"
+                            className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                            onClick={() => handleDelegateMethodSelection("manual")}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <User className="h-5 w-5 text-green-600" />
+                              <span className="font-semibold">Manual Assessment</span>
+                            </div>
+                            <span className="text-sm text-gray-600">Traditional question-by-question assessment</span>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                            onClick={() => handleDelegateMethodSelection("ai")}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Bot className="h-5 w-5 text-blue-600" />
+                              <span className="font-semibold">AI Assessment</span>
+                            </div>
+                            <span className="text-sm text-gray-600">AI-powered document analysis and assessment</span>
+                          </Button>
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <Button variant="outline" onClick={() => setDelegateStep("choose-type")}>
+                            Back
+                          </Button>
+                          <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {delegateStep === "form" && (
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="recipientName">Recipient Name *</Label>
+                          <Input
+                            id="recipientName"
+                            value={delegateForm.recipientName}
+                            onChange={(e) => setDelegateForm({ ...delegateForm, recipientName: e.target.value })}
+                            placeholder="Enter recipient's full name"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="recipientEmail">Recipient Email *</Label>
+                          <Input
+                            id="recipientEmail"
+                            type="email"
+                            value={delegateForm.recipientEmail}
+                            onChange={(e) => setDelegateForm({ ...delegateForm, recipientEmail: e.target.value })}
+                            placeholder="Enter recipient's email address"
+                          />
+                        </div>
+                        {delegationType === "third-party" && (
+                          <div>
+                            <Label htmlFor="companyName">Company Name *</Label>
+                            <Input
+                              id="companyName"
+                              value={delegateForm.companyName}
+                              onChange={(e) => setDelegateForm({ ...delegateForm, companyName: e.target.value })}
+                              placeholder="Enter company name"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <Label htmlFor="dueDate">Due Date</Label>
+                          <Input
+                            id="dueDate"
+                            type="date"
+                            value={delegateForm.dueDate}
+                            onChange={(e) => setDelegateForm({ ...delegateForm, dueDate: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="customMessage">Custom Message</Label>
+                          <Textarea
+                            id="customMessage"
+                            value={delegateForm.customMessage}
+                            onChange={(e) => setDelegateForm({ ...delegateForm, customMessage: e.target.value })}
+                            placeholder="Add any additional instructions or context..."
+                            rows={3}
+                          />
+                        </div>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <h4 className="font-semibold text-blue-900 mb-2">Assessment Details</h4>
+                          <div className="text-sm text-blue-800 space-y-1">
+                            <p>
+                              <strong>Type:</strong> {delegateForm.assessmentType}
+                            </p>
+                            <p>
+                              <strong>Method:</strong> {delegateMethod === "ai" ? "AI-Powered" : "Manual"}
+                            </p>
+                            <p>
+                              <strong>Delegation:</strong> {delegationType === "team" ? "Team Member" : "Third-Party"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <Button variant="outline" onClick={() => setDelegateStep("choose-method")}>
+                            Back
+                          </Button>
+                          <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleSendDelegation}>
+                            <Send className="mr-2 h-4 w-4" />
+                            Send Delegation
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>

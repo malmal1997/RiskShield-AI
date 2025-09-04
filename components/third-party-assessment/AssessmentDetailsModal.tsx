@@ -64,12 +64,12 @@ export function AssessmentDetailsModal({
             </CardHeader>
             <CardContent>
               <div className="bg-gray-100 p-3 rounded-md flex items-center justify-between">
-                <span className="font-mono text-sm text-gray-800">{assessment.id}</span>
+                <span className="font-mono text-sm text-gray-800">{assessment.ticket_id || assessment.id}</span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    navigator.clipboard.writeText(assessment.id);
+                    navigator.clipboard.writeText(assessment.ticket_id || assessment.id);
                     alert("Assessment ID copied to clipboard!");
                   }}
                 >

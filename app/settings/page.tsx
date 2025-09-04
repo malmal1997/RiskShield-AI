@@ -30,6 +30,8 @@ import {
   ExternalLink, // Added ExternalLink icon
   Bot, // Added Bot icon
   Brain, // Added Brain icon
+  Cloud, // Added Cloud icon for Salesforce
+  RefreshCw, // Added RefreshCw for sync
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
@@ -102,6 +104,13 @@ function SettingsContent() {
     Salesforce: false,
     Webhook: false,
   });
+
+  // Salesforce Integration State
+  const [salesforceConnected, setSalesforceConnected] = useState(false);
+  const [salesforceSyncing, setSalesforceSyncing] = useState(false);
+  const [salesforceLastSync, setSalesforceLastSync] = useState<string | null>(null);
+  const [salesforceSyncDirection, setSalesforceSyncDirection] = useState<"one-way-sf-to-rs" | "one-way-rs-to-sf" | "two-way">("one-way-sf-to-rs");
+  const [salesforceObjectMapping, setSalesforceObjectMapping] = useState<string>("Account to Vendor");
 
   useEffect(() => {
     if (profile) {
@@ -303,6 +312,43 @@ function SettingsContent() {
         ...prev,
         [integrationName]: newStatus,
       };
+    });
+  };
+
+  const handleSalesforceConnect = async () => {
+    setSalesforceSyncing(true);
+    // Simulate OAuth flow and connection
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setSalesforceConnected(true);
+    setSalesforceLastSync(new Date().toLocaleString());
+    setSalesforceSyncing(false);
+    toast({
+      title: "Salesforce Connected!",
+      description: "RiskShield AI is now connected to your Salesforce instance.",
+    });
+  };
+
+  const handleSalesforceDisconnect = async () => {
+    setSalesforceSyncing(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setSalesforceConnected(false);
+    setSalesforceLastSync(null);
+    setSalesforceSyncing(false);
+    toast({
+      title: "Salesforce Disconnected",
+      description: "RiskShield AI has been disconnected from Salesforce.",
+      variant: "destructive",
+    });
+  };
+
+  const handleSalesforceSync = async () => {
+    setSalesforceSyncing(true);
+    await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate data sync
+    setSalesforceLastSync(new Date().toLocaleString());
+    setSalesforceSyncing(false);
+    toast({
+      title: "Salesforce Sync Complete",
+      description: "Data synchronized successfully with Salesforce.",
     });
   };
 
@@ -870,7 +916,6 @@ function SettingsContent() {
                     },
                     { name: "ServiceNow", description: "Sync with ITSM workflows", icon: "🔧" },
                     { name: "Jira", description: "Create tickets for remediation", icon: "📋" },
-                    { name: "Salesforce", description: "Sync vendor information", icon: "☁️" },
                     { name: "Webhook", description: "Custom webhook integrations", icon: "🔗" },
                   ].map((integration) => (
                     <Card key={integration.name} className="border">
@@ -896,6 +941,108 @@ function SettingsContent() {
                     </Card>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Salesforce Integration Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Cloud className="h-5 w-5 text-blue-600" />
+                  <span>Salesforce Integration</span>
+                </CardTitle>
+                <CardDescription>
+                  Connect RiskShield AI with your Salesforce instance for seamless data synchronization.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {!salesforceConnected ? (
+                  <div className="text-center">
+                    <p className="text-gray-600 mb-4">
+                      Connect to Salesforce to sync vendors, assessments, and risk data.
+                    </p>
+                    <Button onClick={handleSalesforceConnect} disabled={salesforceSyncing}>
+                      {salesforceSyncing ? (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : (
+                        <>
+                          <Cloud className="mr-2 h-4 w-4" />
+                          Connect to Salesforce
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <div>
+                          <p className="font-medium text-green-900">Salesforce Connected</p>
+                          <p className="text-sm text-green-800">
+                            Last synced: {salesforceLastSync || "Never"}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="destructive" size="sm" onClick={handleSalesforceDisconnect} disabled={salesforceSyncing}>
+                        Disconnect
+                      </Button>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="syncDirection">Data Synchronization Direction</Label>
+                      <Select value={salesforceSyncDirection} onValueChange={(value: "one-way-sf-to-rs" | "one-way-rs-to-sf" | "two-way") => setSalesforceSyncDirection(value)}>
+                        <SelectTrigger id="syncDirection">
+                          <SelectValue placeholder="Select sync direction" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="one-way-sf-to-rs">One-way: Salesforce to RiskShield AI</SelectItem>
+                          <SelectItem value="one-way-rs-to-sf">One-way: RiskShield AI to Salesforce</SelectItem>
+                          <SelectItem value="two-way">Two-way Synchronization</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Choose how data flows between Salesforce and RiskShield AI.
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="objectMapping">Object Mapping</Label>
+                      <Select value={salesforceObjectMapping} onValueChange={setSalesforceObjectMapping}>
+                        <SelectTrigger id="objectMapping">
+                          <SelectValue placeholder="Select object mapping" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Account to Vendor">Salesforce Account to RiskShield AI Vendor</SelectItem>
+                          <SelectItem value="Opportunity to Assessment">Salesforce Opportunity to RiskShield AI Assessment</SelectItem>
+                          <SelectItem value="Custom Object">Custom Object Mapping</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Define how Salesforce objects map to RiskShield AI entities.
+                      </p>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Button onClick={handleSalesforceSync} disabled={salesforceSyncing}>
+                        {salesforceSyncing ? (
+                          <>
+                            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                            Syncing Data...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Sync Now
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

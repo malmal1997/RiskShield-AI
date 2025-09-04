@@ -10,6 +10,7 @@ import { VendorList } from "@/components/vendors/VendorList"
 import { AddVendorModal } from "@/components/vendors/AddVendorModal"
 import { VendorDetailsModal } from "@/components/vendors/VendorDetailsModal"
 import type { Vendor } from "@/components/vendors/VendorList" // Import Vendor type from VendorList
+import { generateTicketId } from "@/lib/utils" // Import generateTicketId
 
 export default function VendorsPage() {
   return (
@@ -44,6 +45,7 @@ function VendorsContent() {
   const mockVendors: Vendor[] = [
     {
       id: "1",
+      ticket_id: "VND-10001", // Added ticket_id
       name: "TechCorp Solutions",
       email: "contact@techcorp.com",
       website: "https://techcorp.com",
@@ -64,6 +66,7 @@ function VendorsContent() {
     },
     {
       id: "2",
+      ticket_id: "VND-10002", // Added ticket_id
       name: "DataFlow Analytics",
       email: "info@dataflow.com",
       website: "https://dataflow.com",
@@ -84,6 +87,7 @@ function VendorsContent() {
     },
     {
       id: "3",
+      ticket_id: "VND-10003", // Added ticket_id
       name: "SecureNet Services",
       email: "contact@securenet.com",
       website: "https://securenet.com",
@@ -103,6 +107,7 @@ function VendorsContent() {
     },
     {
       id: "4",
+      ticket_id: "VND-10004", // Added ticket_id
       name: "CloudHost Pro",
       email: "support@cloudhost.com",
       website: "https://cloudhost.com",
@@ -151,6 +156,7 @@ function VendorsContent() {
     // Simulate adding a new vendor
     const newVendor: Vendor = {
       id: String(vendors.length + 1),
+      ticket_id: generateTicketId("VND"), // Generate ticket_id
       name: form.name,
       email: form.email,
       website: form.website,

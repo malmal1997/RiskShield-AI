@@ -8,8 +8,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Building, Plus } from "lucide-react";
 
-interface Vendor {
+export interface Vendor {
   id: string;
+  ticket_id?: string; // Added for Salesforce-like ID
   name: string;
   email: string;
   website?: string;
@@ -82,7 +83,8 @@ export function VendorList({
       vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vendor.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vendor.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vendor.contact_person.toLowerCase().includes(searchTerm.toLowerCase());
+      vendor.contact_person.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vendor.ticket_id?.toLowerCase().includes(searchTerm.toLowerCase()); // Search by ticket_id
 
     const matchesStatus = statusFilter === "all" || vendor.status === statusFilter;
     const matchesRisk = riskFilter === "all" || vendor.risk_level === riskFilter;
@@ -125,6 +127,9 @@ export function VendorList({
                       <Badge className={getRiskLevelColor(vendor.risk_level)}>{vendor.risk_level} Risk</Badge>
                       <span className="text-sm text-gray-500">Score: {vendor.average_risk_score}/100</span>
                     </div>
+                    {vendor.ticket_id && (
+                      <p className="text-xs text-gray-500 mt-1">ID: {vendor.ticket_id}</p>
+                    )}
                   </div>
                 </div>
                 <div className="text-right">

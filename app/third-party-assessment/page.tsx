@@ -12,6 +12,7 @@ import { AssessmentFilters } from "@/components/third-party-assessment/Assessmen
 import { AssessmentList } from "@/components/third-party-assessment/AssessmentList"
 import { InviteAssessmentModal } from "@/components/third-party-assessment/InviteAssessmentModal"
 import { AssessmentDetailsModal } from "@/components/third-party-assessment/AssessmentDetailsModal"
+import { generateTicketId } from "@/lib/utils" // Import generateTicketId
 
 // Define assessment types as a constant outside the component
 const ASSESSMENT_TYPES = [
@@ -80,6 +81,7 @@ export default function ThirdPartyAssessment() {
       // Transform data to match our component expectations
       const transformedData = data.map((assessment: any) => ({
         id: assessment.id,
+        ticket_id: assessment.ticket_id, // Include ticket_id
         vendor_name: assessment.vendor_name,
         vendor_email: assessment.vendor_email,
         contact_person: assessment.contact_person,
@@ -221,7 +223,7 @@ export default function ThirdPartyAssessment() {
 ` +
             `📧 Email sent to: ${inviteForm.vendorEmail}
 ` +
-            `📋 Assessment ID: ${newAssessment.id}
+            `📋 Assessment ID: ${newAssessment.ticket_id || newAssessment.id}
 
 ` +
             `🔗 Assessment link:
@@ -236,7 +238,7 @@ ${assessmentLink}
           `✅ Assessment created successfully!
 
 ` +
-            `📋 Assessment ID: ${newAssessment.id}
+            `📋 Assessment ID: ${newAssessment.ticket_id || newAssessment.id}
 ` +
             `📧 Vendor Email: ${inviteForm.vendorEmail}
 
@@ -261,7 +263,7 @@ ${assessmentLink}
           `⚠️ Assessment created but with issues
 
 ` +
-            `📋 Assessment ID: ${newAssessment.id}
+            `📋 Assessment ID: ${newAssessment.ticket_id || newAssessment.id}
 ` +
             `🔗 Assessment link:
 ${assessmentLink}

@@ -1,10 +1,12 @@
 import { supabase, isSupabaseConfigured, type Assessment } from "./supabase"
 import { supabaseClient } from "./supabase-client"
+import { generateTicketId } from "./utils" // Import generateTicketId
 
 // Mock data for when Supabase is not configured
 const mockAssessments: Assessment[] = [
   {
     id: "demo-assessment-1",
+    ticket_id: "ASSESS-10001", // Added ticket_id
     vendor_name: "TechCorp Solutions",
     vendor_email: "security@techcorp.com",
     contact_person: "John Smith",
@@ -20,6 +22,7 @@ const mockAssessments: Assessment[] = [
   },
   {
     id: "demo-assessment-2",
+    ticket_id: "ASSESS-10002", // Added ticket_id
     vendor_name: "DataFlow Inc",
     vendor_email: "compliance@dataflow.com",
     contact_person: "Sarah Johnson",
@@ -35,6 +38,7 @@ const mockAssessments: Assessment[] = [
   },
   {
     id: "demo-assessment-3",
+    ticket_id: "ASSESS-10003", // Added ticket_id
     vendor_name: "SecureCloud Systems",
     vendor_email: "admin@securecloud.com",
     contact_person: "Mike Chen",
@@ -312,6 +316,7 @@ export async function createAssessment(assessmentData: {
       const mockId = `mock-${Date.now()}`
       const mockAssessment = {
         id: mockId,
+        ticket_id: generateTicketId("ASSESS"), // Generate ticket_id
         vendor_name: assessmentData.vendorName,
         vendor_email: assessmentData.vendorEmail,
         contact_person: assessmentData.contactPerson || "",
@@ -354,10 +359,12 @@ export async function createAssessment(assessmentData: {
     }
 
     const assessmentId = `assessment-${Date.now()}`
-    console.log("📝 Generated assessment ID:", assessmentId)
+    const ticketId = generateTicketId("ASSESS"); // Generate ticket_id
+    console.log("📝 Generated assessment ID:", assessmentId, "Ticket ID:", ticketId)
 
     const insertData: any = {
       id: assessmentId,
+      ticket_id: ticketId, // Assign ticket_id
       vendor_name: assessmentData.vendorName,
       vendor_email: assessmentData.vendorEmail,
       contact_person: assessmentData.contactPerson || null,
