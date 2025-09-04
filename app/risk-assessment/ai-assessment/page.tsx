@@ -2603,299 +2603,249 @@ export default function AIAssessmentPage() {
               </div>
             )}
 
-            {/* Step 3: Manual Assessment in Progress */}
-            {currentStep === "manual-assessment" && !assessmentCompleted && (
-              <>
-                {/* SOC Information Collection - Show before questions if SOC assessment and not filled */}
-                {selectedCategory === "soc-compliance" && !socInfo.socType && (
-                  <div className="max-w-3xl mx-auto mt-8">
-                    <Card className="border border-gray-200">
-                      <CardHeader>
-                        <CardTitle>SOC Assessment Information</CardTitle>
-                        <CardDescription>
-                          Please provide information about your SOC assessment requirements before proceeding
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid gap-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label htmlFor="socType">SOC Type *</Label>
-                              <select
-                                id="socType"
-                                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
-                                value={socInfo.socType}
-                                onChange={(e) => setSocInfo({ ...socInfo, socType: e.target.value })}
-                              >
-                                <option value="">Select SOC Type</option>
-                                <option value="SOC 1 - Internal Controls over Financial Reporting">
-                                  SOC 1 - Internal Controls over Financial Reporting
-                                </option>
-                                <option value="SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy">
-                                  SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy
-                                </option>
-                                <option value="SOC 3 - General Use Report">SOC 3 - General Use Report</option>
-                              </select>
-                            </div>
-                            <div>
-                              <Label htmlFor="reportType">Report Type *</Label>
-                              <select
-                                id="reportType"
-                                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
-                                value={socInfo.reportType}
-                                onChange={(e) => setSocInfo({ ...socInfo, reportType: e.target.value })}
-                              >
-                                <option value="">Select Report Type</option>
-                                <option value="Type 1 - Design and Implementation">
-                                  Type 1 - Design and Implementation
-                                </option>
-                                <option value="Type 2 - Design, Implementation, and Operating Effectiveness">
-                                  Type 2 - Design, Implementation, and Operating Effectiveness
-                                </option>
-                              </select>
-                            </div>
-                          </div>
+            {/* Step 3: Upload Documents */}
+            {currentStep === "upload" && currentCategory && (
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                  <Button
+                    variant="ghost"
+                    onClick={() =>
+                      setCurrentStep(selectedCategory === "soc-compliance" ? "soc-info" : "choose-method")
+                    }
+                    className="mb-4 hover:bg-blue-50"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents for AI Analysis</h2>
+                  <p className="text-lg text-gray-600">
+                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                  </p>
+                </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label htmlFor="auditor">Auditor/CPA Firm</Label>
-                              <Input
-                                type="text"
-                                id="auditor"
-                                value={socInfo.auditor}
-                                onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
+                <Card className="mb-8 border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Bot className="h-6 w-6 text-blue-600" />
+                      <span className="text-blue-900">AI Document Analysis</span>
+                      <Badge className="bg-green-100 text-green-700 text-xs">RECOMMENDED</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="bg-white p-4 rounded-lg border border-blue-200">
+                        <h4 className="font-semibold text-blue-900 mb-3">📄 Upload Your Documents</h4>
+                        <p className="text-sm text-blue-800 mb-4">
+                          Upload your security policies, SOC reports, compliance documents, and procedures. Our AI will
+                          analyze them and automatically complete the assessment for you.
+                        </p>
+
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="document-upload" className="text-sm font-medium text-gray-700">
+                              Upload Supporting Documents
+                            </Label>
+                            <div className="mt-2 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors bg-blue-25">
+                              <input
+                                id="document-upload"
+                                type="file"
+                                multiple
+                                accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.ppt,.pptx,.md,.json,.html,.xml"
+                                onChange={handleFileUpload}
+                                className="hidden"
                               />
-                            </div>
-                            <div>
-                              <Label htmlFor="auditorOpinion">Expected Auditor Opinion</Label>
-                              <select
-                                id="auditorOpinion"
-                                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
-                                value={socInfo.auditorOpinion}
-                                onChange={(e) => setSocInfo({ ...socInfo, auditorOpinion: e.target.value })}
-                              >
-                                <option value="">Select Expected Opinion</option>
-                                <option value="Unqualified (Clean Opinion)">Unqualified (Clean Opinion)</option>
-                                <option value="Qualified">Qualified</option>
-                                <option value="Adverse">Adverse</option>
-                                <option value="Disclaimer">Disclaimer</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label htmlFor="testedStatus">Testing Status</Label>
-                              <select
-                                id="testedStatus"
-                                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
-                                value={socInfo.testedStatus}
-                                onChange={(e) => setSocInfo({ ...socInfo, testedStatus: e.target.value })}
-                              >
-                                <option value="">Select Testing Status</option>
-                                <option value="Tested">Tested</option>
-                                <option value="Untested">Untested</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label htmlFor="companyName">Company Name *</Label>
-                            <Input
-                              type="text"
-                              id="companyName"
-                              value={socInfo.companyName}
-                              onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="productService">Product/Service Being Assessed *</Label>
-                            <Input
-                              type="text"
-                              id="productService"
-                              value={socInfo.productService}
-                              onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
-                            />
-                          </div>
-
-                          <div>
-                            <Label>Trust Service Criteria Included in Report *</Label>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                              {["Security", "Availability", "Processing Integrity", "Confidentiality", "Privacy"].map(
-                                (criteria) => (
-                                  <label key={criteria} className="flex items-center space-x-2">
-                                    <input
-                                      type="checkbox"
-                                      checked={socInfo.trustServiceCriteria.includes(criteria)}
-                                      onChange={(e) => {
-                                        if (e.target.checked) {
-                                          setSocInfo({
-                                            ...socInfo,
-                                            trustServiceCriteria: [...socInfo.trustServiceCriteria, criteria],
-                                          })
-                                        } else {
-                                          setSocInfo({
-                                            ...socInfo,
-                                            trustServiceCriteria: socInfo.trustServiceCriteria.filter(
-                                              (c) => c !== criteria,
-                                            ),
-                                          })
-                                        }
-                                      }}
-                                      className="rounded border-gray-300"
-                                    />
-                                    <span className="text-sm">{criteria}</span>
-                                  </label>
-                                ),
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-4">
-                          <Label htmlFor="subserviceOrganizations">Subservice Organizations</Label>
-                          <Textarea
-                            id="subserviceOrganizations"
-                            value={socInfo.subserviceOrganizations}
-                            onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
-                          />
-                        </div>
-
-                        <div className="mt-6">
-                          <Button onClick={() => setCurrentStep("manual-assessment")}>Continue to Questions</Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
-
-                {/* Regular Assessment Questions - Show if not SOC or SOC info is filled */}
-                {(selectedCategory !== "soc-compliance" || socInfo.socType) && (
-                  <div className="max-w-3xl mx-auto mt-8">
-                    <Card className="border border-gray-200">
-                      <CardHeader>
-                        <CardTitle>{currentCategory?.name} Assessment</CardTitle>
-                        <CardDescription>
-                          Question {currentQuestion + 1} of {currentCategory?.questions.length}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <Progress value={Math.round(progress)} />
-                        <div className="mt-4">
-                          <Label htmlFor="question">
-                            {currentQuestion + 1}. {currentQuestionData.question}
-                          </Label>
-                          <div className="mt-2">
-                            {currentQuestionData.type === "boolean" ? (
-                              <div className="flex space-x-4">
-                                <Button
-                                  variant={answers[currentQuestionData.id] === true ? "default" : "outline"}
-                                  onClick={() => handleAnswer(currentQuestionData.id, true)}
-                                >
-                                  Yes
-                                </Button>
-                                <Button
-                                  variant={answers[currentQuestionData.id] === false ? "default" : "outline"}
-                                  onClick={() => handleAnswer(currentQuestionData.id, false)}
-                                >
-                                  No
-                                </Button>
-                              </div>
-                            ) : currentQuestionData.type === "tested" ? (
-                              <div className="flex space-x-4">
-                                <Button
-                                  variant={answers[currentQuestionData.id] === "tested" ? "default" : "outline"}
-                                  onClick={() => handleAnswer(currentQuestionData.id, "tested")}
-                                >
-                                  Tested
-                                </Button>
-                                <Button
-                                  variant={answers[currentQuestionData.id] === "not_tested" ? "default" : "outline"}
-                                  onClick={() => handleAnswer(currentQuestionData.id, "not_tested")}
-                                >
-                                  Not Tested
-                                </Button>
-                                <p className="text-sm text-gray-500 mt-1">
-                                  <strong>Tested</strong> means the control has been implemented and its effectiveness has
-                                  been verified through testing.
+                              <label htmlFor="document-upload" className="cursor-pointer">
+                                <Upload className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                                <p className="text-lg font-medium text-blue-900 mb-1">Click to upload or drag and drop</p>
+                                <p className="text-sm text-blue-700">
+                                  PDF, DOC, DOCX, TXT, CSV, XLSX, PPT, PPTX, MD, JSON, HTML, XML up to 10MB each
                                 </p>
-                              </div>
-                            ) : (
-                              <div className="grid gap-2">
-                                {currentQuestionData.options?.map((option) => (
-                                  <Button
-                                    key={option}
-                                    variant={answers[currentQuestionData.id] === option ? "default" : "outline"}
-                                    onClick={() => handleAnswer(currentQuestionData.id, option)}
+                                <p className="text-xs text-blue-600 mt-2">
+                                  💡 Recommended: Security policies, SOC reports, compliance certificates, procedures
+                                </p>
+                              </label>
+                            </div>
+
+                            {uploadedFiles.length > 0 && (
+                              <div className="mt-4 space-y-2">
+                                <h5 className="font-medium text-blue-900">Uploaded Files ({uploadedFiles.length}):</h5>
+                                {uploadedFiles.map((doc, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-white border border-blue-200 rounded"
                                   >
-                                    {option}
-                                  </Button>
+                                    <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                                      {getFileStatusIcon(doc.file)}
+                                      <span className="text-sm text-gray-700">{doc.file.name}</span>
+                                      <span className="text-xs text-gray-500">
+                                        ({(doc.file.size / 1024 / 1024).toFixed(1)} MB)
+                                      </span>
+                                      <Badge variant="outline" className="text-xs">
+                                        {getFileStatusText(doc.file)}
+                                      </Badge>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <Select
+                                        value={doc.type}
+                                        onValueChange={(value: 'primary' | '4th-party') => updateFileMetadata(index, 'type', value)}
+                                      >
+                                        <SelectTrigger className="w-[120px] h-8 text-xs">
+                                          <SelectValue placeholder="Doc Type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="primary">Primary</SelectItem>
+                                          <SelectItem value="4th-party">4th Party</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      {doc.type === '4th-party' && (
+                                        <Input
+                                          type="text"
+                                          placeholder="Relationship (e.g., Cloud Provider)"
+                                          value={doc.relationship || ''}
+                                          onChange={(e) => updateFileMetadata(index, 'relationship', e.target.value)}
+                                          className="w-[180px] h-8 text-xs"
+                                        />
+                                      )}
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => removeFile(index)}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
                                 ))}
                               </div>
                             )}
+                          </div>
 
-                            <div className="mt-4">
-                              <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
-                              <Textarea
-                                id="additionalInfo"
-                                value={answers[`${currentQuestionData.id}_additional`] || ""}
-                                onChange={(e) => handleAnswer(`${currentQuestionData.id}_additional`, e.target.value)}
-                              />
-                            </div>
+                          <div className="mt-4">
+                            <Label htmlFor="ai-provider-select">Select AI Provider</Label>
+                            <Select
+                              value={selectedAIProvider}
+                              onValueChange={(value: "google" | "groq" | "huggingface") => setSelectedAIProvider(value)}
+                            >
+                              <SelectTrigger id="ai-provider-select">
+                                <SelectValue placeholder="Select AI Provider" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="google">Google Gemini (Recommended)</SelectItem>
+                                <SelectItem value="groq">Groq Cloud (Fast)</SelectItem>
+                                <SelectItem value="huggingface">Hugging Face (Open Source)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Choose the AI model to power your document analysis.
+                            </p>
                           </div>
                         </div>
 
-                        <div className="mt-6 flex justify-between">
-                          <Button variant="outline" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
-                            Previous
+                        {uploadedFiles.length > 0 && !isAnalyzing && !aiAnalysisResult && (
+                          <Button
+                            onClick={startAnalysis}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                            disabled={isAnalyzing || !companyInfo.companyName.trim()}
+                          >
+                            <Bot className="mr-2 h-5 w-5" />
+                            🚀 Analyze Documents with AI
                           </Button>
-                          <Button onClick={handleNextQuestion}>
-                            {currentQuestion === (currentCategory?.questions.length || 0) - 1 ? "Complete" : "Next"}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
-              </>
-            )}
+                        )}
 
-            {/* Assessment Completed */}
-            {currentStep === "manual-assessment" && assessmentCompleted && (
-              <div className="max-w-3xl mx-auto mt-12">
-                <Card className="border border-green-200 bg-green-50">
-                  <CardHeader>
-                    <CardTitle>
-                      <CheckCircle2 className="mr-2 h-6 w-6 inline-block align-middle" />
-                      Assessment Complete!
-                    </CardTitle>
-                    <CardDescription>Your {riskResults?.category} has been completed.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-green-700">{riskResults?.recommendations.length}</div>
-                        <div className="text-sm text-gray-600">Recommendations</div>
+                        {isAnalyzing && (
+                          <div className="p-4 bg-blue-100 border border-blue-300 rounded-lg">
+                            <div className="flex items-center space-x-3 mb-4">
+                              <Cpu className="h-5 w-5 text-blue-600 animate-spin" />
+                              <div>
+                                <h4 className="font-semibold text-blue-900">AI Analysis in Progress</h4>
+                                <p className="text-sm text-blue-800">
+                                  Processing {uploadedFiles.length} documents and generating assessment responses...
+                                </p>
+                              </div>
+                            </div>
+                            <Progress value={analysisProgress} className="h-2 mb-2" />
+                            <div className="space-y-2 text-sm text-blue-800">
+                              {analysisSteps.map((step) => (
+                                <div key={step.id} className="flex items-center space-x-2">
+                                  {completedSteps.includes(step.id) ? (
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  ) : (
+                                    <Info className="h-4 w-4 text-blue-400" />
+                                  )}
+                                  <span>{step.title}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {analysisError && (
+                          <div className="p-4 bg-red-100 border border-red-300 rounded-lg">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <AlertCircle className="h-5 w-5 text-red-600" />
+                              <h4 className="font-semibold text-red-900">Analysis Error</h4>
+                            </div>
+                            <p className="text-sm text-red-800">{analysisError}</p>
+                            <Button
+                              onClick={startAnalysis}
+                              className="mt-4 bg-red-600 hover:bg-red-700 text-white"
+                              size="sm"
+                            >
+                              Retry Analysis
+                            </Button>
+                          </div>
+                        )}
+
+                        {aiAnalysisResult && (
+                          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center space-x-2 mb-3">
+                              <CheckCircle className="h-5 w-5 text-green-600" />
+                              <h4 className="font-semibold text-green-900">Analysis Complete!</h4>
+                            </div>
+                            <div className="text-sm text-green-800 space-y-1">
+                              <p>✅ {aiAnalysisResult.documentsAnalyzed} documents successfully analyzed</p>
+                              <p>📊 {Math.round(aiAnalysisResult.confidenceScores.overall || 0)}% average confidence score</p>
+                              <p>🎯 All assessment questions have been automatically completed</p>
+                              <p className="font-medium mt-2">
+                                👀 Please review the AI-generated answers below and make any necessary adjustments before
+                                submitting.
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    <div className="mb-8">
-                      <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommendations</h3>
-                      <ul className="list-disc pl-5">
-                        {riskResults?.recommendations.map((recommendation, index) => (
-                          <li key={index} className="text-gray-700">
-                            {recommendation}
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-2">
+                        <AlertCircle className="h-5 w-5 text-amber-600" />
+                        <p className="text-sm text-amber-800">
+                          <strong>Note:</strong> AI-generated responses are suggestions based on your documents. Please
+                          review and verify all answers before submission.
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex justify-center">
-                      <Button onClick={downloadRegularReport} className="mr-4">
-                        Download Report
+                    <div className="flex justify-between pt-6">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          setCurrentStep(selectedCategory === "soc-compliance" ? "soc-info" : "choose-method")
+                        }
+                        className="flex items-center"
+                      >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back
                       </Button>
-                      <Button variant="outline" onClick={() => setCurrentStep("select")}>
-                        Start New Assessment
+                      <Button
+                        type="button"
+                        onClick={() => setCurrentStep("review")}
+                        className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
+                        disabled={!aiAnalysisResult}
+                      >
+                        Review AI Answers
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
                   </CardContent>
@@ -2903,171 +2853,486 @@ export default function AIAssessmentPage() {
               </div>
             )}
 
-            {/* Delegate Assessment Modal */}
-            {showDelegateForm && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            {/* Step 4: Review AI Answers */}
+            {currentStep === "review" && aiAnalysisResult && currentCategory && (
+              <div className="max-w-6xl mx-auto">
+                <div className="mb-8">
+                  <Button variant="ghost" onClick={() => setCurrentStep("upload")} className="mb-4 hover:bg-blue-50">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Document Upload
+                  </Button>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Review AI-Generated Answers</h2>
+                  <p className="text-lg text-gray-600">
+                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Assessment ID: <span className="font-mono">{aiAnalysisResult.ticket_id || aiAnalysisResult.assessmentId}</span>
+                  </p>
+                </div>
+
+                <div className="flex justify-end space-x-2 mb-6">
+                  {isEditMode ? (
+                    <>
+                      <Button variant="outline" onClick={cancelEdits}>
+                        <X className="mr-2 h-4 w-4" />
+                        Cancel Edits
+                      </Button>
+                      <Button onClick={saveEdits} disabled={!hasUnsavedChanges}>
+                        <Save className="mr-2 h-4 w-4" />
+                        Save All Edits
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="outline" onClick={() => setIsEditMode(true)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit All Answers
+                    </Button>
+                  )}
+                </div>
+
+                <div className="space-y-8">
+                  {currentCategory.questions.map((question, index) => {
+                    const aiAnswer = aiAnalysisResult.answers[question.id]
+                    const aiReasoning = aiAnalysisResult.reasoning[question.id]
+                    const aiConfidence = aiAnalysisResult.confidenceScores[question.id]
+                    const aiExcerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
+
+                    const currentAnswer = editedAnswers[question.id] !== undefined ? editedAnswers[question.id] : aiAnswer
+                    const currentReasoning = editedReasoning[question.id] !== undefined ? editedReasoning[question.id] : aiReasoning
+                    const currentEvidence = editedEvidence[question.id] !== undefined ? editedEvidence[question.id] : aiExcerpts
+
+                    const isEditingThisQuestion = questionEditModes[question.id] || isEditMode
+                    const hasUnsavedChangesForQuestion = questionUnsavedChanges[question.id]
+
+                    return (
+                      <Card key={question.id} className="border border-gray-200">
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <CardTitle className="text-lg">
+                                {index + 1}. {question.question}
+                              </CardTitle>
+                              <CardDescription className="flex items-center space-x-2 mt-1">
+                                <Badge className="bg-blue-100 text-blue-700 text-xs">
+                                  AI Confidence: {Math.round(aiConfidence * 100)}%
+                                </Badge>
+                                {question.type === "tested" && (
+                                  <Badge
+                                    className={`text-xs ${
+                                      socTestingStatus[question.id] === "tested"
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
+                                    }`}
+                                  >
+                                    {socTestingStatus[question.id] === "tested" ? "Tested" : "Un-tested"}
+                                  </Badge>
+                                )}
+                                {question.type === "tested" && socExceptionStatus[question.id] && (
+                                  <Badge
+                                    className={`text-xs ${
+                                      socExceptionStatus[question.id] === "operational"
+                                        ? "bg-green-100 text-green-800"
+                                        : socExceptionStatus[question.id] === "exception"
+                                          ? "bg-yellow-100 text-yellow-800"
+                                          : "bg-red-100 text-red-800"
+                                    }`}
+                                  >
+                                    {socExceptionStatus[question.id]}
+                                  </Badge>
+                                )}
+                              </CardDescription>
+                            </div>
+                            <div className="flex space-x-2">
+                              {isEditMode ? null : ( // Hide individual edit button if global edit mode is on
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => toggleQuestionEditMode(question.id)}
+                                >
+                                  {isEditingThisQuestion ? (
+                                    <>
+                                      <X className="mr-2 h-4 w-4" />
+                                      Cancel
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      Edit
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                              {hasUnsavedChangesForQuestion && (
+                                <Button size="sm" onClick={() => saveQuestionEdits(question.id)}>
+                                  <Save className="mr-2 h-4 w-4" />
+                                  Save
+                                </Button>
+                              )}
+                              {approvedQuestions.has(question.id) ? (
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleQuestionUnapproval(question.id)}
+                                >
+                                  <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
+                                  Approved
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleQuestionApproval(question.id)}
+                                  disabled={hasUnsavedChangesForQuestion}
+                                >
+                                  <Check className="mr-2 h-4 w-4" />
+                                  Approve
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {/* Answer */}
+                          <div>
+                            <Label className="text-sm font-medium text-gray-700 mb-2">Answer:</Label>
+                            {isEditingThisQuestion ? (
+                              question.type === "boolean" ? (
+                                <div className="flex space-x-4 mt-2">
+                                  <Button
+                                    variant={currentAnswer === true ? "default" : "outline"}
+                                    onClick={() => handleAnswerEdit(question.id, true)}
+                                  >
+                                    Yes
+                                  </Button>
+                                  <Button
+                                    variant={currentAnswer === false ? "default" : "outline"}
+                                    onClick={() => handleAnswerEdit(question.id, false)}
+                                  >
+                                    No
+                                  </Button>
+                                </div>
+                              ) : question.type === "multiple" ? (
+                                <Select
+                                  value={currentAnswer as string}
+                                  onValueChange={(value) => handleAnswerEdit(question.id, value)}
+                                >
+                                  <SelectTrigger className="w-full mt-2">
+                                    <SelectValue placeholder="Select an option" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {question.options?.map((option) => (
+                                      <SelectItem key={option} value={option}>
+                                        {option}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              ) : question.type === "tested" ? (
+                                <Select
+                                  value={currentAnswer as string}
+                                  onValueChange={(value) => handleAnswerEdit(question.id, value)}
+                                >
+                                  <SelectTrigger className="w-full mt-2">
+                                    <SelectValue placeholder="Select status" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="tested">Tested</SelectItem>
+                                    <SelectItem value="not_tested">Not Tested</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Textarea
+                                  value={currentAnswer as string}
+                                  onChange={(e) => handleAnswerEdit(question.id, e.target.value)}
+                                  className="mt-2"
+                                />
+                              )
+                            ) : (
+                              <p className="font-semibold text-gray-900 mt-1">
+                                {typeof currentAnswer === "boolean"
+                                  ? currentAnswer
+                                    ? "Yes"
+                                    : "No"
+                                  : currentAnswer}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Reasoning */}
+                          <div>
+                            <Label className="text-sm font-medium text-gray-700 mb-2">Reasoning:</Label>
+                            {isEditingThisQuestion ? (
+                              <Textarea
+                                value={currentReasoning}
+                                onChange={(e) => handleReasoningEdit(question.id, e.target.value)}
+                                rows={3}
+                                className="mt-2"
+                              />
+                            ) : (
+                              <p className="text-gray-700 mt-1">{currentReasoning}</p>
+                            )}
+                          </div>
+
+                          {/* Evidence */}
+                          <div>
+                            <Label className="text-sm font-medium text-gray-700 mb-2">Document Evidence:</Label>
+                            {isEditingThisQuestion ? (
+                              <div className="space-y-3 mt-2">
+                                {currentEvidence.map((excerpt, excerptIndex) => (
+                                  <div key={excerptIndex} className="p-3 border rounded-md bg-gray-50">
+                                    <div className="flex justify-end">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => removeEvidenceItem(question.id, excerptIndex)}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                    <Label htmlFor={`quote-${question.id}-${excerptIndex}`}>Quote</Label>
+                                    <Textarea
+                                      id={`quote-${question.id}-${excerptIndex}`}
+                                      value={excerpt.quote}
+                                      onChange={(e) =>
+                                        updateEvidenceItem(question.id, excerptIndex, "quote", e.target.value)
+                                      }
+                                      rows={2}
+                                      className="mb-2"
+                                    />
+                                    <Label htmlFor={`fileName-${question.id}-${excerptIndex}`}>File Name</Label>
+                                    <Input
+                                      id={`fileName-${question.id}-${excerptIndex}`}
+                                      value={excerpt.fileName}
+                                      onChange={(e) =>
+                                        updateEvidenceItem(question.id, excerptIndex, "fileName", e.target.value)
+                                      }
+                                      className="mb-2"
+                                    />
+                                    <Label htmlFor={`pageNumber-${question.id}-${excerptIndex}`}>Page Number</Label>
+                                    <Input
+                                      id={`pageNumber-${question.id}-${excerptIndex}`}
+                                      type="number"
+                                      value={excerpt.pageNumber || ""}
+                                      onChange={(e) =>
+                                        updateEvidenceItem(
+                                          question.id,
+                                          excerptIndex,
+                                          "pageNumber",
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                      className="mb-2"
+                                    />
+                                    <Label htmlFor={`documentType-${question.id}-${excerptIndex}`}>Document Type</Label>
+                                    <Select
+                                      value={excerpt.documentType || 'primary'}
+                                      onValueChange={(value: 'primary' | '4th-party') => updateEvidenceItem(question.id, excerptIndex, 'documentType', value)}
+                                    >
+                                      <SelectTrigger id={`documentType-${question.id}-${excerptIndex}`} className="w-full mb-2">
+                                        <SelectValue placeholder="Select document type" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="primary">Primary</SelectItem>
+                                        <SelectItem value="4th-party">4th Party</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    {excerpt.documentType === '4th-party' && (
+                                      <>
+                                        <Label htmlFor={`documentRelationship-${question.id}-${excerptIndex}`}>Relationship</Label>
+                                        <Input
+                                          id={`documentRelationship-${question.id}-${excerptIndex}`}
+                                          value={excerpt.documentRelationship || ''}
+                                          onChange={(e) => updateEvidenceItem(question.id, excerptIndex, 'documentRelationship', e.target.value)}
+                                          placeholder="e.g., Cloud Provider"
+                                          className="mb-2"
+                                        />
+                                      </>
+                                    )}
+                                    <Label htmlFor={`relevance-${question.id}-${excerptIndex}`}>Relevance</Label>
+                                    <Textarea
+                                      id={`relevance-${question.id}-${excerptIndex}`}
+                                      value={excerpt.relevance}
+                                      onChange={(e) =>
+                                        updateEvidenceItem(question.id, excerptIndex, "relevance", e.target.value)
+                                      }
+                                      rows={1}
+                                    />
+                                  </div>
+                                ))}
+                                <Button variant="outline" size="sm" onClick={() => addEvidenceItem(question.id)}>
+                                  <Plus className="mr-2 h-4 w-4" />
+                                  Add Evidence
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="space-y-2 mt-1">
+                                {currentEvidence.length > 0 ? (
+                                  currentEvidence.map((excerpt, excerptIndex) => (
+                                    <div key={excerptIndex} className="text-sm text-gray-700">
+                                      <p className="italic">"{excerpt.quote}"</p>
+                                      <p className="text-xs text-gray-500">
+                                        (Document: {excerpt.fileName}
+                                        {excerpt.pageNumber && `, Page ${excerpt.pageNumber}`}
+                                        {excerpt.documentType === '4th-party' && (
+                                          <span className="ml-1 font-semibold text-purple-700">
+                                            (4th Party: {excerpt.documentRelationship || 'N/A'})
+                                          </span>
+                                        )}
+                                        )
+                                      </p>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p className="text-sm text-gray-500">No direct evidence found.</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-8 flex justify-between">
+                  <Button variant="outline" onClick={() => setCurrentStep("upload")}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Upload
+                  </Button>
+                  <Button
+                    onClick={() => setCurrentStep("approve")}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={!allQuestionsApproved}
+                  >
+                    Proceed to Approval
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 5: Approval */}
+            {currentStep === "approve" && aiAnalysisResult && currentCategory && (
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                  <Button variant="ghost" onClick={() => setCurrentStep("review")} className="mb-4 hover:bg-blue-50">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Review
+                  </Button>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Final Approval</h2>
+                  <p className="text-lg text-gray-600">
+                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Assessment ID: <span className="font-mono">{aiAnalysisResult.ticket_id || aiAnalysisResult.assessmentId}</span>
+                  </p>
+                </div>
+
+                <Card>
                   <CardHeader>
-                    <CardTitle>Delegate Assessment</CardTitle>
+                    <CardTitle className="flex items-center space-x-2">
+                      <FileCheck className="h-5 w-5 text-green-600" />
+                      <span>Approve & Finalize Assessment</span>
+                    </CardTitle>
                     <CardDescription>
-                      {delegateStep === "choose-type" && "Choose who will complete this assessment"}
-                      {delegateStep === "choose-method" && "Choose the assessment method"}
-                      {delegateStep === "form" && "Enter delegation details"}
+                      Please provide your details to digitally approve this assessment.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    {delegateStep === "choose-type" && (
-                      <div className="space-y-4">
-                        <div className="grid gap-4">
-                          <Button
-                            variant="outline"
-                            className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
-                            onClick={() => handleDelegateTypeSelection("team")}
-                          >
-                            <div className="flex items-center space-x-2">
-                              <Users className="h-5 w-5 text-blue-600" />
-                              <span className="font-semibold">Team Member</span>
-                            </div>
-                            <span className="text-sm text-gray-600">Delegate to someone within your organization</span>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
-                            onClick={() => handleDelegateTypeSelection("third-party")}
-                          >
-                            <div className="flex items-center space-x-2">
-                              <Building2 className="h-5 w-5 text-purple-600" />
-                              <span className="font-semibold">Third-Party</span>
-                            </div>
-                            <span className="text-sm text-gray-600">Delegate to an external vendor or partner</span>
-                          </Button>
-                        </div>
-                        <div className="flex justify-end space-x-2">
-                          <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {delegateStep === "choose-method" && (
-                      <div className="space-y-4">
-                        <div className="grid gap-4">
-                          <Button
-                            variant="outline"
-                            className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
-                            onClick={() => handleDelegateMethodSelection("manual")}
-                          >
-                            <div className="flex items-center space-x-2">
-                              <User className="h-5 w-5 text-green-600" />
-                              <span className="font-semibold">Manual Assessment</span>
-                            </div>
-                            <span className="text-sm text-gray-600">Traditional question-by-question assessment</span>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
-                            onClick={() => handleDelegateMethodSelection("ai")}
-                          >
-                            <div className="flex items-center space-x-2">
-                              <Bot className="h-5 w-5 text-blue-600" />
-                              <span className="font-semibold">AI Assessment</span>
-                            </div>
-                            <span className="text-sm text-gray-600">AI-powered document analysis and assessment</span>
-                          </Button>
-                        </div>
-                        <div className="flex justify-end space-x-2">
-                          <Button variant="outline" onClick={() => setDelegateStep("choose-type")}>
-                            Back
-                          </Button>
-                          <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {delegateStep === "form" && (
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="recipientName">Recipient Name *</Label>
-                          <Input
-                            id="recipientName"
-                            value={delegateForm.recipientName}
-                            onChange={(e) => setDelegateForm({ ...delegateForm, recipientName: e.target.value })}
-                            placeholder="Enter recipient's full name"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="recipientEmail">Recipient Email *</Label>
-                          <Input
-                            id="recipientEmail"
-                            type="email"
-                            value={delegateForm.recipientEmail}
-                            onChange={(e) => setDelegateForm({ ...delegateForm, recipientEmail: e.target.value })}
-                            placeholder="Enter recipient's email address"
-                          />
-                        </div>
-                        {delegationType === "third-party" && (
-                          <div>
-                            <Label htmlFor="companyName">Company Name *</Label>
-                            <Input
-                              id="companyName"
-                              value={delegateForm.companyName}
-                              onChange={(e) => setDelegateForm({ ...delegateForm, companyName: e.target.value })}
-                              placeholder="Enter company name"
-                            />
-                          </div>
-                        )}
-                        <div>
-                          <Label htmlFor="dueDate">Due Date</Label>
-                          <Input
-                            id="dueDate"
-                            type="date"
-                            value={delegateForm.dueDate}
-                            onChange={(e) => setDelegateForm({ ...delegateForm, dueDate: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="customMessage">Custom Message</Label>
-                          <Textarea
-                            id="customMessage"
-                            value={delegateForm.customMessage}
-                            onChange={(e) => setDelegateForm({ ...delegateForm, customMessage: e.target.value })}
-                            placeholder="Add any additional instructions or context..."
-                            rows={3}
-                          />
-                        </div>
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                          <h4 className="font-semibold text-blue-900 mb-2">Assessment Details</h4>
-                          <div className="text-sm text-blue-800 space-y-1">
-                            <p>
-                              <strong>Type:</strong> {delegateForm.assessmentType}
-                            </p>
-                            <p>
-                              <strong>Method:</strong> {delegateMethod === "ai" ? "AI-Powered" : "Manual"}
-                            </p>
-                            <p>
-                              <strong>Delegation:</strong> {delegationType === "team" ? "Team Member" : "Third-Party"}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex justify-end space-x-2">
-                          <Button variant="outline" onClick={() => setDelegateStep("choose-method")}>
-                            Back
-                          </Button>
-                          <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
-                            Cancel
-                          </Button>
-                          <Button onClick={handleSendDelegation}>
-                            <Send className="mr-2 h-4 w-4" />
-                            Send Delegation
-                          </Button>
-                        </div>
-                      </div>
-                    )}
+                  <CardContent className="space-y-6">
+                    <div>
+                      <Label htmlFor="approverName">Your Full Name *</Label>
+                      <Input
+                        id="approverName"
+                        value={approverInfo.name}
+                        onChange={(e) => setApproverInfo({ ...approverInfo, name: e.target.value })}
+                        placeholder="Enter your full name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="approverTitle">Your Title/Role *</Label>
+                      <Input
+                        id="approverTitle"
+                        value={approverInfo.title}
+                        onChange={(e) => setApproverInfo({ ...approverInfo, title: e.target.value })}
+                        placeholder="e.g., Chief Risk Officer, Compliance Manager"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="digitalSignature">Digital Signature *</Label>
+                      <Input
+                        id="digitalSignature"
+                        value={approverInfo.signature}
+                        onChange={(e) => setApproverInfo({ ...approverInfo, signature: e.target.value })}
+                        placeholder="Type your full name to sign"
+                        required
+                        className="font-serif text-lg italic"
+                      />
+                      <p className="text-sm text-gray-500 mt-1">
+                        By typing your name, you agree to digitally sign this assessment report.
+                      </p>
+                    </div>
+                    <div className="flex justify-between pt-6">
+                      <Button variant="outline" onClick={() => setCurrentStep("review")}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Review
+                      </Button>
+                      <Button
+                        onClick={moveToResults}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        disabled={!approverInfo.name || !approverInfo.title || !approverInfo.signature}
+                      >
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Approve & Generate Report
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
+              </div>
+            )}
+
+            {/* Step 6: Results */}
+            {currentStep === "results" && aiAnalysisResult && currentCategory && (
+              <div className="max-w-4xl mx-auto text-center">
+                <CheckCircle2 className="h-20 w-20 text-green-600 mx-auto mb-6" />
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Completed!</h2>
+                <p className="text-lg text-gray-600 mb-6">
+                  Your AI-powered {currentCategory.name} assessment is complete.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <Card className="bg-blue-50 border border-blue-200">
+                    <CardContent className="p-6">
+                      <p className="text-sm font-medium text-blue-800">Risk Score</p>
+                      <p className="text-4xl font-bold text-blue-600">{aiAnalysisResult.riskScore}%</p>
+                    </CardContent>
+                  </Card>
+                  <Card className={`border ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
+                    <CardContent className="p-6">
+                      <p className="text-sm font-medium text-gray-800">Risk Level</p>
+                      <p className={`text-2xl font-bold ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
+                        {aiAnalysisResult.riskLevel}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-green-50 border border-green-200">
+                    <CardContent className="p-6">
+                      <p className="text-sm font-medium text-green-800">AI Provider</p>
+                      <p className="text-lg font-bold text-green-600">{aiAnalysisResult.aiProvider}</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-4">
+                  <Button onClick={generateAndDownloadReport} className="w-full bg-blue-600 hover:bg-blue-700">
+                    <Download className="mr-2 h-4 w-4" />
+                    Download Full Report (PDF)
+                  </Button>
+                  <Button variant="outline" onClick={() => setCurrentStep("select")} className="w-full">
+                    Start New AI Assessment
+                  </Button>
+                </div>
               </div>
             )}
           </div>

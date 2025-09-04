@@ -40,6 +40,7 @@ interface AIAnalysisResult {
     }>
   >
   assessmentId?: string; // Added assessmentId
+  ticket_id?: string; // Added ticket_id
 }
 
 interface ApproverInfo {
@@ -122,6 +123,11 @@ const ReportContent: React.FC<ReportContentProps> = ({
         <p className="text-lg text-gray-700">
           AI-Powered Risk Analysis • Generated {new Date().toLocaleDateString()}
         </p>
+        {aiAnalysisResult.ticket_id && (
+          <p className="text-sm text-gray-500 mt-2">
+            Assessment ID: <span className="font-mono">{aiAnalysisResult.ticket_id}</span>
+          </p>
+        )}
       </div>
 
       {/* Summary Section */}
