@@ -1188,7 +1188,9 @@ interface AIAnalysisResult {
 }
 
 export default function AIAssessmentPage() {
-  const { user, isDemo, signOut } = useAuth()
+  const authContext = useAuth(); // Get the full context object
+  console.log("AIAssessmentPage: raw authContext =", authContext); // Log the raw object
+  const { user, isDemo, signOut } = authContext; // Destructure from the raw object
   console.log("AIAssessmentPage: user =", user?.email, "isDemo =", isDemo, "signOut =", typeof signOut);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
