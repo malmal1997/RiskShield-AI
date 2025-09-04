@@ -19,15 +19,16 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
   const { trackClick } = useFeatureTracking()
   const { user, isDemo, signOut: authSignOut } = useAuth(); // Use useAuth hook
 
-  // Determine userEmail from auth context
-  const currentUserEmail = user?.email || (isDemo ? "demo@riskshield.ai" : undefined);
+  // Determine if user is authenticated or in demo mode
+  const isAuthenticatedOrDemo = !!user || isDemo;
+  const displayEmail = user?.email || (isDemo ? "demo@riskshield.ai" : undefined);
 
   const publicNavigationItems = [
     { name: "Platform", href: "/" },
     { name: "Solutions", href: "/solutions" },
     { name: "About Us", href: "/about-us" },
     { name: "Careers", href: "/careers" },
-    { name: "Documentation", href: "/documentation" }, // Added Documentation here
+    { name: "Documentation", href: "/documentation" },
     { name: "Help Center", href: "/help-center" },
   ];
 
@@ -40,8 +41,8 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
     { name: "Settings", href: "/settings" },
   ];
 
-  // Only show restricted items when logged in, otherwise show public items
-  const allNavigationItems = (user || isDemo)
+  // Determine which navigation items to show
+  const allNavigationItems = isAuthenticatedOrDemo
     ? restrictedNavigationItems
     : publicNavigationItems;
 
@@ -96,26 +97,12 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
 
             {showAuthButtons && (
               <div className="flex items-center space-x-4 ml-6 xl:ml-8 pl-6 xl:pl-8 border-l border-gray-200">
-                {currentUserEmail ? (
+                {isAuthenticatedOrDemo ? (
                   <>
-                    <span className="text-sm text-gray-600 whitespace-nowrap">{currentUserEmail}</span>
+                    <span className="text-sm text-gray-600 whitespace-nowrap">{displayEmail}</span>
                     <Button variant="outline" size="sm" onClick={handleSignOutClick}>
                       Sign Out
                     </Button>
-                  </>
-                ) : isDemo ? (
-                  <>
-                    <span className="text-xs text-blue-600 whitespace-nowrap">Preview Mode</span>
-                    <Link href="/auth/login" onClick={() => handleAuthClick("sign_in_click")}>
-                      <Button variant="outline" size="sm">
-                        Sign In
-                      </Button>
-                    </Link>
-                    <Link href="/auth/register" onClick={() => handleAuthClick("sign_up_click")}>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                        Sign Up Free
-                      </Button>
-                    </Link>
                   </>
                 ) : (
                   <>
@@ -166,9 +153,9 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
 
               {showAuthButtons && (
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
-                  {currentUserEmail ? (
+                  {isAuthenticatedOrDemo ? (
                     <>
-                      <span className="text-sm text-gray-600">{currentUserEmail}</span>
+                      <span className="text-sm text-gray-600">{displayEmail}</span>
                       <Button variant="outline" size="sm" onClick={handleSignOutClick} className="w-fit bg-transparent">
                         Sign Out
                       </Button>

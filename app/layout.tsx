@@ -5,8 +5,8 @@ import "./globals.css"
 import { AuthProvider } from "@/components/auth-context"
 import { Toaster } from "@/components/ui/toaster"
 import { TrackingProvider } from "@/components/tracking-provider"
-import { MainNavigation } from "@/components/main-navigation" // Import MainNavigation
 import { AppFooter } from "@/components/app-footer" // Import AppFooter
+import { AuthAwareNavigation } from "@/components/AuthAwareNavigation" // Import the new AuthAwareNavigation component
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,7 +26,7 @@ export default function RootLayout({
       <body className={`${inter.className} flex flex-col min-h-screen bg-background text-foreground`}>
         <AuthProvider>
           <TrackingProvider>
-            <MainNavigation showAuthButtons={true} /> {/* Moved here */}
+            <AuthAwareNavigation /> {/* Use the new AuthAwareNavigation component here */}
             <main className="flex-grow"> {/* Main content area, takes remaining space */}
               {children}
             </main>
