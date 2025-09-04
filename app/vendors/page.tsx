@@ -219,26 +219,7 @@ function VendorsContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-blue-600" />
-                <div>
-                  <span className="text-xl font-bold text-gray-900">RiskShield AI</span>
-                  {organization && <p className="text-sm text-gray-600">{organization.name}</p>}
-                </div>
-              </div>
-            </div>
-            <nav className="flex items-center space-x-4">
-              <Button variant="outline" size="sm" asChild>
-                <a href="/dashboard">← Back to Dashboard</a>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
+      {/* The MainNavigation component is now handled by RootLayout */}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
