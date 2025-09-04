@@ -123,15 +123,6 @@ export default function AboutUsPage() {
                 Driving the development of advanced AI models for risk analysis and prediction.
               </p>
             </Card>
-            {/* Molly's Card */}
-            <Card className="border border-gray-200 text-center p-6">
-              <span className="text-5xl mx-auto mb-4 block">🐶</span> {/* Dog emoji as icon */}
-              <CardTitle className="text-xl font-semibold mb-1">Molly</CardTitle>
-              <CardDescription className="text-base text-blue-600 mb-4">Chief Morale Officer</CardDescription>
-              <p className="text-sm text-gray-600">
-                Responsible for boosting team spirits, ensuring regular walk breaks, and providing unconditional support and tail wags.
-              </p>
-            </Card>
           </div>
         </div>
       </section>
