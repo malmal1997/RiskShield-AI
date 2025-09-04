@@ -40,8 +40,9 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
     { name: "Settings", href: "/settings" },
   ];
 
+  // Only show restricted items when logged in, otherwise show public items
   const allNavigationItems = (user || isDemo)
-    ? [...publicNavigationItems, ...restrictedNavigationItems]
+    ? restrictedNavigationItems
     : publicNavigationItems;
 
   const isActive = (href: string) => {
