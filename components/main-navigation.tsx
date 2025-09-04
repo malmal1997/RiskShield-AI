@@ -19,9 +19,13 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
   const { trackClick } = useFeatureTracking()
   const { user, isDemo, signOut: authSignOut } = useAuth(); // Use useAuth hook
 
+  console.log("MainNavigation: user =", user?.email, "isDemo =", isDemo);
+
   // Determine if user is authenticated or in demo mode
   const isAuthenticatedOrDemo = !!user || isDemo;
   const displayEmail = user?.email || (isDemo ? "demo@riskshield.ai" : undefined);
+
+  console.log("MainNavigation: isAuthenticatedOrDemo =", isAuthenticatedOrDemo);
 
   const publicNavigationItems = [
     { name: "Platform", href: "/" },

@@ -6,7 +6,9 @@ import { RefreshCw, Shield } from "lucide-react";
 import React from "react";
 
 export function AuthAwareNavigation() {
-  const { loading } = useAuth();
+  const { loading, user, isDemo } = useAuth(); // Get user and isDemo here too
+
+  console.log("AuthAwareNavigation: loading =", loading, "user =", user?.email, "isDemo =", isDemo);
 
   if (loading) {
     return (
