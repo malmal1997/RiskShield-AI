@@ -20,16 +20,16 @@ export function DemoSessionSetup() {
       loginTime: new Date().toISOString(),
     }
 
-    localStorage.setItem("demo_session", JSON.stringify(demoSession))
+    sessionStorage.setItem("demo_session", JSON.stringify(demoSession))
     window.location.reload()
   }
 
   const clearDemoSession = () => {
-    localStorage.removeItem("demo_session")
+    sessionStorage.removeItem("demo_session")
     window.location.reload()
   }
 
-  const hasDemoSession = typeof window !== "undefined" && localStorage.getItem("demo_session")
+  const hasDemoSession = typeof window !== "undefined" && sessionStorage.getItem("demo_session")
 
   return (
     <Card className="max-w-md mx-auto mt-8">

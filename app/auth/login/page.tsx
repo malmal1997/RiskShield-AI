@@ -31,8 +31,8 @@ export default function LoginPage() {
         // Simulate successful demo login
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
-        // Set demo session in localStorage
-        localStorage.setItem(
+        // Set demo session in sessionStorage
+        sessionStorage.setItem(
           "demo_session",
           JSON.stringify({
             user: {
@@ -73,7 +73,7 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Set demo session
-      localStorage.setItem(
+      sessionStorage.setItem(
         "demo_session",
         JSON.stringify({
           user: {

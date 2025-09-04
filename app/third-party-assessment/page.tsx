@@ -32,7 +32,7 @@ export default function ThirdPartyAssessment() {
 
   // Check if user is in preview mode
   useEffect(() => {
-    const storedSession = localStorage.getItem("demo_session")
+    const storedSession = sessionStorage.getItem("demo_session")
     if (storedSession) {
       try {
         const sessionData = JSON.parse(storedSession)
@@ -45,7 +45,7 @@ export default function ThirdPartyAssessment() {
       setUserEmail(null)
     }
 
-    const hasAuth = localStorage.getItem("demo_session") || userEmail
+    const hasAuth = sessionStorage.getItem("demo_session") || userEmail
     setIsPreviewMode(!hasAuth)
   }, [userEmail])
 
@@ -385,7 +385,7 @@ ${assessmentLink}
   }
 
   const handleSignOut = () => {
-    localStorage.removeItem("demo_session")
+    sessionStorage.removeItem("demo_session")
     window.location.href = "/"
   }
 

@@ -33,8 +33,8 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     try {
       // Check for demo credentials
       if (email === "demo@riskshield.ai" && password === "demo123") {
-        // Set demo session in localStorage
-        localStorage.setItem(
+        // Set demo session in sessionStorage
+        sessionStorage.setItem(
           "demo_session",
           JSON.stringify({
             user: {
@@ -77,7 +77,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
     try {
       // Set demo session
-      localStorage.setItem(
+      sessionStorage.setItem(
         "demo_session",
         JSON.stringify({
           user: {

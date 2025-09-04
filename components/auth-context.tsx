@@ -51,9 +51,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshProfile = useCallback(async () => {
     setLoading(true)
 
-    // Only attempt localStorage access and Supabase auth if mounted on client
+    // Only attempt sessionStorage access and Supabase auth if mounted on client
     if (typeof window !== "undefined") {
-      const demoSession = localStorage.getItem("demo_session")
+      const demoSession = sessionStorage.getItem("demo_session")
       if (demoSession) {
         try {
           const session: DemoSession = JSON.parse(demoSession)
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return
         } catch (error) {
           console.error("Error parsing demo session:", error)
-          localStorage.removeItem("demo_session")
+          sessionStorage.removeItem("demo_session")
         }
       }
 
@@ -204,7 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     // Clear demo session
     if (typeof window !== "undefined") {
-      localStorage.removeItem("demo_session")
+      sessionStorage.removeItem("demo_session")
     }
     setIsDemo(false)
 
