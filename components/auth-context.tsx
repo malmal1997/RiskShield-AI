@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Only attempt sessionStorage access and Supabase auth if mounted on client
     if (typeof window !== "undefined") {
       const demoSession = sessionStorage.getItem("demo_session")
-      console.log("AuthContext: Checking sessionStorage for demo_session:", demoSession); // Add this log
+      console.log("AuthContext: Checking sessionStorage for demo_session:", demoSession);
 
       if (demoSession) {
         try {
@@ -157,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        console.log("AuthContext: Auth state change event:", event); // Add this log
+        console.log("AuthContext: Auth state change event:", event);
         if (session?.user) {
           await refreshProfile()
         } else {
@@ -245,6 +245,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
+  console.log("useAuth hook: context =", context); // Added logging here
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider")
   }

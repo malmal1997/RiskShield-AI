@@ -1189,7 +1189,7 @@ interface AIAnalysisResult {
 
 export default function AIAssessmentPage() {
   const { user, isDemo, signOut } = useAuth()
-  console.log("AIAssessmentPage: user =", user?.email, "isDemo =", isDemo, "signOut =", typeof signOut); // Added log
+  console.log("AIAssessmentPage: user =", user?.email, "isDemo =", isDemo, "signOut =", typeof signOut);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
@@ -1540,10 +1540,8 @@ export default function AIAssessmentPage() {
     handleEvidenceEdit(questionId, [...currentEvidence, newItem])
   }
 
-  const removeEvidenceItem = (questionId: string, index: number) => {
-    const currentEvidence = editedEvidence[questionId] || aiAnalysisResult?.documentExcerpts?.[questionId] || []
-    const updatedEvidence = currentEvidence.filter((_, i) => i !== index)
-    handleEvidenceEdit(questionId, updatedEvidence)
+  const removeFile = (index: number) => {
+    setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
   }
 
   const updateEvidenceItem = (questionId: string, index: number, field: string, value: string | number | 'primary' | '4th-party') => {
@@ -2926,7 +2924,7 @@ export default function AIAssessmentPage() {
                                         : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {socTestingStatus[question.id] === "tested" ? "Tested" : "Un-tested"}
+                                    {socTestingStatus[question.id]}
                                   </Badge>
                                 )}
                                 {question.type === "tested" && socExceptionStatus[question.id] && (
