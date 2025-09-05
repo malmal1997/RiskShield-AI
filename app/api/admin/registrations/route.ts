@@ -74,6 +74,63 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] API: Found registration for:", registration.email)
 
+    if (action === "approve") {
+      console.log("[v0] API: Creating Supabase Auth user account...")
+
+      // Create Supabase Auth user
+      const { data: authUser, error: authError } = await adminClient.auth.admin.createUser({
+        email: registration.email,
+        password: registration.password_hash, // Use the stored password hash
+        email_confirm: true, // Auto-confirm email
+        user_metadata: {
+          full_name: registration.contact_name,
+          institution_name: registration.institution_name,
+          institution_type: registration.institution_type,
+        },
+      })
+
+      if (authError) {
+        console.error("[v0] API: Auth user creation error:", authError)
+        return NextResponse.json(
+          {
+            error: "Failed to create user account",
+            details: authError.message,
+          },
+          { status: 500 },
+        )
+      }
+
+      console.log("[v0] API: Auth user created:", authUser.user?.id)
+
+      // Create user profile
+      const { error: profileError } = await adminClient.from("user_profiles").insert({
+        user_id: authUser.user!.id,
+        email: registration.email,
+        first_name: registration.contact_name.split(" ")[0] || registration.contact_name,
+        last_name: registration.contact_name.split(" ").slice(1).join(" ") || "",
+        organization_id: null, // Will be set up later
+      })
+
+      if (profileError) {
+        console.error("[v0] API: Profile creation error:", profileError)
+        // Continue with approval even if profile creation fails
+      }
+
+      // Create user role
+      const { error: roleError } = await adminClient.from("user_roles").insert({
+        user_id: authUser.user!.id,
+        role: "user",
+        permissions: ["view_assessments", "create_assessments"],
+      })
+
+      if (roleError) {
+        console.error("[v0] API: Role creation error:", roleError)
+        // Continue with approval even if role creation fails
+      }
+
+      console.log("[v0] API: User account setup completed")
+    }
+
     // Update registration status
     const updateData =
       action === "approve"
@@ -108,7 +165,10 @@ export async function POST(request: NextRequest) {
     console.log(`[v0] API: Registration ${action}ed successfully`)
     return NextResponse.json({
       success: true,
-      message: `Registration ${action}ed successfully.`,
+      message:
+        action === "approve"
+          ? `Registration approved and user account created successfully. User can now login with their email and password.`
+          : `Registration rejected successfully.`,
       registrationId,
     })
   } catch (error) {
