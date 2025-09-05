@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { refreshProfile } = useAuth()
+  const { refreshProfile, createDemoSession } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,29 +30,11 @@ export default function LoginPage() {
     try {
       // Check for demo credentials
       if (email === "demo@riskshield.ai" && password === "demo123") {
-        // Simulate successful demo login
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        console.log("[v0] Login: Creating admin demo session")
+        createDemoSession("admin")
 
-        sessionStorage.setItem(
-          "demo_session",
-          JSON.stringify({
-            user: {
-              id: "demo-user-id",
-              email: "demo@riskshield.ai",
-              name: "Demo User",
-            },
-            organization: {
-              id: "demo-org-id",
-              name: "RiskShield Demo Organization",
-              plan: "enterprise",
-            },
-            role: "admin",
-            loginTime: new Date().toISOString(),
-          }),
-        )
-
-        // Refresh auth context to pick up demo session
-        await refreshProfile()
+        // Small delay to ensure state is updated
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         router.push("/admin-dashboard")
         return
@@ -73,30 +55,10 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500)) // Reduced delay
+      console.log("[v0] Login: Demo button clicked, creating admin session")
+      createDemoSession("admin")
 
-      sessionStorage.removeItem("demo_session")
-
-      const demoSession = {
-        user: {
-          id: "demo-user-id",
-          email: "demo@riskshield.ai",
-          name: "Demo User",
-        },
-        organization: {
-          id: "demo-org-id",
-          name: "RiskShield Demo Organization",
-          plan: "enterprise",
-        },
-        role: "admin",
-        loginTime: new Date().toISOString(),
-      }
-
-      sessionStorage.setItem("demo_session", JSON.stringify(demoSession))
-      console.log("[v0] Demo session created:", demoSession)
-
-      await refreshProfile()
-
+      // Small delay to ensure state is updated
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       router.push("/admin-dashboard")

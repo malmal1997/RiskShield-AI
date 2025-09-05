@@ -36,6 +36,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
   hasPermission: (permission: string) => boolean
+  createDemoSession: (userType: "admin" | "user" = "user") => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -48,9 +49,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false) // Start with false to prevent hydration issues
   const [isDemo, setIsDemo] = useState(false)
 
+  const createDemoSession = useCallback((userType: "admin" | "user" = "user") => {
+    if (typeof window === "undefined") return
+
+    const demoSession: DemoSession = {
+      user: {
+        id: userType === "admin" ? "demo-admin-001" : "demo-user-001",
+        email: userType === "admin" ? "demo@riskshield.ai" : "demo@example.com",
+        name: userType === "admin" ? "Demo Admin" : "Demo User",
+      },
+      organization: {
+        id: "demo-org-001",
+        name: "Demo Organization",
+        plan: "enterprise",
+      },
+      role: userType === "admin" ? "admin" : "user",
+      loginTime: new Date().toISOString(),
+    }
+
+    sessionStorage.setItem("demo_session", JSON.stringify(demoSession))
+    console.log("[v0] AuthContext: Created demo session for", userType, demoSession)
+
+    // Immediately set the auth state
+    setUser(demoSession.user)
+    setOrganization(demoSession.organization)
+    setRole({
+      role: demoSession.role,
+      permissions:
+        userType === "admin"
+          ? ["manage_users", "manage_assessments", "manage_organizations", "view_analytics"]
+          : ["view_assessments"],
+    })
+    setProfile({
+      first_name: userType === "admin" ? "Demo" : "Demo",
+      last_name: userType === "admin" ? "Admin" : "User",
+      organization_id: demoSession.organization.id,
+      avatar_url: "/placeholder.svg?height=32&width=32",
+    })
+    setIsDemo(true)
+    setLoading(false)
+  }, [])
+
   const refreshProfile = useCallback(async () => {
     if (typeof window === "undefined") {
-      return // Exit early on server
+      return
     }
 
     setLoading(true)
@@ -64,10 +106,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log("[v0] AuthContext: Demo session found, setting demo user")
         setUser(session.user)
         setOrganization(session.organization)
-        setRole({ role: session.role, permissions: { all: true } })
+        setRole({
+          role: session.role,
+          permissions:
+            session.role === "admin"
+              ? ["manage_users", "manage_assessments", "manage_organizations", "view_analytics"]
+              : ["view_assessments"],
+        })
         setProfile({
-          first_name: "Demo",
-          last_name: "User",
+          first_name: session.role === "admin" ? "Demo" : "Demo",
+          last_name: session.role === "admin" ? "Admin" : "User",
           organization_id: session.organization.id,
           avatar_url: "/placeholder.svg?height=32&width=32",
         })
@@ -201,7 +249,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const hasPermission = (permission: string): boolean => {
     if (!role) return false
-    if (role.role === "admin" || isDemo) return true
+    if (role.role === "admin" || isDemo) {
+      console.log("[v0] AuthContext: Admin or demo user, granting permission:", permission)
+      return true
+    }
     return role.permissions && (role.permissions[permission] === true || role.permissions.all === true)
   }
 
@@ -217,6 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
     refreshProfile,
     hasPermission,
+    createDemoSession,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
@@ -239,6 +291,7 @@ export function useAuth() {
         signOut: async () => {},
         refreshProfile: async () => {},
         hasPermission: () => false,
+        createDemoSession: () => {},
       }
     }
     throw new Error("useAuth must be used within an AuthProvider")
