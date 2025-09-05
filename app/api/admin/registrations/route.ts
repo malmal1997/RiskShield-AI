@@ -80,12 +80,12 @@ export async function POST(request: NextRequest) {
         ? {
             status: "approved",
             approved_at: new Date().toISOString(),
-            approved_by: "admin",
+            approved_by: null, // Using null since we don't have a specific admin user UUID
           }
         : {
             status: "rejected",
             rejected_at: new Date().toISOString(),
-            rejected_by: "admin",
+            rejected_by: null, // Using null since we don't have a specific admin user UUID
           }
 
     console.log(`[v0] API: Updating registration status to ${action}ed...`)
