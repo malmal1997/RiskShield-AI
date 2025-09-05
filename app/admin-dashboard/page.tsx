@@ -107,10 +107,10 @@ function AdminDashboardContent() {
 
   const approveRegistration = async (registration: PendingRegistration) => {
     try {
-      const response = await fetch("/api/admin/registrations/approve", {
+      const response = await fetch("/api/admin/registrations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ registrationId: registration.id }),
+        body: JSON.stringify({ action: "approve", registrationId: registration.id }),
       })
 
       const result = await response.json()
@@ -129,10 +129,10 @@ function AdminDashboardContent() {
 
   const rejectRegistration = async (registration: PendingRegistration, reason: string) => {
     try {
-      const response = await fetch("/api/admin/registrations/reject", {
+      const response = await fetch("/api/admin/registrations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ registrationId: registration.id, reason }),
+        body: JSON.stringify({ action: "reject", registrationId: registration.id, reason }),
       })
 
       const result = await response.json()

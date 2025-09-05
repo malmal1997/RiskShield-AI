@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -31,5 +31,98 @@ export async function GET() {
   } catch (error) {
     console.error("[v0] API: Unexpected error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log("[v0] API: Registration action request started")
+
+    let requestBody
+    try {
+      requestBody = await request.json()
+    } catch (parseError) {
+      console.error("[v0] API: Failed to parse request body:", parseError)
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+    }
+
+    const { action, registrationId } = requestBody
+
+    if (!action || !registrationId) {
+      console.log("[v0] API: Missing action or registration ID")
+      return NextResponse.json({ error: "Action and registration ID are required" }, { status: 400 })
+    }
+
+    if (!["approve", "reject"].includes(action)) {
+      console.log("[v0] API: Invalid action:", action)
+      return NextResponse.json({ error: "Action must be 'approve' or 'reject'" }, { status: 400 })
+    }
+
+    console.log(`[v0] API: ${action}ing registration:`, registrationId)
+
+    // Get the registration details
+    const { data: registration, error: fetchError } = await adminClient
+      .from("pending_registrations")
+      .select("*")
+      .eq("id", registrationId)
+      .single()
+
+    if (fetchError || !registration) {
+      console.error("[v0] API: Error fetching registration:", fetchError)
+      return NextResponse.json({ error: "Registration not found" }, { status: 404 })
+    }
+
+    console.log("[v0] API: Found registration for:", registration.email)
+
+    // Update registration status
+    const updateData =
+      action === "approve"
+        ? {
+            status: "approved",
+            approved_at: new Date().toISOString(),
+            approved_by: "admin",
+          }
+        : {
+            status: "rejected",
+            rejected_at: new Date().toISOString(),
+            rejected_by: "admin",
+          }
+
+    console.log(`[v0] API: Updating registration status to ${action}ed...`)
+    const { error: updateError } = await adminClient
+      .from("pending_registrations")
+      .update(updateData)
+      .eq("id", registrationId)
+
+    if (updateError) {
+      console.error("[v0] API: Update error:", updateError)
+      return NextResponse.json(
+        {
+          error: `Failed to ${action} registration`,
+          details: updateError.message,
+        },
+        { status: 500 },
+      )
+    }
+
+    console.log(`[v0] API: Registration ${action}ed successfully`)
+    return NextResponse.json({
+      success: true,
+      message: `Registration ${action}ed successfully.`,
+      registrationId,
+    })
+  } catch (error) {
+    console.error("[v0] API: Unexpected error:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      error,
+    })
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }
