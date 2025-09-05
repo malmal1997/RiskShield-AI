@@ -45,101 +45,92 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<any | null>(null)
   const [organization, setOrganization] = useState<any | null>(null)
   const [role, setRole] = useState<any | null>(null)
-  const [loading, setLoading] = useState(typeof window === "undefined" ? false : true)
+  const [loading, setLoading] = useState(false) // Start with false to prevent hydration issues
   const [isDemo, setIsDemo] = useState(false)
 
   const refreshProfile = useCallback(async () => {
-    setLoading(true) // Start loading
+    if (typeof window === "undefined") {
+      return // Exit early on server
+    }
 
-    // Only attempt sessionStorage access and Supabase auth if mounted on client
-    if (typeof window !== "undefined") {
-      const demoSession = sessionStorage.getItem("demo_session")
-      console.log("AuthContext: Checking sessionStorage for demo_session:", demoSession)
+    setLoading(true)
 
-      if (demoSession) {
-        try {
-          const session: DemoSession = JSON.parse(demoSession)
-          setUser(session.user)
-          setOrganization(session.organization)
-          setRole({ role: session.role, permissions: { all: true } })
-          setProfile({
-            first_name: "Demo",
-            last_name: "User",
-            organization_id: session.organization.id,
-            avatar_url: "/placeholder.svg?height=32&width=32",
-          })
-          setIsDemo(true)
-          setLoading(false) // Demo session found and set, stop loading
-          return // Exit early if demo session is valid
-        } catch (error) {
-          console.error("AuthContext: Error parsing demo session:", error)
-          sessionStorage.removeItem("demo_session")
-          // Fall through to Supabase check if demo session was invalid
-        }
-      }
+    const demoSession = sessionStorage.getItem("demo_session")
+    console.log("[v0] AuthContext: Checking sessionStorage for demo_session:", demoSession)
 
-      // If no valid demo session, proceed with Supabase auth
+    if (demoSession) {
       try {
-        const {
-          data: { user: supabaseUser }, // Rename to avoid conflict
-          error: userError,
-        } = await supabaseClient.auth.getUser()
-
-        if (userError || !supabaseUser) {
-          setUser(null)
-          setProfile(null)
-          setOrganization(null)
-          setRole(null)
-          setIsDemo(false)
-        } else {
-          // Get user profile from Supabase
-          const { data: profileData, error: profileError } = await supabaseClient
-            .from("user_profiles")
-            .select("*")
-            .eq("user_id", supabaseUser.id)
-            .single()
-
-          if (profileError || !profileData) {
-            setUser(supabaseUser)
-            setProfile(null)
-            setOrganization(null)
-            setRole(null)
-            setIsDemo(false)
-          } else {
-            // Get organization
-            const { data: organizationData, error: orgError } = await supabaseClient
-              .from("organizations")
-              .select("*")
-              .eq("id", profileData.organization_id)
-              .single()
-
-            // Get user role
-            const { data: roleData, error: roleError } = await supabaseClient
-              .from("user_roles")
-              .select("*")
-              .eq("user_id", supabaseUser.id)
-              .eq("organization_id", profileData.organization_id)
-              .single()
-
-            setUser(supabaseUser)
-            setProfile(profileData)
-            setOrganization(orgError ? null : organizationData)
-            setRole(roleError ? null : roleData)
-            setIsDemo(false)
-          }
-        }
+        const session: DemoSession = JSON.parse(demoSession)
+        console.log("[v0] AuthContext: Demo session found, setting demo user")
+        setUser(session.user)
+        setOrganization(session.organization)
+        setRole({ role: session.role, permissions: { all: true } })
+        setProfile({
+          first_name: "Demo",
+          last_name: "User",
+          organization_id: session.organization.id,
+          avatar_url: "/placeholder.svg?height=32&width=32",
+        })
+        setIsDemo(true)
+        setLoading(false)
+        return
       } catch (error) {
-        console.error("AuthContext: Error getting user with profile:", error)
+        console.error("[v0] AuthContext: Error parsing demo session:", error)
+        sessionStorage.removeItem("demo_session")
+      }
+    }
+
+    try {
+      const {
+        data: { user: supabaseUser },
+        error: userError,
+      } = await supabaseClient.auth.getUser()
+
+      if (userError || !supabaseUser) {
+        console.log("[v0] AuthContext: No Supabase user found")
         setUser(null)
         setProfile(null)
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
-      } finally {
-        setLoading(false) // Ensure loading is always set to false after all attempts
+      } else {
+        console.log("[v0] AuthContext: Supabase user found, fetching profile")
+        // Get user profile from Supabase
+        const { data: profileData, error: profileError } = await supabaseClient
+          .from("user_profiles")
+          .select("*")
+          .eq("user_id", supabaseUser.id)
+          .single()
+
+        if (profileError || !profileData) {
+          console.log("[v0] AuthContext: No profile found for user")
+          setUser(supabaseUser)
+          setProfile(null)
+          setOrganization(null)
+          setRole(null)
+          setIsDemo(false)
+        } else {
+          // Get organization and role data
+          const [orgResult, roleResult] = await Promise.all([
+            supabaseClient.from("organizations").select("*").eq("id", profileData.organization_id).single(),
+            supabaseClient.from("user_roles").select("*").eq("user_id", supabaseUser.id).single(),
+          ])
+
+          setUser(supabaseUser)
+          setProfile(profileData)
+          setOrganization(orgResult.error ? null : orgResult.data)
+          setRole(roleResult.error ? null : roleResult.data)
+          setIsDemo(false)
+        }
       }
-    } else {
-      // On server, ensure loading is false after initial render
+    } catch (error) {
+      console.error("[v0] AuthContext: Error in auth check:", error)
+      setUser(null)
+      setProfile(null)
+      setOrganization(null)
+      setRole(null)
+      setIsDemo(false)
+    } finally {
       setLoading(false)
     }
   }, [])
@@ -147,42 +138,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let subscription: any = null
 
-    // Only call refreshProfile and set up listener if on client
     if (typeof window !== "undefined") {
-      const getInitialSession = async () => {
-        await refreshProfile()
-      }
-      getInitialSession()
+      refreshProfile()
 
       const {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        console.log("AuthContext: Auth state change event:", event)
-        if (session?.user) {
-          await refreshProfile()
-        } else {
-          // If signed out, clear all state and set loading to false
+        console.log("[v0] AuthContext: Auth state change event:", event)
+        if (event === "SIGNED_OUT") {
           setUser(null)
           setProfile(null)
           setOrganization(null)
           setRole(null)
           setIsDemo(false)
           setLoading(false)
+        } else if (session?.user) {
+          await refreshProfile()
         }
       })
       subscription = authSubscription
-    } else {
-      // On server, ensure loading is false after initial render
-      setLoading(false)
     }
 
     return () => {
-      if (subscription && typeof subscription.unsubscribe === "function") {
-        try {
-          subscription.unsubscribe()
-        } catch (error) {
-          console.error("AuthContext: Error unsubscribing from auth changes:", error)
-        }
+      if (subscription?.unsubscribe) {
+        subscription.unsubscribe()
       }
     }
   }, [refreshProfile])

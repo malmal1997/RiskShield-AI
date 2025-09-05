@@ -73,31 +73,35 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 500)) // Reduced delay
 
-      sessionStorage.setItem(
-        "demo_session",
-        JSON.stringify({
-          user: {
-            id: "demo-user-id",
-            email: "demo@riskshield.ai",
-            name: "Demo User",
-          },
-          organization: {
-            id: "demo-org-id",
-            name: "RiskShield Demo Organization",
-            plan: "enterprise",
-          },
-          role: "admin",
-          loginTime: new Date().toISOString(),
-        }),
-      )
+      sessionStorage.removeItem("demo_session")
 
-      // Refresh auth context to pick up demo session
+      const demoSession = {
+        user: {
+          id: "demo-user-id",
+          email: "demo@riskshield.ai",
+          name: "Demo User",
+        },
+        organization: {
+          id: "demo-org-id",
+          name: "RiskShield Demo Organization",
+          plan: "enterprise",
+        },
+        role: "admin",
+        loginTime: new Date().toISOString(),
+      }
+
+      sessionStorage.setItem("demo_session", JSON.stringify(demoSession))
+      console.log("[v0] Demo session created:", demoSession)
+
       await refreshProfile()
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       router.push("/admin-dashboard")
     } catch (err) {
+      console.error("[v0] Demo login error:", err)
       setError("Demo login failed. Please try again.")
     } finally {
       setIsLoading(false)

@@ -52,12 +52,32 @@ function AdminDashboardContent() {
     try {
       console.log("[v0] Fetching pending registrations...")
       const supabase = createClient()
+
+      console.log("[v0] Supabase client created:", !!supabase)
+
+      // First, let's check if we can connect to the database at all
+      const { data: testData, error: testError } = await supabase
+        .from("pending_registrations")
+        .select("count", { count: "exact" })
+
+      console.log("[v0] Database connection test:", { testData, testError })
+
+      // Now fetch all registrations (not just pending) to see if there's any data
+      const { data: allData, error: allError } = await supabase
+        .from("pending_registrations")
+        .select("*")
+        .order("created_at", { ascending: false })
+
+      console.log("[v0] All registrations in database:", { allData, allError })
+
+      // Finally, fetch only pending ones
       const { data, error } = await supabase
         .from("pending_registrations")
         .select("*")
         .eq("status", "pending")
         .order("created_at", { ascending: false })
 
+      console.log("[v0] Pending registrations query:", { data, error })
       console.log("[v0] Supabase response:", { data, error })
 
       if (error) throw error
