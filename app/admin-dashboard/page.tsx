@@ -17,7 +17,7 @@ import {
   XCircle,
   Clock,
 } from "lucide-react"
-import { AuthGuard } from "@/components/auth-guard"
+import { AdminGuard } from "@/components/admin-guard"
 import { useAuth } from "@/components/auth-context"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
@@ -37,9 +37,9 @@ interface PendingRegistration {
 
 export default function AdminDashboard() {
   return (
-    <AuthGuard>
+    <AdminGuard>
       <AdminDashboardContent />
-    </AuthGuard>
+    </AdminGuard>
   )
 }
 

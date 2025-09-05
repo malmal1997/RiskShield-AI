@@ -54,8 +54,7 @@ export default function LoginPage() {
         // Refresh auth context to pick up demo session
         await refreshProfile()
 
-        // Navigate to dashboard
-        router.push("/dashboard")
+        router.push("/admin-dashboard")
         return
       }
 
@@ -97,8 +96,7 @@ export default function LoginPage() {
       // Refresh auth context to pick up demo session
       await refreshProfile()
 
-      // Navigate to dashboard
-      router.push("/dashboard")
+      router.push("/admin-dashboard")
     } catch (err) {
       setError("Demo login failed. Please try again.")
     } finally {
