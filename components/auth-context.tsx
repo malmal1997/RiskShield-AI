@@ -36,7 +36,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
   hasPermission: (permission: string) => boolean
-  createDemoSession: (userType: "admin" | "user" = "user") => void
+  createDemoSession: (userType?: "admin" | "user") => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false) // Start with false to prevent hydration issues
   const [isDemo, setIsDemo] = useState(false)
 
-  const createDemoSession = useCallback((userType: "admin" | "user" = "user") => {
+  const createDemoSession = useCallback((userType?: "admin" | "user") => {
     if (typeof window === "undefined") return
 
     const demoSession: DemoSession = {
