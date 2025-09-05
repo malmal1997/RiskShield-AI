@@ -79,7 +79,6 @@ export async function POST(request: NextRequest) {
 
       const { data: authUser, error: authError } = await adminClient.auth.admin.createUser({
         email: registration.email,
-        password: registration.password_hash, // Use the original password from registration
         email_confirm: true, // Auto-confirm email
         user_metadata: {
           full_name: registration.contact_name,
@@ -101,7 +100,17 @@ export async function POST(request: NextRequest) {
 
       console.log("[v0] API: Auth user created:", authUser.user?.id)
 
-      // No need for password reset email - user can login immediately
+      const { error: resetError } = await adminClient.auth.admin.generateLink({
+        type: "recovery",
+        email: registration.email,
+      })
+
+      if (resetError) {
+        console.error("[v0] API: Password reset email error:", resetError)
+        // Continue with approval even if password reset fails
+      } else {
+        console.log("[v0] API: Password reset email sent to:", registration.email)
+      }
 
       // Create user profile
       const { error: profileError } = await adminClient.from("user_profiles").insert({
@@ -168,7 +177,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message:
         action === "approve"
-          ? `Registration approved and user account created successfully. You can now login with your original credentials.`
+          ? `Registration approved and user account created successfully. Please check your email for a password reset link to set your password.`
           : `Registration rejected successfully.`,
       registrationId,
     })
