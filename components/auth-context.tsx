@@ -52,6 +52,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const createDemoSession = useCallback((userType?: "admin" | "user") => {
     if (typeof window === "undefined") return
 
+    console.log("[v0] AuthContext: Creating demo session for", userType)
+
     const demoSession: DemoSession = {
       user: {
         id: userType === "admin" ? "demo-admin-001" : "demo-user-001",
@@ -67,27 +69,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loginTime: new Date().toISOString(),
     }
 
-    sessionStorage.setItem("demo_session", JSON.stringify(demoSession))
-    console.log("[v0] AuthContext: Created demo session for", userType, demoSession)
+    try {
+      sessionStorage.setItem("demo_session", JSON.stringify(demoSession))
+      console.log("[v0] AuthContext: Demo session stored in sessionStorage")
+
+      // Verify it was stored
+      const stored = sessionStorage.getItem("demo_session")
+      console.log("[v0] AuthContext: Verification - stored session:", stored)
+    } catch (error) {
+      console.error("[v0] AuthContext: Error storing demo session:", error)
+      return
+    }
 
     // Immediately set the auth state
-    setUser(demoSession.user)
-    setOrganization(demoSession.organization)
-    setRole({
+    const demoRole = {
       role: demoSession.role,
       permissions:
         userType === "admin"
           ? ["manage_users", "manage_assessments", "manage_organizations", "view_analytics"]
           : ["view_assessments"],
-    })
-    setProfile({
+    }
+
+    const demoProfile = {
       first_name: userType === "admin" ? "Demo" : "Demo",
       last_name: userType === "admin" ? "Admin" : "User",
       organization_id: demoSession.organization.id,
       avatar_url: "/placeholder.svg?height=32&width=32",
-    })
+    }
+
+    console.log("[v0] AuthContext: Setting auth state - user:", demoSession.user)
+    console.log("[v0] AuthContext: Setting auth state - role:", demoRole)
+    console.log("[v0] AuthContext: Setting auth state - isDemo:", true)
+
+    setUser(demoSession.user)
+    setOrganization(demoSession.organization)
+    setRole(demoRole)
+    setProfile(demoProfile)
     setIsDemo(true)
     setLoading(false)
+
+    console.log("[v0] AuthContext: Demo session created successfully")
   }, [])
 
   const refreshProfile = useCallback(async () => {
@@ -95,6 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
+    console.log("[v0] AuthContext: refreshProfile called")
     setLoading(true)
 
     const demoSession = sessionStorage.getItem("demo_session")
@@ -103,24 +125,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (demoSession) {
       try {
         const session: DemoSession = JSON.parse(demoSession)
-        console.log("[v0] AuthContext: Demo session found, setting demo user")
-        setUser(session.user)
-        setOrganization(session.organization)
-        setRole({
+        console.log("[v0] AuthContext: Demo session found, setting demo user:", session)
+
+        const demoRole = {
           role: session.role,
           permissions:
             session.role === "admin"
               ? ["manage_users", "manage_assessments", "manage_organizations", "view_analytics"]
               : ["view_assessments"],
-        })
-        setProfile({
+        }
+
+        const demoProfile = {
           first_name: session.role === "admin" ? "Demo" : "Demo",
           last_name: session.role === "admin" ? "Admin" : "User",
           organization_id: session.organization.id,
           avatar_url: "/placeholder.svg?height=32&width=32",
-        })
+        }
+
+        setUser(session.user)
+        setOrganization(session.organization)
+        setRole(demoRole)
+        setProfile(demoProfile)
         setIsDemo(true)
         setLoading(false)
+
+        console.log("[v0] AuthContext: Demo auth state set successfully")
         return
       } catch (error) {
         console.error("[v0] AuthContext: Error parsing demo session:", error)
@@ -253,7 +282,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("[v0] AuthContext: Admin or demo user, granting permission:", permission)
       return true
     }
-    return role.permissions && (role.permissions[permission] === true || role.permissions.all === true)
+    return role.permissions && (role.permissions.includes(permission) || role.permissions === "all")
   }
 
   const value = {

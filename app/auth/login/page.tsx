@@ -33,8 +33,7 @@ export default function LoginPage() {
         console.log("[v0] Login: Creating admin demo session")
         createDemoSession("admin")
 
-        // Small delay to ensure state is updated
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 500))
 
         router.push("/admin-dashboard")
         return
@@ -53,14 +52,16 @@ export default function LoginPage() {
     setEmail("demo@riskshield.ai")
     setPassword("demo123")
     setIsLoading(true)
+    setError("")
 
     try {
       console.log("[v0] Login: Demo button clicked, creating admin session")
+
       createDemoSession("admin")
 
-      // Small delay to ensure state is updated
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
+      console.log("[v0] Login: Navigating to admin dashboard")
       router.push("/admin-dashboard")
     } catch (err) {
       console.error("[v0] Demo login error:", err)
