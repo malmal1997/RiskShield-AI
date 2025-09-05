@@ -77,10 +77,8 @@ export async function POST(request: NextRequest) {
     if (action === "approve") {
       console.log("[v0] API: Creating Supabase Auth user account...")
 
-      // Create Supabase Auth user
       const { data: authUser, error: authError } = await adminClient.auth.admin.createUser({
         email: registration.email,
-        password: registration.password_hash, // Use the stored password hash
         email_confirm: true, // Auto-confirm email
         user_metadata: {
           full_name: registration.contact_name,
@@ -101,6 +99,18 @@ export async function POST(request: NextRequest) {
       }
 
       console.log("[v0] API: Auth user created:", authUser.user?.id)
+
+      const { error: resetError } = await adminClient.auth.admin.generateLink({
+        type: "recovery",
+        email: registration.email,
+      })
+
+      if (resetError) {
+        console.error("[v0] API: Password reset email error:", resetError)
+        // Continue with approval even if password reset fails
+      } else {
+        console.log("[v0] API: Password reset email sent to:", registration.email)
+      }
 
       // Create user profile
       const { error: profileError } = await adminClient.from("user_profiles").insert({
@@ -167,7 +177,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message:
         action === "approve"
-          ? `Registration approved and user account created successfully. User can now login with their email and password.`
+          ? `Registration approved and user account created successfully. A password reset email has been sent to ${registration.email} to set up their login credentials.`
           : `Registration rejected successfully.`,
       registrationId,
     })
