@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,8 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Shield, Eye, EyeOff, CheckCircle, RefreshCw } from "lucide-react" // Added RefreshCw for spinner
+import { Shield, Eye, EyeOff, CheckCircle, RefreshCw } from "lucide-react"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -47,11 +47,32 @@ export default function RegisterPage() {
     }
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const supabase = createClient()
+
+      // Hash the password (in production, this should be done server-side)
+      const passwordHash = btoa(formData.password) // Simple encoding for demo - use proper hashing in production
+
+      const { error: insertError } = await supabase.from("pending_registrations").insert({
+        institution_name: formData.institutionName,
+        institution_type: formData.institutionType,
+        contact_name: formData.contactName,
+        email: formData.email,
+        phone: formData.phone,
+        password_hash: passwordHash,
+        status: "pending",
+      })
+
+      if (insertError) {
+        if (insertError.code === "23505") {
+          // Unique constraint violation
+          throw new Error("An account with this email already exists or is pending approval.")
+        }
+        throw insertError
+      }
+
       setSuccess(true)
-    } catch (err) {
-      setError("An error occurred. Please try again.")
+    } catch (err: any) {
+      setError(err.message || "An error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }

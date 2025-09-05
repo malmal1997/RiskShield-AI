@@ -1,12 +1,39 @@
 "use client"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Users, Send, BarChart3, Settings, Building, FileText, Plus, Server } from "lucide-react"
+import {
+  Shield,
+  Users,
+  Send,
+  BarChart3,
+  Settings,
+  Building,
+  FileText,
+  Plus,
+  Server,
+  CheckCircle,
+  XCircle,
+  Clock,
+} from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
+import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
-// Removed: import { MainNavigation } from "@/components/main-navigation" // Import MainNavigation
+
+interface PendingRegistration {
+  id: string
+  institution_name: string
+  institution_type: string
+  contact_name: string
+  email: string
+  phone: string
+  status: string
+  created_at: string
+  notes?: string
+  password_hash: string
+}
 
 export default function AdminDashboard() {
   return (
@@ -18,12 +45,105 @@ export default function AdminDashboard() {
 
 function AdminDashboardContent() {
   const { user, profile, organization, signOut } = useAuth()
+  const [pendingRegistrations, setPendingRegistrations] = useState<PendingRegistration[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const fetchPendingRegistrations = async () => {
+    try {
+      console.log("[v0] Fetching pending registrations...")
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("pending_registrations")
+        .select("*")
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+
+      console.log("[v0] Supabase response:", { data, error })
+
+      if (error) throw error
+      setPendingRegistrations(data || [])
+      console.log("[v0] Set pending registrations:", data?.length || 0)
+    } catch (error) {
+      console.error("[v0] Error fetching pending registrations:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const approveRegistration = async (registration: PendingRegistration) => {
+    try {
+      const supabase = createClient()
+
+      // First, create the actual user account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: registration.email,
+        password: atob(registration.password_hash), // Decode the password (in production, use proper password handling)
+        options: {
+          data: {
+            institution_name: registration.institution_name,
+            contact_name: registration.contact_name,
+            phone: registration.phone,
+          },
+        },
+      })
+
+      if (authError) throw authError
+
+      // Update the registration status
+      const { error: updateError } = await supabase
+        .from("pending_registrations")
+        .update({
+          status: "approved",
+          approved_by: user?.id,
+          approved_at: new Date().toISOString(),
+        })
+        .eq("id", registration.id)
+
+      if (updateError) throw updateError
+
+      // Refresh the list
+      fetchPendingRegistrations()
+
+      alert(`Registration approved for ${registration.institution_name}`)
+    } catch (error: any) {
+      console.error("Error approving registration:", error)
+      alert(`Error approving registration: ${error.message}`)
+    }
+  }
+
+  const rejectRegistration = async (registration: PendingRegistration, reason: string) => {
+    try {
+      const supabase = createClient()
+
+      const { error } = await supabase
+        .from("pending_registrations")
+        .update({
+          status: "rejected",
+          rejected_by: user?.id,
+          rejected_at: new Date().toISOString(),
+          rejection_reason: reason,
+        })
+        .eq("id", registration.id)
+
+      if (error) throw error
+
+      // Refresh the list
+      fetchPendingRegistrations()
+
+      alert(`Registration rejected for ${registration.institution_name}`)
+    } catch (error: any) {
+      console.error("Error rejecting registration:", error)
+      alert(`Error rejecting registration: ${error.message}`)
+    }
+  }
+
+  useEffect(() => {
+    console.log("[v0] Admin dashboard mounted, user:", user?.email)
+    fetchPendingRegistrations()
+  }, [])
 
   return (
     <div className="bg-gray-50">
-      {/* Header */}
-      {/* MainNavigation is now in RootLayout */}
-
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -31,7 +151,87 @@ function AdminDashboardContent() {
           <p className="mt-2 text-gray-600">
             Manage your vendor risk assessments, monitor compliance, and oversee third-party relationships.
           </p>
+          <div className="mt-2 text-sm text-gray-500">
+            Logged in as: {user?.email} | Loading: {isLoading ? "Yes" : "No"} | Pending: {pendingRegistrations.length}
+          </div>
         </div>
+
+        {isLoading && (
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <p>Loading pending registrations...</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {!isLoading && pendingRegistrations.length === 0 && (
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <p className="text-gray-600">No pending registrations found. Check the browser console for debug info.</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {pendingRegistrations.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Clock className="h-5 w-5 text-orange-500" />
+                <span>Pending Registration Approvals ({pendingRegistrations.length})</span>
+              </CardTitle>
+              <CardDescription>New institution registration requests awaiting your approval</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {pendingRegistrations.map((registration) => (
+                  <div
+                    key={registration.id}
+                    className="flex items-center justify-between p-4 bg-orange-50 rounded-lg border"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-4">
+                        <div>
+                          <p className="font-medium text-gray-900">{registration.institution_name}</p>
+                          <p className="text-sm text-gray-600">{registration.institution_type}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{registration.contact_name}</p>
+                          <p className="text-sm text-gray-600">{registration.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">
+                            Submitted: {new Date(registration.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        size="sm"
+                        onClick={() => approveRegistration(registration)}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <CheckCircle className="mr-1 h-4 w-4" />
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => {
+                          const reason = prompt("Reason for rejection (optional):") || "No reason provided"
+                          rejectRegistration(registration, reason)
+                        }}
+                      >
+                        <XCircle className="mr-1 h-4 w-4" />
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -120,7 +320,7 @@ function AdminDashboardContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   <Building className="mr-2 h-4 w-4" />
                   View All Vendors
                 </Button>
@@ -139,7 +339,7 @@ function AdminDashboardContent() {
                 <CardDescription>View real-time analytics, risk trends, and comprehensive reporting</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   <BarChart3 className="mr-2 h-4 w-4" />
                   View Analytics
                 </Button>
@@ -160,7 +360,7 @@ function AdminDashboardContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   <Settings className="mr-2 h-4 w-4" />
                   Configure Settings
                 </Button>
@@ -181,7 +381,7 @@ function AdminDashboardContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   <FileText className="mr-2 h-4 w-4" />
                   View Reports
                 </Button>
@@ -199,7 +399,7 @@ function AdminDashboardContent() {
               <CardDescription>Access documentation, training materials, and technical support</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full bg-transparent">
                 <Shield className="mr-2 h-4 w-4" />
                 Get Support
               </Button>
@@ -217,7 +417,7 @@ function AdminDashboardContent() {
                 <CardDescription>Access system metrics, logs, and performance data (Admin only)</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   <Server className="mr-2 h-4 w-4" />
                   View Dev Dashboard
                 </Button>
