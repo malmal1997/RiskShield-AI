@@ -19,7 +19,6 @@ import {
 } from "lucide-react"
 // import { AdminGuard } from "@/components/admin-guard"
 import { useAuth } from "@/components/auth-context"
-import { createAdminClient } from "@/lib/supabase/admin-client"
 import Link from "next/link"
 
 interface PendingRegistration {
@@ -47,44 +46,26 @@ function AdminDashboardContent() {
 
   const fetchPendingRegistrations = async () => {
     try {
-      console.log("[v0] Fetching pending registrations...")
-      const supabase = createAdminClient()
+      console.log("[v0] Fetching pending registrations via API...")
+      setIsLoading(true)
 
-      console.log("[v0] Supabase admin client created:", !!supabase)
+      const response = await fetch("/api/admin/registrations")
+      const result = await response.json()
 
-      const { data: tableInfo, error: tableError } = await supabase.from("pending_registrations").select("*").limit(1)
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to fetch registrations")
+      }
 
-      console.log("[v0] Table structure check:", { tableInfo, tableError })
+      console.log("[v0] API response:", result)
+      const registrations = result.registrations || []
 
-      // First, let's check if we can connect to the database at all
-      const { data: testData, error: testError } = await supabase
-        .from("pending_registrations")
-        .select("count", { count: "exact" })
+      setPendingRegistrations(registrations.filter((r: PendingRegistration) => r.status === "pending"))
+      setAllRegistrations(registrations)
 
-      console.log("[v0] Database connection test:", { testData, testError })
-
-      // Now fetch all registrations (not just pending) to see if there's any data
-      const { data: allData, error: allError } = await supabase
-        .from("pending_registrations")
-        .select("*")
-        .order("created_at", { ascending: false })
-
-      console.log("[v0] All registrations in database:", { allData, allError })
-      setAllRegistrations(allData || [])
-
-      // Finally, fetch only pending ones
-      const { data, error } = await supabase
-        .from("pending_registrations")
-        .select("*")
-        .eq("status", "pending")
-        .order("created_at", { ascending: false })
-
-      console.log("[v0] Pending registrations query:", { data, error })
-      console.log("[v0] Supabase response:", { data, error })
-
-      if (error) throw error
-      setPendingRegistrations(data || [])
-      console.log("[v0] Set pending registrations:", data?.length || 0)
+      console.log(
+        "[v0] Set pending registrations:",
+        registrations.filter((r: PendingRegistration) => r.status === "pending").length,
+      )
     } catch (error) {
       console.error("[v0] Error fetching pending registrations:", error)
     } finally {
@@ -94,26 +75,29 @@ function AdminDashboardContent() {
 
   const createTestRegistration = async () => {
     try {
-      const supabase = createAdminClient()
       const testData = {
-        institution_name: "Test Institution",
+        institution_name: "Test Institution " + Date.now(),
         institution_type: "Bank",
         contact_name: "Test Contact",
-        email: "test@example.com",
+        email: `test${Date.now()}@example.com`,
         phone: "555-0123",
         password_hash: btoa("testpassword123"),
         status: "pending",
       }
 
-      const { data, error } = await supabase.from("pending_registrations").insert(testData).select()
+      const response = await fetch("/api/admin/registrations/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(testData),
+      })
 
-      console.log("[v0] Test registration created:", { data, error })
+      const result = await response.json()
 
-      if (!error) {
+      if (response.ok) {
         alert("Test registration created successfully!")
         fetchPendingRegistrations()
       } else {
-        alert(`Error creating test registration: ${error.message}`)
+        alert(`Error creating test registration: ${result.error}`)
       }
     } catch (error: any) {
       console.error("[v0] Error creating test registration:", error)
@@ -123,38 +107,20 @@ function AdminDashboardContent() {
 
   const approveRegistration = async (registration: PendingRegistration) => {
     try {
-      const supabase = createAdminClient()
-
-      // First, create the actual user account
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: registration.email,
-        password: atob(registration.password_hash), // Decode the password (in production, use proper password handling)
-        user_metadata: {
-          institution_name: registration.institution_name,
-          contact_name: registration.contact_name,
-          phone: registration.phone,
-        },
-        email_confirm: true, // Auto-confirm email for admin-created users
+      const response = await fetch("/api/admin/registrations/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ registrationId: registration.id }),
       })
 
-      if (authError) throw authError
+      const result = await response.json()
 
-      // Update the registration status
-      const { error: updateError } = await supabase
-        .from("pending_registrations")
-        .update({
-          status: "approved",
-          approved_by: user?.id || "admin",
-          approved_at: new Date().toISOString(),
-        })
-        .eq("id", registration.id)
-
-      if (updateError) throw updateError
-
-      // Refresh the list
-      fetchPendingRegistrations()
-
-      alert(`Registration approved for ${registration.institution_name}`)
+      if (response.ok) {
+        alert(`Registration approved for ${registration.institution_name}`)
+        fetchPendingRegistrations()
+      } else {
+        alert(`Error approving registration: ${result.error}`)
+      }
     } catch (error: any) {
       console.error("Error approving registration:", error)
       alert(`Error approving registration: ${error.message}`)
@@ -163,24 +129,20 @@ function AdminDashboardContent() {
 
   const rejectRegistration = async (registration: PendingRegistration, reason: string) => {
     try {
-      const supabase = createAdminClient()
+      const response = await fetch("/api/admin/registrations/reject", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ registrationId: registration.id, reason }),
+      })
 
-      const { error } = await supabase
-        .from("pending_registrations")
-        .update({
-          status: "rejected",
-          rejected_by: user?.id || "admin",
-          rejected_at: new Date().toISOString(),
-          rejection_reason: reason,
-        })
-        .eq("id", registration.id)
+      const result = await response.json()
 
-      if (error) throw error
-
-      // Refresh the list
-      fetchPendingRegistrations()
-
-      alert(`Registration rejected for ${registration.institution_name}`)
+      if (response.ok) {
+        alert(`Registration rejected for ${registration.institution_name}`)
+        fetchPendingRegistrations()
+      } else {
+        alert(`Error rejecting registration: ${result.error}`)
+      }
     } catch (error: any) {
       console.error("Error rejecting registration:", error)
       alert(`Error rejecting registration: ${error.message}`)
