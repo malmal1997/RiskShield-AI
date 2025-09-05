@@ -1,34 +1,37 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-if (!supabaseUrl) {
-  throw new Error("NEXT_PUBLIC_SUPABASE_URL is required")
-}
-
-if (!supabaseServiceKey) {
-  throw new Error("SUPABASE_SERVICE_ROLE_KEY is required")
-}
-
-console.log("[v0] API: Environment check passed", {
-  hasUrl: !!supabaseUrl,
-  hasServiceKey: !!supabaseServiceKey,
-  urlLength: supabaseUrl?.length || 0,
-  keyLength: supabaseServiceKey?.length || 0,
-})
-
-const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-})
-
 export async function POST(request: NextRequest) {
   try {
     console.log("[v0] API: Approval request started")
+
+    // Runtime environment validation
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl) {
+      console.error("[v0] API: NEXT_PUBLIC_SUPABASE_URL is missing")
+      return NextResponse.json({ error: "Server configuration error: Missing Supabase URL" }, { status: 500 })
+    }
+
+    if (!supabaseServiceKey) {
+      console.error("[v0] API: SUPABASE_SERVICE_ROLE_KEY is missing")
+      return NextResponse.json({ error: "Server configuration error: Missing service key" }, { status: 500 })
+    }
+
+    console.log("[v0] API: Environment check passed", {
+      hasUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey,
+      urlLength: supabaseUrl?.length || 0,
+      keyLength: supabaseServiceKey?.length || 0,
+    })
+
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
 
     let requestBody
     try {
