@@ -4,12 +4,20 @@ import { createClient } from "@supabase/supabase-js"
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error("[v0] API: Missing environment variables", {
-    hasUrl: !!supabaseUrl,
-    hasServiceKey: !!supabaseServiceKey,
-  })
+if (!supabaseUrl) {
+  throw new Error("NEXT_PUBLIC_SUPABASE_URL is required")
 }
+
+if (!supabaseServiceKey) {
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY is required")
+}
+
+console.log("[v0] API: Environment check passed", {
+  hasUrl: !!supabaseUrl,
+  hasServiceKey: !!supabaseServiceKey,
+  urlLength: supabaseUrl?.length || 0,
+  keyLength: supabaseServiceKey?.length || 0,
+})
 
 const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
@@ -22,7 +30,15 @@ export async function POST(request: NextRequest) {
   try {
     console.log("[v0] API: Approval request started")
 
-    const { registrationId } = await request.json()
+    let requestBody
+    try {
+      requestBody = await request.json()
+    } catch (parseError) {
+      console.error("[v0] API: Failed to parse request body:", parseError)
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+    }
+
+    const { registrationId } = requestBody
 
     if (!registrationId) {
       console.log("[v0] API: Missing registration ID")
@@ -30,6 +46,35 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("[v0] API: Approving registration:", registrationId)
+
+    try {
+      const { data: testData, error: testError } = await adminClient
+        .from("pending_registrations")
+        .select("count")
+        .limit(1)
+
+      if (testError) {
+        console.error("[v0] API: Admin client connection test failed:", testError)
+        return NextResponse.json(
+          {
+            error: "Database connection failed",
+            details: testError.message,
+          },
+          { status: 500 },
+        )
+      }
+
+      console.log("[v0] API: Admin client connection test passed")
+    } catch (connectionError) {
+      console.error("[v0] API: Admin client connection error:", connectionError)
+      return NextResponse.json(
+        {
+          error: "Database connection error",
+          details: connectionError instanceof Error ? connectionError.message : "Unknown connection error",
+        },
+        { status: 500 },
+      )
+    }
 
     // Get the registration details
     const { data: registration, error: fetchError } = await adminClient
