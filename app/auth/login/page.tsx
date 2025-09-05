@@ -12,6 +12,7 @@ import { Shield, Eye, EyeOff, Play, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth-context"
+import { createClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -28,21 +29,44 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // Check for demo credentials
+      // Check for demo credentials first
       if (email === "demo@riskshield.ai" && password === "demo123") {
         console.log("[v0] Login: Creating admin demo session")
         createDemoSession("admin")
-
         await new Promise((resolve) => setTimeout(resolve, 500))
-
         router.push("/admin-dashboard")
         return
       }
 
-      // For other credentials, show the configuration message
-      setError("Authentication system not yet configured. Use demo credentials: demo@riskshield.ai / demo123")
+      console.log("[v0] Login: Attempting Supabase authentication for:", email)
+      const supabase = createClient()
+
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      })
+
+      if (authError) {
+        console.log("[v0] Login: Supabase auth error:", authError.message)
+        setError("Invalid email or password. Please check your credentials or contact your administrator.")
+        return
+      }
+
+      if (data.user) {
+        console.log("[v0] Login: Supabase authentication successful for:", data.user.email)
+
+        // Refresh the auth context to pick up the new user
+        await refreshProfile()
+
+        // Navigate to dashboard
+        router.push("/dashboard")
+        return
+      }
+
+      setError("Authentication failed. Please try again.")
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      console.error("[v0] Login error:", err)
+      setError("An error occurred during login. Please try again.")
     } finally {
       setIsLoading(false)
     }
