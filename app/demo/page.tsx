@@ -15,8 +15,8 @@ import {
   Pause,
   RotateCcw,
   TrendingUp,
-  Settings, // Added Settings icon
-  BarChart3, // Added BarChart3 icon
+  Settings,
+  BarChart3,
 } from "lucide-react"
 import Link from "next/link" // Import Link
 
@@ -287,7 +287,8 @@ export default function InteractiveDemo() {
                 ⚠️ RiskShield AI may make mistakes. Please use with discretion.
               </p>
             </div>
-          </CardContent>
+          </div>
+        </CardContent>
       </Card>
     </div>
   )
