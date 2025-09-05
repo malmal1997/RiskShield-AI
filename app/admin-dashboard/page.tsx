@@ -19,7 +19,7 @@ import {
 } from "lucide-react"
 // import { AdminGuard } from "@/components/admin-guard"
 import { useAuth } from "@/components/auth-context"
-import { createClient } from "@/lib/supabase/client"
+import { createAdminClient } from "@/lib/supabase/admin-client"
 import Link from "next/link"
 
 interface PendingRegistration {
@@ -48,9 +48,9 @@ function AdminDashboardContent() {
   const fetchPendingRegistrations = async () => {
     try {
       console.log("[v0] Fetching pending registrations...")
-      const supabase = createClient()
+      const supabase = createAdminClient()
 
-      console.log("[v0] Supabase client created:", !!supabase)
+      console.log("[v0] Supabase admin client created:", !!supabase)
 
       const { data: tableInfo, error: tableError } = await supabase.from("pending_registrations").select("*").limit(1)
 
@@ -94,7 +94,7 @@ function AdminDashboardContent() {
 
   const createTestRegistration = async () => {
     try {
-      const supabase = createClient()
+      const supabase = createAdminClient()
       const testData = {
         institution_name: "Test Institution",
         institution_type: "Bank",
@@ -123,19 +123,18 @@ function AdminDashboardContent() {
 
   const approveRegistration = async (registration: PendingRegistration) => {
     try {
-      const supabase = createClient()
+      const supabase = createAdminClient()
 
       // First, create the actual user account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: registration.email,
         password: atob(registration.password_hash), // Decode the password (in production, use proper password handling)
-        options: {
-          data: {
-            institution_name: registration.institution_name,
-            contact_name: registration.contact_name,
-            phone: registration.phone,
-          },
+        user_metadata: {
+          institution_name: registration.institution_name,
+          contact_name: registration.contact_name,
+          phone: registration.phone,
         },
+        email_confirm: true, // Auto-confirm email for admin-created users
       })
 
       if (authError) throw authError
@@ -145,7 +144,7 @@ function AdminDashboardContent() {
         .from("pending_registrations")
         .update({
           status: "approved",
-          approved_by: user?.id,
+          approved_by: user?.id || "admin",
           approved_at: new Date().toISOString(),
         })
         .eq("id", registration.id)
@@ -164,13 +163,13 @@ function AdminDashboardContent() {
 
   const rejectRegistration = async (registration: PendingRegistration, reason: string) => {
     try {
-      const supabase = createClient()
+      const supabase = createAdminClient()
 
       const { error } = await supabase
         .from("pending_registrations")
         .update({
           status: "rejected",
-          rejected_by: user?.id,
+          rejected_by: user?.id || "admin",
           rejected_at: new Date().toISOString(),
           rejection_reason: reason,
         })
