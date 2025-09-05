@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<any | null>(null)
   const [organization, setOrganization] = useState<any | null>(null)
   const [role, setRole] = useState<any | null>(null)
-  const [loading, setLoading] = useState(true) // Initialize loading to true
+  const [loading, setLoading] = useState(typeof window === "undefined" ? false : true)
   const [isDemo, setIsDemo] = useState(false)
 
   const refreshProfile = useCallback(async () => {
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Only attempt sessionStorage access and Supabase auth if mounted on client
     if (typeof window !== "undefined") {
       const demoSession = sessionStorage.getItem("demo_session")
-      console.log("AuthContext: Checking sessionStorage for demo_session:", demoSession);
+      console.log("AuthContext: Checking sessionStorage for demo_session:", demoSession)
 
       if (demoSession) {
         try {
@@ -157,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        console.log("AuthContext: Auth state change event:", event);
+        console.log("AuthContext: Auth state change event:", event)
         if (session?.user) {
           await refreshProfile()
         } else {
@@ -245,8 +245,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  console.log("useAuth hook: context =", context); // Added logging here
+  console.log("useAuth hook: context =", context) // Added logging here
   if (context === undefined) {
+    if (typeof window === "undefined") {
+      return {
+        user: null,
+        profile: null,
+        organization: null,
+        role: null,
+        loading: false,
+        isDemo: false,
+        signIn: async () => ({ error: null }),
+        signUp: async () => ({ error: null }),
+        signOut: async () => {},
+        refreshProfile: async () => {},
+        hasPermission: () => false,
+      }
+    }
     throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
