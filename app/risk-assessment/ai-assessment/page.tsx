@@ -1240,7 +1240,7 @@ export default function AIAssessmentPage() {
   const [questionEditModes, setQuestionEditModes] = useState<Record<string, boolean>>({})
   const [questionUnsavedChanges, setQuestionUnsavedChanges] = useState<Record<string, boolean>>({})
   const [editedAnswers, setEditedAnswers] = useState<Record<string, boolean | string>>({})
-  const [approvedQuestions, setApprovedQuestions] = new useState<Set<string>>(new Set())
+  const [approvedQuestions, setApprovedQuestions] = useState<Set<string>>(new Set())
   const [editedReasoning, setEditedReasoning] = useState<Record<string, string>>({})
   const [editedEvidence, setEditedEvidence] = useState<
     Record<
@@ -1550,7 +1550,12 @@ export default function AIAssessmentPage() {
     handleEvidenceEdit(questionId, updatedEvidence)
   }
 
-  const updateEvidenceItem = (questionId: string, index: number, field: string, value: string | number | 'primary' | '4th-party') => {
+  const updateEvidenceItem = (
+    questionId: string,
+    index: number,
+    field: string,
+    value: string | number | "primary" | "4th-party",
+  ) => {
     const currentEvidence = editedEvidence[questionId] || aiAnalysisResult?.documentExcerpts?.[questionId] || []
     const updatedEvidence = [...currentEvidence]
     updatedEvidence[index] = { ...updatedEvidence[index], [field]: value }
@@ -2745,7 +2750,9 @@ export default function AIAssessmentPage() {
                               <Label htmlFor="ai-provider-select">Select AI Provider</Label>
                               <Select
                                 value={selectedAIProvider}
-                                onValueChange={(value: "google" | "groq" | "huggingface") => setSelectedAIProvider(value)}
+                                onValueChange={(value: "google" | "groq" | "huggingface") =>
+                                  setSelectedAIProvider(value)
+                                }
                               >
                                 <SelectTrigger id="ai-provider-select">
                                   <SelectValue placeholder="Select AI Provider" />
@@ -2842,8 +2849,8 @@ export default function AIAssessmentPage() {
                         <div className="flex items-center space-x-2">
                           <AlertCircle className="h-5 w-5 text-amber-600" />
                           <p className="text-sm text-amber-800">
-                            <strong>Note:</strong> AI-generated responses are suggestions based on your documents. Please
-                            review and verify all answers before submission.
+                            <strong>Note:</strong> AI-generated responses are suggestions based on your documents.
+                            Please review and verify all answers before submission.
                           </p>
                         </div>
                       </div>
@@ -2870,9 +2877,9 @@ export default function AIAssessmentPage() {
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
 
@@ -3046,4 +3053,460 @@ export default function AIAssessmentPage() {
                                     {question.options?.map((option) => (
                                       <SelectItem key={option} value={option}>
                                         {option}
-\
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              ) : question.type === "tested" ? (
+                                <Select
+                                  value={currentAnswer as string}
+                                  onValueChange={(value) => handleAnswerEdit(question.id, value)}
+                                >
+                                  <SelectTrigger className="w-full mt-2">
+                                    <SelectValue placeholder="Select an option" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem key="tested" value="tested">
+                                      Tested
+                                    </SelectItem>
+                                    <SelectItem key="not_tested" value="not_tested">
+                                      Not Tested
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Input
+                                  type="text"
+                                  value={String(currentAnswer)}
+                                  onChange={(e) => handleAnswerEdit(question.id, e.target.value)}
+                                  className="mt-2"
+                                />
+                              )
+                            ) : (
+                              <div className="mt-2 font-medium text-gray-800">
+                                {question.type === "boolean" ? (currentAnswer === true ? "Yes" : "No") : currentAnswer}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Reasoning */}
+                          <div>
+                            <Label className="text-sm font-medium text-gray-700 mb-2">AI Reasoning:</Label>
+                            {isEditingThisQuestion ? (
+                              <Textarea
+                                value={currentReasoning || ""}
+                                onChange={(e) => handleReasoningEdit(question.id, e.target.value)}
+                                className="mt-2"
+                              />
+                            ) : (
+                              <div className="mt-2 text-gray-700">{currentReasoning || "No reasoning provided."}</div>
+                            )}
+                          </div>
+
+                          {/* Evidence */}
+                          <div>
+                            <Label className="text-sm font-medium text-gray-700 mb-2">Supporting Evidence:</Label>
+                            {isEditingThisQuestion ? (
+                              <>
+                                {Array.isArray(currentEvidence) && currentEvidence.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {currentEvidence.map((excerpt, index) => (
+                                      <div key={index} className="border border-gray-300 rounded-md p-3">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                          <div>
+                                            <Label
+                                              htmlFor={`fileName-${question.id}-${index}`}
+                                              className="block text-gray-700 text-xs font-bold mb-1"
+                                            >
+                                              File Name:
+                                            </Label>
+                                            <Input
+                                              type="text"
+                                              id={`fileName-${question.id}-${index}`}
+                                              value={excerpt.fileName || ""}
+                                              onChange={(e) =>
+                                                updateEvidenceItem(question.id, index, "fileName", e.target.value)
+                                              }
+                                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                            />
+                                          </div>
+                                          <div>
+                                            <Label
+                                              htmlFor={`pageNumber-${question.id}-${index}`}
+                                              className="block text-gray-700 text-xs font-bold mb-1"
+                                            >
+                                              Page Number:
+                                            </Label>
+                                            <Input
+                                              type="number"
+                                              id={`pageNumber-${question.id}-${index}`}
+                                              value={excerpt.pageNumber || ""}
+                                              onChange={(e) =>
+                                                updateEvidenceItem(question.id, index, "pageNumber", e.target.value)
+                                              }
+                                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                            />
+                                          </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                          <div>
+                                            <Label
+                                              htmlFor={`quote-${question.id}-${index}`}
+                                              className="block text-gray-700 text-xs font-bold mb-1"
+                                            >
+                                              Quote:
+                                            </Label>
+                                            <Textarea
+                                              id={`quote-${question.id}-${index}`}
+                                              value={excerpt.quote || ""}
+                                              onChange={(e) =>
+                                                updateEvidenceItem(question.id, index, "quote", e.target.value)
+                                              }
+                                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                            />
+                                          </div>
+                                          <div>
+                                            <Label
+                                              htmlFor={`relevance-${question.id}-${index}`}
+                                              className="block text-gray-700 text-xs font-bold mb-1"
+                                            >
+                                              Relevance:
+                                            </Label>
+                                            <Textarea
+                                              id={`relevance-${question.id}-${index}`}
+                                              value={excerpt.relevance || ""}
+                                              onChange={(e) =>
+                                                updateEvidenceItem(question.id, index, "relevance", e.target.value)
+                                              }
+                                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                            />
+                                          </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                          <div>
+                                            <Label
+                                              htmlFor={`documentType-${question.id}-${index}`}
+                                              className="block text-gray-700 text-xs font-bold mb-1"
+                                            >
+                                              Document Type:
+                                            </Label>
+                                            <Select
+                                              value={excerpt.documentType || "primary"}
+                                              onValueChange={(value: "primary" | "4th-party") =>
+                                                updateEvidenceItem(question.id, index, "documentType", value)
+                                              }
+                                            >
+                                              <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select document type" />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="primary">Primary</SelectItem>
+                                                <SelectItem value="4th-party">4th Party</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                          </div>
+                                          {excerpt.documentType === "4th-party" && (
+                                            <div>
+                                              <Label
+                                                htmlFor={`documentRelationship-${question.id}-${index}`}
+                                                className="block text-gray-700 text-xs font-bold mb-1"
+                                              >
+                                                Document Relationship:
+                                              </Label>
+                                              <Input
+                                                type="text"
+                                                id={`documentRelationship-${question.id}-${index}`}
+                                                value={excerpt.documentRelationship || ""}
+                                                onChange={(e) =>
+                                                  updateEvidenceItem(
+                                                    question.id,
+                                                    index,
+                                                    "documentRelationship",
+                                                    e.target.value,
+                                                  )
+                                                }
+                                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                              />
+                                            </div>
+                                          )}
+                                        </div>
+                                        <Button
+                                          variant="destructive"
+                                          size="sm"
+                                          onClick={() => removeEvidenceItem(question.id, index)}
+                                        >
+                                          Remove
+                                        </Button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="text-gray-500 mt-2">No evidence added yet.</div>
+                                )}
+                                <Button variant="secondary" size="sm" onClick={() => addEvidenceItem(question.id)}>
+                                  Add Evidence Item
+                                </Button>
+                              </>
+                            ) : Array.isArray(currentEvidence) && currentEvidence.length > 0 ? (
+                              <ul className="list-disc pl-5 mt-2">
+                                {currentEvidence.map((excerpt, index) => (
+                                  <li key={index} className="text-gray-700">
+                                    {excerpt.fileName}: "{excerpt.quote}" (Relevance: {excerpt.relevance})
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <div className="text-gray-500 mt-2">No supporting evidence found.</div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+
+                <div className="flex justify-between pt-6">
+                  <Button variant="outline" onClick={() => setCurrentStep("upload")} className="flex items-center">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={() => setCurrentStep("approve")}
+                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
+                    disabled={!allQuestionsApproved}
+                  >
+                    Approve Answers
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 5: Approve Answers */}
+            {currentStep === "approve" && aiAnalysisResult && currentCategory && (
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                  <Button variant="ghost" onClick={() => setCurrentStep("review")} className="mb-4 hover:bg-blue-50">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Review Answers
+                  </Button>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Approve AI-Generated Answers</h2>
+                  <p className="text-lg text-gray-600">
+                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Assessment ID:{" "}
+                    <span className="font-mono">{aiAnalysisResult.ticket_id || aiAnalysisResult.assessmentId}</span>
+                  </p>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
+                      Approve Assessment
+                    </CardTitle>
+                    <CardDescription>
+                      Please review the information below and confirm your approval to finalize the assessment.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <Label htmlFor="approverName">Approver Name</Label>
+                      <Input
+                        id="approverName"
+                        type="text"
+                        value={approverInfo.name}
+                        onChange={(e) => setApproverInfo({ ...approverInfo, name: e.target.value })}
+                        placeholder="Enter your name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="approverTitle">Approver Title</Label>
+                      <Input
+                        id="approverTitle"
+                        type="text"
+                        value={approverInfo.title}
+                        onChange={(e) => setApproverInfo({ ...approverInfo, title: e.target.value })}
+                        placeholder="Enter your title"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="approverRole">Approver Role</Label>
+                      <Input
+                        id="approverRole"
+                        type="text"
+                        value={approverInfo.role}
+                        onChange={(e) => setApproverInfo({ ...approverInfo, role: e.target.value })}
+                        placeholder="Enter your role"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="approverSignature">Approver Signature</Label>
+                      <Input
+                        id="approverSignature"
+                        type="text"
+                        value={approverInfo.signature}
+                        onChange={(e) => setApproverInfo({ ...approverInfo, signature: e.target.value })}
+                        placeholder="Enter your signature"
+                      />
+                    </div>
+
+                    <div className="flex justify-between pt-6">
+                      <Button variant="outline" onClick={() => setCurrentStep("review")} className="flex items-center">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back
+                      </Button>
+                      <Button
+                        onClick={() => moveToResults()}
+                        className="bg-green-600 hover:bg-green-700 text-white flex items-center"
+                      >
+                        Approve Assessment
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Step 6: Results */}
+            {currentStep === "results" && aiAnalysisResult && currentCategory && (
+              <div className="max-w-6xl mx-auto">
+                <div className="mb-8">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">AI-Powered Risk Assessment Results</h2>
+                  <p className="text-lg text-gray-600">
+                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Assessment ID:{" "}
+                    <span className="font-mono">{aiAnalysisResult.ticket_id || aiAnalysisResult.assessmentId}</span>
+                  </p>
+                </div>
+
+                <Card className="mb-8">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <BarChart3 className="mr-2 h-5 w-5" />
+                      Overall Risk Assessment
+                    </CardTitle>
+                    <CardDescription>Summary of the AI-powered risk analysis</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-lg font-semibold">Overall Risk Score:</div>
+                      <div className="text-2xl font-bold">{aiAnalysisResult.riskScore}%</div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-lg font-semibold">Risk Level:</div>
+                      <Badge className={getRiskLevelColor(aiAnalysisResult.riskLevel)}>
+                        {aiAnalysisResult.riskLevel}
+                      </Badge>
+                    </div>
+                    <div>
+                      <div className="text-lg font-semibold">Overall Analysis:</div>
+                      <div className="text-gray-700">{aiAnalysisResult.overallAnalysis}</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-semibold">Key Risk Factors:</div>
+                      <ul className="list-disc pl-5 text-gray-700">
+                        {aiAnalysisResult.riskFactors.map((factor, index) => (
+                          <li key={index}>{factor}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="text-lg font-semibold">Recommendations:</div>
+                      <ul className="list-disc pl-5 text-gray-700">
+                        {aiAnalysisResult.recommendations.map((recommendation, index) => (
+                          <li key={index}>{recommendation}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <FileText className="mr-2 h-5 w-5" />
+                      Detailed Assessment Report
+                    </CardTitle>
+                    <CardDescription>Download a comprehensive report of the AI analysis</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button
+                      onClick={generateAndDownloadReport}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Download Report
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Delegate Assessment Form */}
+            {showDelegateForm && (
+              <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+                <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                  <div className="mt-3 text-center">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">Delegate Assessment</h3>
+                    <div className="px-7 py-3">
+                      <Label htmlFor="recipientName">Recipient Name</Label>
+                      <Input
+                        type="text"
+                        id="recipientName"
+                        value={delegateForm.recipientName}
+                        onChange={(e) => setDelegateForm({ ...delegateForm, recipientName: e.target.value })}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="recipientEmail" className="mt-3">
+                        Recipient Email
+                      </Label>
+                      <Input
+                        type="email"
+                        id="recipientEmail"
+                        value={delegateForm.recipientEmail}
+                        onChange={(e) => setDelegateForm({ ...delegateForm, recipientEmail: e.target.value })}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="dueDate" className="mt-3">
+                        Due Date
+                      </Label>
+                      <Input
+                        type="date"
+                        id="dueDate"
+                        value={delegateForm.dueDate}
+                        onChange={(e) => setDelegateForm({ ...delegateForm, dueDate: e.target.value })}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="customMessage" className="mt-3">
+                        Custom Message
+                      </Label>
+                      <Textarea
+                        id="customMessage"
+                        value={delegateForm.customMessage}
+                        onChange={(e) => setDelegateForm({ ...delegateForm, customMessage: e.target.value })}
+                        rows={3}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="items-center px-4 py-3">
+                      <Button variant="outline" onClick={() => setShowDelegateForm(false)} className="mr-2">
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSendDelegation} className="bg-blue-600 hover:bg-blue-700 text-white">
+                        Send Delegation
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </AuthGuard>
+  )
+}
