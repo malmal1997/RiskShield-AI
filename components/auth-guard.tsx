@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Shield, Mail, Lock, User, AlertCircle, Play, RefreshCw } from "lucide-react" // Added RefreshCw for spinner
+import { Shield, Mail, Lock, User, AlertCircle, Play, RefreshCw } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
@@ -17,7 +17,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, allowPreview = false, previewMessage }: AuthGuardProps) {
-  const { user, loading, signIn, signUp, signOut, isDemo } = useAuth()
+  const { user, loading, signIn, signUp, signOut, isDemo, refreshProfile } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -33,7 +33,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     try {
       // Check for demo credentials
       if (email === "demo@riskshield.ai" && password === "demo123") {
-        // Set demo session in sessionStorage
         sessionStorage.setItem(
           "demo_session",
           JSON.stringify({
@@ -47,13 +46,16 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
               name: "RiskShield Demo Organization",
               plan: "enterprise",
             },
-            role: "admin", // Explicitly set admin role for demo
+            role: "admin",
             loginTime: new Date().toISOString(),
           }),
         )
 
-        // Force refresh the page to trigger auth context update
-        window.location.reload()
+        // Refresh auth context to pick up demo session
+        await refreshProfile()
+
+        // Navigate to dashboard
+        router.push("/dashboard")
         return
       }
 
@@ -63,6 +65,8 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         setError(error.message)
       } else if (isSignUp) {
         setError("Check your email for a confirmation link!")
+      } else {
+        router.push("/dashboard")
       }
     } catch (err) {
       setError("An unexpected error occurred")
@@ -76,7 +80,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     setError("")
 
     try {
-      // Set demo session
       sessionStorage.setItem(
         "demo_session",
         JSON.stringify({
@@ -90,13 +93,16 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
             name: "RiskShield Demo Organization",
             plan: "enterprise",
           },
-          role: "admin", // Explicitly set admin role for demo
+          role: "admin",
           loginTime: new Date().toISOString(),
         }),
       )
 
-      // Force refresh to trigger auth context update
-      window.location.reload()
+      // Refresh auth context to pick up demo session
+      await refreshProfile()
+
+      // Navigate to dashboard
+      router.push("/dashboard")
     } catch (err) {
       setError("Demo login failed. Please try again.")
       setIsSubmitting(false)
@@ -115,7 +121,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   }
 
   // If preview is allowed, always render the preview banner and children
-  // The actual authentication status (user, isDemo) will be used by components within children
   if (allowPreview) {
     return (
       <>
@@ -243,8 +248,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
               <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <div className="flex items-center space-x-2">
-                    <RefreshCw className="animate-spin rounded-full h-4 w-4 border-b-2 border-white">
-                    </RefreshCw>
+                    <RefreshCw className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></RefreshCw>
                     <span>{isSignUp ? "Creating Account..." : "Signing In..."}</span>
                   </div>
                 ) : (

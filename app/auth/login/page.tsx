@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Shield, Eye, EyeOff, Play, RefreshCw } from "lucide-react" // Added RefreshCw for spinner
+import { Shield, Eye, EyeOff, Play, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/components/auth-context"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -19,6 +20,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const { refreshProfile } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +33,6 @@ export default function LoginPage() {
         // Simulate successful demo login
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
-        // Set demo session in sessionStorage
         sessionStorage.setItem(
           "demo_session",
           JSON.stringify({
@@ -45,13 +46,16 @@ export default function LoginPage() {
               name: "RiskShield Demo Organization",
               plan: "enterprise",
             },
-            role: "admin", // Explicitly set admin role for demo
+            role: "admin",
             loginTime: new Date().toISOString(),
           }),
         )
 
-        // Redirect to dashboard with a full page reload
-        window.location.reload()
+        // Refresh auth context to pick up demo session
+        await refreshProfile()
+
+        // Navigate to dashboard
+        router.push("/dashboard")
         return
       }
 
@@ -72,7 +76,6 @@ export default function LoginPage() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Set demo session
       sessionStorage.setItem(
         "demo_session",
         JSON.stringify({
@@ -86,13 +89,16 @@ export default function LoginPage() {
             name: "RiskShield Demo Organization",
             plan: "enterprise",
           },
-          role: "admin", // Explicitly set admin role for demo
+          role: "admin",
           loginTime: new Date().toISOString(),
         }),
       )
 
-      // Redirect to dashboard with a full page reload
-      window.location.reload()
+      // Refresh auth context to pick up demo session
+      await refreshProfile()
+
+      // Navigate to dashboard
+      router.push("/dashboard")
     } catch (err) {
       setError("Demo login failed. Please try again.")
     } finally {
