@@ -84,7 +84,8 @@ export default function AnalyticsPage() {
       const totalPageViews = pageViews?.length || 0
       const totalInteractions = interactions?.length || 0
       const totalLeads = leads?.length || 0
-      const avgTimeSpent = sessions?.reduce((sum: number, s) => sum + (s.total_time_spent || 0), 0) / totalSessions || 0
+      const avgTimeSpent =
+        sessions?.reduce((sum: number, s: any) => sum + (s.total_time_spent || 0), 0) / totalSessions || 0
       const conversions = sessions?.filter((s) => s.converted_user_id).length || 0
       const conversionRate = totalSessions > 0 ? (conversions / totalSessions) * 100 : 0
 
