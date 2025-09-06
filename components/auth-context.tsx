@@ -159,9 +159,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const {
+        data: { session },
+        error: sessionError,
+      } = await supabaseClient.auth.getSession()
+
+      console.log("[v0] AuthContext: Session check result:", { session: !!session, sessionError })
+
+      const {
         data: { user: supabaseUser },
         error: userError,
       } = await supabaseClient.auth.getUser()
+
+      console.log("[v0] AuthContext: User check result:", {
+        user: !!supabaseUser,
+        userId: supabaseUser?.id,
+        userEmail: supabaseUser?.email,
+        userError,
+      })
 
       if (userError || !supabaseUser) {
         console.log("[v0] AuthContext: No Supabase user found")
@@ -173,21 +187,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         console.log("[v0] AuthContext: Supabase user found, fetching profile")
         console.log("[v0] AuthContext: Supabase user ID:", supabaseUser.id)
-        // Get user profile from Supabase
-        const { data: profileData, error: profileError } = await supabaseClient
-          .from("user_profiles")
-          .select("*")
-          .eq("user_id", supabaseUser.id)
-          .single()
 
-        console.log("[v0] AuthContext: Profile query result:", { profileData, profileError })
+        let profileData = null
+        let profileError = null
+
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          console.log(`[v0] AuthContext: Profile fetch attempt ${attempt}`)
+
+          const result = await supabaseClient.from("user_profiles").select("*").eq("user_id", supabaseUser.id).single()
+
+          profileData = result.data
+          profileError = result.error
+
+          if (!profileError && profileData) {
+            console.log(`[v0] AuthContext: Profile found on attempt ${attempt}`)
+            break
+          }
+
+          if (attempt < 3) {
+            console.log(`[v0] AuthContext: Profile not found on attempt ${attempt}, retrying...`)
+            await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait 1 second before retry
+          }
+        }
+
+        console.log("[v0] AuthContext: Final profile query result:", { profileData, profileError })
 
         if (profileError || !profileData) {
-          console.log("[v0] AuthContext: No profile found for user, error:", profileError)
+          console.log("[v0] AuthContext: No profile found for user after retries, error:", profileError)
           setUser(supabaseUser)
           setProfile(null)
           setOrganization(null)
-          setRole(null)
+          setRole({ role: "user", permissions: ["view_assessments"] }) // Default role
           setIsDemo(false)
         } else {
           console.log("[v0] AuthContext: Profile found, fetching organization and role")
@@ -203,7 +233,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(supabaseUser)
           setProfile(profileData)
           setOrganization(orgResult.error ? null : orgResult.data)
-          setRole(roleResult.error ? null : roleResult.data)
+          setRole(roleResult.error ? { role: "user", permissions: ["view_assessments"] } : roleResult.data)
           setIsDemo(false)
         }
       }
