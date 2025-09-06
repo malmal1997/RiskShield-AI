@@ -12,7 +12,7 @@ import { Shield, Eye, EyeOff, Play, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth-context"
-import { createClient } from "@/lib/supabase/client"
+import { supabaseClient } from "@/lib/supabase-client"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -39,9 +39,7 @@ export default function LoginPage() {
       }
 
       console.log("[v0] Login: Attempting Supabase authentication for:", email)
-      const supabase = createClient()
-
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabaseClient.auth.signInWithPassword({
         email: email,
         password: password,
       })
@@ -58,23 +56,21 @@ export default function LoginPage() {
 
         await new Promise((resolve) => setTimeout(resolve, 1500))
 
-        const { data: sessionCheck } = await supabase.auth.getSession()
+        const { data: sessionCheck } = await supabaseClient.auth.getSession()
         console.log("[v0] Login: Session verification:", !!sessionCheck.session)
 
         if (!sessionCheck.session) {
           console.log("[v0] Login: Session not established, retrying...")
           await new Promise((resolve) => setTimeout(resolve, 1000))
-          const { data: retryCheck } = await supabase.auth.getSession()
+          const { data: retryCheck } = await supabaseClient.auth.getSession()
           console.log("[v0] Login: Retry session verification:", !!retryCheck.session)
         }
 
-        // Refresh the auth context to pick up the new user
         console.log("[v0] Login: Refreshing auth profile...")
         await refreshProfile()
 
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
-        // Navigate to dashboard
         console.log("[v0] Login: Navigating to dashboard")
         router.push("/dashboard")
         return
