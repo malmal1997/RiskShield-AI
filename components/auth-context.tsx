@@ -158,27 +158,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabaseClient.auth.getSession()
+      let session = null
+      let supabaseUser = null
 
-      console.log("[v0] AuthContext: Session check result:", { session: !!session, sessionError })
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`[v0] AuthContext: Session/User fetch attempt ${attempt}`)
 
-      const {
-        data: { user: supabaseUser },
-        error: userError,
-      } = await supabaseClient.auth.getUser()
+        const sessionResult = await supabaseClient.auth.getSession()
+        const userResult = await supabaseClient.auth.getUser()
 
-      console.log("[v0] AuthContext: User check result:", {
-        user: !!supabaseUser,
-        userId: supabaseUser?.id,
-        userEmail: supabaseUser?.email,
-        userError,
-      })
+        console.log(
+          `[v0] AuthContext: Attempt ${attempt} - Session:`,
+          !!sessionResult.data.session,
+          "User:",
+          !!userResult.data.user,
+        )
 
-      if (userError || !supabaseUser) {
-        console.log("[v0] AuthContext: No Supabase user found")
+        if (sessionResult.data.session && userResult.data.user) {
+          session = sessionResult.data.session
+          supabaseUser = userResult.data.user
+          console.log(`[v0] AuthContext: Session and user found on attempt ${attempt}`)
+          break
+        }
+
+        if (attempt < 3) {
+          console.log(`[v0] AuthContext: Session/User not found on attempt ${attempt}, retrying...`)
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        }
+      }
+
+      if (!session || !supabaseUser) {
+        console.log("[v0] AuthContext: No Supabase session or user found after retries")
         setUser(null)
         setProfile(null)
         setOrganization(null)

@@ -54,11 +54,28 @@ export default function LoginPage() {
 
       if (data.user) {
         console.log("[v0] Login: Supabase authentication successful for:", data.user.email)
+        console.log("[v0] Login: Session established:", !!data.session)
+
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+
+        const { data: sessionCheck } = await supabase.auth.getSession()
+        console.log("[v0] Login: Session verification:", !!sessionCheck.session)
+
+        if (!sessionCheck.session) {
+          console.log("[v0] Login: Session not established, retrying...")
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+          const { data: retryCheck } = await supabase.auth.getSession()
+          console.log("[v0] Login: Retry session verification:", !!retryCheck.session)
+        }
 
         // Refresh the auth context to pick up the new user
+        console.log("[v0] Login: Refreshing auth profile...")
         await refreshProfile()
 
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+
         // Navigate to dashboard
+        console.log("[v0] Login: Navigating to dashboard")
         router.push("/dashboard")
         return
       }
