@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useEffect, useState, useCallback } from "react"
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 
@@ -48,6 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [isDemo, setIsDemo] = useState(false)
+  const refreshingRef = useRef(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const createDemoSession = useCallback((userType?: "admin" | "user") => {
     if (typeof window === "undefined") return
@@ -107,105 +109,137 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    console.log("[v0] AuthContext: refreshProfile called")
-    setLoading(true)
-
-    const demoSession = sessionStorage.getItem("demo_session")
-    if (demoSession) {
-      try {
-        const session: DemoSession = JSON.parse(demoSession)
-        console.log("[v0] AuthContext: Demo session found, setting demo user")
-
-        const demoRole = {
-          role: session.role,
-          permissions:
-            session.role === "admin"
-              ? ["manage_users", "manage_assessments", "manage_organizations", "view_analytics"]
-              : ["view_assessments"],
-        }
-
-        const demoProfile = {
-          first_name: session.role === "admin" ? "Demo" : "Demo",
-          last_name: session.role === "admin" ? "Admin" : "User",
-          organization_id: session.organization.id,
-          avatar_url: "/placeholder.svg?height=32&width=32",
-        }
-
-        setUser(session.user)
-        setOrganization(session.organization)
-        setRole(demoRole)
-        setProfile(demoProfile)
-        setIsDemo(true)
-        setLoading(false)
-        return
-      } catch (error) {
-        console.error("[v0] AuthContext: Error parsing demo session:", error)
-        sessionStorage.removeItem("demo_session")
-      }
+    if (refreshingRef.current) {
+      console.log("[v0] AuthContext: refreshProfile already in progress, skipping")
+      return
     }
 
-    try {
-      const supabase = createClient()
-      const {
-        data: { user: supabaseUser },
-        error: userError,
-      } = await supabase.auth.getUser()
+    console.log("[v0] AuthContext: refreshProfile called")
+    refreshingRef.current = true
+    setLoading(true)
 
-      if (userError || !supabaseUser) {
-        console.log("[v0] AuthContext: No authenticated user found")
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    timeoutRef.current = setTimeout(() => {
+      console.log("[v0] AuthContext: refreshProfile timeout, forcing loading to false")
+      setLoading(false)
+      refreshingRef.current = false
+    }, 10000) // 10 second timeout
+
+    try {
+      const demoSession = sessionStorage.getItem("demo_session")
+      if (demoSession) {
+        try {
+          const session: DemoSession = JSON.parse(demoSession)
+          console.log("[v0] AuthContext: Demo session found, setting demo user")
+
+          const demoRole = {
+            role: session.role,
+            permissions:
+              session.role === "admin"
+                ? ["manage_users", "manage_assessments", "manage_organizations", "view_analytics"]
+                : ["view_assessments"],
+          }
+
+          const demoProfile = {
+            first_name: session.role === "admin" ? "Demo" : "Demo",
+            last_name: session.role === "admin" ? "Admin" : "User",
+            organization_id: session.organization.id,
+            avatar_url: "/placeholder.svg?height=32&width=32",
+          }
+
+          setUser(session.user)
+          setOrganization(session.organization)
+          setRole(demoRole)
+          setProfile(demoProfile)
+          setIsDemo(true)
+          setLoading(false)
+          refreshingRef.current = false
+          if (timeoutRef.current) clearTimeout(timeoutRef.current)
+          return
+        } catch (error) {
+          console.error("[v0] AuthContext: Error parsing demo session:", error)
+          sessionStorage.removeItem("demo_session")
+        }
+      }
+
+      try {
+        const supabase = createClient()
+        const {
+          data: { user: supabaseUser },
+          error: userError,
+        } = await supabase.auth.getUser()
+
+        if (userError || !supabaseUser) {
+          console.log("[v0] AuthContext: No authenticated user found")
+          setUser(null)
+          setProfile(null)
+          setOrganization(null)
+          setRole(null)
+          setIsDemo(false)
+          setLoading(false)
+          refreshingRef.current = false
+          if (timeoutRef.current) clearTimeout(timeoutRef.current)
+          return
+        }
+
+        console.log("[v0] AuthContext: Authenticated user found:", supabaseUser.email)
+
+        const { data: profileData, error: profileError } = await supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("user_id", supabaseUser.id)
+          .single()
+
+        if (profileError) {
+          console.log("[v0] AuthContext: Profile not found, using default profile")
+          // Use default profile if none exists (will be created by trigger)
+          setProfile({
+            user_id: supabaseUser.id,
+            email: supabaseUser.email,
+            first_name: supabaseUser.email?.split("@")[0] || "User",
+            timezone: "UTC",
+            language: "en",
+          })
+        } else {
+          setProfile(profileData)
+        }
+
+        let orgData = null
+        let roleData = null
+
+        if (profileData?.organization_id) {
+          const { data: orgResult } = await supabase
+            .from("organizations")
+            .select("*")
+            .eq("id", profileData.organization_id)
+            .single()
+          orgData = orgResult
+        }
+
+        const { data: roleResult } = await supabase
+          .from("user_roles")
+          .select("*")
+          .eq("user_id", supabaseUser.id)
+          .single()
+
+        roleData = roleResult || { role: "user", permissions: ["view_assessments"] }
+
+        setUser(supabaseUser)
+        setOrganization(orgData)
+        setRole(roleData)
+        setIsDemo(false)
+      } catch (error) {
+        console.error("[v0] AuthContext: Error in auth check:", error)
         setUser(null)
         setProfile(null)
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
-        setLoading(false)
-        return
       }
-
-      console.log("[v0] AuthContext: Authenticated user found:", supabaseUser.email)
-
-      const { data: profileData, error: profileError } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", supabaseUser.id)
-        .single()
-
-      if (profileError) {
-        console.log("[v0] AuthContext: Profile not found, using default profile")
-        // Use default profile if none exists (will be created by trigger)
-        setProfile({
-          user_id: supabaseUser.id,
-          email: supabaseUser.email,
-          first_name: supabaseUser.email?.split("@")[0] || "User",
-          timezone: "UTC",
-          language: "en",
-        })
-      } else {
-        setProfile(profileData)
-      }
-
-      let orgData = null
-      let roleData = null
-
-      if (profileData?.organization_id) {
-        const { data: orgResult } = await supabase
-          .from("organizations")
-          .select("*")
-          .eq("id", profileData.organization_id)
-          .single()
-        orgData = orgResult
-      }
-
-      const { data: roleResult } = await supabase.from("user_roles").select("*").eq("user_id", supabaseUser.id).single()
-
-      roleData = roleResult || { role: "user", permissions: ["view_assessments"] }
-
-      setUser(supabaseUser)
-      setOrganization(orgData)
-      setRole(roleData)
-      setIsDemo(false)
     } catch (error) {
-      console.error("[v0] AuthContext: Error in auth check:", error)
+      console.error("[v0] AuthContext: Unexpected error in refreshProfile:", error)
       setUser(null)
       setProfile(null)
       setOrganization(null)
@@ -213,11 +247,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsDemo(false)
     } finally {
       setLoading(false)
+      refreshingRef.current = false
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
     }
   }, [])
 
   useEffect(() => {
     let subscription: any = null
+    let mounted = true
 
     if (typeof window !== "undefined") {
       const supabase = createClient()
@@ -227,6 +267,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const {
         data: { subscription: authSubscription },
       } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (!mounted) return
+
         console.log("[v0] AuthContext: Auth state change event:", event)
 
         if (event === "SIGNED_OUT") {
@@ -236,8 +278,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setRole(null)
           setIsDemo(false)
           setLoading(false)
+          refreshingRef.current = false
         } else if (event === "SIGNED_IN" && session?.user) {
-          await refreshProfile()
+          setTimeout(() => {
+            if (mounted && !refreshingRef.current) {
+              refreshProfile()
+            }
+          }, 100)
         }
       })
 
@@ -245,8 +292,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     return () => {
+      mounted = false
       if (subscription?.unsubscribe) {
         subscription.unsubscribe()
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
       }
     }
   }, [refreshProfile])
@@ -273,17 +324,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    // Clear demo session
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("demo_session")
     }
     setIsDemo(false)
 
-    // Sign out from Supabase
     const supabase = createClient()
     await supabase.auth.signOut()
 
-    // Reset state
     setUser(null)
     setProfile(null)
     setOrganization(null)
