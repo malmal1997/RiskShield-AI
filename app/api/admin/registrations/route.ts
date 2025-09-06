@@ -119,6 +119,7 @@ export async function POST(request: NextRequest) {
       console.log("[v0] API: User can now login with their original registration password")
 
       // Create user profile
+      console.log("[v0] API: Creating user profile...")
       const { error: profileError } = await adminClient.from("user_profiles").insert({
         user_id: authUser.user!.id,
         email: registration.email,
@@ -129,10 +130,19 @@ export async function POST(request: NextRequest) {
 
       if (profileError) {
         console.error("[v0] API: Profile creation error:", profileError)
-        // Continue with approval even if profile creation fails
+        return NextResponse.json(
+          {
+            error: "Failed to create user profile",
+            details: profileError.message,
+          },
+          { status: 500 },
+        )
+      } else {
+        console.log("[v0] API: User profile created successfully")
       }
 
       // Create user role
+      console.log("[v0] API: Creating user role...")
       const { error: roleError } = await adminClient.from("user_roles").insert({
         user_id: authUser.user!.id,
         role: "user",
@@ -141,7 +151,15 @@ export async function POST(request: NextRequest) {
 
       if (roleError) {
         console.error("[v0] API: Role creation error:", roleError)
-        // Continue with approval even if role creation fails
+        return NextResponse.json(
+          {
+            error: "Failed to create user role",
+            details: roleError.message,
+          },
+          { status: 500 },
+        )
+      } else {
+        console.log("[v0] API: User role created successfully")
       }
 
       console.log("[v0] API: User account setup completed")

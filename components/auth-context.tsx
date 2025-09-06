@@ -172,6 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsDemo(false)
       } else {
         console.log("[v0] AuthContext: Supabase user found, fetching profile")
+        console.log("[v0] AuthContext: Supabase user ID:", supabaseUser.id)
         // Get user profile from Supabase
         const { data: profileData, error: profileError } = await supabaseClient
           .from("user_profiles")
@@ -179,19 +180,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq("user_id", supabaseUser.id)
           .single()
 
+        console.log("[v0] AuthContext: Profile query result:", { profileData, profileError })
+
         if (profileError || !profileData) {
-          console.log("[v0] AuthContext: No profile found for user")
+          console.log("[v0] AuthContext: No profile found for user, error:", profileError)
           setUser(supabaseUser)
           setProfile(null)
           setOrganization(null)
           setRole(null)
           setIsDemo(false)
         } else {
+          console.log("[v0] AuthContext: Profile found, fetching organization and role")
           // Get organization and role data
           const [orgResult, roleResult] = await Promise.all([
             supabaseClient.from("organizations").select("*").eq("id", profileData.organization_id).single(),
             supabaseClient.from("user_roles").select("*").eq("user_id", supabaseUser.id).single(),
           ])
+
+          console.log("[v0] AuthContext: Organization result:", orgResult)
+          console.log("[v0] AuthContext: Role result:", roleResult)
 
           setUser(supabaseUser)
           setProfile(profileData)
