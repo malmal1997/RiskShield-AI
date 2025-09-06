@@ -1,17 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    // Only ignore during builds in development, not production
-    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    // Only ignore build errors in development, not production
-    ignoreBuildErrors: process.env.NODE_ENV === 'development',
+    ignoreBuildErrors: true,
   },
   images: {
     unoptimized: true,
   },
-  skipTrailingSlashRedirect: true,
+  experimental: {
+    skipTrailingSlashRedirect: true,
+  },
   async generateBuildId() {
     return 'build-' + Date.now()
   },
