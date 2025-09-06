@@ -77,8 +77,24 @@ export async function POST(request: NextRequest) {
     if (action === "approve") {
       console.log("[v0] API: Creating Supabase Auth user account...")
 
+      let userPassword: string
+      try {
+        userPassword = atob(registration.password_hash) // Decode base64 to get original password
+        console.log("[v0] API: Successfully decoded user password")
+      } catch (decodeError) {
+        console.error("[v0] API: Failed to decode password hash:", decodeError)
+        return NextResponse.json(
+          {
+            error: "Failed to process user password",
+            details: "Invalid password format in registration",
+          },
+          { status: 500 },
+        )
+      }
+
       const { data: authUser, error: authError } = await adminClient.auth.admin.createUser({
         email: registration.email,
+        password: userPassword, // Use decoded original password instead of hash
         email_confirm: true, // Auto-confirm email
         user_metadata: {
           full_name: registration.contact_name,
@@ -100,17 +116,7 @@ export async function POST(request: NextRequest) {
 
       console.log("[v0] API: Auth user created:", authUser.user?.id)
 
-      const { error: resetError } = await adminClient.auth.admin.generateLink({
-        type: "recovery",
-        email: registration.email,
-      })
-
-      if (resetError) {
-        console.error("[v0] API: Password reset email error:", resetError)
-        // Continue with approval even if password reset fails
-      } else {
-        console.log("[v0] API: Password reset email sent to:", registration.email)
-      }
+      console.log("[v0] API: User can now login with their original registration password")
 
       // Create user profile
       const { error: profileError } = await adminClient.from("user_profiles").insert({
@@ -177,7 +183,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message:
         action === "approve"
-          ? `Registration approved and user account created successfully. Please check your email for a password reset link to set your password.`
+          ? `Registration approved and user account created successfully. You can now login with your email and password.` // Updated message to reflect immediate login capability
           : `Registration rejected successfully.`,
       registrationId,
     })
