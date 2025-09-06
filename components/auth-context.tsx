@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useEffect, useState, useCallback } from "react"
-import { supabaseClient } from "@/lib/supabase-client"
+import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 
 interface DemoUser {
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<any | null>(null)
   const [organization, setOrganization] = useState<any | null>(null)
   const [role, setRole] = useState<any | null>(null)
-  const [loading, setLoading] = useState(false) // Start with false to prevent hydration issues
+  const [loading, setLoading] = useState(true)
   const [isDemo, setIsDemo] = useState(false)
 
   const createDemoSession = useCallback((userType?: "admin" | "user") => {
@@ -72,16 +72,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       sessionStorage.setItem("demo_session", JSON.stringify(demoSession))
       console.log("[v0] AuthContext: Demo session stored in sessionStorage")
-
-      // Verify it was stored
-      const stored = sessionStorage.getItem("demo_session")
-      console.log("[v0] AuthContext: Verification - stored session:", stored)
     } catch (error) {
       console.error("[v0] AuthContext: Error storing demo session:", error)
       return
     }
 
-    // Immediately set the auth state
     const demoRole = {
       role: demoSession.role,
       permissions:
@@ -96,10 +91,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization_id: demoSession.organization.id,
       avatar_url: "/placeholder.svg?height=32&width=32",
     }
-
-    console.log("[v0] AuthContext: Setting auth state - user:", demoSession.user)
-    console.log("[v0] AuthContext: Setting auth state - role:", demoRole)
-    console.log("[v0] AuthContext: Setting auth state - isDemo:", true)
 
     setUser(demoSession.user)
     setOrganization(demoSession.organization)
@@ -120,12 +111,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
 
     const demoSession = sessionStorage.getItem("demo_session")
-    console.log("[v0] AuthContext: Checking sessionStorage for demo_session:", demoSession)
-
     if (demoSession) {
       try {
         const session: DemoSession = JSON.parse(demoSession)
-        console.log("[v0] AuthContext: Demo session found, setting demo user:", session)
+        console.log("[v0] AuthContext: Demo session found, setting demo user")
 
         const demoRole = {
           role: session.role,
@@ -148,8 +137,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(demoProfile)
         setIsDemo(true)
         setLoading(false)
-
-        console.log("[v0] AuthContext: Demo auth state set successfully")
         return
       } catch (error) {
         console.error("[v0] AuthContext: Error parsing demo session:", error)
@@ -158,95 +145,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      let session = null
-      let supabaseUser = null
+      const supabase = createClient()
+      const {
+        data: { user: supabaseUser },
+        error: userError,
+      } = await supabase.auth.getUser()
 
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        console.log(`[v0] AuthContext: Session/User fetch attempt ${attempt}`)
-
-        const sessionResult = await supabaseClient.auth.getSession()
-        const userResult = await supabaseClient.auth.getUser()
-
-        console.log(
-          `[v0] AuthContext: Attempt ${attempt} - Session:`,
-          !!sessionResult.data.session,
-          "User:",
-          !!userResult.data.user,
-        )
-
-        if (sessionResult.data.session && userResult.data.user) {
-          session = sessionResult.data.session
-          supabaseUser = userResult.data.user
-          console.log(`[v0] AuthContext: Session and user found on attempt ${attempt}`)
-          break
-        }
-
-        if (attempt < 3) {
-          console.log(`[v0] AuthContext: Session/User not found on attempt ${attempt}, retrying...`)
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-        }
-      }
-
-      if (!session || !supabaseUser) {
-        console.log("[v0] AuthContext: No Supabase session or user found after retries")
+      if (userError || !supabaseUser) {
+        console.log("[v0] AuthContext: No authenticated user found")
         setUser(null)
         setProfile(null)
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
-      } else {
-        console.log("[v0] AuthContext: Supabase user found, fetching profile")
-        console.log("[v0] AuthContext: Supabase user ID:", supabaseUser.id)
-
-        let profileData = null
-        let profileError = null
-
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          console.log(`[v0] AuthContext: Profile fetch attempt ${attempt}`)
-
-          const result = await supabaseClient.from("user_profiles").select("*").eq("user_id", supabaseUser.id).single()
-
-          profileData = result.data
-          profileError = result.error
-
-          if (!profileError && profileData) {
-            console.log(`[v0] AuthContext: Profile found on attempt ${attempt}`)
-            break
-          }
-
-          if (attempt < 3) {
-            console.log(`[v0] AuthContext: Profile not found on attempt ${attempt}, retrying...`)
-            await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait 1 second before retry
-          }
-        }
-
-        console.log("[v0] AuthContext: Final profile query result:", { profileData, profileError })
-
-        if (profileError || !profileData) {
-          console.log("[v0] AuthContext: No profile found for user after retries, error:", profileError)
-          setUser(supabaseUser)
-          setProfile(null)
-          setOrganization(null)
-          setRole({ role: "user", permissions: ["view_assessments"] }) // Default role
-          setIsDemo(false)
-        } else {
-          console.log("[v0] AuthContext: Profile found, fetching organization and role")
-          // Get organization and role data
-          const [orgResult, roleResult] = await Promise.all([
-            supabaseClient.from("organizations").select("*").eq("id", profileData.organization_id).single(),
-            supabaseClient.from("user_roles").select("*").eq("user_id", supabaseUser.id).single(),
-          ])
-
-          console.log("[v0] AuthContext: Organization result:", orgResult)
-          console.log("[v0] AuthContext: Role result:", roleResult)
-
-          setUser(supabaseUser)
-          setProfile(profileData)
-          setOrganization(orgResult.error ? null : orgResult.data)
-          setRole(roleResult.error ? { role: "user", permissions: ["view_assessments"] } : roleResult.data)
-          setIsDemo(false)
-        }
+        setLoading(false)
+        return
       }
+
+      console.log("[v0] AuthContext: Authenticated user found:", supabaseUser.email)
+
+      const { data: profileData, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", supabaseUser.id)
+        .single()
+
+      if (profileError) {
+        console.log("[v0] AuthContext: Profile not found, using default profile")
+        // Use default profile if none exists (will be created by trigger)
+        setProfile({
+          user_id: supabaseUser.id,
+          email: supabaseUser.email,
+          first_name: supabaseUser.email?.split("@")[0] || "User",
+          timezone: "UTC",
+          language: "en",
+        })
+      } else {
+        setProfile(profileData)
+      }
+
+      let orgData = null
+      let roleData = null
+
+      if (profileData?.organization_id) {
+        const { data: orgResult } = await supabase
+          .from("organizations")
+          .select("*")
+          .eq("id", profileData.organization_id)
+          .single()
+        orgData = orgResult
+      }
+
+      const { data: roleResult } = await supabase.from("user_roles").select("*").eq("user_id", supabaseUser.id).single()
+
+      roleData = roleResult || { role: "user", permissions: ["view_assessments"] }
+
+      setUser(supabaseUser)
+      setOrganization(orgData)
+      setRole(roleData)
+      setIsDemo(false)
     } catch (error) {
       console.error("[v0] AuthContext: Error in auth check:", error)
       setUser(null)
@@ -263,12 +220,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let subscription: any = null
 
     if (typeof window !== "undefined") {
+      const supabase = createClient()
+
       refreshProfile()
 
       const {
         data: { subscription: authSubscription },
-      } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+      } = supabase.auth.onAuthStateChange(async (event, session) => {
         console.log("[v0] AuthContext: Auth state change event:", event)
+
         if (event === "SIGNED_OUT") {
           setUser(null)
           setProfile(null)
@@ -276,10 +236,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setRole(null)
           setIsDemo(false)
           setLoading(false)
-        } else if (session?.user) {
+        } else if (event === "SIGNED_IN" && session?.user) {
           await refreshProfile()
         }
       })
+
       subscription = authSubscription
     }
 
@@ -291,7 +252,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refreshProfile])
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabaseClient.auth.signInWithPassword({
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -299,9 +261,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabaseClient.auth.signUp({
+    const supabase = createClient()
+    const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
+      },
     })
     return { error }
   }
@@ -314,7 +280,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsDemo(false)
 
     // Sign out from Supabase
-    await supabaseClient.auth.signOut()
+    const supabase = createClient()
+    await supabase.auth.signOut()
 
     // Reset state
     setUser(null)
@@ -326,7 +293,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const hasPermission = (permission: string): boolean => {
     if (!role) return false
     if (role.role === "admin" || isDemo) {
-      console.log("[v0] AuthContext: Admin or demo user, granting permission:", permission)
       return true
     }
     return role.permissions && (role.permissions.includes(permission) || role.permissions === "all")
@@ -352,7 +318,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  console.log("useAuth hook: context =", context) // Added logging here
   if (context === undefined) {
     if (typeof window === "undefined") {
       return {

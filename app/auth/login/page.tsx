@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,7 +11,7 @@ import { Shield, Eye, EyeOff, Play, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth-context"
-import { supabaseClient } from "@/lib/supabase-client"
+import { createClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -21,7 +20,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { refreshProfile, createDemoSession } = useAuth()
+  const { createDemoSession } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,19 +28,21 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // Check for demo credentials first
       if (email === "demo@riskshield.ai" && password === "demo123") {
         console.log("[v0] Login: Creating admin demo session")
         createDemoSession("admin")
-        await new Promise((resolve) => setTimeout(resolve, 500))
         router.push("/admin-dashboard")
         return
       }
 
       console.log("[v0] Login: Attempting Supabase authentication for:", email)
-      const { data, error: authError } = await supabaseClient.auth.signInWithPassword({
+      const supabase = createClient()
+      const { error: authError } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
+        options: {
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
+        },
       })
 
       if (authError) {
@@ -50,33 +51,8 @@ export default function LoginPage() {
         return
       }
 
-      if (data.user) {
-        console.log("[v0] Login: Supabase authentication successful for:", data.user.email)
-        console.log("[v0] Login: Session established:", !!data.session)
-
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-
-        const { data: sessionCheck } = await supabaseClient.auth.getSession()
-        console.log("[v0] Login: Session verification:", !!sessionCheck.session)
-
-        if (!sessionCheck.session) {
-          console.log("[v0] Login: Session not established, retrying...")
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-          const { data: retryCheck } = await supabaseClient.auth.getSession()
-          console.log("[v0] Login: Retry session verification:", !!retryCheck.session)
-        }
-
-        console.log("[v0] Login: Refreshing auth profile...")
-        await refreshProfile()
-
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        console.log("[v0] Login: Navigating to dashboard")
-        router.push("/dashboard")
-        return
-      }
-
-      setError("Authentication failed. Please try again.")
+      console.log("[v0] Login: Authentication successful, redirecting to dashboard")
+      router.push("/dashboard")
     } catch (err) {
       console.error("[v0] Login error:", err)
       setError("An error occurred during login. Please try again.")
@@ -86,19 +62,12 @@ export default function LoginPage() {
   }
 
   const handleDemoLogin = async () => {
-    setEmail("demo@riskshield.ai")
-    setPassword("demo123")
     setIsLoading(true)
     setError("")
 
     try {
       console.log("[v0] Login: Demo button clicked, creating admin session")
-
       createDemoSession("admin")
-
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      console.log("[v0] Login: Navigating to admin dashboard")
       router.push("/admin-dashboard")
     } catch (err) {
       console.error("[v0] Demo login error:", err)
