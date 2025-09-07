@@ -40,8 +40,8 @@ export default function RiskGuardLanding() {
               No credit card required • Setup in minutes • Multi-framework compliant
             </p>
           </div>
-        </div>
-      </section>
+        </div >
+      </section >
 
       {/* Experience the Platform Section */}
       <section className="py-20">
@@ -462,6 +462,6 @@ export default function RiskGuardLanding() {
           </div>
         </div>
       </footer>
-    </div>
+    </div >
   )
 }
