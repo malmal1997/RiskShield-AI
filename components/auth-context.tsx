@@ -17,11 +17,19 @@ interface DemoOrganization {
   plan: string
 }
 
+interface DemoProfile {
+  first_name: string;
+  last_name: string;
+  organization_id: string;
+  avatar_url: string;
+}
+
 interface DemoSession {
   user: DemoUser
   organization: DemoOrganization
   role: string
   loginTime: string
+  profile: DemoProfile; // Added profile to demo session
 }
 
 interface AuthContextType {
@@ -57,12 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session.user)
         setOrganization(session.organization)
         setRole({ role: session.role, permissions: { all: true } })
-        setProfile({
-          first_name: "Demo",
-          last_name: "User",
-          organization_id: session.organization.id,
-          avatar_url: "/placeholder.svg?height=32&width=32",
-        })
+        setProfile(session.profile) // Set profile from demo session
         setIsDemo(true)
         setLoading(false)
         console.log("AuthContext: Demo session loaded successfully.")
