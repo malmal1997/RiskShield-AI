@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Shield, Eye, EyeOff, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/components/auth-context"
+import { createOrganization } from "@/lib/auth-service" // Import createOrganization
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -49,15 +50,22 @@ export default function RegisterPage() {
     }
 
     try {
-      const { error } = await signUp(formData.email, formData.password);
+      // Use createOrganization to handle both user signup and profile/organization creation
+      const { organization, user } = await createOrganization({
+        organizationName: formData.institutionName,
+        userFirstName: formData.contactName.split(' ')[0] || '',
+        userLastName: formData.contactName.split(' ').slice(1).join(' ') || '',
+        userEmail: formData.email,
+        userPassword: formData.password,
+      });
 
-      if (error) {
-        setError(error.message);
-      } else {
+      if (organization && user) {
         setSuccess(true);
+      } else {
+        setError("Registration failed. Please check your input and try again.");
       }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.")
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }
