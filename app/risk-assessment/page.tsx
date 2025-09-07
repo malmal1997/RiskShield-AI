@@ -38,36 +38,316 @@ const assessmentCategories = [
     icon: Shield,
     questions: [
       {
-        id: "cs1",
-        question: "Does your organization have a formal cybersecurity policy?",
+        id: "cyber_1",
+        question: "Does your organization have a formal information security policy?",
+        type: "multiple",
+        options: ["Yes, comprehensive policy", "Yes, basic policy", "In development", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_2",
+        question: "How do you manage user access to systems and data?",
+        type: "multiple",
+        options: [
+          "Multi-factor authentication",
+          "Role-based access control",
+          "Regular access reviews",
+          "Privileged access management",
+          "Single sign-on (SSO)",
+        ],
+        weight: 10,
+      },
+      {
+        id: "cyber_3",
+        question: "Describe your incident response procedures:",
         type: "boolean",
         weight: 10,
       },
       {
-        id: "cs2",
-        question: "How often do you conduct cybersecurity training for employees?",
+        id: "cyber_4",
+        question: "What encryption standards do you use for data at rest and in transit?",
+        type: "multiple",
+        options: ["AES-256 and TLS 1.3", "AES-128 and TLS 1.2", "Basic encryption", "No encryption"],
+        weight: 10,
+      },
+      {
+        id: "cyber_5",
+        question: "How often do you conduct security awareness training?",
+        type: "multiple",
+        options: ["Monthly", "Quarterly", "Annually", "As needed", "Never"],
+        weight: 10,
+      },
+      {
+        id: "cyber_6",
+        question: "Describe your vulnerability assessment and patch management process:",
+        type: "boolean",
+        weight: 10,
+      },
+      {
+        id: "cyber_7",
+        question: "Do you have a written Information Security Policy (ISP)?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_8",
+        question: "How often do you review and update your Information Security Policy?",
+        type: "multiple",
+        options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
+        weight: 10,
+      },
+      {
+        id: "cyber_9",
+        question: "Do you have a designated person responsible for Information Security Policy?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_10",
+        question: "Do you have data privacy compliance monitoring procedures in place?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_11",
+        question: "Do you have physical perimeter and boundary security controls?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_12",
+        question: "Do you have controls to protect against environmental extremes?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_13",
+        question: "Do you conduct independent audits/assessments of your Information Security Policy?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_14",
+        question: "Do you have an IT asset management program?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_15",
+        question: "Do you have restrictions on storage devices?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_16",
+        question: "Do you have anti-malware/endpoint protection solutions deployed?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_17",
+        question: "Do you implement network segmentation?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_18",
+        question: "Do you have real-time network monitoring and alerting?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_19",
+        question: "How frequently do you conduct vulnerability scanning?",
         type: "multiple",
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 8,
+        weight: 10,
       },
       {
-        id: "cs3",
-        question: "Do you have multi-factor authentication implemented for all critical systems?",
+        id: "cyber_20",
+        question: "How frequently do you conduct penetration testing?",
+        type: "multiple",
+        options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
+        weight: 10,
+      },
+      {
+        id: "cyber_21",
+        question: "Which regulatory compliance/industry standards does your company follow?",
+        type: "multiple",
+        options: ["ISO 27001", "SOC 2", "HIPAA", "PCI DSS", "NIST", "None"],
+        weight: 10,
+      },
+      {
+        id: "cyber_22",
+        question: "Do you have a formal access control policy?",
         type: "boolean",
-        weight: 9,
+        options: ["Yes", "No"],
+        weight: 10,
       },
       {
-        id: "cs4",
-        question: "How frequently do you perform vulnerability assessments?",
+        id: "cyber_23",
+        question: "Do you have physical access controls for wireless infrastructure?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_24",
+        question: "Do you have defined password parameters and requirements?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_25",
+        question: "Do you implement least privilege access principles?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_26",
+        question: "How frequently do you conduct access reviews?",
         type: "multiple",
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 8,
+        weight: 10,
       },
       {
-        id: "cs5",
-        question: "Do you have an incident response plan in place?",
+        id: "cyber_27",
+        question: "Do you require device authentication for network access?",
         type: "boolean",
-        weight: 9,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_28",
+        question: "Do you have secure remote logical access controls?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_29",
+        question: "Do you have a third-party oversight program?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_30",
+        question: "Do you assess third-party security controls?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_31",
+        question: "Do you verify third-party compliance controls?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_32",
+        question: "Do you conduct background screening for employees with access to sensitive data?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_33",
+        question: "Do you provide information security training to employees?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_34",
+        question: "Do you provide privacy training to employees?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_35",
+        question: "Do you provide role-specific compliance training?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_36",
+        question: "Do you have policy compliance and disciplinary measures?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_37",
+        question: "Do you have formal onboarding and offboarding controls?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_38",
+        question: "Do you have a data management program?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_39",
+        question: "Do you have a published privacy policy?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_40",
+        question: "Do you have consumer data retention policies?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_41",
+        question: "Do you have controls to ensure PII is safeguarded?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_42",
+        question: "Do you have data breach protocols?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_43",
+        question: "Do you support consumer rights to dispute, copy, complain, delete, and opt out?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_44",
+        question: "Do you collect NPI, PII, or PHI data?",
+        type: "boolean",
+        options: ["Yes", "No"],
+        weight: 10,
       },
     ],
   },
@@ -2252,767 +2532,765 @@ ${emailResult.message}`)
                                 Delegate Assessment
                               </Button>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Saved Assessments */}
-              {savedAssessments.length > 0 && (
-                <div className="mb-12">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Saved Assessments</h2>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowSavedAssessments(!showSavedAssessments)}
-                      className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      {showSavedAssessments ? "Hide" : "Show"} Saved ({savedAssessments.length})
-                    </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
 
-                  {showSavedAssessments && (
+                  {/* Saved Assessments */}
+                  {savedAssessments.length > 0 && (
+                    <div className="mb-12">
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">Saved Assessments</h2>
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowSavedAssessments(!showSavedAssessments)}
+                          className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          {showSavedAssessments ? "Hide" : "Show"} Saved ({savedAssessments.length})
+                        </Button>
+                      </div>
+
+                      {showSavedAssessments && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {savedAssessments.map((saved) => (
+                            <Card key={saved.id} className="border border-yellow-200 bg-yellow-50">
+                              <CardHeader>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-2">
+                                    <Clock className="h-5 w-5 text-yellow-600" />
+                                    <CardTitle className="text-lg text-yellow-900">{saved.categoryName}</CardTitle>
+                                  </div>
+                                  <Badge className="bg-yellow-200 text-yellow-800">Draft</Badge>
+                                </div>
+                                <CardDescription className="text-yellow-700">
+                                  Progress: {saved.currentQuestion + 1} of{" "}
+                                  {assessmentCategories.find((cat) => cat.id === saved.category)?.questions.length}{" "}
+                                  questions
+                                </CardDescription>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-3">
+                                  <Progress
+                                    value={
+                                      ((saved.currentQuestion + 1) /
+                                        (assessmentCategories.find((cat) => cat.id === saved.category)?.questions.length ||
+                                          1)) *
+                                      100
+                                    }
+                                    className="h-2"
+                                  />
+                                  <div className="text-sm text-yellow-700">
+                                    Last saved: {new Date(saved.timestamp).toLocaleString()}
+                                  </div>
+                                  <div className="flex space-x-2">
+                                    <Button
+                                      onClick={() => loadSavedAssessment(saved)}
+                                      size="sm"
+                                      className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white"
+                                    >
+                                      Continue
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => deleteSavedAssessment(saved.category)}
+                                      className="border-red-200 text-red-600 hover:bg-red-50"
+                                    >
+                                      Delete
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Delegated Assessments */}
+                  {delegatedAssessments.length > 0 && (
+                    <div className="mb-12">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-6">Delegated Assessments</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {delegatedAssessments.map((delegation) => (
+                          <Card key={delegation.id} className="border border-purple-200 bg-purple-50">
+                            <CardHeader>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  {delegation.delegationType === "third-party" ? (
+                                    <Building2 className="h-5 w-5 text-purple-600" />
+                                  ) : (
+                                    <Users className="h-5 w-5 text-purple-600" />
+                                  )}
+                                  <CardTitle className="text-lg text-purple-900">{delegation.assessmentType}</CardTitle>
+                                </div>
+                                <div className="flex flex-col items-end space-y-1">
+                                  <Badge className="bg-purple-200 text-purple-800">
+                                    {delegation.status === "pending" ? "Pending" : "Completed"}
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs">
+                                    {delegation.method === "ai" ? "AI" : "Manual"}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <CardDescription className="text-purple-700">
+                                {delegation.delegationType === "third-party" ? "Third-Party" : "Team Member"}:{" "}
+                                {delegation.recipientName}
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2 text-sm text-purple-700">
+                                <div>Email: {delegation.recipientEmail}</div>
+                                {delegation.companyName && <div>Company: {delegation.companyName}</div>}
+                                {delegation.dueDate && <div>Due: {new Date(delegation.dueDate).toLocaleDateString()}</div>}
+                                <div>Sent: {new Date(delegation.sentDate).toLocaleDateString()}</div>
+                                {delegation.emailResult && (
+                                  <div className="text-xs">
+                                    Email Status:{" "}
+                                    <span className={delegation.emailResult.success ? "text-green-600" : "text-red-600"}>
+                                      {delegation.emailResult.success ? "Delivered" : "Failed"}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recent Assessments */}
+                  <div className="mb-12">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Assessments</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {savedAssessments.map((saved) => (
-                        <Card key={saved.id} className="border border-yellow-200 bg-yellow-50">
+                      {mockAssessments.map((assessment) => (
+                        <Card key={assessment.id} className="border border-gray-200">
                           <CardHeader>
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <Clock className="h-5 w-5 text-yellow-600" />
-                                <CardTitle className="text-lg text-yellow-900">{saved.categoryName}</CardTitle>
-                              </div>
-                              <Badge className="bg-yellow-200 text-yellow-800">Draft</Badge>
+                              <CardTitle className="text-lg">{assessment.name}</CardTitle>
+                              <Badge className={`${getStatusColor(assessment.status)}`}>
+                                {assessment.status === "completed" ? "Completed" : "In Progress"}
+                              </Badge>
                             </div>
-                            <CardDescription className="text-yellow-700">
-                              Progress: {saved.currentQuestion + 1} of{" "}
-                              {assessmentCategories.find((cat) => cat.id === saved.category)?.questions.length}{" "}
-                              questions
+                            <CardDescription>
+                              {assessmentCategories.find((cat) => cat.id === assessment.category)?.name}
                             </CardDescription>
                           </CardHeader>
                           <CardContent>
                             <div className="space-y-3">
-                              <Progress
-                                value={
-                                  ((saved.currentQuestion + 1) /
-                                    (assessmentCategories.find((cat) => cat.id === saved.category)?.questions.length ||
-                                      1)) *
-                                  100
-                                }
-                                className="h-2"
-                              />
-                              <div className="text-sm text-yellow-700">
-                                Last saved: {new Date(saved.timestamp).toLocaleString()}
-                              </div>
-                              <div className="flex space-x-2">
-                                <Button
-                                  onClick={() => loadSavedAssessment(saved)}
-                                  size="sm"
-                                  className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white"
-                                >
-                                  Continue
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => deleteSavedAssessment(saved.category)}
-                                  className="border-red-200 text-red-600 hover:bg-red-50"
-                                >
-                                  Delete
-                                </Button>
-                              </div>
+                              {assessment.status === "completed" && (
+                                <>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600">Risk Score:</span>
+                                    <span className="font-semibold">{assessment.riskScore}%</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600">Risk Level:</span>
+                                    <Badge className={`${getRiskLevelColor(assessment.riskLevel)}`}>
+                                      {assessment.riskLevel}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600">Completed:</span>
+                                    <span className="text-sm">{assessment.completedDate}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600">Recommendations:</span>
+                                    <span className="text-sm">
+                                      {assessment.implementedRecommendations}/{assessment.recommendations} implemented
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+                              <Button variant="outline" className="w-full bg-transparent">
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
                       ))}
                     </div>
                   )}
+                </>
+              )}
+
+              {/* Step 2: Choose Assessment Method */}
+              {currentStep === "choose-method" && currentCategory && (
+                <div className="max-w-4xl mx-auto">
+                  <div className="mb-8">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setCurrentStep("select")
+                        setSelectedCategory(null)
+                      }}
+                      className="mb-6"
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back to Assessment Selection
+                    </Button>
+                  </div>
+
+                  <div className="text-center mb-12">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Assessment Method</h2>
+                    <p className="text-lg text-gray-600">
+                      Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                    </p>
+                  </div>
+
+                  <div className="grid gap-8 md:grid-cols-2">
+                    <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseManual}>
+                      <CardHeader>
+                        <div className="flex items-center space-x-3">
+                          <div className="p-3 bg-green-100 rounded-lg">
+                            <User className="h-8 w-8 text-green-600" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-xl">Manual Assessment</CardTitle>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <CardDescription className="mb-6 text-base">
+                          Complete the assessment manually by answering questions step by step. Full control over responses
+                          with detailed explanations.
+                        </CardDescription>
+                        <div className="space-y-3 mb-6">
+                          <div className="flex items-center text-sm text-gray-600">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                            Step-by-step question flow
+                          </div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                            Full control over answers
+                          </div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                            Detailed explanations
+                          </div>
+                        </div>
+                        <Button className="w-full bg-green-600 hover:bg-green-700">
+                          <User className="mr-2 h-4 w-4" />
+                          Start Manual Assessment
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseAI}>
+                      <CardHeader>
+                        <div className="flex items-center space-x-3">
+                          <div className="p-3 bg-blue-100 rounded-lg">
+                            <Bot className="h-8 w-8 text-blue-600" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-xl">AI Assessment</CardTitle>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <CardDescription className="mb-6 text-base">
+                          Upload your documents and let AI analyze them automatically. Fast, comprehensive analysis with
+                          evidence extraction.
+                        </CardDescription>
+                        <div className="space-y-3 mb-6">
+                          <div className="flex items-center text-sm text-gray-600">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                            Automated document analysis
+                          </div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                            Evidence extraction
+                          </div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                            Fast and comprehensive
+                          </div>
+                        </div>
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                          <Bot className="mr-2 h-4 w-4" />
+                          Start AI Assessment
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
               )}
 
-              {/* Delegated Assessments */}
-              {delegatedAssessments.length > 0 && (
-                <div className="mb-12">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Delegated Assessments</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {delegatedAssessments.map((delegation) => (
-                      <Card key={delegation.id} className="border border-purple-200 bg-purple-50">
+              {/* Step 3: Manual Assessment in Progress */}
+              {currentStep === "manual-assessment" && !assessmentCompleted && (
+                <>
+                  {/* SOC Information Collection - Show before questions if SOC assessment and not filled */}
+                  {selectedCategory === "soc-compliance" && !socInfo.socType && (
+                    <div className="max-w-3xl mx-auto mt-8">
+                      <Card className="border border-gray-200">
                         <CardHeader>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              {delegation.delegationType === "third-party" ? (
-                                <Building2 className="h-5 w-5 text-purple-600" />
-                              ) : (
-                                <Users className="h-5 w-5 text-purple-600" />
-                              )}
-                              <CardTitle className="text-lg text-purple-900">{delegation.assessmentType}</CardTitle>
-                            </div>
-                            <div className="flex flex-col items-end space-y-1">
-                              <Badge className="bg-purple-200 text-purple-800">
-                                {delegation.status === "pending" ? "Pending" : "Completed"}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {delegation.method === "ai" ? "AI" : "Manual"}
-                              </Badge>
-                            </div>
-                          </div>
-                          <CardDescription className="text-purple-700">
-                            {delegation.delegationType === "third-party" ? "Third-Party" : "Team Member"}:{" "}
-                            {delegation.recipientName}
+                          <CardTitle>SOC Assessment Information</CardTitle>
+                          <CardDescription>
+                            Please provide information about your SOC assessment requirements before proceeding
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="space-y-2 text-sm text-purple-700">
-                            <div>Email: {delegation.recipientEmail}</div>
-                            {delegation.companyName && <div>Company: {delegation.companyName}</div>}
-                            {delegation.dueDate && <div>Due: {new Date(delegation.dueDate).toLocaleDateString()}</div>}
-                            <div>Sent: {new Date(delegation.sentDate).toLocaleDateString()}</div>
-                            {delegation.emailResult && (
-                              <div className="text-xs">
-                                Email Status:{" "}
-                                <span className={delegation.emailResult.success ? "text-green-600" : "text-red-600"}>
-                                  {delegation.emailResult.success ? "Delivered" : "Failed"}
-                                </span>
+                          <div className="grid gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="socType">SOC Type *</Label>
+                                <select
+                                  id="socType"
+                                  className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                                  value={socInfo.socType}
+                                  onChange={(e) => setSocInfo({ ...socInfo, socType: e.target.value })}
+                                >
+                                  <option value="">Select SOC Type</option>
+                                  <option value="SOC 1 - Internal Controls over Financial Reporting">
+                                    SOC 1 - Internal Controls over Financial Reporting
+                                  </option>
+                                  <option value="SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy">
+                                    SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy
+                                  </option>
+                                  <option value="SOC 3 - General Use Report">SOC 3 - General Use Report</option>
+                                </select>
                               </div>
-                            )}
+                              <div>
+                                <Label htmlFor="reportType">Report Type *</Label>
+                                <select
+                                  id="reportType"
+                                  className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                                  value={socInfo.reportType}
+                                  onChange={(e) => setSocInfo({ ...socInfo, reportType: e.target.value })}
+                                >
+                                  <option value="">Select Report Type</option>
+                                  <option value="Type 1 - Design and Implementation">
+                                    Type 1 - Design and Implementation
+                                  </option>
+                                  <option value="Type 2 - Design, Implementation, and Operating Effectiveness">
+                                    Type 2 - Design, Implementation, and Operating Effectiveness
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="auditor">Auditor/CPA Firm</Label>
+                                <Input
+                                  type="text"
+                                  id="auditor"
+                                  value={socInfo.auditor}
+                                  onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="auditorOpinion">Expected Auditor Opinion</Label>
+                                <select
+                                  id="auditorOpinion"
+                                  className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                                  value={socInfo.auditorOpinion}
+                                  onChange={(e) => setSocInfo({ ...socInfo, auditorOpinion: e.target.value })}
+                                >
+                                  <option value="">Select Expected Opinion</option>
+                                  <option value="Unqualified (Clean Opinion)">Unqualified (Clean Opinion)</option>
+                                  <option value="Qualified">Qualified</option>
+                                  <option value="Adverse">Adverse</option>
+                                  <option value="Disclaimer">Disclaimer</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="testedStatus">Testing Status</Label>
+                                <select
+                                  id="testedStatus"
+                                  className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                                  value={socInfo.testedStatus}
+                                  onChange={(e) => setSocInfo({ ...socInfo, testedStatus: e.target.value })}
+                                >
+                                  <option value="">Select Testing Status</option>
+                                  <option value="Tested">Tested</option>
+                                  <option value="Untested">Untested</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div>
+                              <Label htmlFor="companyName">Company Name *</Label>
+                              <Input
+                                type="text"
+                                id="companyName"
+                                value={socInfo.companyName}
+                                onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="productService">Product/Service Being Assessed *</Label>
+                              <Input
+                                type="text"
+                                id="productService"
+                                value={socInfo.productService}
+                                onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
+                              />
+                            </div>
+
+                            <div>
+                              <Label>Trust Service Criteria Included in Report *</Label>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                                {["Security", "Availability", "Processing Integrity", "Confidentiality", "Privacy"].map(
+                                  (criteria) => (
+                                    <label key={criteria} className="flex items-center space-x-2">
+                                      <input
+                                        type="checkbox"
+                                        checked={socInfo.trustServiceCriteria.includes(criteria)}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            setSocInfo({
+                                              ...socInfo,
+                                              trustServiceCriteria: [...socInfo.trustServiceCriteria, criteria],
+                                            })
+                                          } else {
+                                            setSocInfo({
+                                              ...socInfo,
+                                              trustServiceCriteria: socInfo.trustServiceCriteria.filter(
+                                                (c) => c !== criteria,
+                                              ),
+                                            })
+                                          }
+                                        }}
+                                        className="rounded border-gray-300"
+                                      />
+                                      <span className="text-sm">{criteria}</span>
+                                    </label>
+                                  ),
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4">
+                            <Label htmlFor="subserviceOrganizations">Subservice Organizations</Label>
+                            <Textarea
+                              id="subserviceOrganizations"
+                              value={socInfo.subserviceOrganizations}
+                              onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
+                            />
+                          </div>
+
+                          <div className="mt-6">
+                            <Button onClick={() => setCurrentStep("manual-assessment")}>Continue to Questions</Button>
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Recent Assessments */}
-              <div className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Assessments</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {mockAssessments.map((assessment) => (
-                    <Card key={assessment.id} className="border border-gray-200">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg">{assessment.name}</CardTitle>
-                          <Badge className={`${getStatusColor(assessment.status)}`}>
-                            {assessment.status === "completed" ? "Completed" : "In Progress"}
-                          </Badge>
-                        </div>
-                        <CardDescription>
-                          {assessmentCategories.find((cat) => cat.id === assessment.category)?.name}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          {assessment.status === "completed" && (
-                            <>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600">Risk Score:</span>
-                                <span className="font-semibold">{assessment.riskScore}%</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600">Risk Level:</span>
-                                <Badge className={`${getRiskLevelColor(assessment.riskLevel)}`}>
-                                  {assessment.riskLevel}
-                                </Badge>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600">Completed:</span>
-                                <span className="text-sm">{assessment.completedDate}</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600">Recommendations:</span>
-                                <span className="text-sm">
-                                  {assessment.implementedRecommendations}/{assessment.recommendations} implemented
-                                </span>
-                              </div>
-                            </>
-                          )}
-                          <Button variant="outline" className="w-full bg-transparent">
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Step 2: Choose Assessment Method */}
-          {currentStep === "choose-method" && currentCategory && (
-            <div className="max-w-4xl mx-auto">
-              <div className="mb-8">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setCurrentStep("select")
-                    setSelectedCategory(null)
-                  }}
-                  className="mb-6"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Assessment Selection
-                </Button>
-              </div>
-
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Assessment Method</h2>
-                <p className="text-lg text-gray-600">
-                  Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
-                </p>
-              </div>
-
-              <div className="grid gap-8 md:grid-cols-2">
-                <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseManual}>
-                  <CardHeader>
-                    <div className="flex items-center space-x-3">
-                      <div className="p-3 bg-green-100 rounded-lg">
-                        <User className="h-8 w-8 text-green-600" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-xl">Manual Assessment</CardTitle>
-                      </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="mb-6 text-base">
-                      Complete the assessment manually by answering questions step by step. Full control over responses
-                      with detailed explanations.
-                    </CardDescription>
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                        Step-by-step question flow
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                        Full control over answers
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                        Detailed explanations
-                      </div>
-                    </div>
-                    <Button className="w-full bg-green-600 hover:bg-green-700">
-                      <User className="mr-2 h-4 w-4" />
-                      Start Manual Assessment
-                    </Button>
-                  </CardContent>
-                </Card>
+                  )}
 
-                <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseAI}>
-                  <CardHeader>
-                    <div className="flex items-center space-x-3">
-                      <div className="p-3 bg-blue-100 rounded-lg">
-                        <Bot className="h-8 w-8 text-blue-600" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-xl">AI Assessment</CardTitle>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="mb-6 text-base">
-                      Upload your documents and let AI analyze them automatically. Fast, comprehensive analysis with
-                      evidence extraction.
-                    </CardDescription>
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        Automated document analysis
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        Evidence extraction
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        Fast and comprehensive
-                      </div>
-                    </div>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                      <Bot className="mr-2 h-4 w-4" />
-                      Start AI Assessment
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Manual Assessment in Progress */}
-          {currentStep === "manual-assessment" && !assessmentCompleted && (
-            <>
-              {/* SOC Information Collection - Show before questions if SOC assessment and not filled */}
-              {selectedCategory === "soc-compliance" && !socInfo.socType && (
-                <div className="max-w-3xl mx-auto mt-8">
-                  <Card className="border border-gray-200">
-                    <CardHeader>
-                      <CardTitle>SOC Assessment Information</CardTitle>
-                      <CardDescription>
-                        Please provide information about your SOC assessment requirements before proceeding
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="socType">SOC Type *</Label>
-                            <select
-                              id="socType"
-                              className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
-                              value={socInfo.socType}
-                              onChange={(e) => setSocInfo({ ...socInfo, socType: e.target.value })}
-                            >
-                              <option value="">Select SOC Type</option>
-                              <option value="SOC 1 - Internal Controls over Financial Reporting">
-                                SOC 1 - Internal Controls over Financial Reporting
-                              </option>
-                              <option value="SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy">
-                                SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy
-                              </option>
-                              <option value="SOC 3 - General Use Report">SOC 3 - General Use Report</option>
-                            </select>
-                          </div>
-                          <div>
-                            <Label htmlFor="reportType">Report Type *</Label>
-                            <select
-                              id="reportType"
-                              className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
-                              value={socInfo.reportType}
-                              onChange={(e) => setSocInfo({ ...socInfo, reportType: e.target.value })}
-                            >
-                              <option value="">Select Report Type</option>
-                              <option value="Type 1 - Design and Implementation">
-                                Type 1 - Design and Implementation
-                              </option>
-                              <option value="Type 2 - Design, Implementation, and Operating Effectiveness">
-                                Type 2 - Design, Implementation, and Operating Effectiveness
-                              </option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="auditor">Auditor/CPA Firm</Label>
-                            <Input
-                              type="text"
-                              id="auditor"
-                              value={socInfo.auditor}
-                              onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="auditorOpinion">Expected Auditor Opinion</Label>
-                            <select
-                              id="auditorOpinion"
-                              className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
-                              value={socInfo.auditorOpinion}
-                              onChange={(e) => setSocInfo({ ...socInfo, auditorOpinion: e.target.value })}
-                            >
-                              <option value="">Select Expected Opinion</option>
-                              <option value="Unqualified (Clean Opinion)">Unqualified (Clean Opinion)</option>
-                              <option value="Qualified">Qualified</option>
-                              <option value="Adverse">Adverse</option>
-                              <option value="Disclaimer">Disclaimer</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="testedStatus">Testing Status</Label>
-                            <select
-                              id="testedStatus"
-                              className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
-                              value={socInfo.testedStatus}
-                              onChange={(e) => setSocInfo({ ...socInfo, testedStatus: e.target.value })}
-                            >
-                              <option value="">Select Testing Status</option>
-                              <option value="Tested">Tested</option>
-                              <option value="Untested">Untested</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="companyName">Company Name *</Label>
-                          <Input
-                            type="text"
-                            id="companyName"
-                            value={socInfo.companyName}
-                            onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="productService">Product/Service Being Assessed *</Label>
-                          <Input
-                            type="text"
-                            id="productService"
-                            value={socInfo.productService}
-                            onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
-                          />
-                        </div>
-
-                        <div>
-                          <Label>Trust Service Criteria Included in Report *</Label>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                            {["Security", "Availability", "Processing Integrity", "Confidentiality", "Privacy"].map(
-                              (criteria) => (
-                                <label key={criteria} className="flex items-center space-x-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={socInfo.trustServiceCriteria.includes(criteria)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSocInfo({
-                                          ...socInfo,
-                                          trustServiceCriteria: [...socInfo.trustServiceCriteria, criteria],
-                                        })
-                                      } else {
-                                        setSocInfo({
-                                          ...socInfo,
-                                          trustServiceCriteria: socInfo.trustServiceCriteria.filter(
-                                            (c) => c !== criteria,
-                                          ),
-                                        })
-                                      }
-                                    }}
-                                    className="rounded border-gray-300"
-                                  />
-                                  <span className="text-sm">{criteria}</span>
-                                </label>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-4">
-                        <Label htmlFor="subserviceOrganizations">Subservice Organizations</Label>
-                        <Textarea
-                          id="subserviceOrganizations"
-                          value={socInfo.subserviceOrganizations}
-                          onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
-                        />
-                      </div>
-
-                      <div className="mt-6">
-                        <Button onClick={() => setCurrentStep("manual-assessment")}>Continue to Questions</Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-              {/* Regular Assessment Questions - Show if not SOC or SOC info is filled */}
-              {(selectedCategory !== "soc-compliance" || socInfo.socType) && (
-                <div className="max-w-3xl mx-auto mt-8">
-                  <Card className="border border-gray-200">
-                    <CardHeader>
-                      <CardTitle>{currentCategory?.name} Assessment</CardTitle>
-                      <CardDescription>
-                        Question {currentQuestion + 1} of {currentCategory?.questions.length}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Progress value={Math.round(progress)} />
-                      <div className="mt-4">
-                        <Label htmlFor="question">
-                          {currentQuestion + 1}. {currentQuestionData.question}
-                        </Label>
-                        <div className="mt-2">
-                          {currentQuestionData.type === "boolean" ? (
-                            <div className="flex space-x-4">
-                              <Button
-                                variant={answers[currentQuestionData.id] === true ? "default" : "outline"}
-                                onClick={() => handleAnswer(currentQuestionData.id, true)}
-                              >
-                                Yes
-                              </Button>
-                              <Button
-                                variant={answers[currentQuestionData.id] === false ? "default" : "outline"}
-                                onClick={() => handleAnswer(currentQuestionData.id, false)}
-                              >
-                                No
-                              </Button>
-                            </div>
-                          ) : currentQuestionData.type === "tested" ? (
-                            <div className="flex space-x-4">
-                              <Button
-                                variant={answers[currentQuestionData.id] === "tested" ? "default" : "outline"}
-                                onClick={() => handleAnswer(currentQuestionData.id, "tested")}
-                              >
-                                Tested
-                              </Button>
-                              <Button
-                                variant={answers[currentQuestionData.id] === "not_tested" ? "default" : "outline"}
-                                onClick={() => handleAnswer(currentQuestionData.id, "not_tested")}
-                              >
-                                Not Tested
-                              </Button>
-                              <p className="text-sm text-gray-500 mt-1">
-                                <strong>Tested</strong> means the control has been implemented and its effectiveness has
-                                been verified through testing.
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="grid gap-2">
-                              {currentQuestionData.options?.map((option) => (
-                                <Button
-                                  key={option}
-                                  variant={answers[currentQuestionData.id] === option ? "default" : "outline"}
-                                  onClick={() => handleAnswer(currentQuestionData.id, option)}
-                                >
-                                  {option}
-                                </Button>
-                              ))}
-                            </div>
-                          )}
-
+                  {/* Regular Assessment Questions - Show if not SOC or SOC info is filled */}
+                  {(selectedCategory !== "soc-compliance" || socInfo.socType) && (
+                    <div className="max-w-3xl mx-auto mt-8">
+                      <Card className="border border-gray-200">
+                        <CardHeader>
+                          <CardTitle>{currentCategory?.name} Assessment</CardTitle>
+                          <CardDescription>
+                            Question {currentQuestion + 1} of {currentCategory?.questions.length}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Progress value={Math.round(progress)} />
                           <div className="mt-4">
-                            <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
-                            <Textarea
-                              id="additionalInfo"
-                              value={answers[`${currentQuestionData.id}_additional`] || ""}
-                              onChange={(e) => handleAnswer(`${currentQuestionData.id}_additional`, e.target.value)}
-                            />
+                            <Label htmlFor="question">
+                              {currentQuestion + 1}. {currentQuestionData.question}
+                            </Label>
+                            <div className="mt-2">
+                              {currentQuestionData.type === "boolean" ? (
+                                <div className="flex space-x-4">
+                                  <Button
+                                    variant={answers[currentQuestionData.id] === true ? "default" : "outline"}
+                                    onClick={() => handleAnswer(currentQuestionData.id, true)}
+                                  >
+                                    Yes
+                                  </Button>
+                                  <Button
+                                    variant={answers[currentQuestionData.id] === false ? "default" : "outline"}
+                                    onClick={() => handleAnswer(currentQuestionData.id, false)}
+                                  >
+                                    No
+                                  </Button>
+                                </div>
+                              ) : currentQuestionData.type === "tested" ? (
+                                <div className="flex space-x-4">
+                                  <Button
+                                    variant={answers[currentQuestionData.id] === "tested" ? "default" : "outline"}
+                                    onClick={() => handleAnswer(currentQuestionData.id, "tested")}
+                                  >
+                                    Tested
+                                  </Button>
+                                  <Button
+                                    variant={answers[currentQuestionData.id] === "not_tested" ? "default" : "outline"}
+                                    onClick={() => handleAnswer(currentQuestionData.id, "not_tested")}
+                                  >
+                                    Not Tested
+                                  </Button>
+                                  <p className="text-sm text-gray-500 mt-1">
+                                    <strong>Tested</strong> means the control has been implemented and its effectiveness has
+                                    been verified through testing.
+                                  </p>
+                                </div>
+                              ) : (
+                                <div className="grid gap-2">
+                                  {currentQuestionData.options?.map((option) => (
+                                    <Button
+                                      key={option}
+                                      variant={answers[currentQuestionData.id] === option ? "default" : "outline"}
+                                      onClick={() => handleAnswer(currentQuestionData.id, option)}
+                                    >
+                                      {option}
+                                    </Button>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="mt-4">
+                                <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+                                <Textarea
+                                  id="additionalInfo"
+                                  value={answers[`${currentQuestionData.id}_additional`] || ""}
+                                  onChange={(e) => handleAnswer(`${currentQuestionData.id}_additional`, e.target.value)}
+                                />
+                              </div>
+                            </div>
                           </div>
+
+                          <div className="mt-6 flex justify-between">
+                            <Button variant="outline" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
+                              Previous
+                            </Button>
+                            <Button onClick={handleNextQuestion}>
+                              {currentQuestion === (currentCategory?.questions.length || 0) - 1 ? "Complete" : "Next"}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Assessment Completed */}
+              {currentStep === "manual-assessment" && assessmentCompleted && (
+                <div className="max-w-3xl mx-auto mt-12">
+                  <Card className="border border-green-200 bg-green-50">
+                    <CardHeader>
+                      <CardTitle>
+                        <CheckCircle2 className="mr-2 h-6 w-6 inline-block align-middle" />
+                        Assessment Complete!
+                      </CardTitle>
+                      <CardDescription>Your {riskResults?.category} has been completed.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="text-center">
+                          <div className="text-4xl font-bold text-green-700">{riskResults?.recommendations.length}</div>
+                          <div className="text-sm text-gray-600">Recommendations</div>
                         </div>
                       </div>
 
-                      <div className="mt-6 flex justify-between">
-                        <Button variant="outline" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
-                          Previous
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommendations</h3>
+                        <ul className="list-disc pl-5">
+                          {riskResults?.recommendations.map((recommendation, index) => (
+                            <li key={index} className="text-gray-700">
+                              {recommendation}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="flex justify-center">
+                        <Button onClick={downloadRegularReport} className="mr-4">
+                          Download Report
                         </Button>
-                        <Button onClick={handleNextQuestion}>
-                          {currentQuestion === (currentCategory?.questions.length || 0) - 1 ? "Complete" : "Next"}
+                        <Button variant="outline" onClick={() => setCurrentStep("select")}>
+                          Start New Assessment
                         </Button>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
               )}
-            </>
-          )}
 
-          {/* Assessment Completed */}
-          {currentStep === "manual-assessment" && assessmentCompleted && (
-            <div className="max-w-3xl mx-auto mt-12">
-              <Card className="border border-green-200 bg-green-50">
-                <CardHeader>
-                  <CardTitle>
-                    <CheckCircle2 className="mr-2 h-6 w-6 inline-block align-middle" />
-                    Assessment Complete!
-                  </CardTitle>
-                  <CardDescription>Your {riskResults?.category} has been completed.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-green-700">{riskResults?.recommendations.length}</div>
-                      <div className="text-sm text-gray-600">Recommendations</div>
-                    </div>
-                  </div>
-
-                  <div className="mb-8">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommendations</h3>
-                    <ul className="list-disc pl-5">
-                      {riskResults?.recommendations.map((recommendation, index) => (
-                        <li key={index} className="text-gray-700">
-                          {recommendation}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="flex justify-center">
-                    <Button onClick={downloadRegularReport} className="mr-4">
-                      Download Report
-                    </Button>
-                    <Button variant="outline" onClick={() => setCurrentStep("select")}>
-                      Start New Assessment
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* Delegate Assessment Modal */}
-          {showDelegateForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <CardHeader>
-                  <CardTitle>Delegate Assessment</CardTitle>
-                  <CardDescription>
-                    {delegateStep === "choose-type" && "Choose who will complete this assessment"}
-                    {delegateStep === "choose-method" && "Choose the assessment method"}
-                    {delegateStep === "form" && "Enter delegation details"}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {delegateStep === "choose-type" && (
-                    <div className="space-y-4">
-                      <div className="grid gap-4">
-                        <Button
-                          variant="outline"
-                          className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
-                          onClick={() => handleDelegateTypeSelection("team")}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <Users className="h-5 w-5 text-blue-600" />
-                            <span className="font-semibold">Team Member</span>
+              {/* Delegate Assessment Modal */}
+              {showDelegateForm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                  <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <CardHeader>
+                      <CardTitle>Delegate Assessment</CardTitle>
+                      <CardDescription>
+                        {delegateStep === "choose-type" && "Choose who will complete this assessment"}
+                        {delegateStep === "choose-method" && "Choose the assessment method"}
+                        {delegateStep === "form" && "Enter delegation details"}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {delegateStep === "choose-type" && (
+                        <div className="space-y-4">
+                          <div className="grid gap-4">
+                            <Button
+                              variant="outline"
+                              className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                              onClick={() => handleDelegateTypeSelection("team")}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <Users className="h-5 w-5 text-blue-600" />
+                                <span className="font-semibold">Team Member</span>
+                              </div>
+                              <span className="text-sm text-gray-600">Delegate to someone within your organization</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                              onClick={() => handleDelegateTypeSelection("third-party")}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <Building2 className="h-5 w-5 text-purple-600" />
+                                <span className="font-semibold">Third-Party</span>
+                              </div>
+                              <span className="text-sm text-gray-600">Delegate to an external vendor or partner</span>
+                            </Button>
                           </div>
-                          <span className="text-sm text-gray-600">Delegate to someone within your organization</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
-                          onClick={() => handleDelegateTypeSelection("third-party")}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <Building2 className="h-5 w-5 text-purple-600" />
-                            <span className="font-semibold">Third-Party</span>
+                          <div className="flex justify-end space-x-2">
+                            <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
+                              Cancel
+                            </Button>
                           </div>
-                          <span className="text-sm text-gray-600">Delegate to an external vendor or partner</span>
-                        </Button>
-                      </div>
-                      <div className="flex justify-end space-x-2">
-                        <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {delegateStep === "choose-method" && (
-                    <div className="space-y-4">
-                      <div className="grid gap-4">
-                        <Button
-                          variant="outline"
-                          className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
-                          onClick={() => handleDelegateMethodSelection("manual")}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <User className="h-5 w-5 text-green-600" />
-                            <span className="font-semibold">Manual Assessment</span>
-                          </div>
-                          <span className="text-sm text-gray-600">Traditional question-by-question assessment</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
-                          onClick={() => handleDelegateMethodSelection("ai")}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <Bot className="h-5 w-5 text-blue-600" />
-                            <span className="font-semibold">AI Assessment</span>
-                          </div>
-                          <span className="text-sm text-gray-600">AI-powered document analysis and assessment</span>
-                        </Button>
-                      </div>
-                      <div className="flex justify-end space-x-2">
-                        <Button variant="outline" onClick={() => setDelegateStep("choose-type")}>
-                          Back
-                        </Button>
-                        <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {delegateStep === "form" && (
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="recipientName">Recipient Name *</Label>
-                        <Input
-                          id="recipientName"
-                          value={delegateForm.recipientName}
-                          onChange={(e) => setDelegateForm({ ...delegateForm, recipientName: e.target.value })}
-                          placeholder="Enter recipient's full name"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="recipientEmail">Recipient Email *</Label>
-                        <Input
-                          id="recipientEmail"
-                          type="email"
-                          value={delegateForm.recipientEmail}
-                          onChange={(e) => setDelegateForm({ ...delegateForm, recipientEmail: e.target.value })}
-                          placeholder="Enter recipient's email address"
-                        />
-                      </div>
-                      {delegationType === "third-party" && (
-                        <div>
-                          <Label htmlFor="companyName">Company Name *</Label>
-                          <Input
-                            id="companyName"
-                            value={delegateForm.companyName}
-                            onChange={(e) => setDelegateForm({ ...delegateForm, companyName: e.target.value })}
-                            placeholder="Enter company name"
-                          />
                         </div>
                       )}
-                      <div>
-                        <Label htmlFor="dueDate">Due Date</Label>
-                        <Input
-                          id="dueDate"
-                          type="date"
-                          value={delegateForm.dueDate}
-                          onChange={(e) => setDelegateForm({ ...delegateForm, dueDate: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="customMessage">Custom Message</Label>
-                        <Textarea
-                          id="customMessage"
-                          value={delegateForm.customMessage}
-                          onChange={(e) => setDelegateForm({ ...delegateForm, customMessage: e.target.value })}
-                          placeholder="Add any additional instructions or context..."
-                          rows={3}
-                        />
-                      </div>
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <h4 className="font-semibold text-blue-900 mb-2">Assessment Details</h4>
-                        <div className="text-sm text-blue-800 space-y-1">
-                          <p>
-                            <strong>Type:</strong> {delegateForm.assessmentType}
-                          </p>
-                          <p>
-                            <strong>Method:</strong> {delegateMethod === "ai" ? "AI-Powered" : "Manual"}
-                          </p>
-                          <p>
-                            <strong>Delegation:</strong> {delegationType === "team" ? "Team Member" : "Third-Party"}
-                          </p>
+
+                      {delegateStep === "choose-method" && (
+                        <div className="space-y-4">
+                          <div className="grid gap-4">
+                            <Button
+                              variant="outline"
+                              className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                              onClick={() => handleDelegateMethodSelection("manual")}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <User className="h-5 w-5 text-green-600" />
+                                <span className="font-semibold">Manual Assessment</span>
+                              </div>
+                              <span className="text-sm text-gray-600">Traditional question-by-question assessment</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                              onClick={() => handleDelegateMethodSelection("ai")}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <Bot className="h-5 w-5 text-blue-600" />
+                                <span className="font-semibold">AI Assessment</span>
+                              </div>
+                              <span className="text-sm text-gray-600">AI-powered document analysis and assessment</span>
+                            </Button>
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                            <Button variant="outline" onClick={() => setDelegateStep("choose-type")}>
+                              Back
+                            </Button>
+                            <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex justify-end space-x-2">
-                        <Button variant="outline" onClick={() => setDelegateStep("choose-method")}>
-                          Back
-                        </Button>
-                        <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
-                          Cancel
-                        </Button>
-                        <Button onClick={handleSendDelegation}>
-                          <Send className="mr-2 h-4 w-4" />
-                          Send Delegation
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                      )}
+
+                      {delegateStep === "form" && (
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="recipientName">Recipient Name *</Label>
+                            <Input
+                              id="recipientName"
+                              value={delegateForm.recipientName}
+                              onChange={(e) => setDelegateForm({ ...delegateForm, recipientName: e.target.value })}
+                              placeholder="Enter recipient's full name"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="recipientEmail">Recipient Email *</Label>
+                            <Input
+                              id="recipientEmail"
+                              type="email"
+                              value={delegateForm.recipientEmail}
+                              onChange={(e) => setDelegateForm({ ...delegateForm, recipientEmail: e.target.value })}
+                              placeholder="Enter recipient's email address"
+                            />
+                          </div>
+                          {delegationType === "third-party" && (
+                            <div>
+                              <Label htmlFor="companyName">Company Name *</Label>
+                              <Input
+                                id="companyName"
+                                value={delegateForm.companyName}
+                                onChange={(e) => setDelegateForm({ ...delegateForm, companyName: e.target.value })}
+                                placeholder="Enter company name"
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <Label htmlFor="dueDate">Due Date</Label>
+                            <Input
+                              id="dueDate"
+                              type="date"
+                              value={delegateForm.dueDate}
+                              onChange={(e) => setDelegateForm({ ...delegateForm, dueDate: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="customMessage">Custom Message</Label>
+                            <Textarea
+                              id="customMessage"
+                              value={delegateForm.customMessage}
+                              onChange={(e) => setDelegateForm({ ...delegateForm, customMessage: e.target.value })}
+                              placeholder="Add any additional instructions or context..."
+                              rows={3}
+                            />
+                          </div>
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-blue-900 mb-2">Assessment Details</h4>
+                            <div className="text-sm text-blue-800 space-y-1">
+                              <p>
+                                <strong>Type:</strong> {delegateForm.assessmentType}
+                              </p>
+                              <p>
+                                <strong>Method:</strong> {delegateMethod === "ai" ? "AI-Powered" : "Manual"}
+                              </p>
+                              <p>
+                                <strong>Delegation:</strong> {delegationType === "team" ? "Team Member" : "Third-Party"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                            <Button variant="outline" onClick={() => setDelegateStep("choose-method")}>
+                              Back
+                            </Button>
+                            <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
+                              Cancel
+                            </Button>
+                            <Button onClick={handleSendDelegation}>
+                              <Send className="mr-2 h-4 w-4" />
+                              Send Delegation
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
-    </AuthGuard>
-  )
-}
+          </div>
+        </AuthGuard>
+      )
+    }

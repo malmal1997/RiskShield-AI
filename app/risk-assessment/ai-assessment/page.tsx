@@ -50,36 +50,316 @@ const assessmentCategories = [
     icon: Shield,
     questions: [
       {
-        id: "cs1",
-        question: "Does your organization have a formal cybersecurity policy?",
+        id: "cyber_1",
+        question: "Does your organization have a formal information security policy?",
+        type: "multiple" as const,
+        options: ["Yes, comprehensive policy", "Yes, basic policy", "In development", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_2",
+        question: "How do you manage user access to systems and data?",
+        type: "multiple" as const,
+        options: [
+          "Multi-factor authentication",
+          "Role-based access control",
+          "Regular access reviews",
+          "Privileged access management",
+          "Single sign-on (SSO)",
+        ],
+        weight: 10,
+      },
+      {
+        id: "cyber_3",
+        question: "Describe your incident response procedures:",
         type: "boolean" as const,
         weight: 10,
       },
       {
-        id: "cs2",
-        question: "How often do you conduct cybersecurity training for employees?",
+        id: "cyber_4",
+        question: "What encryption standards do you use for data at rest and in transit?",
+        type: "multiple" as const,
+        options: ["AES-256 and TLS 1.3", "AES-128 and TLS 1.2", "Basic encryption", "No encryption"],
+        weight: 10,
+      },
+      {
+        id: "cyber_5",
+        question: "How often do you conduct security awareness training?",
+        type: "multiple" as const,
+        options: ["Monthly", "Quarterly", "Annually", "As needed", "Never"],
+        weight: 10,
+      },
+      {
+        id: "cyber_6",
+        question: "Describe your vulnerability assessment and patch management process:",
+        type: "boolean" as const,
+        weight: 10,
+      },
+      {
+        id: "cyber_7",
+        question: "Do you have a written Information Security Policy (ISP)?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_8",
+        question: "How often do you review and update your Information Security Policy?",
+        type: "multiple" as const,
+        options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
+        weight: 10,
+      },
+      {
+        id: "cyber_9",
+        question: "Do you have a designated person responsible for Information Security Policy?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_10",
+        question: "Do you have data privacy compliance monitoring procedures in place?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_11",
+        question: "Do you have physical perimeter and boundary security controls?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_12",
+        question: "Do you have controls to protect against environmental extremes?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_13",
+        question: "Do you conduct independent audits/assessments of your Information Security Policy?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_14",
+        question: "Do you have an IT asset management program?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_15",
+        question: "Do you have restrictions on storage devices?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_16",
+        question: "Do you have anti-malware/endpoint protection solutions deployed?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_17",
+        question: "Do you implement network segmentation?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_18",
+        question: "Do you have real-time network monitoring and alerting?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_19",
+        question: "How frequently do you conduct vulnerability scanning?",
         type: "multiple" as const,
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 8,
+        weight: 10,
       },
       {
-        id: "cs3",
-        question: "Do you have multi-factor authentication implemented for all critical systems?",
+        id: "cyber_20",
+        question: "How frequently do you conduct penetration testing?",
+        type: "multiple" as const,
+        options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
+        weight: 10,
+      },
+      {
+        id: "cyber_21",
+        question: "Which regulatory compliance/industry standards does your company follow?",
+        type: "multiple" as const,
+        options: ["ISO 27001", "SOC 2", "HIPAA", "PCI DSS", "NIST", "None"],
+        weight: 10,
+      },
+      {
+        id: "cyber_22",
+        question: "Do you have a formal access control policy?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        weight: 10,
       },
       {
-        id: "cs4",
-        question: "How frequently do you perform vulnerability assessments?",
+        id: "cyber_23",
+        question: "Do you have physical access controls for wireless infrastructure?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_24",
+        question: "Do you have defined password parameters and requirements?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_25",
+        question: "Do you implement least privilege access principles?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_26",
+        question: "How frequently do you conduct access reviews?",
         type: "multiple" as const,
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 8,
+        weight: 10,
       },
       {
-        id: "cs5",
-        question: "Do you have an incident response plan in place?",
+        id: "cyber_27",
+        question: "Do you require device authentication for network access?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_28",
+        question: "Do you have secure remote logical access controls?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_29",
+        question: "Do you have a third-party oversight program?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_30",
+        question: "Do you assess third-party security controls?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_31",
+        question: "Do you verify third-party compliance controls?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_32",
+        question: "Do you conduct background screening for employees with access to sensitive data?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_33",
+        question: "Do you provide information security training to employees?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_34",
+        question: "Do you provide privacy training to employees?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_35",
+        question: "Do you provide role-specific compliance training?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_36",
+        question: "Do you have policy compliance and disciplinary measures?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_37",
+        question: "Do you have formal onboarding and offboarding controls?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_38",
+        question: "Do you have a data management program?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_39",
+        question: "Do you have a published privacy policy?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_40",
+        question: "Do you have consumer data retention policies?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_41",
+        question: "Do you have controls to ensure PII is safeguarded?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_42",
+        question: "Do you have data breach protocols?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_43",
+        question: "Do you support consumer rights to dispute, copy, complain, delete, and opt out?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
+      },
+      {
+        id: "cyber_44",
+        question: "Do you collect NPI, PII, or PHI data?",
+        type: "boolean" as const,
+        options: ["Yes", "No"],
+        weight: 10,
       },
     ],
   },
@@ -990,6 +1270,31 @@ const assessmentCategories = [
       {
         id: "soc25",
         question: "Are reconciliation procedures performed to ensure data integrity?",
+        type: "tested" as const,
+        weight: 9,
+      },
+      {
+        id: "soc25a",
+        question:
+          "Are processing authorization controls in place to ensure only authorized transactions are processed?",
+        type: "tested" as const,
+        weight: 9,
+      },
+      {
+        id: "soc25b",
+        question: "Are processing controls implemented to ensure processing completeness and accuracy?",
+        type: "tested" as const,
+        weight: 9,
+      },
+      {
+        id: "soc25c",
+        question: "Are processing controls designed to ensure timely processing of transactions?",
+        type: "tested" as const,
+        weight: 8,
+      },
+      {
+        id: "soc25d",
+        question: "Are processing issues properly escalated, tracked, and addressed in a timely manner?",
         type: "tested" as const,
         weight: 9,
       },
@@ -3867,18 +4172,18 @@ export default function AIAssessmentPage() {
                       <CardTitle>Assessment Summary</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div>
                           <div className="text-3xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}%</div>
                           <p className="text-sm text-gray-600">Risk Score</p>
                         </div>
-                        <div className="text-center">
+                        <div>
                           <Badge className={`text-sm px-3 py-1 ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
                             {aiAnalysisResult.riskLevel} Risk
                           </Badge>
                           <p className="text-sm text-gray-600 mt-2">Risk Level</p>
                         </div>
-                        <div className="text-center">
+                        <div>
                           <div className="text-3xl font-bold text-gray-900 mb-2">
                             {currentCategory.questions.length}
                           </div>
