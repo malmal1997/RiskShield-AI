@@ -546,7 +546,7 @@ ${documentContent}
 ASSESSMENT QUESTIONS:
 ${questions.map((q, idx) => `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""})`).join("\n")}
 
-Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., ```json) or conversational text outside the JSON. Ensure all property names are double-quoted.
+Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., \`\`\`json) or conversational text outside the JSON. Ensure all property names are double-quoted.
 {
   "answers": {
     ${questions.map((q) => `"${q.id}": ${q.type === "boolean" ? '"Yes" or "No"' : '"your_answer"'}`).join(",\n    ")}
