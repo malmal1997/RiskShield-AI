@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-// import { MainNavigation } from "@/components/main-navigation" // Removed import
+import { MainNavigation } from "@/components/main-navigation"
 import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Shield } from "lucide-react"
 import { sendAssessmentEmail } from "./email-service"
 import { getAssessments, createAssessment, deleteAssessment } from "@/lib/assessment-service"
@@ -405,11 +405,13 @@ ${assessmentLink}
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        {/* <MainNavigation userEmail="demo@riskshield.ai" onSignOut={handleSignOut} /> */}
+        <MainNavigation userEmail="demo@riskshield.ai" onSignOut={handleSignOut} />
         <div className="flex items-center justify-center py-20">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading assessments...</p>
-          <p className="text-sm text-gray-500 mt-2">Setting up demo environment...</p>
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading assessments...</p>
+            <p className="text-sm text-gray-500 mt-2">Setting up demo environment...</p>
+          </div>
         </div>
       </div>
     )
@@ -422,10 +424,10 @@ ${assessmentLink}
     >
       <div className="min-h-screen bg-white">
         {/* Navigation */}
-        {/* <MainNavigation userEmail="demo@riskshield.ai" onSignOut={handleSignOut} /> */}
+        <MainNavigation userEmail="demo@riskshield.ai" onSignOut={handleSignOut} />
 
         {/* Hero Section */}
-        <section className="bg-gradient-to-b from-blue-50 to-white py-12"> {/* Adjusted padding-top */}
+        <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Vendor Risk Management</Badge>

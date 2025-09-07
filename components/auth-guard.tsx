@@ -1,15 +1,14 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useAuth } from "./auth-context"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Shield, Mail, Lock, User, AlertCircle, Play } from "lucide-react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/components/auth-context"
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -38,13 +37,9 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         setError(error.message)
       } else if (isSignUp) {
         setError("Check your email for a confirmation link!")
-      } else {
-        // On successful login, rely on AuthContext's onAuthStateChange to update user state
-        // Then navigate to dashboard. The AuthGuard on the dashboard page will pick up the updated user.
-        router.push("/dashboard")
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.")
+      setError("An unexpected error occurred")
     } finally {
       setIsSubmitting(false)
     }

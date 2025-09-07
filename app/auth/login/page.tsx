@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -20,15 +20,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { signIn, user, loading, refreshProfile } = useAuth() // Get user and loading from AuthContext
-
-  // Effect to handle redirection after successful login
-  useEffect(() => {
-    if (!loading && user) {
-      // User is logged in and AuthContext has finished loading
-      router.push("/dashboard")
-    }
-  }, [user, loading, router])
+  const { signIn, refreshProfile } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,8 +33,8 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        // No explicit push here, useEffect will handle redirection once user state updates
-        // Optionally, you could show a "Logging in..." message here
+        await refreshProfile(); // Refresh profile after successful login
+        router.push("/dashboard")
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
@@ -54,7 +46,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8 pt-12"> {/* Adjusted padding-top */}
+        <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-10 w-10 text-blue-600" />
             <span className="text-2xl font-bold text-gray-900">RiskGuard AI</span>

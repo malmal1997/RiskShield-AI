@@ -19,17 +19,17 @@ import {
   Cog,
   LifeBuoy,
 } from "lucide-react"
-// import { MainNavigation } from "@/components/main-navigation" // Removed import
+import { MainNavigation } from "@/components/main-navigation"
 
 export default function SolutionsPage() {
   const [activeTab, setActiveTab] = useState("core")
 
   return (
     <div className="min-h-screen bg-white">
-      {/* <MainNavigation showAuthButtons={true} /> */}
+      <MainNavigation showAuthButtons={true} />
 
       {/* Solutions Hero Section */}
-      <section className="bg-gradient-to-b from-blue-50 to-white py-12"> {/* Adjusted padding-top */}
+      <section className="bg-gradient-to-b from-blue-50 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Enterprise Solutions</Badge>
