@@ -1244,7 +1244,7 @@ export default function AIAssessmentPage() {
   const [questionEditModes, setQuestionEditModes] = useState<Record<string, boolean>>({})
   const [questionUnsavedChanges, setQuestionUnsavedChanges] = useState<Record<string, boolean>>({})
   const [editedAnswers, setEditedAnswers] = useState<Record<string, boolean | string>>({})
-  const [approvedQuestions, setApprovedQuestions] = useState<Set<string>>(new Set())
+  const [approvedQuestions, setApprovedQuestions] = new Set<string>()
   const [editedReasoning, setEditedReasoning] = useState<Record<string, string>>({})
   const [editedEvidence, setEditedEvidence] = useState<
     Record<
@@ -1695,8 +1695,8 @@ export default function AIAssessmentPage() {
   }
 
   const getFileStatusIcon = (file: File) => {
-    const fileName = file.name.toLowerCase()
-    const fileType = file.type.toLowerCase()
+    const fileName = file?.name?.toLowerCase() || '';
+    const fileType = file?.type?.toLowerCase() || '';
 
     // Fully supported formats
     if (
@@ -1725,8 +1725,8 @@ export default function AIAssessmentPage() {
   }
 
   const getFileStatusText = (file: File) => {
-    const fileName = file.name.toLowerCase()
-    const fileType = file.type.toLowerCase()
+    const fileName = file?.name?.toLowerCase() || '';
+    const fileType = file?.type?.toLowerCase() || '';
 
     // Fully supported formats
     if (
