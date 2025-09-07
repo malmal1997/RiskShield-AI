@@ -16,7 +16,7 @@ export function DemoSessionSetup() {
         name: "Demo Organization",
         plan: "enterprise",
       },
-      role: { // Storing role as an object directly
+      role: {
         role: "admin",
         permissions: { all: true },
       },
@@ -46,11 +46,15 @@ export function DemoSessionSetup() {
         <CardTitle>Demo Session</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-gray-600">
-          {hasDemoSession
-            ? "You have an active demo session. You can clear it to test without authentication."
-            : "Create a demo session to test the application without setting up full authentication."}
-        </p>
+        {hasDemoSession ? (
+          <p className="text-sm text-gray-600">
+            You have an active demo session. You can clear it to test without authentication.
+          </p>
+        ) : (
+          <p className="text-sm text-gray-600">
+            Create a demo session to test the application without setting up full authentication.
+          </p>
+        )}
 
         {hasDemoSession ? (
           <Button onClick={clearDemoSession} variant="outline" className="w-full">
