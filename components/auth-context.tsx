@@ -65,21 +65,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
         setIsDemo(true)
         setLoading(false)
+        console.log("AuthContext: Demo session loaded successfully.")
         return
       } catch (error) {
-        console.error("Error parsing demo session:", error)
+        console.error("AuthContext: Error parsing demo session:", error)
         localStorage.removeItem("demo_session")
       }
     }
 
     // Regular Supabase auth flow continues...
     try {
+      console.log("AuthContext: Attempting to fetch Supabase user...")
       const {
         data: { user },
         error: userError,
       } = await supabaseClient.auth.getUser()
 
-      if (userError || !user) {
+      if (userError) {
+        console.error("AuthContext: Supabase getUser error:", userError.message)
         setUser(null)
         setProfile(null)
         setOrganization(null)
@@ -88,14 +91,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
+      if (!user) {
+        console.log("AuthContext: No authenticated Supabase user found.")
+        setUser(null)
+        setProfile(null)
+        setOrganization(null)
+        setRole(null)
+        setIsDemo(false)
+        return
+      }
+
+      console.log("AuthContext: Supabase user found:", user.email, "ID:", user.id)
+
       // Get user profile from Supabase
+      console.log("AuthContext: Fetching user profile...")
       const { data: profile, error: profileError } = await supabaseClient
         .from("user_profiles")
         .select("*")
         .eq("user_id", user.id)
         .single()
 
-      if (profileError || !profile) {
+      if (profileError) {
+        console.error("AuthContext: Supabase profile error:", profileError.message)
+        setUser(user) // Still set user even if profile fails
+        setProfile(null)
+        setOrganization(null)
+        setRole(null)
+        setIsDemo(false)
+        return
+      }
+
+      if (!profile) {
+        console.log("AuthContext: No user profile found for user ID:", user.id)
         setUser(user)
         setProfile(null)
         setOrganization(null)
@@ -104,14 +131,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
+      console.log("AuthContext: User profile found:", profile)
+
       // Get organization
+      console.log("AuthContext: Fetching organization for ID:", profile.organization_id)
       const { data: organization, error: orgError } = await supabaseClient
         .from("organizations")
         .select("*")
         .eq("id", profile.organization_id)
         .single()
 
+      if (orgError) {
+        console.error("AuthContext: Supabase organization error:", orgError.message)
+        setUser(user)
+        setProfile(profile)
+        setOrganization(null)
+        setRole(null)
+        setIsDemo(false)
+        return
+      }
+
+      if (!organization) {
+        console.log("AuthContext: No organization found for ID:", profile.organization_id)
+        setUser(user)
+        setProfile(profile)
+        setOrganization(null)
+        setRole(null)
+        setIsDemo(false)
+        return
+      }
+
+      console.log("AuthContext: Organization found:", organization.name)
+
       // Get user role
+      console.log("AuthContext: Fetching user role for user ID:", user.id, "and organization ID:", profile.organization_id)
       const { data: roleData, error: roleError } = await supabaseClient
         .from("user_roles")
         .select("*")
@@ -119,18 +172,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq("organization_id", profile.organization_id)
         .single()
 
+      if (roleError) {
+        console.error("AuthContext: Supabase role error:", roleError.message)
+        setUser(user)
+        setProfile(profile)
+        setOrganization(organization)
+        setRole(null)
+        setIsDemo(false)
+        return
+      }
+
+      if (!roleData) {
+        console.log("AuthContext: No user role found for user ID:", user.id)
+        setUser(user)
+        setProfile(profile)
+        setOrganization(organization)
+        setRole(null)
+        setIsDemo(false)
+        return
+      }
+
+      console.log("AuthContext: User role found:", roleData.role)
+
       setUser(user)
       setProfile(profile)
-      setOrganization(orgError ? null : organization)
-      setRole(roleError ? null : roleData)
+      setOrganization(organization)
+      setRole(roleData)
       setIsDemo(false)
+      console.log("AuthContext: All user data loaded successfully.")
     } catch (error) {
-      console.error("Error getting user with profile:", error)
+      console.error("AuthContext: General error during refreshProfile:", error)
       setUser(null)
       setProfile(null)
       setOrganization(null)
       setRole(null)
       setIsDemo(false)
+    } finally {
+      setLoading(false)
     }
   }
 
