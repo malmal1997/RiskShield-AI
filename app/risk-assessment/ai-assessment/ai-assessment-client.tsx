@@ -254,8 +254,8 @@ export default function AIAssessmentClient() {
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
-    "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
-  >("choose-method")
+    "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
+  >("upload")
   const [uploadedFiles, setUploadedFiles] = useState<DocumentMetadata[]>([])
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AIAnalysisResult | null>(null)
@@ -295,6 +295,7 @@ export default function AIAssessmentClient() {
       const delegationType = urlParams.get("delegation") as "team" | "third-party"
       const method = urlParams.get("method") as "ai" | "questionnaire"
       const category = urlParams.get("category")
+      const selectedMethod = urlParams.get("selectedMethod")
 
       if (delegated === "true" && assessmentType && delegationType && method === "ai") {
         setIsDelegatedAssessment(true)
@@ -318,21 +319,17 @@ export default function AIAssessmentClient() {
         }
       } else if (category) {
         setSelectedCategory(category)
-        setCurrentStep("choose-method")
+        if (selectedMethod === "manual") {
+          setCurrentStep("soc-info")
+        } else {
+          setCurrentStep("upload")
+        }
       } else {
         setSelectedCategory("cybersecurity")
-        setCurrentStep("choose-method")
+        setCurrentStep("upload")
       }
     }
   }, [])
-
-  const handleMethodSelection = (method: "ai" | "manual") => {
-    if (method === "ai") {
-      setCurrentStep("upload")
-    } else {
-      setCurrentStep("soc-info")
-    }
-  }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -393,48 +390,6 @@ export default function AIAssessmentClient() {
 
   const renderStepContent = () => {
     switch (currentStep) {
-      case "choose-method":
-        return (
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Assessment Method</h2>
-              <p className="text-lg text-gray-600">Select how you'd like to conduct your risk assessment</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-blue-500 transition-colors">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Brain className="h-8 w-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">AI-Powered Analysis</h3>
-                  <p className="text-gray-600 mb-6">
-                    Upload your documents and let our AI analyze them for comprehensive risk assessment
-                  </p>
-                  <Button onClick={() => handleMethodSelection("ai")} className="w-full">
-                    Select AI Assessment
-                  </Button>
-                </div>
-              </div>
-
-              <div className="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-blue-500 transition-colors">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileText className="h-8 w-8 text-green-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Manual Assessment</h3>
-                  <p className="text-gray-600 mb-6">
-                    Complete a detailed questionnaire based on industry best practices
-                  </p>
-                  <Button onClick={() => handleMethodSelection("manual")} variant="outline" className="w-full">
-                    Select Manual Assessment
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-
       case "upload":
         return (
           <div className="max-w-4xl mx-auto">

@@ -1597,10 +1597,9 @@ export default function RiskAssessmentPage() {
   const handleChooseAI = () => {
     const category = assessmentCategories.find((cat) => cat.id === selectedCategory)
     if (category) {
-      // Store both the selected category and skip method selection
       localStorage.setItem("selectedAssessmentCategory", selectedCategory!)
       localStorage.setItem("skipMethodSelection", "true")
-      window.location.href = "/risk-assessment/ai-assessment"
+      window.location.href = `/risk-assessment/ai-assessment?category=${selectedCategory}&selectedMethod=ai`
     }
   }
 
