@@ -36,8 +36,6 @@ import {
   CheckCircle2,
   Plus,
   ArrowRight,
-  Building2, // Added Building2 import
-  Users, // Added Users import
 } from "lucide-react"
 // import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
@@ -2411,7 +2409,7 @@ ${emailResult.message}`)
               <ul class="recommendations-list">
                   ${riskResults.recommendations
                     .map(
-                      (recommendation: string, index: number) => `
+                      (recommendation) => `
                       <li>
                           <span class="list-icon">✅</span>
                           <span>${recommendation}</span>
@@ -2455,6 +2453,8 @@ ${emailResult.message}`)
       previewMessage="Preview Mode: Sign up to save assessments and access full AI features"
     >
       <div className="min-h-screen bg-white">
+        {/* Header - Removed */}
+
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -2558,7 +2558,7 @@ ${emailResult.message}`)
 
                       {showSavedAssessments && (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {savedAssessments.map((saved: any) => (
+                          {savedAssessments.map((saved) => (
                             <Card key={saved.id} className="border border-yellow-200 bg-yellow-50">
                               <CardHeader>
                                 <div className="flex items-center justify-between">
@@ -2619,7 +2619,7 @@ ${emailResult.message}`)
                     <div className="mb-12">
                       <h2 className="text-2xl font-bold text-gray-900 mb-6">Delegated Assessments</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {delegatedAssessments.map((delegation: any) => (
+                        {delegatedAssessments.map((delegation) => (
                           <Card key={delegation.id} className="border border-purple-200 bg-purple-50">
                             <CardHeader>
                               <div className="flex items-center justify-between">
@@ -2719,7 +2719,7 @@ ${emailResult.message}`)
                         </Card>
                       ))}
                     </div>
-                  </div>
+                  )}
                 </>
               )}
 
@@ -2944,7 +2944,7 @@ ${emailResult.message}`)
                               <Label>Trust Service Criteria Included in Report *</Label>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
                                 {["Security", "Availability", "Processing Integrity", "Confidentiality", "Privacy"].map(
-                                  (criteria: string) => (
+                                  (criteria) => (
                                     <label key={criteria} className="flex items-center space-x-2">
                                       <input
                                         type="checkbox"
@@ -2992,7 +2992,7 @@ ${emailResult.message}`)
                   )}
 
                   {/* Regular Assessment Questions - Show if not SOC or SOC info is filled */}
-                  {(selectedCategory !== "soc-compliance" || socInfo.socType) && currentQuestionData && (
+                  {(selectedCategory !== "soc-compliance" || socInfo.socType) && (
                     <div className="max-w-3xl mx-auto mt-8">
                       <Card className="border border-gray-200">
                         <CardHeader>
@@ -3044,7 +3044,7 @@ ${emailResult.message}`)
                                 </div>
                               ) : (
                                 <div className="grid gap-2">
-                                  {currentQuestionData.options?.map((option: string) => (
+                                  {currentQuestionData.options?.map((option) => (
                                     <Button
                                       key={option}
                                       variant={answers[currentQuestionData.id] === option ? "default" : "outline"}
@@ -3104,7 +3104,7 @@ ${emailResult.message}`)
                       <div className="mb-8">
                         <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommendations</h3>
                         <ul className="list-disc pl-5">
-                          {riskResults?.recommendations.map((recommendation: string, index: number) => (
+                          {riskResults?.recommendations.map((recommendation, index) => (
                             <li key={index} className="text-gray-700">
                               {recommendation}
                             </li>
