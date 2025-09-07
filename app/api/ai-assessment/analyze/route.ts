@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData()
     const files = formData.getAll("files") as File[]
-    const fileTypes = formData.getAll("fileTypes") as string[] // Get file types
     const questionsJson = formData.get("questions") as string
     const assessmentType = formData.get("assessmentType") as string
 
@@ -36,13 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid questions format" }, { status: 400 })
     }
 
-    // Combine files and their types into a structured array
-    const fileData = files.map((file, index) => ({
-      file,
-      docType: (fileTypes[index] as 'primary' | '4th-party' | null) || null,
-    }));
-
-    console.log(`Processing ${fileData.length} files for ${assessmentType} assessment`)
+    console.log(`Processing ${files.length} files for ${assessmentType} assessment`)
 
     // Check if Google AI is available
     const hasGoogleAI = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
@@ -60,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Perform analysis
-    const result = await analyzeDocuments(fileData, questions, assessmentType || "Unknown")
+    const result = await analyzeDocuments(files, questions, assessmentType || "Unknown")
 
     console.log("Analysis completed successfully")
     return NextResponse.json(result)

@@ -42,11 +42,6 @@ interface Question {
   weight: number
 }
 
-interface FileWithMetadata {
-  file: File;
-  docType: 'primary' | '4th-party' | null;
-}
-
 // Convert file to buffer for Google AI API
 async function fileToBuffer(file: File): Promise<ArrayBuffer> {
   return await file.arrayBuffer()
@@ -380,7 +375,7 @@ function checkSemanticRelevance(
 
 // Direct Google AI analysis with file upload support
 async function performDirectAIAnalysis(
-  fileData: FileWithMetadata[],
+  files: File[],
   questions: Question[],
   assessmentType: string,
 ): Promise<DocumentAnalysisResult> {
@@ -392,14 +387,14 @@ async function performDirectAIAnalysis(
   }
 
   // Filter and process supported files
-  const supportedFilesWithMetadata = fileData.filter((item) => isSupportedFileType(item.file))
-  const unsupportedFilesWithMetadata = fileData.filter((item) => !isSupportedFileType(item.file))
+  const supportedFiles = files.filter((file) => isSupportedFileType(file))
+  const unsupportedFiles = files.filter((file) => !isSupportedFileType(file))
 
   console.log(`📊 File Analysis:`)
-  console.log(`✅ Supported files: ${supportedFilesWithMetadata.length}`)
-  console.log(`❌ Unsupported files: ${unsupportedFilesWithMetadata.length}`)
+  console.log(`✅ Supported files: ${supportedFiles.length}`)
+  console.log(`❌ Unsupported files: ${unsupportedFiles.length}`)
 
-  if (supportedFilesWithMetadata.length === 0) {
+  if (supportedFiles.length === 0) {
     console.log("❌ No supported files found for analysis")
 
     const answers: Record<string, boolean | string> = {}
@@ -422,11 +417,11 @@ async function performDirectAIAnalysis(
       answers,
       confidenceScores,
       reasoning,
-      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFilesWithMetadata.map((item) => item.file.name).join(", ")}`,
+      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFiles.map((f) => f.name).join(", ")}`,
       riskFactors: [
         "No supported document content available for analysis",
         "Unable to assess actual security posture from uploaded files",
-        `${unsupportedFilesWithMetadata.length} files in unsupported formats`,
+        `${unsupportedFiles.length} files in unsupported formats`,
       ],
       recommendations: [
         "Upload documents in supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML",
@@ -437,14 +432,14 @@ async function performDirectAIAnalysis(
       riskScore: 0,
       riskLevel: "High",
       analysisDate: new Date().toISOString(),
-      documentsAnalyzed: fileData.length,
+      documentsAnalyzed: files.length,
       aiProvider: "Conservative Analysis (No supported files found)",
       documentExcerpts: {},
-      directUploadResults: fileData.map((item) => ({
-        fileName: item.file.name,
+      directUploadResults: files.map((file) => ({
+        fileName: file.name,
         success: false,
-        fileSize: item.file.size,
-        fileType: item.file.type || "unknown",
+        fileSize: file.size,
+        fileType: file.type || "unknown",
         processingMethod: "no-supported-files",
       })),
     }
@@ -472,25 +467,24 @@ async function performDirectAIAnalysis(
   // Process files - separate PDFs from text files
   console.log("📁 Processing files for Google AI...")
   const pdfFiles: File[] = []
-  const textFiles: Array<{ file: File; text: string; docType: 'primary' | '4th-party' | null }> = []
+  const textFiles: Array<{ file: File; text: string }> = []
   const processingResults: Array<{ fileName: string; success: boolean; method: string }> = []
 
-  for (const item of supportedFilesWithMetadata) {
-    const file = item.file;
+  for (const file of supportedFiles) {
     const fileType = file.type.toLowerCase()
     const fileName = file.name.toLowerCase()
 
     if (fileType.includes("application/pdf") || fileName.endsWith(".pdf")) {
       pdfFiles.push(file)
       processingResults.push({ fileName: file.name, success: true, method: "pdf-upload" })
-      console.log(`📄 PDF file prepared for upload: ${file.name} (Type: ${item.docType || 'unknown'})`)
+      console.log(`📄 PDF file prepared for upload: ${file.name}`)
     } else {
       // Extract text from non-PDF files
       const extraction = await extractTextFromFile(file)
       if (extraction.success && extraction.text.length > 0) {
-        textFiles.push({ file, text: extraction.text, docType: item.docType })
+        textFiles.push({ file, text: extraction.text })
         processingResults.push({ fileName: file.name, success: true, method: extraction.method })
-        console.log(`📝 Text extracted from ${file.name}: ${extraction.text.length} characters (Type: ${item.docType || 'unknown'})`)
+        console.log(`📝 Text extracted from ${file.name}: ${extraction.text.length} characters`)
       } else {
         processingResults.push({ fileName: file.name, success: false, method: extraction.method })
         console.log(`❌ Failed to extract text from ${file.name}`)
@@ -504,8 +498,8 @@ async function performDirectAIAnalysis(
   // Add text file content
   if (textFiles.length > 0) {
     documentContent += "TEXT DOCUMENTS:\n"
-    textFiles.forEach(({ file, text, docType }) => {
-      documentContent += `\n=== DOCUMENT: ${file.name} (Type: ${docType || 'unknown'}) ===\n${text}\n`
+    textFiles.forEach(({ file, text }) => {
+      documentContent += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
     })
   }
 
@@ -513,12 +507,11 @@ async function performDirectAIAnalysis(
   if (pdfFiles.length > 0) {
     documentContent += "\nPDF DOCUMENTS:\n"
     pdfFiles.forEach((file) => {
-      const docType = supportedFilesWithMetadata.find(item => item.file.name === file.name)?.docType || 'unknown';
-      documentContent += `\n=== PDF DOCUMENT: ${file.name} (Type: ${docType}) ===\n[This PDF file has been uploaded and will be analyzed directly]\n`
+      documentContent += `\n=== PDF DOCUMENT: ${file.name} ===\n[This PDF file has been uploaded and will be analyzed directly]\n`
     })
   }
 
-  const basePrompt = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with ${fileData.length} document(s) to analyze.
+  const basePrompt = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with ${supportedFiles.length} document(s) to analyze.
 
 CRITICAL INSTRUCTIONS:
 - Analyze ALL provided documents (both text and PDF files) using your built-in document processing capabilities
@@ -545,13 +538,8 @@ CRITICAL INSTRUCTIONS:
 - Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
 
-DOCUMENT CLASSIFICATION RULE:
-- **Prioritize 'Primary Documents' for evidence and citations over '4th Party Documents'.**
-- If relevant evidence is found in both 'Primary' and '4th Party' documents, always cite the 'Primary Document'.
-- Only cite '4th Party Documents' if no relevant evidence is found in 'Primary Documents'.
-
 DOCUMENT FILES PROVIDED:
-${fileData.map((item, index) => `${index + 1}. ${item.file.name} (Type: ${item.docType || 'unknown'}, Media Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
+${supportedFiles.map((file, index) => `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)})`).join("\n")}
 
 ${documentContent}
 
@@ -700,7 +688,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
 
             // Extract document name from evidence
-            let sourceFileName = fileData.length > 0 ? fileData[0].file.name : "Document"
+            let sourceFileName = supportedFiles.length > 0 ? supportedFiles[0].name : "Document"
             const documentNameMatch = aiEvidence.match(
               /(?:from|in|document|file)[\s:]*([^,.\n]+\.(pdf|txt|md|csv|json|html|xml))/i,
             )
@@ -708,11 +696,11 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
               sourceFileName = documentNameMatch[1].trim()
             } else {
               // Try to match against uploaded file names
-              const matchingFile = fileData.find(item =>
-                aiEvidence.toLowerCase().includes(item.file.name.toLowerCase().replace(/\.[^.]+$/, "")),
+              const matchingFile = supportedFiles.find((file) =>
+                aiEvidence.toLowerCase().includes(file.name.toLowerCase().replace(/\.[^.]+$/, "")),
               )
               if (matchingFile) {
-                sourceFileName = matchingFile.file.name
+                sourceFileName = matchingFile.name
               }
             }
 
@@ -723,14 +711,14 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*$/i, "")
 
             // Remove any remaining document name references within quotes
-            fileData.forEach((item) => {
-              const fileName = item.file.name.replace(/\.[^.]+$/, "") // Remove extension
+            supportedFiles.forEach((file) => {
+              const fileName = file.name.replace(/\.[^.]+$/, "") // Remove extension
               const fileNamePattern = new RegExp(`\\b${fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi")
               cleanExcerpt = cleanExcerpt.replace(fileNamePattern, "").trim()
 
               // Also remove the full filename with extension
               const fullFileNamePattern = new RegExp(
-                `\\b${item.file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+                `\\b${file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
                 "gi",
               )
               cleanExcerpt = cleanExcerpt.replace(fullFileNamePattern, "").trim()
@@ -772,13 +760,13 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             console.log(`❌ Question ${questionId}: Evidence rejected - ${relevanceCheck.reason}`)
 
             if (question.type === "boolean") {
-              answers[question.id] = false
+              answers[questionId] = false
             } else if (question.options && question.options.length > 0) {
-              answers[question.id] = question.options[0] // Most conservative option
+              answers[questionId] = question.options[0] // Most conservative option
             }
 
-            confidenceScores[question.id] = 0.9 // High confidence in conservative answer
-            reasoning[question.id] = `No directly relevant evidence found. ${relevanceCheck.reason}`
+            confidenceScores[questionId] = 0.9 // High confidence in conservative answer
+            reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
             documentExcerpts[questionId] = []
           }
         } else {
@@ -786,13 +774,13 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           console.log(`⚠️ Question ${questionId}: No evidence provided by AI`)
 
           if (question.type === "boolean") {
-            answers[question.id] = false
+            answers[questionId] = false
           } else if (question.options && question.options.length > 0) {
-            answers[question.id] = question.options[0]
+            answers[questionId] = question.options[0]
           }
 
-          confidenceScores[question.id] = 0.9
-          reasoning[question.id] = "No directly relevant evidence found in documents"
+          confidenceScores[questionId] = 0.9
+          reasoning[questionId] = "No directly relevant evidence found in documents"
           documentExcerpts[questionId] = []
         }
       })
@@ -851,8 +839,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   if (failedProcessing > 0) {
     analysisNote += ` ${failedProcessing} file(s) failed to process.`
   }
-  if (unsupportedFilesWithMetadata.length > 0) {
-    analysisNote += ` ${unsupportedFilesWithMetadata.length} file(s) in unsupported formats were skipped.`
+  if (unsupportedFiles.length > 0) {
+    analysisNote += ` ${unsupportedFiles.length} file(s) in unsupported formats were skipped.`
   }
 
   console.log(`✅ Google AI analysis completed. Risk score: ${riskScore}, Risk level: ${riskLevel}`)
@@ -867,28 +855,28 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       "Conservative approach taken where evidence was unclear or missing",
       "Semantic validation applied to all evidence",
       ...(failedProcessing > 0 ? [`${failedProcessing} files failed to process`] : []),
-      ...(unsupportedFilesWithMetadata.length > 0 ? [`${unsupportedFilesWithMetadata.length} files in unsupported formats`] : []),
+      ...(unsupportedFiles.length > 0 ? [`${unsupportedFiles.length} files in unsupported formats`] : []),
     ],
     recommendations: [
       "Review assessment results for accuracy and completeness",
       "Implement missing controls based on validated findings",
       "Ensure document evidence directly supports all conclusions",
       "Consider uploading additional documentation for comprehensive analysis",
-      ...(unsupportedFilesWithMetadata.length > 0 ? ["Convert unsupported files to PDF, TXT, or other supported formats"] : []),
+      ...(unsupportedFiles.length > 0 ? ["Convert unsupported files to PDF, TXT, or other supported formats"] : []),
     ],
     riskScore,
     riskLevel,
     analysisDate: new Date().toISOString(),
-    documentsAnalyzed: fileData.length,
+    documentsAnalyzed: files.length,
     aiProvider: "Google AI (Gemini 1.5 Flash) with Direct Document Processing",
     documentExcerpts,
-    directUploadResults: fileData.map((item, index) => {
-      const result = processingResults.find((r) => r.fileName === item.file.name)
+    directUploadResults: files.map((file, index) => {
+      const result = processingResults.find((r) => r.fileName === file.name)
       return {
-        fileName: item.file.name,
+        fileName: file.name,
         success: result?.success || false,
-        fileSize: item.file.size,
-        fileType: item.file.type || "unknown",
+        fileSize: file.size,
+        fileType: file.type || "unknown",
         processingMethod: result?.method || "unknown",
       }
     }),
@@ -897,13 +885,13 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
 
 // Main analysis function
 export async function analyzeDocuments(
-  fileData: FileWithMetadata[],
+  files: File[],
   questions: Question[],
   assessmentType: string,
 ): Promise<DocumentAnalysisResult> {
-  console.log(`🚀 Starting Google AI analysis of ${fileData.length} files for ${assessmentType}`)
+  console.log(`🚀 Starting Google AI analysis of ${files.length} files for ${assessmentType}`)
 
-  if (!fileData || fileData.length === 0) {
+  if (!files || files.length === 0) {
     throw new Error("No files provided for analysis")
   }
 
@@ -913,17 +901,17 @@ export async function analyzeDocuments(
 
   try {
     console.log("📁 File analysis:")
-    fileData.forEach((item, index) => {
-      const supported = isSupportedFileType(item.file)
+    files.forEach((file, index) => {
+      const supported = isSupportedFileType(file)
       const statusIcon = supported ? "✅" : "❌"
       const supportText = supported ? "Supported for analysis" : "Unsupported format"
       console.log(
-        `${statusIcon} ${item.file.name} (Type: ${item.docType || 'unknown'}): ${Math.round(item.file.size / 1024)}KB, ${item.file.type || "unknown"} - ${supportText}`,
+        `${statusIcon} ${file.name}: ${Math.round(file.size / 1024)}KB, ${file.type || "unknown"} - ${supportText}`,
       )
     })
 
     // Perform direct AI analysis
-    const result = await performDirectAIAnalysis(fileData, questions, assessmentType)
+    const result = await performDirectAIAnalysis(files, questions, assessmentType)
 
     console.log("🎉 Google AI analysis completed successfully")
     return result

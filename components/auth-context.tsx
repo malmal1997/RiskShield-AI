@@ -49,7 +49,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isDemo, setIsDemo] = useState(false)
 
   const refreshProfile = async () => {
-    console.log("AuthContext: refreshProfile called")
     // Check for demo session first
     const demoSession = localStorage.getItem("demo_session")
     if (demoSession) {
@@ -66,10 +65,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
         setIsDemo(true)
         setLoading(false)
-        console.log("AuthContext: Demo session loaded.")
         return
       } catch (error) {
-        console.error("AuthContext: Error parsing demo session:", error)
+        console.error("Error parsing demo session:", error)
         localStorage.removeItem("demo_session")
       }
     }
@@ -82,7 +80,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } = await supabaseClient.auth.getUser()
 
       if (userError || !user) {
-        console.log("AuthContext: No Supabase user found or userError:", userError)
         setUser(null)
         setProfile(null)
         setOrganization(null)
@@ -90,8 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsDemo(false)
         return
       }
-
-      console.log("AuthContext: Supabase user found:", user.email)
 
       // Get user profile from Supabase
       const { data: profile, error: profileError } = await supabaseClient
@@ -101,7 +96,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (profileError || !profile) {
-        console.error("AuthContext: Error fetching profile or profile not found:", profileError)
         setUser(user)
         setProfile(null)
         setOrganization(null)
@@ -130,17 +124,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setOrganization(orgError ? null : organization)
       setRole(roleError ? null : roleData)
       setIsDemo(false)
-      console.log("AuthContext: Supabase profile, organization, and role loaded.")
     } catch (error) {
-      console.error("AuthContext: Error in refreshProfile during Supabase flow:", error)
+      console.error("Error getting user with profile:", error)
       setUser(null)
       setProfile(null)
       setOrganization(null)
       setRole(null)
       setIsDemo(false)
-    } finally {
-      setLoading(false)
-      console.log("AuthContext: refreshProfile finished, loading set to false.")
     }
   }
 
@@ -149,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const getInitialSession = async () => {
       await refreshProfile() // This handles both real and demo sessions
+      setLoading(false)
     }
 
     getInitialSession()
@@ -158,88 +149,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        console.log("AuthContext: Auth state changed event:", event)
         // Always refresh profile on auth state change, let refreshProfile handle demo logic
         // This ensures the context is always up-to-date with Supabase's state
         await refreshProfile()
+        setLoading(false)
       })
 
       subscription = authSubscription
     } catch (error) {
-      console.error("AuthContext: Error setting up auth listener:", error)
-      setLoading(false) // Ensure loading is false even if listener setup fails
+      console.error("Error setting up auth listener:", error)
+      setLoading(false)
     }
 
     return () => {
       if (subscription && typeof subscription.unsubscribe === "function") {
         try {
           subscription.unsubscribe()
-          console.log("AuthContext: Supabase auth subscription unsubscribed.")
         } catch (error) {
-          console.error("AuthContext: Error unsubscribing from auth changes:", error)
+          console.error("Error unsubscribing from auth changes:", error)
         }
       }
     }
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    console.log("AuthContext: Attempting signIn for:", email)
-    try {
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      })
-      if (error) {
-        console.error("AuthContext: signIn failed:", error.message)
-      } else {
-        console.log("AuthContext: signIn successful for:", email)
-      }
-      return { error }
-    } catch (e) {
-      console.error("AuthContext: Unexpected error during signIn:", e)
-      return { error: e }
-    }
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    })
+    return { error }
   }
 
   const signUp = async (email: string, password: string) => {
-    console.log("AuthContext: Attempting signUp for:", email)
-    try {
-      const { error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-      })
-      if (error) {
-        console.error("AuthContext: signUp failed:", error.message)
-      } else {
-        console.log("AuthContext: signUp successful for:", email)
-      }
-      return { error }
-    } catch (e) {
-      console.error("AuthContext: Unexpected error during signUp:", e)
-      return { error: e }
-    }
+    const { error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+    })
+    return { error }
   }
 
   const signOut = async () => {
-    console.log("AuthContext: Attempting signOut.")
     // Clear demo session
     localStorage.removeItem("demo_session")
     setIsDemo(false)
 
     // Sign out from Supabase
-    const { error } = await supabaseClient.auth.signOut()
-    if (error) {
-      console.error("AuthContext: Supabase signOut failed:", error.message)
-    } else {
-      console.log("AuthContext: Supabase signOut successful.")
-    }
+    await supabaseClient.auth.signOut()
 
     // Reset state
     setUser(null)
     setProfile(null)
     setOrganization(null)
     setRole(null)
-    setLoading(false) // Ensure loading is false after sign out
   }
 
   const hasPermission = (permission: string): boolean => {
