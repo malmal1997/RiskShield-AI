@@ -17,6 +17,7 @@ const createMockClient = () => {
       update: () => Promise.resolve({ data: null, error: null }), // Final execution for update
       delete: () => Promise.resolve({ data: null, error: null }), // Final execution for delete
       select: () => Promise.resolve({ data: [], error: null }), // Final execution for select
+      insert: () => Promise.resolve({ data: null, error: null }), // Final execution for insert
       single: () => Promise.resolve({ data: null, error: null }), // Final execution for single
       then: (callback: any) => Promise.resolve({ data: null, error: null }).then(callback), // Make it thenable
       catch: (callback: any) => Promise.resolve({ data: null, error: null }).catch(callback),
