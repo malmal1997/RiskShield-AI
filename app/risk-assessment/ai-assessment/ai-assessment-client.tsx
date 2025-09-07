@@ -326,6 +326,269 @@ export default function AIAssessmentClient() {
     }
   }, [])
 
+  const handleMethodSelection = (method: "ai" | "manual") => {
+    if (method === "ai") {
+      setCurrentStep("upload")
+    } else {
+      setCurrentStep("soc-info")
+    }
+  }
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files) {
+      const newFiles: DocumentMetadata[] = Array.from(files).map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified,
+      }))
+      setUploadedFiles((prev) => [...prev, ...newFiles])
+    }
+  }
+
+  const handleStartAnalysis = async () => {
+    if (uploadedFiles.length === 0) return
+
+    setIsAnalyzing(true)
+    setCurrentStep("processing")
+    setAnalysisProgress(0)
+
+    // Simulate analysis progress
+    const interval = setInterval(() => {
+      setAnalysisProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          setIsAnalyzing(false)
+          setCurrentStep("results")
+          // Mock analysis result
+          setAiAnalysisResult({
+            overallScore: 75,
+            riskLevel: "Medium",
+            findings: [
+              {
+                category: "Security",
+                score: 80,
+                issues: ["Outdated security protocols", "Missing encryption"],
+                recommendations: ["Update security protocols", "Implement end-to-end encryption"],
+              },
+            ],
+            summary: "Overall security posture is good with some areas for improvement.",
+            detailedAnalysis: "Detailed analysis of uploaded documents reveals...",
+            complianceGaps: ["GDPR compliance needs attention"],
+            actionItems: [
+              {
+                priority: "High",
+                description: "Update security protocols",
+                timeline: "30 days",
+              },
+            ],
+          })
+          return 100
+        }
+        return prev + 10
+      })
+    }, 500)
+  }
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case "choose-method":
+        return (
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Assessment Method</h2>
+              <p className="text-lg text-gray-600">Select how you'd like to conduct your risk assessment</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-blue-500 transition-colors">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Brain className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">AI-Powered Analysis</h3>
+                  <p className="text-gray-600 mb-6">
+                    Upload your documents and let our AI analyze them for comprehensive risk assessment
+                  </p>
+                  <Button onClick={() => handleMethodSelection("ai")} className="w-full">
+                    Select AI Assessment
+                  </Button>
+                </div>
+              </div>
+
+              <div className="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-blue-500 transition-colors">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FileText className="h-8 w-8 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Manual Assessment</h3>
+                  <p className="text-gray-600 mb-6">
+                    Complete a detailed questionnaire based on industry best practices
+                  </p>
+                  <Button onClick={() => handleMethodSelection("manual")} variant="outline" className="w-full">
+                    Select Manual Assessment
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "upload":
+        return (
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents</h2>
+              <p className="text-lg text-gray-600">Upload your documents for AI analysis</p>
+            </div>
+
+            <div className="bg-white border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-500 transition-colors">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Drop files here or click to upload</h3>
+              <p className="text-gray-600 mb-6">Supported formats: PDF, DOC, DOCX, TXT</p>
+              <input
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="file-upload"
+              />
+              <label htmlFor="file-upload">
+                <Button as="span" className="cursor-pointer">
+                  Choose Files
+                </Button>
+              </label>
+            </div>
+
+            {uploadedFiles.length > 0 && (
+              <div className="mt-8">
+                <h4 className="font-semibold mb-4">Uploaded Files ({uploadedFiles.length})</h4>
+                <div className="space-y-2">
+                  {uploadedFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                      <span className="font-medium">{file.name}</span>
+                      <span className="text-sm text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                    </div>
+                  ))}
+                </div>
+                <Button onClick={handleStartAnalysis} className="w-full mt-6">
+                  Start AI Analysis
+                </Button>
+              </div>
+            )}
+          </div>
+        )
+
+      case "processing":
+        return (
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Brain className="h-8 w-8 text-blue-600 animate-pulse" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Analyzing Documents</h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Our AI is analyzing your documents for security risks and compliance issues
+            </p>
+
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+              <div
+                className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                style={{ width: `${analysisProgress}%` }}
+              />
+            </div>
+            <p className="text-sm text-gray-500">{analysisProgress}% Complete</p>
+          </div>
+        )
+
+      case "results":
+        return (
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Results</h2>
+              <p className="text-lg text-gray-600">Your AI-powered risk assessment is complete</p>
+            </div>
+
+            {aiAnalysisResult && (
+              <div className="bg-white border border-gray-200 rounded-xl p-8">
+                <div className="grid md:grid-cols-2 gap-8 mb-8">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">{aiAnalysisResult.overallScore}/100</div>
+                    <div className="text-lg font-semibold">Overall Score</div>
+                  </div>
+                  <div className="text-center">
+                    <div
+                      className={`text-2xl font-bold mb-2 ${
+                        aiAnalysisResult.riskLevel === "Low"
+                          ? "text-green-600"
+                          : aiAnalysisResult.riskLevel === "Medium"
+                            ? "text-yellow-600"
+                            : aiAnalysisResult.riskLevel === "High"
+                              ? "text-orange-600"
+                              : "text-red-600"
+                      }`}
+                    >
+                      {aiAnalysisResult.riskLevel} Risk
+                    </div>
+                    <div className="text-lg font-semibold">Risk Level</div>
+                  </div>
+                </div>
+
+                <div className="border-t pt-8">
+                  <h3 className="text-xl font-semibold mb-4">Summary</h3>
+                  <p className="text-gray-700 mb-6">{aiAnalysisResult.summary}</p>
+
+                  <h3 className="text-xl font-semibold mb-4">Key Findings</h3>
+                  <div className="space-y-4">
+                    {aiAnalysisResult.findings.map((finding, index) => (
+                      <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2">
+                          {finding.category} (Score: {finding.score}/100)
+                        </h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <h5 className="font-medium text-red-700 mb-1">Issues:</h5>
+                            <ul className="text-sm text-gray-600 list-disc list-inside">
+                              {finding.issues.map((issue, i) => (
+                                <li key={i}>{issue}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-green-700 mb-1">Recommendations:</h5>
+                            <ul className="text-sm text-gray-600 list-disc list-inside">
+                              {finding.recommendations.map((rec, i) => (
+                                <li key={i}>{rec}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+
+      default:
+        return (
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Assessment in Progress</h2>
+            <p className="text-gray-600">This feature is being loaded...</p>
+            <Button onClick={() => window.history.back()} variant="outline" className="mt-4">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Risk Assessment
+            </Button>
+          </div>
+        )
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
@@ -376,14 +639,7 @@ export default function AIAssessmentClient() {
             </div>
           )}
 
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Assessment in Progress</h2>
-            <p className="text-gray-600">This feature is being loaded...</p>
-            <Button onClick={() => window.history.back()} variant="outline" className="mt-4">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Risk Assessment
-            </Button>
-          </div>
+          {renderStepContent()}
         </div>
       </section>
     </div>
