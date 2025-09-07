@@ -295,8 +295,25 @@ export default function AIAssessmentClient() {
       const assessmentType = urlParams.get("type")
       const delegationType = urlParams.get("delegation") as "team" | "third-party"
       const method = urlParams.get("method") as "ai" | "questionnaire"
+      const directCategory = urlParams.get("category")
+      const skipSelection = urlParams.get("skip-selection")
 
-      console.log("🔍 URL Parameters:", { delegated, assessmentType, delegationType, method })
+      console.log("🔍 URL Parameters:", {
+        delegated,
+        assessmentType,
+        delegationType,
+        method,
+        directCategory,
+        skipSelection,
+      })
+
+      if (directCategory && skipSelection === "true") {
+        console.log("🎯 Direct category selection:", directCategory)
+        setSelectedCategory(directCategory)
+        setCurrentStep("choose-method")
+        console.log("✅ Auto-selected category from main page and skipped selection step")
+        return
+      }
 
       if (delegated === "true" && assessmentType && delegationType && method === "ai") {
         setIsDelegatedAssessment(true)
@@ -311,7 +328,6 @@ export default function AIAssessmentClient() {
           "Compliance Assessment": "compliance",
           "Operational Risk Assessment": "operational",
           "Technology Risk Assessment": "technology",
-          // Handle variations without "Assessment" suffix
           Cybersecurity: "cybersecurity",
           Compliance: "compliance",
           "Operational Risk": "operational",
@@ -371,7 +387,6 @@ export default function AIAssessmentClient() {
 
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Step 1: Select Assessment Category */}
           {currentStep === "select" && (
             <div>
               <div className="text-center mb-12">
@@ -413,7 +428,6 @@ export default function AIAssessmentClient() {
             </div>
           )}
 
-          {/* Placeholder for other steps - keeping the structure simple for now */}
           {currentStep !== "select" && (
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-4">Assessment in Progress</h2>
