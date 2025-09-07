@@ -1181,12 +1181,17 @@ interface AIAnalysisResult {
   >
 }
 
+interface UploadedFileWithMetadata {
+  file: File;
+  docType: 'primary' | '4th-party' | null;
+}
+
 export default function AIAssessmentPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
   >("select")
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFileWithMetadata[]>([])
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AIAnalysisResult | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -1662,13 +1667,24 @@ export default function AIAssessmentPage() {
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(event.target.files || [])
-    setUploadedFiles([...uploadedFiles, ...newFiles])
+    const newFiles = Array.from(event.target.files || []).map(file => ({
+      file,
+      docType: null, // Default to null
+    }));
+    setUploadedFiles([...uploadedFiles, ...newFiles]);
   }
 
   const removeFile = (index: number) => {
     setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
   }
+
+  const handleDocTypeChange = (index: number, type: 'primary' | '4th-party') => {
+    setUploadedFiles((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, docType: item.docType === type ? null : type }
+      )
+    );
+  };
 
   const getFileStatusIcon = (file: File) => {
     const fileName = file.name.toLowerCase()
@@ -1763,8 +1779,9 @@ export default function AIAssessmentPage() {
 
     try {
       const formData = new FormData()
-      uploadedFiles.forEach((file) => {
-        formData.append("files", file)
+      uploadedFiles.forEach((item, index) => {
+        formData.append("files", item.file)
+        formData.append(`fileTypes[${index}]`, item.docType || 'unknown'); // Send docType for each file
       })
       formData.append("questions", JSON.stringify(category.questions))
       formData.append("assessmentType", category.name)
@@ -3061,26 +3078,44 @@ export default function AIAssessmentPage() {
                         <div className="mt-6">
                           <h4 className="font-medium text-gray-900 mb-3">Uploaded Files ({uploadedFiles.length})</h4>
                           <div className="space-y-2">
-                            {uploadedFiles.map((file, index) => (
-                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div className="flex items-center space-x-3">
+                            {uploadedFiles.map((item, index) => (
+                              <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div className="flex items-center space-x-3 mb-2 sm:mb-0">
                                   <FileText className="h-5 w-5 text-gray-400" />
                                   <div>
-                                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                                    <p className="text-sm font-medium text-gray-900">{item.file.name}</p>
                                     <div className="flex items-center space-x-2">
-                                      {getFileStatusIcon(file)}
-                                      <p className="text-xs text-gray-500">{getFileStatusText(file)}</p>
+                                      {getFileStatusIcon(item.file)}
+                                      <p className="text-xs text-gray-500">{getFileStatusText(item.file)}</p>
                                     </div>
                                   </div>
                                 </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeFile(index)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
+                                <div className="flex flex-wrap gap-2">
+                                  <Button
+                                    variant={item.docType === 'primary' ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => handleDocTypeChange(index, 'primary')}
+                                    className={item.docType === 'primary' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'border-blue-200 text-blue-700 hover:bg-blue-50'}
+                                  >
+                                    Primary Document
+                                  </Button>
+                                  <Button
+                                    variant={item.docType === '4th-party' ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => handleDocTypeChange(index, '4th-party')}
+                                    className={item.docType === '4th-party' ? 'bg-purple-600 text-white hover:bg-purple-700' : 'border-purple-200 text-purple-700 hover:bg-purple-50'}
+                                  >
+                                    4th Party Document
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeFile(index)}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -3667,7 +3702,9 @@ export default function AIAssessmentPage() {
                                     />
                                   </div>
                                   <div className="md:col-span-2">
-                                    <Label htmlFor={`exception-mgmt-${index}`}>Management Response (if provided)</Label>
+                                    <Label htmlFor={`exception-mgmt-${index}`}>
+                                      Management Response (if provided)
+                                    </Label>
                                     <Textarea
                                       id={`exception-mgmt-${index}`}
                                       value={exception.managementResponse}
