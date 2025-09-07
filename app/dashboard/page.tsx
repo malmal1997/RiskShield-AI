@@ -34,11 +34,10 @@ import {
   BarChart,
   Bar,
 } from "recharts"
-// import { MainNavigation } from "@/components/main-navigation" // Removed import
-// import { useAuth } from "@/components/auth-context" // Removed import
+import { AuthGuard } from "@/components/auth-guard"
+import Link from "next/link"
 import type { RiskMetrics, VendorMetrics } from "@/lib/analytics-service"
 import type { Notification } from "@/lib/notification-service"
-import Link from "next/link"
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
 
@@ -111,7 +110,14 @@ const sampleNotifications: Notification[] = [
 ]
 
 export default function DashboardPage() {
-  // const { user, signOut } = useAuth() // Removed useAuth
+  return (
+    <AuthGuard>
+      <DashboardContent />
+    </AuthGuard>
+  )
+}
+
+function DashboardContent() {
   const [riskMetrics, setRiskMetrics] = useState<RiskMetrics>(sampleRiskMetrics)
   const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics>(sampleVendorMetrics)
   const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications)
@@ -160,15 +166,8 @@ export default function DashboardPage() {
     }, 1000)
   }
 
-  // const handleSignOut = () => { // Removed handleSignOut
-  //   localStorage.removeItem("demo_session")
-  //   window.location.href = "/"
-  // }
-
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation - Removed */}
-
       {/* Hero Section - matching other pages style */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -644,17 +643,17 @@ export default function DashboardPage() {
                 </li>
                 <li>
                   <a href="#" className="hover:text-white">
-                    Third-Party Assessment
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
                     Compliance Monitoring
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-white">
                     Policy Generator
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Integrations
                   </a>
                 </li>
               </ul>

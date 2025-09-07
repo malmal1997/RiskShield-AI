@@ -3,12 +3,9 @@
 import type React from "react"
 import { useAuth } from "./auth-context"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Shield, Mail, Lock, User, AlertCircle, Play } from "lucide-react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { Shield, Play } from "lucide-react"
+import { useEffect } from "react"
+import { useRouter, usePathname } from "next/navigation"
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -17,67 +14,54 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, allowPreview = false, previewMessage }: AuthGuardProps) {
-  const { user, loading, signIn, signUp, signOut, isDemo } = useAuth()
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { user, loading, isDemo } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsSubmitting(true)
+  // Paths that do NOT require authentication
+  const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status'];
 
-    try {
-      const { error } = isSignUp ? await signUp(email, password) : await signIn(email, password)
+  // Redirect logic
+  useEffect(() => {
+    if (loading) return; // Wait until auth state is resolved
 
-      if (error) {
-        setError(error.message)
-      } else if (isSignUp) {
-        setError("Check your email for a confirmation link!")
-      }
-    } catch (err) {
-      setError("An unexpected error occurred")
-    } finally {
-      setIsSubmitting(false)
+    const isAuthenticated = !!user || isDemo;
+    const isPublicPath = publicPaths.includes(pathname);
+
+    if (!isAuthenticated && !isPublicPath && !allowPreview) {
+      // If not authenticated, not a public path, and not allowed preview, redirect to login
+      router.replace('/auth/login');
+    } else if (isAuthenticated && (pathname === '/auth/login' || pathname === '/auth/register' || pathname === '/auth/forgot-password')) {
+      // If authenticated and trying to access login/register/forgot-password, redirect to dashboard
+      router.replace('/dashboard');
     }
-  }
+  }, [loading, user, isDemo, allowPreview, pathname, router, publicPaths]);
 
-  const handleDemoLogin = async () => {
-    setIsSubmitting(true)
-    setError("")
+  const handleDemoLogin = () => {
+    localStorage.setItem(
+      "demo_session",
+      JSON.stringify({
+        user: {
+          id: "demo-user-id",
+          email: "demo@riskguard.ai",
+          name: "Demo User",
+        },
+        organization: {
+          id: "demo-org-id",
+          name: "RiskGuard Demo Organization",
+          plan: "enterprise",
+        },
+        role: "admin",
+        loginTime: new Date().toISOString(),
+      }),
+    );
+    // Force full page reload to ensure AuthContext re-evaluates and navigation updates
+    window.location.href = "/dashboard"; 
+  };
 
-    try {
-      // Set demo session
-      localStorage.setItem(
-        "demo_session",
-        JSON.stringify({
-          user: {
-            id: "demo-user-id",
-            email: "demo@riskguard.ai",
-            name: "Demo User",
-          },
-          organization: {
-            id: "demo-org-id",
-            name: "RiskGuard Demo Organization",
-            plan: "enterprise",
-          },
-          role: "admin",
-          loginTime: new Date().toISOString(),
-        }),
-      )
-
-      // Force refresh to trigger auth context update
-      window.location.reload()
-    } catch (err) {
-      setError("Demo login failed. Please try again.")
-      setIsSubmitting(false)
-    }
-  }
-
-  if (loading) {
+  if (loading || (!user && !isDemo && !publicPaths.includes(pathname) && !allowPreview)) {
+    // Show loading spinner while auth is resolving or if redirecting
+    // The second part of the condition ensures we show loading only if a redirect is imminent for a protected page
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -85,160 +69,47 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
           <p className="mt-2 text-gray-600">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  // Check if user is authenticated (either real user or demo)
-  if (!user && !localStorage.getItem("demo_session")) {
-    // If preview is allowed, show a preview banner but allow access
-    if (allowPreview) {
-      return (
-        <div className="min-h-screen bg-white">
-          {/* Preview Banner */}
-          <div className="bg-blue-600 text-white py-3 px-4">
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5" />
-                <span className="font-medium">
-                  {previewMessage || "You're viewing a preview. Sign up for full access to all features."}
-                </span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={handleDemoLogin}
-                  disabled={isSubmitting}
-                  className="bg-white text-blue-600 hover:bg-gray-100"
-                >
-                  <Play className="h-4 w-4 mr-1" />
-                  Try Demo
-                </Button>
-                <a href="/auth/register" className="text-white hover:text-blue-100 text-sm font-medium">
-                  Sign Up Free
-                </a>
-              </div>
+  // If on a public path, or authenticated, or allowed preview, render children
+  const isAuthenticated = !!user || isDemo;
+  const isPublicPath = publicPaths.includes(pathname);
+
+  if (!isAuthenticated && allowPreview && !isPublicPath) {
+    // This is the preview mode for protected pages
+    return (
+      <div className="min-h-screen bg-white">
+        {/* Preview Banner */}
+        <div className="bg-blue-600 text-white py-3 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Shield className="h-5 w-5" />
+              <span className="font-medium">
+                {previewMessage || "You're viewing a preview. Sign up for full access to all features."}
+              </span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleDemoLogin}
+                className="bg-white text-blue-600 hover:bg-gray-100"
+              >
+                <Play className="h-4 w-4 mr-1" />
+                Try Demo
+              </Button>
+              <a href="/auth/register" className="text-white hover:text-blue-100 text-sm font-medium">
+                Sign Up Free
+              </a>
             </div>
           </div>
-          {children}
         </div>
-      )
-    }
-
-    // Original login form for pages that require full authentication
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <Shield className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
-            </div>
-            <CardTitle className="text-2xl">{isSignUp ? "Create Account" : "Sign In Required"}</CardTitle>
-            <p className="text-gray-600">
-              {isSignUp
-                ? "Create your account to manage vendor assessments"
-                : "Sign in to access your vendor assessments"}
-            </p>
-          </CardHeader>
-          <CardContent>
-            {/* Demo Access Banner */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-blue-900">🚀 Try Demo Access</h3>
-                  <p className="text-sm text-blue-700">Full enterprise platform access</p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    Email: demo@riskguard.ai
-                    <br />
-                    Password: demo123
-                  </p>
-                </div>
-                <Button
-                  onClick={handleDemoLogin}
-                  disabled={isSubmitting}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  size="sm"
-                >
-                  <Play className="h-4 w-4 mr-1" />
-                  {isSubmitting ? "Loading..." : "Demo"}
-                </Button>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="email" className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4" />
-                  <span>Email</span>
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your.email@company.com"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="password" className="flex items-center space-x-2">
-                  <Lock className="h-4 w-4" />
-                  <span>Password</span>
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  minLength={6}
-                />
-              </div>
-
-              {error && (
-                <div className="flex items-center space-x-2 text-sm text-red-600 bg-red-50 p-3 rounded">
-                  <AlertCircle className="h-4 w-4" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>{isSignUp ? "Creating Account..." : "Signing In..."}</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4" />
-                    <span>{isSignUp ? "Create Account" : "Sign In"}</span>
-                  </div>
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSignUp(!isSignUp)
-                  setError("")
-                  setEmail("")
-                  setPassword("")
-                }}
-                className="text-blue-600 hover:text-blue-700 text-sm"
-              >
-                {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Create one"}
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+        {children}
       </div>
-    )
+    );
   }
 
-  return <>{children}</>
+  // If authenticated, or on a public path, or if allowPreview is true and we're not on a public path (handled above)
+  return <>{children}</>;
 }

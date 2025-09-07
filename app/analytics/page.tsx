@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Users, Eye, Clock, MousePointer, TrendingUp, Mail, Phone, Building, RefreshCw } from "lucide-react"
 import { supabaseClient } from "@/lib/supabase-client"
-// import { MainNavigation } from "@/components/main-navigation" // Removed import
+import { AuthGuard } from "@/components/auth-guard"
 
 interface AnalyticsData {
   sessions: any[]
@@ -25,6 +25,14 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
+  return (
+    <AuthGuard>
+      <AnalyticsContent />
+    </AuthGuard>
+  )
+}
+
+function AnalyticsContent() {
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState("7d")
@@ -154,7 +162,6 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        {/* <MainNavigation showAuthButtons={false} /> */}
         <div className="flex items-center justify-center py-20">
           <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
         </div>
@@ -164,8 +171,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* <MainNavigation showAuthButtons={false} /> */}
-
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
