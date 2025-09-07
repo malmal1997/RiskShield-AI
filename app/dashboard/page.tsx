@@ -82,28 +82,34 @@ const sampleVendorMetrics: VendorMetrics = {
 const sampleNotifications: Notification[] = [
   {
     id: "1",
+    organization_id: "org1", // Added
     user_id: "user1",
     title: "High-risk vendor assessment completed",
     message: "TechCorp assessment shows critical security gaps",
     type: "alert",
-    read_at: null,
+    data: {}, // Added
+    read_at: undefined, // Changed from null
     created_at: new Date().toISOString(),
   },
   {
     id: "2",
+    organization_id: "org1", // Added
     user_id: "user1",
     title: "New vendor onboarding request",
     message: "DataFlow Inc. submitted assessment request",
     type: "info",
-    read_at: null,
+    data: {}, // Added
+    read_at: undefined, // Changed from null
     created_at: new Date(Date.now() - 3600000).toISOString(),
   },
   {
     id: "3",
+    organization_id: "org1", // Added
     user_id: "user1",
     title: "Compliance deadline approaching",
     message: "SOC 2 audit due in 7 days",
     type: "warning",
+    data: {}, // Added
     read_at: new Date().toISOString(),
     created_at: new Date(Date.now() - 7200000).toISOString(),
   },
@@ -199,8 +205,7 @@ function DashboardContent() {
               </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Real-time System Status - matching card style */}
       <section className="py-12 bg-gray-50">
