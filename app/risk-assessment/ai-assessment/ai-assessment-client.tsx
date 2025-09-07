@@ -296,6 +296,8 @@ export default function AIAssessmentClient() {
       const delegationType = urlParams.get("delegation") as "team" | "third-party"
       const method = urlParams.get("method") as "ai" | "questionnaire"
 
+      console.log("🔍 URL Parameters:", { delegated, assessmentType, delegationType, method })
+
       if (delegated === "true" && assessmentType && delegationType && method === "ai") {
         setIsDelegatedAssessment(true)
         setDelegatedAssessmentInfo({
@@ -304,18 +306,27 @@ export default function AIAssessmentClient() {
           method,
         })
 
-        // Auto-select the assessment category based on the type
         const categoryMap: { [key: string]: string } = {
           "Cybersecurity Assessment": "cybersecurity",
           "Compliance Assessment": "compliance",
           "Operational Risk Assessment": "operational",
           "Technology Risk Assessment": "technology",
+          // Handle variations without "Assessment" suffix
+          Cybersecurity: "cybersecurity",
+          Compliance: "compliance",
+          "Operational Risk": "operational",
+          "Technology Risk": "technology",
         }
 
-        const categoryId = categoryMap[assessmentType]
+        const categoryId = categoryMap[assessmentType] || categoryMap[assessmentType + " Assessment"]
+        console.log("🎯 Category mapping:", { assessmentType, categoryId })
+
         if (categoryId) {
           setSelectedCategory(categoryId)
-          setCurrentStep("soc-info")
+          setCurrentStep("choose-method")
+          console.log("✅ Auto-selected category and skipped selection step")
+        } else {
+          console.warn("⚠️ Could not map assessment type to category:", assessmentType)
         }
       }
     }
