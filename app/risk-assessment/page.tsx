@@ -69,6 +69,140 @@ const assessmentCategories = [
         type: "boolean",
         weight: 9,
       },
+      {
+        id: "cs6",
+        question: "Do you conduct regular penetration testing?",
+        type: "boolean",
+        weight: 10,
+      },
+      {
+        id: "cs7",
+        question: "Do you have anti-malware/endpoint protection solutions deployed?",
+        type: "boolean",
+        weight: 9,
+      },
+      {
+        id: "cs8",
+        question: "Do you implement network segmentation?",
+        type: "boolean",
+        weight: 8,
+      },
+      {
+        id: "cs9",
+        question: "Do you have real-time network monitoring and alerting?",
+        type: "boolean",
+        weight: 8,
+      },
+      {
+        id: "cs10",
+        question: "How frequently do you conduct security audits?",
+        type: "multiple",
+        options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
+        weight: 9,
+      },
+      {
+        id: "cs11",
+        question: "Do you have a formal access control policy?",
+        type: "boolean",
+        weight: 9,
+      },
+      {
+        id: "cs12",
+        question: "Do you implement least privilege access principles?",
+        type: "boolean",
+        weight: 9,
+      },
+      {
+        id: "cs13",
+        question: "How frequently do you conduct access reviews?",
+        type: "multiple",
+        options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
+        weight: 8,
+      },
+      {
+        id: "cs14",
+        question: "Do you have secure remote logical access controls?",
+        type: "boolean",
+        weight: 8,
+      },
+      {
+        id: "cs15",
+        question: "Do you have a third-party oversight program?",
+        type: "boolean",
+        weight: 9,
+      },
+      {
+        id: "cs16",
+        question: "Do you assess third-party security controls?",
+        type: "boolean",
+        weight: 9,
+      },
+      {
+        id: "cs17",
+        question: "Do you verify third-party compliance controls?",
+        type: "boolean",
+        weight: 8,
+      },
+      {
+        id: "cs18",
+        question: "Do you conduct background screening for employees with access to sensitive data?",
+        type: "boolean",
+        weight: 8,
+      },
+      {
+        id: "cs19",
+        question: "Do you provide information security training to employees?",
+        type: "boolean",
+        weight: 8,
+      },
+      {
+        id: "cs20",
+        question: "Do you have formal onboarding and offboarding controls?",
+        type: "boolean",
+        weight: 8,
+      },
+      {
+        id: "cs21",
+        question: "Do you have a data management program?",
+        type: "boolean",
+        weight: 8,
+      },
+      {
+        id: "cs22",
+        question: "Do you have a published privacy policy?",
+        type: "boolean",
+        weight: 9,
+      },
+      {
+        id: "cs23",
+        question: "Do you have consumer data retention policies?",
+        type: "boolean",
+        weight: 9,
+      },
+      {
+        id: "cs24",
+        question: "Do you have controls to ensure PII is safeguarded?",
+        type: "boolean",
+        weight: 9,
+      },
+      {
+        id: "cs25",
+        question: "Do you have data breach protocols?",
+        type: "boolean",
+        weight: 9,
+      },
+      {
+        id: "cs26",
+        question: "Do you support consumer rights to dispute, copy, complain, delete, and opt out?",
+        type: "boolean",
+        weight: 8,
+      },
+      {
+        id: "cs27",
+        question: "Do you collect NPI, PII, or PHI data?",
+        type: "boolean",
+        weight: 8,
+      },
     ],
   },
   {
@@ -1357,7 +1491,7 @@ export default function RiskAssessmentPage() {
 
   const handlePreviousQuestion = () => {
     if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1)
+      setCurrentQuestion((prev) => prev - 1)
     }
   }
 
@@ -1665,12 +1799,14 @@ ${emailResult.message}`
       if (emailResult.success) {
         alert(alertMessage)
       } else {
+        // eslint-disable-next-line no-alert
         alert(`Assessment delegation created but email delivery failed:
 
 ${emailResult.message}`)
       }
     } catch (error) {
       console.error("Error sending delegation:", error)
+      // eslint-disable-next-line no-alert
       alert("Failed to send assessment delegation. Please try again.")
     }
   }
@@ -2236,7 +2372,7 @@ ${emailResult.message}`)
                             <div className="text-sm text-gray-600">
                               <strong>{category.questions.length}</strong> questions
                             </div>
-                            <div className="space-y-2">
+                            <div className="flex flex-col space-y-2">
                               <Button
                                 onClick={() => handleStartAssessment(category.id)}
                                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
@@ -2699,6 +2835,7 @@ ${emailResult.message}`)
                           id="subserviceOrganizations"
                           value={socInfo.subserviceOrganizations}
                           onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
+                          rows={3}
                         />
                       </div>
 
@@ -3009,7 +3146,7 @@ ${emailResult.message}`)
                   )}
                 </CardContent>
               </Card>
-            </div>
+            )}
           )}
         </div>
       </div>
