@@ -519,7 +519,7 @@ CRITICAL INSTRUCTIONS:
 - For PDF files, use your native PDF reading capabilities to extract and analyze the content
 - THOROUGHLY scan ALL sections, pages, and content areas of each document
 - Look for ALL cybersecurity-related content including but not limited to:
-  * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen tests, pentests, vulnerability testing, security testing, vulnerability analysis, security evaluations
+  * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen tests, pentests, security testing, vulnerability testing, ethical hacking, red team, security audit, intrusion testing, security evaluation, vulnerability analysis
   * PENETRATION TESTING: penetration tests, pen tests, pentests, ethical hacking, red team exercises, intrusion testing, security audits
   * Security policies, procedures, controls, and measures
   * Access controls, authentication, authorization, user management
@@ -546,17 +546,7 @@ ${documentContent}
 ASSESSMENT QUESTIONS:
 ${questions.map((q, idx) => `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""})`).join("\n")}
 
-For each question, you must:
-1. Identify the SPECIFIC topic being asked about (e.g., vulnerability scanning, penetration testing, access controls)
-2. COMPREHENSIVELY search ALL provided documents (including PDFs) for ANY evidence that relates to that topic
-3. Look in ALL sections: main content, appendices, technical sections, procedure details, policy statements
-4. For VULNERABILITY or PENETRATION TESTING questions: Search exhaustively for ANY mention of vulnerability scans, security scans, penetration tests, pen tests, security testing, vulnerability assessments, security evaluations, or related terms
-5. If you find ANY relevant evidence, answer "Yes" for boolean questions or select the appropriate option
-6. If absolutely NO evidence exists anywhere in the documents, answer "No" or use the most conservative option
-7. Quote the exact text that supports your answer and specify which document and section it came from
-8. Be especially thorough for technical security topics like vulnerability assessments, scans, and testing procedures
-
-Respond in this exact JSON format:
+Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., ```json) or conversational text outside the JSON. Ensure all property names are double-quoted.
 {
   "answers": {
     ${questions.map((q) => `"${q.id}": ${q.type === "boolean" ? '"Yes" or "No"' : '"your_answer"'}`).join(",\n    ")}
@@ -651,145 +641,153 @@ Respond in this exact JSON format:
     console.log(`📝 Google AI response received (${result.text.length} characters)`)
     console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
 
+    let rawAiResponseText = result.text;
+
+    // Attempt to strip markdown code block fences if present
+    if (rawAiResponseText.startsWith("```json")) {
+      rawAiResponseText = rawAiResponseText.substring(7); // Remove "```json\n"
+    }
+    if (rawAiResponseText.endsWith("```")) {
+      rawAiResponseText = rawAiResponseText.substring(0, rawAiResponseText.length - 3); // Remove "\n```"
+    }
+    rawAiResponseText = rawAiResponseText.trim(); // Trim any remaining whitespace
+
     // Parse AI response
-    const jsonMatch = result.text.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      try {
-        const aiResponse = JSON.parse(jsonMatch[0])
-        console.log(`✅ Successfully parsed AI response JSON`)
+    try {
+      const aiResponse = JSON.parse(rawAiResponseText)
+      console.log(`✅ Successfully parsed AI response JSON`)
 
-        // Process each question with enhanced validation
-        questions.forEach((question) => {
-          const questionId = question.id
-          const aiAnswer = aiResponse.answers?.[questionId]
-          const aiEvidence = aiResponse.evidence?.[questionId]
-          const aiReasoning = aiResponse.reasoning?.[questionId]
-          const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
+      // Process each question with enhanced validation
+      questions.forEach((question) => {
+        const questionId = question.id
+        const aiAnswer = aiResponse.answers?.[questionId]
+        const aiEvidence = aiResponse.evidence?.[questionId]
+        const aiReasoning = aiResponse.reasoning?.[questionId]
+        const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
 
+        console.log(
+          `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence length=${aiEvidence?.length || 0}`,
+        )
+
+        // Perform semantic relevance check
+        if (
+          aiEvidence &&
+          typeof aiEvidence === "string" &&
+          !aiEvidence.toLowerCase().includes("no directly relevant evidence found") &&
+          aiEvidence.length > 20
+        ) {
+          const relevanceCheck = checkSemanticRelevance(question.question, aiEvidence)
           console.log(
-            `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence length=${aiEvidence?.length || 0}`,
+            `🎯 Relevance check for ${questionId}: ${relevanceCheck.isRelevant ? "RELEVANT" : "NOT RELEVANT"} - ${relevanceCheck.reason}`,
           )
 
-          // Perform semantic relevance check
-          if (
-            aiEvidence &&
-            typeof aiEvidence === "string" &&
-            !aiEvidence.toLowerCase().includes("no directly relevant evidence found") &&
-            aiEvidence.length > 20
-          ) {
-            const relevanceCheck = checkSemanticRelevance(question.question, aiEvidence)
-            console.log(
-              `🎯 Relevance check for ${questionId}: ${relevanceCheck.isRelevant ? "RELEVANT" : "NOT RELEVANT"} - ${relevanceCheck.reason}`,
+          if (relevanceCheck.isRelevant) {
+            // Evidence is relevant - use AI's answer
+            answers[questionId] = aiAnswer
+            confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence)
+            reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
+
+            // Extract document name from evidence
+            let sourceFileName = supportedFiles.length > 0 ? supportedFiles[0].name : "Document"
+            const documentNameMatch = aiEvidence.match(
+              /(?:from|in|document|file)[\s:]*([^,.\n]+\.(pdf|txt|md|csv|json|html|xml))/i,
             )
-
-            if (relevanceCheck.isRelevant) {
-              // Evidence is relevant - use AI's answer
-              answers[questionId] = aiAnswer
-              confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence)
-              reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
-
-              // Extract document name from evidence
-              let sourceFileName = supportedFiles.length > 0 ? supportedFiles[0].name : "Document"
-              const documentNameMatch = aiEvidence.match(
-                /(?:from|in|document|file)[\s:]*([^,.\n]+\.(pdf|txt|md|csv|json|html|xml))/i,
-              )
-              if (documentNameMatch) {
-                sourceFileName = documentNameMatch[1].trim()
-              } else {
-                // Try to match against uploaded file names
-                const matchingFile = supportedFiles.find((file) =>
-                  aiEvidence.toLowerCase().includes(file.name.toLowerCase().replace(/\.[^.]+$/, "")),
-                )
-                if (matchingFile) {
-                  sourceFileName = matchingFile.name
-                }
-              }
-
-              let cleanExcerpt = aiEvidence
-
-              // Remove document name patterns from the beginning or end of quotes
-              cleanExcerpt = cleanExcerpt.replace(/^["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*:?\s*/i, "")
-              cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*$/i, "")
-
-              // Remove any remaining document name references within quotes
-              supportedFiles.forEach((file) => {
-                const fileName = file.name.replace(/\.[^.]+$/, "") // Remove extension
-                const fileNamePattern = new RegExp(`\\b${fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi")
-                cleanExcerpt = cleanExcerpt.replace(fileNamePattern, "").trim()
-
-                // Also remove the full filename with extension
-                const fullFileNamePattern = new RegExp(
-                  `\\b${file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
-                  "gi",
-                )
-                cleanExcerpt = cleanExcerpt.replace(fullFileNamePattern, "").trim()
-              })
-
-              // Remove common document reference patterns
-              cleanExcerpt = cleanExcerpt.replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "").trim()
-
-              // Clean up extra spaces and punctuation
-              cleanExcerpt = cleanExcerpt
-                .replace(/\s+/g, " ")
-                .replace(/^[,.\s]+|[,.\s]+$/g, "")
-                .trim()
-
-              // Remove any existing quotes and add proper ones
-              cleanExcerpt = cleanExcerpt.replace(/^["']+|["']+$/g, "").trim()
-
-              // Ensure we still have meaningful content after cleaning
-              if (cleanExcerpt.length < 5) {
-                // If cleaning removed too much, extract just the meaningful text without document references
-                const meaningfulText = aiEvidence.replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "").trim()
-                cleanExcerpt = meaningfulText.substring(0, 200).trim()
-              }
-
-              documentExcerpts[questionId] = [
-                {
-                  fileName: sourceFileName,
-                  excerpt: cleanExcerpt.substring(0, 500), // Use cleaned excerpt instead of raw aiEvidence
-                  relevance: `Evidence found within ${sourceFileName}`,
-                  pageOrSection: "Document Content",
-                },
-              ]
+            if (documentNameMatch) {
+              sourceFileName = documentNameMatch[1].trim()
             } else {
-              // Evidence is not relevant - use conservative answer
-              console.log(`❌ Question ${questionId}: Evidence rejected - ${relevanceCheck.reason}`)
-
-              if (question.type === "boolean") {
-                answers[questionId] = false
-              } else if (question.options && question.options.length > 0) {
-                answers[questionId] = question.options[0] // Most conservative option
+              // Try to match against uploaded file names
+              const matchingFile = supportedFiles.find((file) =>
+                aiEvidence.toLowerCase().includes(file.name.toLowerCase().replace(/\.[^.]+$/, "")),
+              )
+              if (matchingFile) {
+                sourceFileName = matchingFile.name
               }
-
-              confidenceScores[questionId] = 0.9 // High confidence in conservative answer
-              reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
-              documentExcerpts[questionId] = []
             }
+
+            let cleanExcerpt = aiEvidence
+
+            // Remove document name patterns from the beginning or end of quotes
+            cleanExcerpt = cleanExcerpt.replace(/^["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*:?\s*/i, "")
+            cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*$/i, "")
+
+            // Remove any remaining document name references within quotes
+            supportedFiles.forEach((file) => {
+              const fileName = file.name.replace(/\.[^.]+$/, "") // Remove extension
+              const fileNamePattern = new RegExp(`\\b${fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi")
+              cleanExcerpt = cleanExcerpt.replace(fileNamePattern, "").trim()
+
+              // Also remove the full filename with extension
+              const fullFileNamePattern = new RegExp(
+                `\\b${file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+                "gi",
+              )
+              cleanExcerpt = cleanExcerpt.replace(fullFileNamePattern, "").trim()
+            })
+
+            // Remove common document reference patterns
+            cleanExcerpt = cleanExcerpt
+              .replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "")
+              .trim()
+
+            // Clean up extra spaces and punctuation
+            cleanExcerpt = cleanExcerpt
+              .replace(/\s+/g, " ")
+              .replace(/^[,.\s]+|[,.\s]+$/g, "")
+              .trim()
+
+            // Remove any existing quotes and add proper ones
+            cleanExcerpt = cleanExcerpt.replace(/^["']+|["']+$/g, "").trim()
+
+            // Ensure we still have meaningful content after cleaning
+            if (cleanExcerpt.length < 5) {
+              // If cleaning removed too much, extract just the meaningful text without document references
+              const meaningfulText = aiEvidence
+                .replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "")
+                .trim()
+              cleanExcerpt = meaningfulText.substring(0, 200).trim()
+            }
+
+            documentExcerpts[questionId] = [
+              {
+                fileName: sourceFileName,
+                excerpt: cleanExcerpt.substring(0, 500), // Use cleaned excerpt instead of raw aiEvidence
+                relevance: `Evidence found within ${sourceFileName}`,
+                pageOrSection: "Document Content",
+              },
+            ]
           } else {
-            // No evidence provided - use conservative answer
-            console.log(`⚠️ Question ${questionId}: No evidence provided by AI`)
+            // Evidence is not relevant - use conservative answer
+            console.log(`❌ Question ${questionId}: Evidence rejected - ${relevanceCheck.reason}`)
 
             if (question.type === "boolean") {
               answers[questionId] = false
             } else if (question.options && question.options.length > 0) {
-              answers[questionId] = question.options[0]
+              answers[questionId] = question.options[0] // Most conservative option
             }
 
-            confidenceScores[questionId] = 0.9
-            reasoning[questionId] = "No directly relevant evidence found in documents"
+            confidenceScores[questionId] = 0.9 // High confidence in conservative answer
+            reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
             documentExcerpts[questionId] = []
           }
-        })
-      } catch (parseError) {
-        console.error("❌ Failed to parse AI response JSON:", parseError)
-        console.log("Raw AI response:", result.text)
-        throw new Error("Invalid AI response format - JSON parsing failed")
-      }
-    } else {
-      console.error("❌ No JSON found in AI response")
-      console.log("Raw AI response:", result.text)
-      throw new Error("Invalid AI response format - no JSON found")
+        } else {
+          // No evidence provided - use conservative answer
+          console.log(`⚠️ Question ${questionId}: No evidence provided by AI`)
+
+          if (question.type === "boolean") {
+            answers[questionId] = false
+          } else if (question.options && question.options.length > 0) {
+            answers[questionId] = question.options[0]
+          }
+
+          confidenceScores[questionId] = 0.9
+          reasoning[questionId] = "No directly relevant evidence found in documents"
+          documentExcerpts[questionId] = []
+        }
+      })
+    } catch (parseError) {
+      console.error("❌ Failed to parse AI response JSON:", parseError)
+      console.log("Raw AI response (after stripping markdown):", rawAiResponseText)
+      throw new Error("Invalid AI response format - JSON parsing failed")
     }
   } catch (error) {
     console.error("❌ Google AI processing failed:", error)
