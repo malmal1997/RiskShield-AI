@@ -1,12 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { supabaseClient } from "@/lib/supabase-client"
+import { supabase } from "@/lib/supabase" // Changed import to server-side Supabase client
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     const { sessionId, pagePath, timeOnPage } = data
 
-    await supabaseClient
+    await supabase // Changed from supabaseClient to supabase
       .from("page_views")
       .update({ time_on_page: timeOnPage })
       .eq("session_id", sessionId)
