@@ -138,37 +138,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let subscription: any = null
 
     const getInitialSession = async () => {
-      // Check for demo session immediately
-      const demoSession = localStorage.getItem("demo_session")
-      if (demoSession) {
-        await refreshProfile()
-        setLoading(false)
-        return
-      }
-
-      // Regular auth flow
-      await refreshProfile()
+      await refreshProfile() // This handles both real and demo sessions
       setLoading(false)
     }
 
     getInitialSession()
 
-    // Listen for auth changes (only for non-demo sessions)
+    // Listen for auth changes
     try {
       const {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        if (!localStorage.getItem("demo_session")) {
-          if (session?.user) {
-            await refreshProfile()
-          } else {
-            setUser(null)
-            setProfile(null)
-            setOrganization(null)
-            setRole(null)
-            setIsDemo(false)
-          }
-        }
+        // Always refresh profile on auth state change, let refreshProfile handle demo logic
+        // This ensures the context is always up-to-date with Supabase's state
+        await refreshProfile()
         setLoading(false)
       })
 
