@@ -21,9 +21,8 @@ export interface DocumentAnalysisResult {
       relevance: string
       pageOrSection?: string
       quote?: string
-      pageNumber?: number // Added
+      pageNumber?: number
       lineNumber?: number
-      designation?: 'primary' | 'fourth-party'; // Added
     }>
   >
   directUploadResults?: Array<{
@@ -705,11 +704,53 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
               }
             }
 
-            // Store the raw AI evidence directly, without cleaning or truncating
+            let cleanExcerpt = aiEvidence
+
+            // Remove document name patterns from the beginning or end of quotes
+            cleanExcerpt = cleanExcerpt.replace(/^["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*:?\s*/i, "")
+            cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*$/i, "")
+
+            // Remove any remaining document name references within quotes
+            supportedFiles.forEach((file) => {
+              const fileName = file.name.replace(/\.[^.]+$/, "") // Remove extension
+              const fileNamePattern = new RegExp(`\\b${fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi")
+              cleanExcerpt = cleanExcerpt.replace(fileNamePattern, "").trim()
+
+              // Also remove the full filename with extension
+              const fullFileNamePattern = new RegExp(
+                `\\b${file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+                "gi",
+              )
+              cleanExcerpt = cleanExcerpt.replace(fullFileNamePattern, "").trim()
+            })
+
+            // Remove common document reference patterns
+            cleanExcerpt = cleanExcerpt
+              .replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "")
+              .trim()
+
+            // Clean up extra spaces and punctuation
+            cleanExcerpt = cleanExcerpt
+              .replace(/\s+/g, " ")
+              .replace(/^[,.\s]+|[,.\s]+$/g, "")
+              .trim()
+
+            // Remove any existing quotes and add proper ones
+            cleanExcerpt = cleanExcerpt.replace(/^["']+|["']+$/g, "").trim()
+
+            // Ensure we still have meaningful content after cleaning
+            if (cleanExcerpt.length < 5) {
+              // If cleaning removed too much, extract just the meaningful text without document references
+              const meaningfulText = aiEvidence
+                .replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "")
+                .trim()
+              cleanExcerpt = meaningfulText.substring(0, 200).trim()
+            }
+
             documentExcerpts[questionId] = [
               {
                 fileName: sourceFileName,
-                excerpt: aiEvidence, 
+                excerpt: cleanExcerpt.substring(0, 500), // Use cleaned excerpt instead of raw aiEvidence
                 relevance: `Evidence found within ${sourceFileName}`,
                 pageOrSection: "Document Content",
               },
@@ -719,13 +760,13 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             console.log(`❌ Question ${questionId}: Evidence rejected - ${relevanceCheck.reason}`)
 
             if (question.type === "boolean") {
-              answers[question.id] = false
+              answers[questionId] = false
             } else if (question.options && question.options.length > 0) {
-              answers[question.id] = question.options[0] // Most conservative option
+              answers[questionId] = question.options[0] // Most conservative option
             }
 
             confidenceScores[questionId] = 0.9 // High confidence in conservative answer
-            reasoning[question.id] = `No directly relevant evidence found. ${relevanceCheck.reason}`
+            reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
             documentExcerpts[questionId] = []
           }
         } else {
@@ -733,14 +774,14 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           console.log(`⚠️ Question ${questionId}: No evidence provided by AI`)
 
           if (question.type === "boolean") {
-            answers[question.id] = false
+            answers[questionId] = false
           } else if (question.options && question.options.length > 0) {
-            answers[question.id] = question.options[0]
+            answers[questionId] = question.options[0]
           }
 
-          confidenceScores[question.id] = 0.9
-          reasoning[question.id] = "No directly relevant evidence found in documents"
-          documentExcerpts[question.id] = []
+          confidenceScores[questionId] = 0.9
+          reasoning[questionId] = "No directly relevant evidence found in documents"
+          documentExcerpts[questionId] = []
         }
       })
     } catch (parseError) {

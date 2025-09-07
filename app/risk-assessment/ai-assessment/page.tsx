@@ -40,13 +40,6 @@ import {
 import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 // Complete assessment categories for AI assessment
 const assessmentCategories = [
@@ -1184,20 +1177,16 @@ interface AIAnalysisResult {
       quote?: string
       pageNumber?: number
       lineNumber?: number
-      designation?: 'primary' | 'fourth-party';
     }>
   >
 }
-
-// Define a type for uploaded files including the new 'type' property
-type UploadedFileWithDesignation = File & { designation: 'primary' | 'fourth-party' };
 
 export default function AIAssessmentPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
   >("select")
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFileWithDesignation[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AIAnalysisResult | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -1244,7 +1233,7 @@ export default function AIAssessmentPage() {
   const [questionEditModes, setQuestionEditModes] = useState<Record<string, boolean>>({})
   const [questionUnsavedChanges, setQuestionUnsavedChanges] = useState<Record<string, boolean>>({})
   const [editedAnswers, setEditedAnswers] = useState<Record<string, boolean | string>>({})
-  const [approvedQuestions, setApprovedQuestions] = new Set<string>()
+  const [approvedQuestions, setApprovedQuestions] = useState<Set<string>>(new Set())
   const [editedReasoning, setEditedReasoning] = useState<Record<string, string>>({})
   const [editedEvidence, setEditedEvidence] = useState<
     Record<
@@ -1257,7 +1246,6 @@ export default function AIAssessmentPage() {
         quote?: string
         pageNumber?: number
         lineNumber?: number
-        designation?: 'primary' | 'fourth-party';
       }>
     >
   >({})
@@ -1493,7 +1481,6 @@ export default function AIAssessmentPage() {
       quote?: string
       pageNumber?: number
       lineNumber?: number
-      designation?: 'primary' | 'fourth-party';
     }>,
   ) => {
     setEditedEvidence((prev) => ({
@@ -1675,28 +1662,17 @@ export default function AIAssessmentPage() {
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(event.target.files || []).map(file => ({
-      ...file,
-      designation: 'primary' // Default to 'primary'
-    }));
-    setUploadedFiles([...uploadedFiles, ...newFiles]);
-  };
-
-  const handleFileDesignationChange = (index: number, newDesignation: 'primary' | 'fourth-party') => {
-    setUploadedFiles(prevFiles =>
-      prevFiles.map((file, i) =>
-        i === index ? { ...file, designation: newDesignation } : file
-      )
-    );
-  };
+    const newFiles = Array.from(event.target.files || [])
+    setUploadedFiles([...uploadedFiles, ...newFiles])
+  }
 
   const removeFile = (index: number) => {
     setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
   }
 
   const getFileStatusIcon = (file: File) => {
-    const fileName = file?.name?.toLowerCase() || '';
-    const fileType = file?.type?.toLowerCase() || '';
+    const fileName = file.name.toLowerCase()
+    const fileType = file.type.toLowerCase()
 
     // Fully supported formats
     if (
@@ -1725,8 +1701,8 @@ export default function AIAssessmentPage() {
   }
 
   const getFileStatusText = (file: File) => {
-    const fileName = file?.name?.toLowerCase() || '';
-    const fileType = file?.type?.toLowerCase() || '';
+    const fileName = file.name.toLowerCase()
+    const fileType = file.type.toLowerCase()
 
     // Fully supported formats
     if (
@@ -1971,29 +1947,6 @@ export default function AIAssessmentPage() {
   const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
   const selectedFramework = assessmentCategories.find((cat) => cat.id === selectedCategory)
 
-  // Helper to enrich document excerpts with designation from uploadedFiles
-  const getEnrichedDocumentExcerpts = (
-    rawExcerpts: AIAnalysisResult['documentExcerpts'],
-    uploadedFiles: UploadedFileWithDesignation[]
-  ) => {
-    if (!rawExcerpts) return {};
-
-    const enrichedExcerpts: AIAnalysisResult['documentExcerpts'] = {};
-
-    for (const questionId in rawExcerpts) {
-      enrichedExcerpts[questionId] = rawExcerpts[questionId].map(excerpt => {
-        const matchingFile = uploadedFiles.find(file => file.name === excerpt.fileName);
-        return {
-          ...excerpt,
-          designation: matchingFile?.designation,
-          // pageNumber is not reliably extracted by AI, so it will remain undefined unless AI provides it
-        };
-      });
-    }
-    return enrichedExcerpts;
-  };
-
-
   const generateAndDownloadReport = async () => {
     if (!aiAnalysisResult || !currentCategory) return
 
@@ -2017,13 +1970,12 @@ export default function AIAssessmentPage() {
         fontSize = 10,
         fontStyle: "normal" | "bold" | "italic" = "normal",
         textColor: number[] = [0, 0, 0],
-        align: "left" | "center" | "right" = "left"
       ) => {
         doc.setFontSize(fontSize)
         doc.setFont("helvetica", fontStyle)
         doc.setTextColor(textColor[0], textColor[1], textColor[2])
         const lines = doc.splitTextToSize(text, maxWidth)
-        doc.text(lines, x, y, { align: align })
+        doc.text(lines, x, y)
         return y + lines.length * (fontSize * 0.5) // Adjust line spacing
       }
 
@@ -2068,7 +2020,6 @@ export default function AIAssessmentPage() {
         24,
         "bold",
         [255, 255, 255],
-        "center"
       )
       addWrappedText(
         `AI-Powered Risk Analysis • Generated ${new Date().toLocaleDateString()}`,
@@ -2078,7 +2029,6 @@ export default function AIAssessmentPage() {
         12,
         "normal",
         [255, 255, 255],
-        "center"
       )
 
       yPosition = 80
@@ -2104,9 +2054,8 @@ export default function AIAssessmentPage() {
         24,
         "bold",
         BLUE_600,
-        "center"
       )
-      addWrappedText("Risk Score", margin + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600, "center")
+      addWrappedText("Risk Score", margin + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
 
       // Risk Level Box
       const riskLevelColor = getRiskLevelColor(aiAnalysisResult.riskLevel)
@@ -2138,9 +2087,8 @@ export default function AIAssessmentPage() {
         14,
         "bold",
         riskTextColor,
-        "center"
       )
-      addWrappedText("Risk Level", margin + boxWidth + 10 + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600, "center")
+      addWrappedText("Risk Level", margin + boxWidth + 10 + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
 
       // Documents Analyzed Box
       doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
@@ -2155,9 +2103,8 @@ export default function AIAssessmentPage() {
         24,
         "bold",
         GREEN_600,
-        "center"
       )
-      addWrappedText("Documents Analyzed", margin + 2 * (boxWidth + 10) + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600, "center")
+      addWrappedText("Documents Analyzed", margin + 2 * (boxWidth + 10) + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
 
       yPosition += boxHeight + 30
 
@@ -2218,15 +2165,12 @@ export default function AIAssessmentPage() {
       addWrappedText("Assessment Questions & Responses", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
       yPosition += 25
 
-      // Get enriched excerpts
-      const enrichedExcerpts = getEnrichedDocumentExcerpts(aiAnalysisResult.documentExcerpts, uploadedFiles);
-
       currentCategory.questions.forEach((question, index) => {
         checkNewPage(120) // Check if we need space for question block
 
         const answer = aiAnalysisResult.answers[question.id]
         const reasoning = aiAnalysisResult.reasoning[question.id] || "No reasoning provided"
-        const excerpts = enrichedExcerpts?.[question.id] || [] // Use enriched excerpts here
+        const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
 
         // Question header with better spacing
         doc.setFillColor(255, 255, 255)
@@ -2274,13 +2218,10 @@ export default function AIAssessmentPage() {
           let currentEvidenceY = yPosition + 18
           let totalEvidenceHeight = 0
           excerpts.forEach((excerpt) => {
-            const excerptLines = doc.splitTextToSize(`"${excerpt.excerpt}"`, contentWidth - 20).length;
-            const citationLines = doc.splitTextToSize(
-              `Source: ${excerpt.fileName}${excerpt.pageNumber ? ` (Page ${excerpt.pageNumber})` : ''} - ${excerpt.designation ? excerpt.designation.toUpperCase() : 'N/A'}`,
-              contentWidth - 20
-            ).length;
-            totalEvidenceHeight += (excerptLines + citationLines) * 9 + 8; // 9 is approx line height, 8 is spacing
-          });
+            const excerptLines = doc.splitTextToSize(`"${excerpt.excerpt}"`, contentWidth - 20).length
+            const sourceLines = excerpt.fileName ? 1 : 0
+            totalEvidenceHeight += (excerptLines + sourceLines) * 9 + 8 // 9 is approx line height, 8 is spacing
+          })
           totalEvidenceHeight = Math.max(30, totalEvidenceHeight + 15) // Min height + padding
 
           doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
@@ -2293,9 +2234,9 @@ export default function AIAssessmentPage() {
           excerpts.forEach((excerpt) => {
             const excerptText = `"${excerpt.excerpt}"`
             currentEvidenceY = addWrappedText(excerptText, margin + 10, currentEvidenceY, contentWidth - 20, 9, "normal", GREEN_600)
-            
-            const citationText = `Source: ${excerpt.fileName}${excerpt.pageNumber ? ` (Page ${excerpt.pageNumber})` : ''} - ${excerpt.designation ? excerpt.designation.toUpperCase() : 'N/A'}`;
-            currentEvidenceY = addWrappedText(citationText, margin + 10, currentEvidenceY + 5, contentWidth - 20, 8, "italic", GRAY_500);
+            if (excerpt.fileName) {
+              currentEvidenceY = addWrappedText(`Source: ${excerpt.fileName}`, margin + 10, currentEvidenceY + 5, contentWidth - 20, 8, "italic", GRAY_500)
+            }
             currentEvidenceY += 8
           })
           yPosition += totalEvidenceHeight
@@ -2371,7 +2312,6 @@ export default function AIAssessmentPage() {
           8,
           "normal",
           GRAY_500,
-          "center"
         )
         addWrappedText(
           `Assessment ID: ${Date.now()} • Generation Date: ${new Date().toISOString().split("T")[0]}`,
@@ -2381,9 +2321,8 @@ export default function AIAssessmentPage() {
           8,
           "normal",
           GRAY_500,
-          "center"
         )
-        addWrappedText(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 8, margin, 8, "normal", GRAY_500, "right")
+        addWrappedText(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 8, margin, 8, "normal", GRAY_500)
       }
 
       // Save the PDF
@@ -2939,8 +2878,8 @@ export default function AIAssessmentPage() {
                   </Button>
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents for AI Analysis</h2>
                   <p className="text-lg text-gray-600">
-                    Upload documents related to your{" "}
-                    <span className="font-semibold text-blue-600">{currentCategory?.name}</span> practices
+                    Upload your documents for{" "}
+                    <span className="font-semibold text-blue-600">{currentCategory?.name}</span>
                   </p>
                 </div>
 
@@ -3025,28 +2964,14 @@ export default function AIAssessmentPage() {
                                     </div>
                                   </div>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                  <Select
-                                    value={file.designation}
-                                    onValueChange={(value: 'primary' | 'fourth-party') => handleFileDesignationChange(index, value)}
-                                  >
-                                    <SelectTrigger className="w-[140px] h-8 text-xs">
-                                      <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="primary">Primary</SelectItem>
-                                      <SelectItem value="fourth-party">4th Party</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removeFile(index)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeFile(index)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
                               </div>
                             ))}
                           </div>
@@ -3203,7 +3128,7 @@ export default function AIAssessmentPage() {
                         aiAnalysisResult.reasoning[question.id] ??
                         "No reasoning provided"
                       const excerpts =
-                        editedEvidence[question.id] ?? getEnrichedDocumentExcerpts(aiAnalysisResult.documentExcerpts, uploadedFiles)?.[question.id] ?? []
+                        editedEvidence[question.id] ?? aiAnalysisResult.documentExcerpts?.[question.id] ?? []
                       const isApproved = approvedQuestions.has(question.id)
 
                       return (
@@ -3465,29 +3390,10 @@ export default function AIAssessmentPage() {
                                                 placeholder="Relevance explanation"
                                                 className="w-full p-1 border border-gray-300 rounded text-sm"
                                               />
-                                              <Select
-                                                value={excerpt.designation || 'primary'}
-                                                onValueChange={(value: 'primary' | 'fourth-party') =>
-                                                  updateEvidenceItem(question.id, excerptIndex, "designation", value)
-                                                }
-                                              >
-                                                <SelectTrigger className="w-[140px] h-8 text-xs">
-                                                  <SelectValue placeholder="Select type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                  <SelectItem value="primary">Primary</SelectItem>
-                                                  <SelectItem value="fourth-party">4th Party</SelectItem>
-                                                </SelectContent>
-                                              </Select>
                                             </div>
                                           ) : (
                                             <>
                                               <p className="text-sm text-green-800 italic mb-2">{excerpt.excerpt}</p>
-                                              <p className="text-xs text-green-600">
-                                                Source: {excerpt.fileName}
-                                                {excerpt.pageNumber ? ` (Page ${excerpt.pageNumber})` : ''}
-                                                {excerpt.designation ? ` - ${excerpt.designation.toUpperCase()}` : ''}
-                                              </p>
                                               {excerpt.relevance && (
                                                 <p className="text-xs text-green-600">Relevance: {excerpt.relevance}</p>
                                               )}
@@ -3652,9 +3558,7 @@ export default function AIAssessmentPage() {
                                     />
                                   </div>
                                   <div className="md:col-span-2">
-                                    <Label htmlFor={`exception-mgmt-${index}`}>
-                                      Management Response (if provided)
-                                    </Label>
+                                    <Label htmlFor={`exception-mgmt-${index}`}>Management Response (if provided)</Label>
                                     <Textarea
                                       id={`exception-mgmt-${index}`}
                                       value={exception.managementResponse}

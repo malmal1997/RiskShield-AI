@@ -138,7 +138,7 @@ function AnalyticsContent() {
     )
 
     return Object.entries(pageStats)
-      .sort(([, a], [, b]) => (b as number) - (a as number)) // Cast to number
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
       .map(([path, views]) => ({ path, views }))
   }
@@ -154,7 +154,7 @@ function AnalyticsContent() {
     )
 
     return Object.entries(featureStats)
-      .sort(([, a], [, b]) => (b as number) - (a as number)) // Cast to number
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
       .map(([feature, interactions]) => ({ feature, interactions }))
   }
@@ -385,7 +385,7 @@ function AnalyticsContent() {
                           </div>
                           <span className="font-medium">{feature}</span>
                         </div>
-                        <Badge variant="outline">{interactions as number} interactions</Badge>
+                        <Badge variant="outline">{interactions} interactions</Badge>
                       </div>
                     ))}
                   </div>
@@ -432,7 +432,7 @@ function AnalyticsContent() {
                         </div>
                         <span className="font-medium">{path}</span>
                       </div>
-                      <Badge variant="outline">{views as number} views</Badge>
+                      <Badge variant="outline">{views} views</Badge>
                     </div>
                   ))}
                 </div>
