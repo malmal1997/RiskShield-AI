@@ -40,6 +40,13 @@ import {
 import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 // Complete assessment categories for AI assessment
 const assessmentCategories = [
@@ -1181,12 +1188,15 @@ interface AIAnalysisResult {
   >
 }
 
+// Define a type for uploaded files including the new 'type' property
+type UploadedFileWithDesignation = File & { designation: 'primary' | 'fourth-party' };
+
 export default function AIAssessmentPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
   >("select")
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFileWithDesignation[]>([])
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AIAnalysisResult | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -1662,9 +1672,20 @@ export default function AIAssessmentPage() {
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(event.target.files || [])
-    setUploadedFiles([...uploadedFiles, ...newFiles])
-  }
+    const newFiles = Array.from(event.target.files || []).map(file => ({
+      ...file,
+      designation: 'primary' // Default to 'primary'
+    }));
+    setUploadedFiles([...uploadedFiles, ...newFiles]);
+  };
+
+  const handleFileDesignationChange = (index: number, newDesignation: 'primary' | 'fourth-party') => {
+    setUploadedFiles(prevFiles =>
+      prevFiles.map((file, i) =>
+        i === index ? { ...file, designation: newDesignation } : file
+      )
+    );
+  };
 
   const removeFile = (index: number) => {
     setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
@@ -2878,8 +2899,8 @@ export default function AIAssessmentPage() {
                   </Button>
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents for AI Analysis</h2>
                   <p className="text-lg text-gray-600">
-                    Upload your documents for{" "}
-                    <span className="font-semibold text-blue-600">{currentCategory?.name}</span>
+                    Upload documents related to your{" "}
+                    <span className="font-semibold text-blue-600">{currentCategory?.name}</span> practices
                   </p>
                 </div>
 
@@ -2964,14 +2985,28 @@ export default function AIAssessmentPage() {
                                     </div>
                                   </div>
                                 </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeFile(index)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
+                                <div className="flex items-center space-x-2">
+                                  <Select
+                                    value={file.designation}
+                                    onValueChange={(value: 'primary' | 'fourth-party') => handleFileDesignationChange(index, value)}
+                                  >
+                                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                                      <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="primary">Primary</SelectItem>
+                                      <SelectItem value="fourth-party">4th Party</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeFile(index)}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -3558,7 +3593,9 @@ export default function AIAssessmentPage() {
                                     />
                                   </div>
                                   <div className="md:col-span-2">
-                                    <Label htmlFor={`exception-mgmt-${index}`}>Management Response (if provided)</Label>
+                                    <Label htmlFor={`exception-mgmt-${index}`}>
+                                      Management Response (if provided)
+                                    </Label>
                                     <Textarea
                                       id={`exception-mgmt-${index}`}
                                       value={exception.managementResponse}
