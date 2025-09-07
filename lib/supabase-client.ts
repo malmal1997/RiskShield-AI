@@ -5,30 +5,36 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 // Create a mock client for when Supabase is not configured
-const createMockClient = () => ({
-  auth: {
-    signUp: () => Promise.resolve({ data: { user: null }, error: null }),
-    signInWithPassword: () => Promise.resolve({ data: { user: null }, error: null }),
-    signOut: () => Promise.resolve({ error: null }),
-    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    onAuthStateChange: () => ({ data: { subscription: null } }),
-  },
-  from: () => ({
-    select: () => Promise.resolve({ data: [], error: null }),
-    insert: () => Promise.resolve({ data: null, error: null }),
-    update: () => Promise.resolve({ data: null, error: null }),
-    delete: () => Promise.resolve({ data: null, error: null }),
-    eq: function () {
-      return this
+const createMockClient = () => {
+  // Helper for chainable methods like .eq(), .order(), .limit(), .single()
+  const mockChainableQuery = () => {
+    const chainable = {
+      eq: () => chainable,
+      is: () => chainable,
+      order: () => chainable,
+      limit: () => chainable,
+      upsert: () => Promise.resolve({ data: null, error: null }), // Final execution for upsert
+      update: () => Promise.resolve({ data: null, error: null }), // Final execution for update
+      delete: () => Promise.resolve({ data: null, error: null }), // Final execution for delete
+      select: () => Promise.resolve({ data: [], error: null }), // Final execution for select
+      single: () => Promise.resolve({ data: null, error: null }), // Final execution for single
+      then: (callback: any) => Promise.resolve({ data: null, error: null }).then(callback), // Make it thenable
+      catch: (callback: any) => Promise.resolve({ data: null, error: null }).catch(callback),
+    };
+    return chainable;
+  };
+
+  return {
+    auth: {
+      signUp: () => Promise.resolve({ data: { user: null }, error: null }),
+      signInWithPassword: () => Promise.resolve({ data: { user: null }, error: null }),
+      signOut: () => Promise.resolve({ error: null }),
+      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: null } }),
     },
-    single: function () {
-      return this
-    },
-    order: function () {
-      return this
-    },
-  }),
-})
+    from: () => mockChainableQuery(), // from() returns a chainable query object
+  };
+};
 
 // Initialize client safely
 let supabaseClient: any
