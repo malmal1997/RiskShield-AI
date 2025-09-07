@@ -22,18 +22,13 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status', '/demo-features'];
 
   useEffect(() => {
-    console.log("AuthGuard: useEffect triggered. Loading:", loading, "User:", !!user, "isDemo:", isDemo, "Path:", pathname);
-
     // If still loading auth state, do nothing yet.
     if (loading) {
-      console.log("AuthGuard: Still loading, returning early.");
       return;
     }
 
     const isAuthenticated = !!user || isDemo;
     const isPublicPath = publicPaths.includes(pathname);
-
-    console.log("AuthGuard: isAuthenticated:", isAuthenticated, "isPublicPath:", isPublicPath, "allowPreview:", allowPreview);
 
     // Scenario 1: User is NOT authenticated and tries to access a PROTECTED page
     if (!isAuthenticated && !isPublicPath && !allowPreview) {
@@ -80,7 +75,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
   // Render loading spinner if auth is still resolving
   if (loading) {
-    console.log("AuthGuard: Rendering loading state.");
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -96,7 +90,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const isPublicPath = publicPaths.includes(pathname);
 
   if (!isAuthenticated && allowPreview && !isPublicPath) {
-    console.log("AuthGuard: Rendering preview banner for protected page.");
     // This is the preview mode for protected pages
     return (
       <div className="min-h-screen bg-white">
@@ -130,7 +123,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     );
   }
 
-  console.log("AuthGuard: Rendering children directly.");
   // If authenticated, or on a public path, or if allowPreview is true and we're not on a public path (handled above)
   return <>{children}</>;
 }
