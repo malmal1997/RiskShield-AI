@@ -515,215 +515,246 @@ const assessmentCategories = [
         id: "dp13",
         question: "Do you have data privacy compliance monitoring procedures in place?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp14",
         question: "Do you have physical perimeter and boundary security controls?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp15",
         question: "Do you have controls to protect against environmental extremes?",
         type: "boolean" as const,
-        weight: 7,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp16",
         question: "Do you conduct independent audits/assessments of your Information Security Policy?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp17",
         question: "Do you have an IT asset management program?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp18",
         question: "Do you have restrictions on storage devices?",
         type: "boolean" as const,
-        weight: 7,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp19",
         question: "Do you have anti-malware/endpoint protection solutions deployed?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp20",
         question: "Do you implement network segmentation?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp21",
         question: "Do you have real-time network monitoring and alerting?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp22",
         question: "How frequently do you conduct vulnerability scanning?",
         type: "multiple" as const,
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 9,
+        required: true,
       },
       {
         id: "dp23",
         question: "How frequently do you conduct penetration testing?",
         type: "multiple" as const,
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
-        weight: 9,
+        required: true,
       },
       {
         id: "dp24",
         question: "Which regulatory compliance/industry standards does your company follow?",
         type: "multiple" as const,
         options: ["None", "ISO 27001", "SOC 2", "HIPAA", "PCI DSS", "NIST"],
-        weight: 10,
+        required: true,
       },
       {
         id: "dp25",
         question: "Do you have a formal access control policy?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp26",
         question: "Do you have physical access controls for wireless infrastructure?",
         type: "boolean" as const,
-        weight: 7,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp27",
         question: "Do you have defined password parameters and requirements?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp28",
         question: "Do you implement least privilege access principles?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp29",
         question: "How frequently do you conduct access reviews?",
         type: "multiple" as const,
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 8,
+        required: true,
       },
       {
         id: "dp30",
         question: "Do you require device authentication for network access?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp31",
         question: "Do you have secure remote logical access controls?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp32",
         question: "Do you have a third-party oversight program?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp33",
         question: "Do you assess third-party security controls?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp34",
         question: "Do you verify third-party compliance controls?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp35",
         question: "Do you conduct background screening for employees with access to sensitive data?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp36",
         question: "Do you provide information security training to employees?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp37",
         question: "Do you provide privacy training to employees?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp38",
         question: "Do you provide role-specific compliance training?",
         type: "boolean" as const,
-        weight: 7,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp39",
         question: "Do you have policy compliance and disciplinary measures?",
         type: "boolean" as const,
-        weight: 8,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp40",
         question: "Do you have formal onboarding and offboarding controls?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp41",
         question: "Do you have a data management program?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp42",
         question: "Do you have a published privacy policy?",
         type: "boolean" as const,
-        weight: 10,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp43",
         question: "Do you have consumer data retention policies?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp44",
         question: "Do you have controls to ensure PII is safeguarded?",
         type: "boolean" as const,
-        weight: 10,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp45",
         question: "Do you have data breach protocols?",
         type: "boolean" as const,
-        weight: 10,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp46",
         question: "Do you support consumer rights to dispute, copy, complain, delete, and opt out?",
         type: "boolean" as const,
-        weight: 9,
+        options: ["Yes", "No"],
+        required: true,
       },
       {
         id: "dp47",
         question: "Do you collect NPI, PII, or PHI data?",
         type: "boolean" as const,
-        weight: 10,
+        options: ["Yes", "No"],
+        required: true,
       },
     ],
   },
@@ -1931,11 +1962,21 @@ export default function AIAssessmentPage() {
       let yPosition = margin
 
       // Helper function to add text with word wrapping
-      const addWrappedText = (text: string, x: number, y: number, maxWidth: number, fontSize = 10) => {
+      const addWrappedText = (
+        text: string,
+        x: number,
+        y: number,
+        maxWidth: number,
+        fontSize = 10,
+        fontStyle: "normal" | "bold" | "italic" = "normal",
+        textColor: number[] = [0, 0, 0],
+      ) => {
         doc.setFontSize(fontSize)
+        doc.setFont("helvetica", fontStyle)
+        doc.setTextColor(textColor[0], textColor[1], textColor[2])
         const lines = doc.splitTextToSize(text, maxWidth)
         doc.text(lines, x, y)
-        return y + lines.length * (fontSize * 0.5) // Better line spacing
+        return y + lines.length * (fontSize * 0.5) // Adjust line spacing
       }
 
       // Helper function to check if we need a new page
@@ -1946,28 +1987,54 @@ export default function AIAssessmentPage() {
         }
       }
 
+      // --- Colors (RGB values from Tailwind config) ---
+      const BLUE_600 = [30, 64, 191] // #1e40af
+      const BLUE_50 = [239, 246, 255] // #eff6ff
+      const BLUE_100 = [219, 234, 254] // #dbeafe
+      const BLUE_200 = [191, 219, 254] // #bfdbfe
+      const BLUE_700 = [29, 77, 216] // #1d4ed8
+      const GREEN_600 = [22, 163, 74] // #16a34a
+      const GREEN_50 = [240, 253, 244] // #f0fdf4
+      const YELLOW_600 = [202, 138, 4] // #ca8a04
+      const YELLOW_50 = [254, 252, 232] // #fefce8
+      const ORANGE_600 = [234, 88, 12] // #ea580c
+      const RED_600 = [220, 38, 38] // #dc2626
+      const RED_50 = [254, 242, 242] // #fef2f2
+      const GRAY_900 = [17, 24, 39] // #111827
+      const GRAY_700 = [55, 65, 81] // #374151
+      const GRAY_600 = [75, 85, 99] // #4b5563
+      const GRAY_500 = [107, 114, 128] // #6b7280
+      const GRAY_200 = [229, 231, 235] // #e5e7eb
+      const GRAY_100 = [243, 244, 246] // #f3f4f6
+      const GRAY_50 = [249, 250, 251] // #f9fafb
+
       // Header
-      doc.setFillColor(59, 130, 246) // Blue background
+      doc.setFillColor(BLUE_600[0], BLUE_600[1], BLUE_600[2])
       doc.rect(0, 0, pageWidth, 60, "F")
 
-      doc.setTextColor(255, 255, 255) // White text
-      doc.setFontSize(24)
-      doc.setFont("helvetica", "bold")
-      doc.text(`${currentCategory.name} Risk Assessment Report`, pageWidth / 2, 25, { align: "center" })
-
-      doc.setFontSize(12)
-      doc.setFont("helvetica", "normal")
-      doc.text(`AI-Powered Risk Analysis • Generated ${new Date().toLocaleDateString()}`, pageWidth / 2, 40, {
-        align: "center",
-      })
+      addWrappedText(
+        `${currentCategory.name} Risk Assessment Report`,
+        pageWidth / 2,
+        25,
+        contentWidth,
+        24,
+        "bold",
+        [255, 255, 255],
+      )
+      addWrappedText(
+        `AI-Powered Risk Analysis • Generated ${new Date().toLocaleDateString()}`,
+        pageWidth / 2,
+        40,
+        contentWidth,
+        12,
+        "normal",
+        [255, 255, 255],
+      )
 
       yPosition = 80
 
       // Summary Section
-      doc.setTextColor(0, 0, 0) // Black text
-      doc.setFontSize(16)
-      doc.setFont("helvetica", "bold")
-      doc.text("Assessment Summary", margin, yPosition)
+      addWrappedText("Assessment Summary", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
       yPosition += 20
 
       // Summary boxes
@@ -1975,116 +2042,127 @@ export default function AIAssessmentPage() {
       const boxHeight = 40
 
       // Risk Score Box
-      doc.setFillColor(239, 246, 255) // Light blue
+      doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
       doc.rect(margin, yPosition, boxWidth, boxHeight, "F")
-      doc.setDrawColor(219, 234, 254)
+      doc.setDrawColor(BLUE_100[0], BLUE_100[1], BLUE_100[2])
       doc.rect(margin, yPosition, boxWidth, boxHeight, "S")
-      doc.setFontSize(24)
-      doc.setFont("helvetica", "bold")
-      doc.text(`${aiAnalysisResult.riskScore}%`, margin + boxWidth / 2, yPosition + 22, { align: "center" })
-      doc.setFontSize(10)
-      doc.setFont("helvetica", "normal")
-      doc.text("Risk Score", margin + boxWidth / 2, yPosition + 32, { align: "center" })
+      addWrappedText(
+        `${aiAnalysisResult.riskScore}%`,
+        margin + boxWidth / 2,
+        yPosition + 22,
+        boxWidth,
+        24,
+        "bold",
+        BLUE_600,
+      )
+      addWrappedText("Risk Score", margin + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
 
       // Risk Level Box
-      doc.setFillColor(254, 249, 195) // Light yellow
+      const riskLevelColor = getRiskLevelColor(aiAnalysisResult.riskLevel)
+      let riskBgColor = GRAY_100
+      let riskTextColor = GRAY_700
+      if (riskLevelColor.includes("text-green-600")) {
+        riskBgColor = GREEN_50
+        riskTextColor = GREEN_600
+      } else if (riskLevelColor.includes("text-yellow-600")) {
+        riskBgColor = YELLOW_50
+        riskTextColor = YELLOW_600
+      } else if (riskLevelColor.includes("text-orange-600")) {
+        riskBgColor = [255, 237, 213] // orange-50
+        riskTextColor = ORANGE_600
+      } else if (riskLevelColor.includes("text-red-600")) {
+        riskBgColor = RED_50
+        riskTextColor = RED_600
+      }
+
+      doc.setFillColor(riskBgColor[0], riskBgColor[1], riskBgColor[2])
       doc.rect(margin + boxWidth + 10, yPosition, boxWidth, boxHeight, "F")
-      doc.setDrawColor(250, 204, 21)
+      doc.setDrawColor(riskTextColor[0], riskTextColor[1], riskTextColor[2])
       doc.rect(margin + boxWidth + 10, yPosition, boxWidth, boxHeight, "S")
-      doc.setFontSize(14)
-      doc.setFont("helvetica", "bold")
-      doc.text(`${aiAnalysisResult.riskLevel} Risk`, margin + boxWidth + 10 + boxWidth / 2, yPosition + 22, {
-        align: "center",
-      })
-      doc.setFontSize(10)
-      doc.setFont("helvetica", "normal")
-      doc.text("Risk Level", margin + boxWidth + 10 + boxWidth / 2, yPosition + 32, { align: "center" })
+      addWrappedText(
+        `${aiAnalysisResult.riskLevel} Risk`,
+        margin + boxWidth + 10 + boxWidth / 2,
+        yPosition + 22,
+        boxWidth,
+        14,
+        "bold",
+        riskTextColor,
+      )
+      addWrappedText("Risk Level", margin + boxWidth + 10 + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
 
       // Documents Analyzed Box
-      doc.setFillColor(240, 253, 244) // Light green
+      doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
       doc.rect(margin + 2 * (boxWidth + 10), yPosition, boxWidth, boxHeight, "F")
-      doc.setDrawColor(34, 197, 94)
+      doc.setDrawColor(GREEN_600[0], GREEN_600[1], GREEN_600[2])
       doc.rect(margin + 2 * (boxWidth + 10), yPosition, boxWidth, boxHeight, "S")
-      doc.setFontSize(24)
-      doc.setFont("helvetica", "bold")
-      doc.text(`${aiAnalysisResult.documentsAnalyzed}`, margin + 2 * (boxWidth + 10) + boxWidth / 2, yPosition + 22, {
-        align: "center",
-      })
-      doc.setFontSize(10)
-      doc.setFont("helvetica", "normal")
-      doc.text("Documents Analyzed", margin + 2 * (boxWidth + 10) + boxWidth / 2, yPosition + 32, { align: "center" })
+      addWrappedText(
+        `${aiAnalysisResult.documentsAnalyzed}`,
+        margin + 2 * (boxWidth + 10) + boxWidth / 2,
+        yPosition + 22,
+        boxWidth,
+        24,
+        "bold",
+        GREEN_600,
+      )
+      addWrappedText("Documents Analyzed", margin + 2 * (boxWidth + 10) + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
 
       yPosition += boxHeight + 30
 
       // Company Information
       checkNewPage(70)
-      doc.setFontSize(16)
-      doc.setFont("helvetica", "bold")
-      doc.text("Company Information", margin, yPosition)
+      addWrappedText("Company Information", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
       yPosition += 20
 
-      doc.setFillColor(248, 250, 252) // Light gray
+      doc.setFillColor(GRAY_50[0], GRAY_50[1], GRAY_50[2])
       doc.rect(margin, yPosition, contentWidth, 45, "F")
-      doc.setDrawColor(229, 231, 235)
+      doc.setDrawColor(GRAY_200[0], GRAY_200[1], GRAY_200[2])
       doc.rect(margin, yPosition, contentWidth, 45, "S")
 
-      doc.setFontSize(11)
-      doc.setFont("helvetica", "normal")
-      doc.text(`Company Name: ${companyInfo.companyName || "Not specified"}`, margin + 10, yPosition + 15)
-      doc.text(`Product/Service: ${companyInfo.productName || "Not specified"}`, margin + 10, yPosition + 27)
-      doc.text(`Assessment Date: ${new Date().toLocaleDateString()}`, margin + 10, yPosition + 39)
+      addWrappedText(`Company Name: ${companyInfo.companyName || "Not specified"}`, margin + 10, yPosition + 15, contentWidth - 20, 11, "normal", GRAY_700)
+      addWrappedText(`Product/Service: ${companyInfo.productName || "Not specified"}`, margin + 10, yPosition + 27, contentWidth - 20, 11, "normal", GRAY_700)
+      addWrappedText(`Assessment Date: ${new Date().toLocaleDateString()}`, margin + 10, yPosition + 39, contentWidth - 20, 11, "normal", GRAY_700)
 
       yPosition += 60
 
       // SOC Information (if applicable)
       if (selectedCategory === "soc-compliance" && socInfo.socType) {
         checkNewPage(120)
-        doc.setFontSize(16)
-        doc.setFont("helvetica", "bold")
-        doc.text("SOC Assessment Information", margin, yPosition)
+        addWrappedText("SOC Assessment Information", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
         yPosition += 20
 
-        doc.setFillColor(239, 246, 255) // Light blue
+        doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
         doc.rect(margin, yPosition, contentWidth, 100, "F")
-        doc.setDrawColor(147, 197, 253)
+        doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
         doc.rect(margin, yPosition, contentWidth, 100, "S")
 
-        doc.setFontSize(11)
-        doc.setFont("helvetica", "normal")
-        doc.text(`SOC Type: ${socInfo.socType}`, margin + 10, yPosition + 15)
-        doc.text(`Report Type: ${socInfo.reportType}`, margin + 10, yPosition + 27)
-        doc.text(`Auditor: ${socInfo.auditor || "Not specified"}`, margin + 10, yPosition + 39)
-        doc.text(`Expected Opinion: ${socInfo.auditorOpinion || "Not specified"}`, margin + 10, yPosition + 51)
-        doc.text(`Company: ${socInfo.companyName}`, margin + 10, yPosition + 63)
-        doc.text(`Product/Service: ${socInfo.productService}`, margin + 10, yPosition + 75)
+        addWrappedText(`SOC Type: ${socInfo.socType}`, margin + 10, yPosition + 15, contentWidth - 20, 11, "normal", BLUE_700)
+        addWrappedText(`Report Type: ${socInfo.reportType}`, margin + 10, yPosition + 27, contentWidth - 20, 11, "normal", BLUE_700)
+        addWrappedText(`Auditor: ${socInfo.auditor || "Not specified"}`, margin + 10, yPosition + 39, contentWidth - 20, 11, "normal", BLUE_700)
+        addWrappedText(`Expected Opinion: ${socInfo.auditorOpinion || "Not specified"}`, margin + 10, yPosition + 51, contentWidth - 20, 11, "normal", BLUE_700)
+        addWrappedText(`Company: ${socInfo.companyName}`, margin + 10, yPosition + 63, contentWidth - 20, 11, "normal", BLUE_700)
+        addWrappedText(`Product/Service: ${socInfo.productService}`, margin + 10, yPosition + 75, contentWidth - 20, 11, "normal", BLUE_700)
 
         yPosition += 120
       }
 
       // Approval Information
       checkNewPage(70)
-      doc.setFontSize(16)
-      doc.setFont("helvetica", "bold")
-      doc.text("Approval Information", margin, yPosition)
+      addWrappedText("Approval Information", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
       yPosition += 20
 
-      doc.setFillColor(240, 249, 255) // Light blue
+      doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
       doc.rect(margin, yPosition, contentWidth, 45, "F")
-      doc.setDrawColor(147, 197, 253)
+      doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
       doc.rect(margin, yPosition, contentWidth, 45, "S")
 
-      doc.setFontSize(11)
-      doc.setFont("helvetica", "normal")
-      doc.text(`Approved By: ${approverInfo.name}`, margin + 10, yPosition + 15)
-      doc.text(`Title: ${approverInfo.title}`, margin + 10, yPosition + 27)
-      doc.text(`Digital Signature: ${approverInfo.signature}`, margin + 10, yPosition + 39)
+      addWrappedText(`Approved By: ${approverInfo.name}`, margin + 10, yPosition + 15, contentWidth - 20, 11, "normal", GRAY_700)
+      addWrappedText(`Title: ${approverInfo.title}`, margin + 10, yPosition + 27, contentWidth - 20, 11, "normal", GRAY_700)
+      addWrappedText(`Digital Signature: ${approverInfo.signature}`, margin + 10, yPosition + 39, contentWidth - 20, 11, "italic", BLUE_600)
 
       yPosition += 70
 
       // Assessment Questions
-      doc.setFontSize(16)
-      doc.setFont("helvetica", "bold")
-      doc.text("Assessment Questions & Responses", margin, yPosition)
+      addWrappedText("Assessment Questions & Responses", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
       yPosition += 25
 
       currentCategory.questions.forEach((question, index) => {
@@ -2097,26 +2175,20 @@ export default function AIAssessmentPage() {
         // Question header with better spacing
         doc.setFillColor(255, 255, 255)
         doc.rect(margin, yPosition, contentWidth, 25, "F")
-        doc.setDrawColor(229, 231, 235)
+        doc.setDrawColor(GRAY_200[0], GRAY_200[1], GRAY_200[2])
         doc.rect(margin, yPosition, contentWidth, 25, "S")
 
-        doc.setFontSize(12)
-        doc.setFont("helvetica", "bold")
         const questionText = `${index + 1}. ${question.question}`
-        yPosition = addWrappedText(questionText, margin + 5, yPosition + 8, contentWidth - 10, 12)
+        yPosition = addWrappedText(questionText, margin + 5, yPosition + 8, contentWidth - 10, 12, "bold", GRAY_900)
 
-        doc.setFontSize(9)
-        doc.setFont("helvetica", "normal")
-        doc.text(`Weight: ${question.weight}`, margin + 5, yPosition + 8)
+        addWrappedText(`Weight: ${question.weight}`, margin + 5, yPosition + 8, contentWidth - 10, 9, "normal", GRAY_600)
         yPosition += 20
 
         // Answer with proper background
-        doc.setFillColor(219, 234, 254) // Light blue
+        doc.setFillColor(BLUE_100[0], BLUE_100[1], BLUE_100[2])
         doc.rect(margin + 5, yPosition, contentWidth - 10, 18, "F")
-        doc.setDrawColor(147, 197, 253)
+        doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
         doc.rect(margin + 5, yPosition, contentWidth - 10, 18, "S")
-        doc.setFontSize(11)
-        doc.setFont("helvetica", "bold")
 
         let answerText = ""
         if (question.type === "boolean") {
@@ -2127,51 +2199,47 @@ export default function AIAssessmentPage() {
           answerText = String(answer)
         }
 
-        doc.text(`Answer: ${answerText}`, margin + 10, yPosition + 12)
+        addWrappedText(`Answer: ${answerText}`, margin + 10, yPosition + 12, contentWidth - 20, 11, "bold", BLUE_700)
         yPosition += 25
 
         // Reasoning with proper background and text wrapping
-        const reasoningHeight = Math.max(35, Math.ceil(reasoning.length / 80) * 12 + 15)
-        doc.setFillColor(243, 244, 246) // Light gray
+        const reasoningHeight = Math.max(35, doc.splitTextToSize(reasoning, contentWidth - 20).length * 12 + 15)
+        doc.setFillColor(GRAY_100[0], GRAY_100[1], GRAY_100[2])
         doc.rect(margin + 5, yPosition, contentWidth - 10, reasoningHeight, "F")
-        doc.setDrawColor(209, 213, 219)
+        doc.setDrawColor(GRAY_200[0], GRAY_200[1], GRAY_200[2])
         doc.rect(margin + 5, yPosition, contentWidth - 10, reasoningHeight, "S")
-        doc.setFontSize(10)
-        doc.setFont("helvetica", "bold")
-        doc.text("Reasoning:", margin + 10, yPosition + 10)
-        doc.setFont("helvetica", "normal")
-        yPosition = addWrappedText(reasoning, margin + 10, yPosition + 18, contentWidth - 20, 9)
+        addWrappedText("Reasoning:", margin + 10, yPosition + 10, contentWidth - 20, 10, "bold", GRAY_700)
+        yPosition = addWrappedText(reasoning, margin + 10, yPosition + 18, contentWidth - 20, 9, "normal", GRAY_700)
         yPosition += 15
 
-        // Evidence with proper background - SHOW ALL EVIDENCE
+        // Evidence with proper background - SHOW ALL evidence
         if (excerpts.length > 0) {
           // Calculate height needed for all evidence items
-          const evidenceHeight = Math.max(30, excerpts.length * 25 + 15)
-          doc.setFillColor(240, 253, 244) // Light green
-          doc.rect(margin + 5, yPosition, contentWidth - 10, evidenceHeight, "F")
-          doc.setDrawColor(34, 197, 94)
-          doc.rect(margin + 5, yPosition, contentWidth - 10, evidenceHeight, "S")
-          doc.setFontSize(10)
-          doc.setFont("helvetica", "bold")
-          doc.text("Evidence:", margin + 10, yPosition + 10)
-          doc.setFont("helvetica", "normal")
-          let evidenceY = yPosition + 18
-
-          // Show ALL evidence excerpts, not just the first 2
-          excerpts.forEach((excerpt, excerptIndex) => {
-            const excerptText = `"${excerpt.excerpt}"`
-            evidenceY = addWrappedText(excerptText, margin + 10, evidenceY, contentWidth - 20, 9)
-            if (excerpt.fileName) {
-              doc.setFontSize(8)
-              doc.setFont("helvetica", "italic")
-              doc.text(`Source: ${excerpt.fileName}`, margin + 10, evidenceY + 5)
-              doc.setFont("helvetica", "normal")
-              doc.setFontSize(9)
-              evidenceY += 8
-            }
-            evidenceY += 8
+          let currentEvidenceY = yPosition + 18
+          let totalEvidenceHeight = 0
+          excerpts.forEach((excerpt) => {
+            const excerptLines = doc.splitTextToSize(`"${excerpt.excerpt}"`, contentWidth - 20).length
+            const sourceLines = excerpt.fileName ? 1 : 0
+            totalEvidenceHeight += (excerptLines + sourceLines) * 9 + 8 // 9 is approx line height, 8 is spacing
           })
-          yPosition += evidenceHeight
+          totalEvidenceHeight = Math.max(30, totalEvidenceHeight + 15) // Min height + padding
+
+          doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
+          doc.rect(margin + 5, yPosition, contentWidth - 10, totalEvidenceHeight, "F")
+          doc.setDrawColor(GREEN_600[0], GREEN_600[1], GREEN_600[2])
+          doc.rect(margin + 5, yPosition, contentWidth - 10, totalEvidenceHeight, "S")
+          addWrappedText("Evidence:", margin + 10, yPosition + 10, contentWidth - 20, 10, "bold", GRAY_700)
+          currentEvidenceY = yPosition + 18
+
+          excerpts.forEach((excerpt) => {
+            const excerptText = `"${excerpt.excerpt}"`
+            currentEvidenceY = addWrappedText(excerptText, margin + 10, currentEvidenceY, contentWidth - 20, 9, "normal", GREEN_600)
+            if (excerpt.fileName) {
+              currentEvidenceY = addWrappedText(`Source: ${excerpt.fileName}`, margin + 10, currentEvidenceY + 5, contentWidth - 20, 8, "italic", GRAY_500)
+            }
+            currentEvidenceY += 8
+          })
+          yPosition += totalEvidenceHeight
         }
 
         yPosition += 20
@@ -2179,40 +2247,32 @@ export default function AIAssessmentPage() {
 
       // Overall Analysis
       checkNewPage(80)
-      doc.setFontSize(16)
-      doc.setFont("helvetica", "bold")
-      doc.text("Overall Analysis", margin, yPosition)
+      addWrappedText("Overall Analysis", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
       yPosition += 20
 
-      const analysisHeight = Math.max(50, Math.ceil(aiAnalysisResult.overallAnalysis.length / 100) * 12 + 20)
-      doc.setFillColor(240, 249, 255) // Light blue
+      const analysisHeight = Math.max(50, doc.splitTextToSize(aiAnalysisResult.overallAnalysis, contentWidth - 20).length * 12 + 20)
+      doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
       doc.rect(margin, yPosition, contentWidth, analysisHeight, "F")
-      doc.setDrawColor(147, 197, 253)
+      doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
       doc.rect(margin, yPosition, contentWidth, analysisHeight, "S")
-      doc.setFontSize(11)
-      doc.setFont("helvetica", "normal")
-      yPosition = addWrappedText(aiAnalysisResult.overallAnalysis, margin + 10, yPosition + 12, contentWidth - 20, 11)
+      yPosition = addWrappedText(aiAnalysisResult.overallAnalysis, margin + 10, yPosition + 12, contentWidth - 20, 11, "normal", BLUE_700)
       yPosition += 30
 
       // Risk Factors
       if (aiAnalysisResult.riskFactors.length > 0) {
         checkNewPage(60 + aiAnalysisResult.riskFactors.length * 15)
-        doc.setFontSize(16)
-        doc.setFont("helvetica", "bold")
-        doc.text("Risk Factors", margin, yPosition)
+        addWrappedText("Risk Factors", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
         yPosition += 20
 
         const riskFactorsHeight = aiAnalysisResult.riskFactors.length * 18 + 20
-        doc.setFillColor(254, 242, 242) // Light red
+        doc.setFillColor(RED_50[0], RED_50[1], RED_50[2])
         doc.rect(margin, yPosition, contentWidth, riskFactorsHeight, "F")
-        doc.setDrawColor(248, 113, 113)
+        doc.setDrawColor(RED_600[0], RED_600[1], RED_600[2])
         doc.rect(margin, yPosition, contentWidth, riskFactorsHeight, "S")
 
-        doc.setFontSize(11)
-        doc.setFont("helvetica", "normal")
         let factorY = yPosition + 15
         aiAnalysisResult.riskFactors.forEach((factor) => {
-          factorY = addWrappedText(`• ${factor}`, margin + 10, factorY, contentWidth - 20, 11)
+          factorY = addWrappedText(`• ${factor}`, margin + 10, factorY, contentWidth - 20, 11, "normal", RED_600)
           factorY += 8
         })
         yPosition += riskFactorsHeight + 20
@@ -2221,22 +2281,18 @@ export default function AIAssessmentPage() {
       // Recommendations
       if (aiAnalysisResult.recommendations.length > 0) {
         checkNewPage(60 + aiAnalysisResult.recommendations.length * 15)
-        doc.setFontSize(16)
-        doc.setFont("helvetica", "bold")
-        doc.text("Recommendations", margin, yPosition)
+        addWrappedText("Recommendations", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
         yPosition += 20
 
         const recommendationsHeight = aiAnalysisResult.recommendations.length * 18 + 20
-        doc.setFillColor(240, 253, 244) // Light green
+        doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
         doc.rect(margin, yPosition, contentWidth, recommendationsHeight, "F")
-        doc.setDrawColor(34, 197, 94)
+        doc.setDrawColor(GREEN_600[0], GREEN_600[1], GREEN_600[2])
         doc.rect(margin, yPosition, contentWidth, recommendationsHeight, "S")
 
-        doc.setFontSize(11)
-        doc.setFont("helvetica", "normal")
         let recY = yPosition + 15
         aiAnalysisResult.recommendations.forEach((recommendation) => {
-          recY = addWrappedText(`• ${recommendation}`, margin + 10, recY, contentWidth - 20, 11)
+          recY = addWrappedText(`• ${recommendation}`, margin + 10, recY, contentWidth - 20, 11, "normal", GREEN_600)
           recY += 8
         })
         yPosition += recommendationsHeight + 20
@@ -2246,24 +2302,27 @@ export default function AIAssessmentPage() {
       const totalPages = doc.getNumberOfPages()
       for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i)
-        doc.setFillColor(248, 250, 252) // Light gray
+        doc.setFillColor(GRAY_50[0], GRAY_50[1], GRAY_50[2])
         doc.rect(0, pageHeight - 30, pageWidth, 30, "F")
-        doc.setFontSize(8)
-        doc.setFont("helvetica", "normal")
-        doc.setTextColor(107, 114, 128) // Gray text
-        doc.text(
+        addWrappedText(
           "Report generated by RiskGuard AI - AI-Powered Risk Assessment Platform",
           pageWidth / 2,
           pageHeight - 20,
-          { align: "center" },
+          contentWidth,
+          8,
+          "normal",
+          GRAY_500,
         )
-        doc.text(
-          `Assessment ID: ${Date.now()} • Generation Date: ${new Date().toISOString()}`,
+        addWrappedText(
+          `Assessment ID: ${Date.now()} • Generation Date: ${new Date().toISOString().split("T")[0]}`,
           pageWidth / 2,
           pageHeight - 12,
-          { align: "center" },
+          contentWidth,
+          8,
+          "normal",
+          GRAY_500,
         )
-        doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: "right" })
+        addWrappedText(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 8, margin, 8, "normal", GRAY_500)
       }
 
       // Save the PDF
@@ -3832,9 +3891,9 @@ export default function AIAssessmentPage() {
                   {/* Approver Information */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center">
+                      <CardTitle className="flex items-center space-x-2">
                         <FileCheck className="mr-2 h-5 w-5" />
-                        Approver Information
+                        <span>Approver Information</span>
                       </CardTitle>
                       <CardDescription>Provide information about the person approving this assessment</CardDescription>
                     </CardHeader>
