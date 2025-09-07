@@ -50,6 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProfile = async () => {
     console.log("AuthContext: refreshProfile called - START")
+    setLoading(true); // Ensure loading is true at the start of refresh
+
     // Check for demo session first
     const demoSession = localStorage.getItem("demo_session")
     if (demoSession) {
@@ -65,13 +67,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatar_url: "/placeholder.svg?height=32&width=32",
         })
         setIsDemo(true)
-        setLoading(false)
         console.log("AuthContext: Demo session active. User:", session.user.email)
         return // IMPORTANT: Exit early if demo session is active
       } catch (error) {
         console.error("AuthContext: Error parsing demo session:", error)
         localStorage.removeItem("demo_session")
         // Fall through to regular Supabase auth if demo session is corrupted
+      } finally {
+        setLoading(false); // Always set loading to false after demo session check
       }
     }
 
@@ -90,7 +93,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
-        setLoading(false)
         return
       }
 
@@ -101,7 +103,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
-        setLoading(false)
         return
       }
 
@@ -119,10 +120,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (profileError) {
         console.error("AuthContext: Error getting user profile:", profileError.message)
         setProfile(null)
-        setOrganization(null)
-        setRole(null)
+        setOrganization(null) // Clear organization if profile is missing
+        setRole(null) // Clear role if profile is missing
         setIsDemo(false)
-        setLoading(false)
         return
       }
 
@@ -132,7 +132,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
-        setLoading(false)
         return
       }
 
@@ -150,9 +149,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (orgError) {
         console.error("AuthContext: Error getting organization:", orgError.message)
         setOrganization(null)
-        setRole(null)
+        setRole(null) // Clear role if organization is missing
         setIsDemo(false)
-        setLoading(false)
         return
       }
 
@@ -161,7 +159,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
-        setLoading(false)
         return
       }
 
@@ -181,7 +178,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("AuthContext: Error getting user role:", roleError.message)
         setRole(null)
         setIsDemo(false)
-        setLoading(false)
         return
       }
 
@@ -189,14 +185,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn("AuthContext: No user role data found for user ID:", supabaseUser.id)
         setRole(null)
         setIsDemo(false)
-        setLoading(false)
         return
       }
 
       console.log("AuthContext: Role found:", roleData.role)
       setRole(roleData)
       setIsDemo(false)
-      setLoading(false)
       console.log("AuthContext: refreshProfile completed successfully.")
     } catch (error) {
       console.error("AuthContext: Error during refreshProfile (catch block):", error)
@@ -205,7 +199,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setOrganization(null)
       setRole(null)
       setIsDemo(false)
-      setLoading(false) // Ensure loading is set to false even on error
+    } finally {
+      setLoading(false) // Ensure loading is set to false in all cases
+      console.log("AuthContext: refreshProfile - END (loading set to false)")
     }
   }
 
@@ -224,6 +220,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
         console.log("AuthContext: Auth state changed event:", event)
+        // Always refresh profile on auth state change, let refreshProfile handle demo logic
+        // This ensures the context is always up-to-date with Supabase's state
         await refreshProfile()
       })
 

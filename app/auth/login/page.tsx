@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react" // Import useEffect
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -20,7 +20,16 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { signIn, refreshProfile, user: authUser } = useAuth() // Get user from useAuth
+  const { signIn, user: authUser, loading: authLoading } = useAuth() // Get user and loading from useAuth
+
+  // Effect to redirect once the user is authenticated and not in a loading state
+  useEffect(() => {
+    console.log("LoginPage useEffect: authLoading:", authLoading, "authUser:", !!authUser);
+    if (!authLoading && authUser) {
+      console.log("LoginPage useEffect: User authenticated, redirecting to /dashboard");
+      router.push("/dashboard");
+    }
+  }, [authUser, authLoading, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,9 +42,9 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        await refreshProfile(); // Refresh profile after successful login
-        console.log("LoginPage: User state after refreshProfile:", authUser); // Log user state
-        router.push("/dashboard")
+        // No explicit refreshProfile or router.push here.
+        // The useEffect above will handle redirection once authUser is updated by AuthContext.
+        console.log("LoginPage: signIn successful. Waiting for AuthContext to update and redirect.");
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
