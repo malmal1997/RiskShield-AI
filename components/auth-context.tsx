@@ -77,56 +77,89 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Regular Supabase auth flow continues...
     try {
+      console.log("AuthContext: Attempting to get Supabase user...")
       const {
         data: { user: supabaseUser },
         error: userError,
       } = await supabaseClient.auth.getUser()
 
-      if (userError || !supabaseUser) {
-        console.log("AuthContext: No Supabase user found or userError:", userError?.message)
+      if (userError) {
+        console.error("AuthContext: Error getting Supabase user:", userError.message)
         setUser(null)
         setProfile(null)
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
-        setLoading(false) // Ensure loading is set to false
+        setLoading(false)
         return
       }
 
-      console.log("AuthContext: Supabase user found:", supabaseUser.email)
+      if (!supabaseUser) {
+        console.log("AuthContext: No Supabase user found (supabaseUser is null).")
+        setUser(null)
+        setProfile(null)
+        setOrganization(null)
+        setRole(null)
+        setIsDemo(false)
+        setLoading(false)
+        return
+      }
+
+      console.log("AuthContext: Supabase user found:", supabaseUser.email, "ID:", supabaseUser.id)
       setUser(supabaseUser) // Set user immediately
 
       // Get user profile from Supabase
+      console.log("AuthContext: Attempting to get user profile for user ID:", supabaseUser.id)
       const { data: profileData, error: profileError } = await supabaseClient
         .from("user_profiles")
         .select("*")
         .eq("user_id", supabaseUser.id)
         .single()
 
-      if (profileError || !profileData) {
-        console.warn("AuthContext: No user profile found or profileError:", profileError?.message)
+      if (profileError) {
+        console.error("AuthContext: Error getting user profile:", profileError.message)
         setProfile(null)
-        setOrganization(null) // Clear organization if profile is missing
-        setRole(null) // Clear role if profile is missing
+        setOrganization(null)
+        setRole(null)
         setIsDemo(false)
         setLoading(false)
         return
       }
 
-      console.log("AuthContext: Profile found for:", profileData.first_name, profileData.last_name)
+      if (!profileData) {
+        console.warn("AuthContext: No user profile data found for user ID:", supabaseUser.id)
+        setProfile(null)
+        setOrganization(null)
+        setRole(null)
+        setIsDemo(false)
+        setLoading(false)
+        return
+      }
+
+      console.log("AuthContext: Profile found for:", profileData.first_name, profileData.last_name, "Org ID:", profileData.organization_id)
       setProfile(profileData)
 
       // Get organization
+      console.log("AuthContext: Attempting to get organization for ID:", profileData.organization_id)
       const { data: organizationData, error: orgError } = await supabaseClient
         .from("organizations")
         .select("*")
         .eq("id", profileData.organization_id)
         .single()
 
-      if (orgError || !organizationData) {
-        console.warn("AuthContext: No organization found or orgError:", orgError?.message)
+      if (orgError) {
+        console.error("AuthContext: Error getting organization:", orgError.message)
         setOrganization(null)
-        setRole(null) // Clear role if organization is missing
+        setRole(null)
+        setIsDemo(false)
+        setLoading(false)
+        return
+      }
+
+      if (!organizationData) {
+        console.warn("AuthContext: No organization data found for ID:", profileData.organization_id)
+        setOrganization(null)
+        setRole(null)
         setIsDemo(false)
         setLoading(false)
         return
@@ -136,6 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setOrganization(organizationData)
 
       // Get user role
+      console.log("AuthContext: Attempting to get user role for user ID:", supabaseUser.id, "Org ID:", profileData.organization_id)
       const { data: roleData, error: roleError } = await supabaseClient
         .from("user_roles")
         .select("*")
@@ -143,8 +177,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq("organization_id", profileData.organization_id)
         .single()
 
-      if (roleError || !roleData) {
-        console.warn("AuthContext: No user role found or roleError:", roleError?.message)
+      if (roleError) {
+        console.error("AuthContext: Error getting user role:", roleError.message)
+        setRole(null)
+        setIsDemo(false)
+        setLoading(false)
+        return
+      }
+
+      if (!roleData) {
+        console.warn("AuthContext: No user role data found for user ID:", supabaseUser.id)
         setRole(null)
         setIsDemo(false)
         setLoading(false)
@@ -157,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false)
       console.log("AuthContext: refreshProfile completed successfully.")
     } catch (error) {
-      console.error("AuthContext: Error during refreshProfile:", error)
+      console.error("AuthContext: Error during refreshProfile (catch block):", error)
       setUser(null)
       setProfile(null)
       setOrganization(null)
@@ -172,7 +214,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const getInitialSession = async () => {
       await refreshProfile() // This handles both real and demo sessions
-      // setLoading(false) // Moved inside refreshProfile for more granular control
     }
 
     getInitialSession()
@@ -183,10 +224,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
         console.log("AuthContext: Auth state changed event:", event)
-        // Always refresh profile on auth state change, let refreshProfile handle demo logic
-        // This ensures the context is always up-to-date with Supabase's state
         await refreshProfile()
-        // setLoading(false) // Moved inside refreshProfile for more granular control
       })
 
       subscription = authSubscription

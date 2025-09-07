@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { signIn, refreshProfile } = useAuth()
+  const { signIn, refreshProfile, user: authUser } = useAuth() // Get user from useAuth
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,6 +34,7 @@ export default function LoginPage() {
         setError(error.message)
       } else {
         await refreshProfile(); // Refresh profile after successful login
+        console.log("LoginPage: User state after refreshProfile:", authUser); // Log user state
         router.push("/dashboard")
       }
     } catch (err) {
