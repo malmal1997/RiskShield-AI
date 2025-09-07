@@ -1681,7 +1681,7 @@ export default function AIAssessmentPage() {
   const handleDocTypeChange = (index: number, type: 'primary' | '4th-party') => {
     setUploadedFiles((prev) =>
       prev.map((item, i) =>
-        i === index ? { ...item, docType: item.docType === type ? null : type }
+        i === index ? { ...item, docType: item.docType === type ? null : type } : item
       )
     );
   };
