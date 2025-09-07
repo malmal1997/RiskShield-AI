@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useFeatureTracking } from "@/hooks/use-tracking"
-import { useAuth } from "@/components/auth-context" // <-- New import
+import { useAuth } from "@/components/auth-context"
 
 interface NavigationProps {
   showAuthButtons?: boolean
@@ -16,18 +16,24 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { trackClick } = useFeatureTracking()
-  const { user, signOut, isDemo } = useAuth() // <-- Use useAuth directly
+  const { user, signOut, isDemo } = useAuth()
 
-  const navigationItems = [
+  // Define navigation items with their visibility rules
+  const publicNavigationItems = [
     { name: "Platform", href: "/" },
     { name: "Solutions", href: "/solutions" },
+  ];
+
+  const authenticatedNavigationItems = [
     { name: "Risk Assessment", href: "/risk-assessment" },
     { name: "Third-Party Assessment", href: "/third-party-assessment" },
     { name: "Policy Generator", href: "/policy-generator" },
     { name: "Policy Library", href: "/policy-library" },
     { name: "Dashboard", href: "/dashboard" },
     { name: "Settings", href: "/settings" },
-  ]
+  ];
+
+  const navigationItems = user ? authenticatedNavigationItems : publicNavigationItems;
 
   const isActive = (href: string) => {
     if (href === "/" && pathname === "/") return true
@@ -36,11 +42,11 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
   }
 
   const handleNavClick = (itemName: string, href: string) => {
-    trackClick("navigation", { page: itemName, href, isPreview: isDemo }) // Use isDemo
+    trackClick("navigation", { page: itemName, href, isPreview: isDemo })
   }
 
   const handleAuthClick = (action: string) => {
-    trackClick("auth", { action, isPreview: isDemo }) // Use isDemo
+    trackClick("auth", { action, isPreview: isDemo })
   }
 
   return (
@@ -72,14 +78,14 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
 
             {showAuthButtons && (
               <div className="flex items-center space-x-4 ml-6 xl:ml-8 pl-6 xl:pl-8 border-l border-gray-200">
-                {user ? ( // Check if user object exists (logged in or demo)
+                {user ? (
                   <>
                     <span className="text-sm text-gray-600 whitespace-nowrap">{user.email}</span>
-                    <Button variant="outline" size="sm" onClick={signOut}> {/* Use signOut from useAuth */}
+                    <Button variant="outline" size="sm" onClick={signOut}>
                       Sign Out
                     </Button>
                   </>
-                ) : ( // Not logged in
+                ) : (
                   <>
                     <Link href="/auth/login" onClick={() => handleAuthClick("sign_in_click")}>
                       <Button variant="outline" size="sm">
@@ -128,7 +134,7 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
 
               {showAuthButtons && (
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
-                  {user ? ( // Check if user object exists
+                  {user ? (
                     <>
                       <span className="text-sm text-gray-600">{user.email}</span>
                       <Button variant="outline" size="sm" onClick={signOut} className="w-fit bg-transparent">
