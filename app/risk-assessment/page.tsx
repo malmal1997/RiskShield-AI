@@ -3291,6 +3291,8 @@ ${emailResult.message}`)
               )}
             </div>
           </div>
-        </AuthGuard>
-      )
-    }
+        </div>
+      </div>
+    </AuthGuard>
+  )
+}
