@@ -231,7 +231,7 @@ export default function DemoFeaturesPage() {
                 {[
                   { time: "2 min ago", event: "New vendor assessment completed", type: "success" },
                   { time: "5 min ago", event: "User logged in successfully", type: "info" },
-                  { time: "12 min ago", event: "Risk report generated", type: "success" },
+                  { time: "12 min ago", event: "Risk report generated", type: "info" },
                   { time: "18 min ago", event: "Notification sent to admin", type: "info" },
                   { time: "25 min ago", event: "Database backup completed", type: "success" },
                 ].map((activity, index) => (
@@ -248,7 +248,7 @@ export default function DemoFeaturesPage() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div >
 
         {/* Call to Action */}
         <Card className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
@@ -281,7 +281,7 @@ export default function DemoFeaturesPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }

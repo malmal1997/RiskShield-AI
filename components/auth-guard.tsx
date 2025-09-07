@@ -19,22 +19,36 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const pathname = usePathname()
 
   // Paths that do NOT require authentication
-  const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status'];
+  const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status', '/demo-features'];
 
-  // Redirect logic
   useEffect(() => {
-    if (loading) return; // Wait until auth state is resolved
+    // If still loading auth state, do nothing yet.
+    if (loading) {
+      return;
+    }
 
     const isAuthenticated = !!user || isDemo;
     const isPublicPath = publicPaths.includes(pathname);
 
+    // Scenario 1: User is NOT authenticated and tries to access a PROTECTED page
     if (!isAuthenticated && !isPublicPath && !allowPreview) {
-      // If not authenticated, not a public path, and not allowed preview, redirect to login
+      console.log(`AuthGuard: Redirecting unauthenticated user from ${pathname} to /auth/login`);
       router.replace('/auth/login');
-    } else if (isAuthenticated && (pathname === '/auth/login' || pathname === '/auth/register' || pathname === '/auth/forgot-password')) {
-      // If authenticated and trying to access login/register/forgot-password, redirect to dashboard
+      return; // Prevent further execution
+    } 
+    
+    // Scenario 2: User IS authenticated and tries to access an AUTH PAGE (login/register/forgot)
+    if (isAuthenticated && (pathname === '/auth/login' || pathname === '/auth/register' || pathname === '/auth/forgot-password')) {
+      console.log(`AuthGuard: Redirecting authenticated user from ${pathname} to /dashboard`);
       router.replace('/dashboard');
+      return; // Prevent further execution
     }
+
+    // Scenario 3: User is NOT authenticated but is on a PUBLIC page or ALLOWED PREVIEW
+    // In this case, no redirect is needed, just render children.
+    // Scenario 4: User IS authenticated and is on a PROTECTED page
+    // In this case, no redirect is needed, just render children.
+
   }, [loading, user, isDemo, allowPreview, pathname, router, publicPaths]);
 
   const handleDemoLogin = () => {
@@ -59,20 +73,19 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     window.location.href = "/dashboard"; 
   };
 
-  if (loading || (!user && !isDemo && !publicPaths.includes(pathname) && !allowPreview)) {
-    // Show loading spinner while auth is resolving or if redirecting
-    // The second part of the condition ensures we show loading only if a redirect is imminent for a protected page
+  // Render loading spinner if auth is still resolving
+  if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
+          <p className="mt-2 text-gray-600">Loading authentication...</p>
         </div>
       </div>
     );
   }
 
-  // If on a public path, or authenticated, or allowed preview, render children
+  // After loading, if not authenticated and not a public path, and not allowed preview, show preview banner or redirect
   const isAuthenticated = !!user || isDemo;
   const isPublicPath = publicPaths.includes(pathname);
 
