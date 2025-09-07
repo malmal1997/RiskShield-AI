@@ -93,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
+        setLoading(false) // Ensure loading is false on user error
         return
       }
 
@@ -103,6 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
+        setLoading(false) // Ensure loading is false if no user
         return
       }
 
@@ -123,6 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null) // Clear organization if profile is missing
         setRole(null) // Clear role if profile is missing
         setIsDemo(false)
+        setLoading(false) // Ensure loading is false on profile error
         return
       }
 
@@ -132,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
+        setLoading(false) // Ensure loading is false if no profile data
         return
       }
 
@@ -151,6 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null) // Clear role if organization is missing
         setIsDemo(false)
+        setLoading(false) // Ensure loading is false on org error
         return
       }
 
@@ -159,6 +164,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
+        setLoading(false) // Ensure loading is false if no org data
         return
       }
 
@@ -178,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("AuthContext: Error getting user role:", roleError.message)
         setRole(null)
         setIsDemo(false)
+        setLoading(false) // Ensure loading is false on role error
         return
       }
 
@@ -185,12 +192,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn("AuthContext: No user role data found for user ID:", supabaseUser.id)
         setRole(null)
         setIsDemo(false)
+        setLoading(false) // Ensure loading is false if no role data
         return
       }
 
       console.log("AuthContext: Role found:", roleData.role)
       setRole(roleData)
       setIsDemo(false)
+      setLoading(false) // Ensure loading is false on success
       console.log("AuthContext: refreshProfile completed successfully.")
     } catch (error) {
       console.error("AuthContext: Error during refreshProfile (catch block):", error)
@@ -199,9 +208,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setOrganization(null)
       setRole(null)
       setIsDemo(false)
-    } finally {
-      setLoading(false) // Ensure loading is set to false in all cases
-      console.log("AuthContext: refreshProfile - END (loading set to false)")
+      setLoading(false) // Ensure loading is set to false even on error
     }
   }
 
