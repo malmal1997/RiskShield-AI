@@ -3104,7 +3104,7 @@ ${emailResult.message}`)
                       <div className="mb-8">
                         <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommendations</h3>
                         <ul className="list-disc pl-5">
-                          {riskResults?.recommendations.map((recommendation, index) => (
+                          {riskResults?.recommendations.map((recommendation: string, index: number) => (
                             <li key={index} className="text-gray-700">
                               {recommendation}
                             </li>
