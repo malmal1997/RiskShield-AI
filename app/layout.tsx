@@ -5,7 +5,8 @@ import "./globals.css"
 import { AuthProvider } from "@/components/auth-context"
 import { Toaster } from "@/components/ui/toaster"
 import { TrackingProvider } from "@/components/tracking-provider"
-import { MainNavigation } from "@/components/main-navigation" // <-- Import MainNavigation
+import { MainNavigation } from "@/components/main-navigation"
+import { AuthGuard } from "@/components/auth-guard" // Import AuthGuard
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,8 +26,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <TrackingProvider>
-            <MainNavigation showAuthButtons={true} /> {/* Render MainNavigation here */}
-            {children}
+            <MainNavigation showAuthButtons={true} />
+            <AuthGuard> {/* Wrap children with AuthGuard */}
+              {children}
+            </AuthGuard>
             <Toaster />
           </TrackingProvider>
         </AuthProvider>
