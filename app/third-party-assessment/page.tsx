@@ -13,59 +13,16 @@ import { sendAssessmentEmail } from "./email-service"
 import { getAssessments, createAssessment, deleteAssessment } from "@/lib/assessment-service"
 import type { Assessment } from "@/lib/supabase"
 import { AuthGuard } from "@/components/auth-guard"
-
-// Simple demo session setup
-function setupDemoSession() {
-  if (typeof window !== "undefined" && !localStorage.getItem("demo_session")) {
-    const demoSession = {
-      user: {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        email: "demo@riskshield.ai",
-        name: "Demo User",
-      },
-      organization: {
-        id: "demo-org-123",
-        name: "Demo Organization",
-        plan: "enterprise",
-      },
-      role: "admin",
-      loginTime: new Date().toISOString(),
-    }
-
-    localStorage.setItem("demo_session", JSON.stringify(demoSession))
-    console.log("🎭 Demo session created for testing")
-  }
-}
+import { useAuth } from "@/components/auth-context"
 
 export default function ThirdPartyAssessment() {
-  // Add a preview mode state
+  const { user, isDemo } = useAuth()
   const [isPreviewMode, setIsPreviewMode] = useState(false)
-
-  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   // Check if user is in preview mode
   useEffect(() => {
-    const storedSession = localStorage.getItem("demo_session")
-    if (storedSession) {
-      try {
-        const sessionData = JSON.parse(storedSession)
-        setUserEmail(sessionData.user?.email || null)
-      } catch (error) {
-        console.error("Error parsing demo session:", error)
-        setUserEmail(null)
-      }
-    } else {
-      setUserEmail(null)
-    }
-
-    const hasAuth = localStorage.getItem("demo_session") || userEmail
-    setIsPreviewMode(!hasAuth)
-  }, [userEmail])
-
-  // Set up demo session immediately
-  useEffect(() => {
-    setupDemoSession()
-  }, [])
+    setIsPreviewMode(isDemo)
+  }, [isDemo])
 
   const assessmentTypes = [
     "Cybersecurity Assessment",
@@ -145,8 +102,57 @@ export default function ThirdPartyAssessment() {
   }
 
   useEffect(() => {
-    loadAssessments()
-  }, [])
+    if (!isPreviewMode) { // Only load real data if not in preview mode
+      loadAssessments()
+    } else {
+      // For preview mode, show some mock data
+      setAssessments([
+        {
+          id: "demo-assessment-1",
+          vendor_name: "MockCorp Solutions",
+          vendor_email: "mock@mockcorp.com",
+          contact_person: "Jane Doe",
+          assessment_type: "Cybersecurity Assessment",
+          status: "pending",
+          sent_date: "2024-01-15T10:00:00Z",
+          due_date: "2024-02-15T23:59:59Z",
+          risk_score: null,
+          risk_level: "pending",
+          custom_message: "This is a mock assessment for demo purposes.",
+          created_at: "2024-01-15T10:00:00Z",
+          updated_at: "2024-01-15T10:00:00Z",
+          responses: null,
+          completedVendorInfo: null,
+          assessmentAnswers: null,
+        },
+        {
+          id: "demo-assessment-2",
+          vendor_name: "Preview Analytics",
+          vendor_email: "preview@analytics.com",
+          contact_person: "John Smith",
+          assessment_type: "Data Privacy Assessment",
+          status: "completed",
+          sent_date: "2024-01-10T09:00:00Z",
+          completed_date: "2024-01-20T14:30:00Z",
+          due_date: "2024-02-10T23:59:59Z",
+          risk_score: 85,
+          risk_level: "low",
+          custom_message: "This assessment has been completed in demo mode.",
+          created_at: "2024-01-10T09:00:00Z",
+          updated_at: "2024-01-20T14:30:00Z",
+          responses: {
+            id: 1,
+            vendor_info: { companyName: "Preview Analytics", contactName: "John Smith", email: "preview@analytics.com" },
+            answers: { privacy_1: ["Names and contact information"], privacy_6: true },
+            submitted_at: "2024-01-20T14:30:00Z",
+          },
+          completedVendorInfo: { companyName: "Preview Analytics", contactName: "John Smith", email: "preview@analytics.com" },
+          assessmentAnswers: { privacy_1: ["Names and contact information"], privacy_6: true },
+        },
+      ]);
+      setIsLoading(false);
+    }
+  }, [isPreviewMode])
 
   // Modify handleSendInvite to show preview limitation
   const handleSendInvite = async () => {
@@ -321,7 +327,11 @@ ${assessmentLink}
   }
 
   const handleDeleteAssessment = async (assessmentId: string) => {
-    if (!confirm("Are you sure you want to delete this assessment?")) {
+    if (isPreviewMode) {
+      alert("Preview Mode: Sign up to delete assessments.")
+      return;
+    }
+    if (!confirm("Are you sure you want to delete this assessment? This action cannot be undone.")) {
       return
     }
 
@@ -397,20 +407,15 @@ ${assessmentLink}
     }
   }
 
-  const handleSignOut = () => {
-    localStorage.removeItem("demo_session")
-    window.location.href = "/"
-  }
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <MainNavigation userEmail="demo@riskshield.ai" onSignOut={handleSignOut} />
+        <MainNavigation userEmail={user?.email || "demo@riskshield.ai"} onSignOut={user ? () => {} : undefined} />
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
             <p className="text-gray-600">Loading assessments...</p>
-            <p className="text-sm text-gray-500 mt-2">Setting up demo environment...</p>
+            <p className="text-sm text-gray-500 mt-2">Setting up environment...</p>
           </div>
         </div>
       </div>
@@ -424,7 +429,7 @@ ${assessmentLink}
     >
       <div className="min-h-screen bg-white">
         {/* Navigation */}
-        <MainNavigation userEmail="demo@riskshield.ai" onSignOut={handleSignOut} />
+        <MainNavigation userEmail={user?.email || "demo@riskshield.ai"} onSignOut={user ? () => {} : undefined} />
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">

@@ -1,53 +1,5 @@
-import { supabase, isSupabaseConfigured, type Assessment } from "./supabase"
+import { supabase, type Assessment } from "./supabase"
 import { supabaseClient } from "./supabase-client"
-
-// Mock data for when Supabase is not configured
-const mockAssessments: Assessment[] = [
-  {
-    id: "demo-assessment-1",
-    vendor_name: "TechCorp Solutions",
-    vendor_email: "security@techcorp.com",
-    contact_person: "John Smith",
-    assessment_type: "Cybersecurity Assessment",
-    status: "pending",
-    sent_date: "2024-01-15T10:00:00Z",
-    due_date: "2024-02-15T23:59:59Z",
-    risk_score: null,
-    risk_level: "pending",
-    custom_message: "Please complete this assessment to help us evaluate our partnership.",
-    created_at: "2024-01-15T10:00:00Z",
-    updated_at: "2024-01-15T10:00:00Z",
-  },
-  {
-    id: "demo-assessment-2",
-    vendor_name: "DataFlow Inc",
-    vendor_email: "compliance@dataflow.com",
-    contact_person: "Sarah Johnson",
-    assessment_type: "Data Privacy Assessment",
-    status: "completed",
-    sent_date: "2024-01-10T09:00:00Z",
-    completed_date: "2024-01-20T14:30:00Z",
-    due_date: "2024-02-10T23:59:59Z",
-    risk_score: 85,
-    risk_level: "low",
-    created_at: "2024-01-10T09:00:00Z",
-    updated_at: "2024-01-20T14:30:00Z",
-  },
-  {
-    id: "demo-assessment-3",
-    vendor_name: "SecureCloud Systems",
-    vendor_email: "admin@securecloud.com",
-    contact_person: "Mike Chen",
-    assessment_type: "Infrastructure Security",
-    status: "in_progress",
-    sent_date: "2024-01-20T08:00:00Z",
-    due_date: "2024-02-20T23:59:59Z",
-    risk_score: null,
-    risk_level: "pending",
-    created_at: "2024-01-20T08:00:00Z",
-    updated_at: "2024-01-22T10:30:00Z",
-  },
-]
 
 // Get current user with comprehensive error handling
 export async function getCurrentUser() {
@@ -57,33 +9,6 @@ export async function getCurrentUser() {
     // First check if we're in a browser environment
     if (typeof window === "undefined") {
       console.log("⚠️ Server-side rendering, no user available")
-      return null
-    }
-
-    // Check for demo session first
-    try {
-      const demoSession = localStorage.getItem("demo_session")
-      if (demoSession) {
-        console.log("🎭 Found demo session")
-        const session = JSON.parse(demoSession)
-        const demoUser = {
-          id: session.user.id,
-          email: session.user.email,
-          user_metadata: { name: session.user.name },
-        }
-        console.log("✅ Demo user:", demoUser)
-        return demoUser
-      }
-    } catch (demoError) {
-      console.error("❌ Error parsing demo session:", demoError)
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("demo_session")
-      }
-    }
-
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured()) {
-      console.log("⚠️ Supabase not configured, no user available")
       return null
     }
 
@@ -113,11 +38,6 @@ export async function getCurrentUser() {
 // Test database connection
 export async function testConnection() {
   try {
-    if (!isSupabaseConfigured()) {
-      console.log("⚠️ Supabase not configured for connection test")
-      return false
-    }
-
     const { data, error } = await supabase.from("assessments").select("count", { count: "exact", head: true })
 
     if (error) {
@@ -182,53 +102,19 @@ export async function getAssessments(): Promise<Assessment[]> {
   try {
     console.log("📋 Getting assessments...")
 
-    // Always try to get user first, but don't fail if we can't
     const user = await getCurrentUser()
     console.log("👤 Current user:", user ? user.email : "None")
 
-    let assessments = [...mockAssessments]
-
-    // Add AI assessments from localStorage
-    try {
-      const aiAssessments = JSON.parse(localStorage.getItem("riskAssessments") || "[]")
-      const assessmentsList = JSON.parse(localStorage.getItem("assessmentsList") || "[]")
-
-      // Combine both sources and remove duplicates
-      const combinedAIAssessments = [...aiAssessments, ...assessmentsList]
-      const uniqueAIAssessments = combinedAIAssessments.filter(
-        (assessment, index, self) => index === self.findIndex((a) => a.id === assessment.id),
-      )
-
-      assessments = [...assessments, ...uniqueAIAssessments]
-      console.log(`📝 Added ${uniqueAIAssessments.length} AI assessments from localStorage`)
-    } catch (error) {
-      console.error("Error loading AI assessments from localStorage:", error)
-    }
-
-    // If no Supabase config, return combined mock + AI data
-    if (!isSupabaseConfigured()) {
-      console.log("📝 Using combined mock and AI assessments (Supabase not configured)")
-      return assessments
-    }
-
-    // If no user, return combined mock + AI data (don't fail)
     if (!user) {
-      console.log("📝 Using combined mock and AI assessments (no authenticated user)")
-      return assessments
+      console.log("📝 No authenticated user, returning empty array")
+      return []
     }
 
-    // Try to fetch from Supabase
     console.log("🔍 Fetching assessments from Supabase...")
-    // Validate UUID format before querying
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(user.id)) {
-      console.log("📝 Invalid UUID format, using combined mock and AI data:", user.id)
-      return assessments
-    }
-
     const { data, error } = await supabaseClient
       .from("assessments")
-      .select(`
+      .select(
+        `
         *,
         assessment_responses (
           id,
@@ -236,28 +122,26 @@ export async function getAssessments(): Promise<Assessment[]> {
           answers,
           submitted_at
         )
-      `)
+      `,
+      )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
 
     if (error) {
       console.error("❌ Supabase query error:", error)
-      console.log("📝 Falling back to combined mock and AI data")
-      return assessments
+      throw new Error(`Failed to fetch assessments: ${error.message}`)
     }
 
     if (!data || data.length === 0) {
-      console.log("📝 No assessments found in database, using combined mock and AI data")
-      return assessments
+      console.log("📝 No assessments found in database")
+      return []
     }
 
     console.log(`✅ Successfully fetched ${data.length} assessments from database`)
-    // Combine database assessments with AI assessments
-    return [...data, ...assessments.filter((a) => a.id.startsWith("RA-") || a.id.startsWith("mock-"))]
+    return data
   } catch (error) {
     console.error("💥 Error in getAssessments:", error)
-    console.log("📝 Falling back to mock data due to error")
-    return mockAssessments
+    throw error
   }
 }
 
@@ -266,26 +150,18 @@ export async function getAssessmentById(id: string): Promise<Assessment | null> 
   try {
     console.log("🔍 Getting assessment by ID:", id)
 
-    if (!isSupabaseConfigured()) {
-      console.log("📝 Using mock assessment data for ID:", id)
-      return mockAssessments.find((a) => a.id === id) || mockAssessments[0]
-    }
-
-    // For vendor access, we don't filter by user_id since vendors aren't authenticated
     const { data, error } = await supabase.from("assessments").select("*").eq("id", id).single()
 
     if (error) {
       console.error("❌ Supabase error:", error)
-      console.log("📝 Falling back to mock data for ID:", id)
-      return mockAssessments.find((a) => a.id === id) || mockAssessments[0]
+      throw new Error(`Failed to fetch assessment: ${error.message}`)
     }
 
     console.log("✅ Found assessment:", data?.vendor_name)
     return data
   } catch (error) {
     console.error("💥 Error fetching assessment:", error)
-    // Return mock data for demo purposes
-    return mockAssessments.find((a) => a.id === id) || mockAssessments[0]
+    throw error
   }
 }
 
@@ -306,51 +182,9 @@ export async function createAssessment(assessmentData: {
       throw new Error("Missing required assessment data")
     }
 
-    // If Supabase not configured, create mock assessment
-    if (!isSupabaseConfigured()) {
-      console.log("⚠️ Supabase not configured, creating mock assessment...")
-      const mockId = `mock-${Date.now()}`
-      const mockAssessment = {
-        id: mockId,
-        vendor_name: assessmentData.vendorName,
-        vendor_email: assessmentData.vendorEmail,
-        contact_person: assessmentData.contactPerson || "",
-        assessment_type: assessmentData.assessmentType,
-        status: "pending",
-        sent_date: new Date().toISOString().split("T")[0],
-        due_date: assessmentData.dueDate || "",
-        custom_message: assessmentData.customMessage || "",
-        risk_level: "pending",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }
-      console.log("✅ Mock assessment created:", mockAssessment)
-      return mockAssessment
-    }
-
-    // Get current user (but don't fail if we can't)
     const user = await getCurrentUser()
-
-    // For demo users or when user doesn't exist in database, create without user_id constraint
-    let userId = null
-    if (user) {
-      // Check if this user actually exists in the database
-      try {
-        const { data: existingUser, error: userCheckError } = await supabaseClient
-          .from("user_profiles")
-          .select("user_id")
-          .eq("user_id", user.id)
-          .single()
-
-        if (!userCheckError && existingUser) {
-          userId = user.id
-          console.log("✅ Valid database user found:", userId)
-        } else {
-          console.log("⚠️ User not found in database, creating assessment without user constraint")
-        }
-      } catch (error) {
-        console.log("⚠️ Error checking user in database, proceeding without user constraint")
-      }
+    if (!user) {
+      throw new Error("User not authenticated. Cannot create assessment.")
     }
 
     const assessmentId = `assessment-${Date.now()}`
@@ -358,6 +192,7 @@ export async function createAssessment(assessmentData: {
 
     const insertData: any = {
       id: assessmentId,
+      user_id: user.id,
       vendor_name: assessmentData.vendorName,
       vendor_email: assessmentData.vendorEmail,
       contact_person: assessmentData.contactPerson || null,
@@ -369,40 +204,12 @@ export async function createAssessment(assessmentData: {
       risk_level: "pending",
     }
 
-    // Only add user_id if we have a valid database user
-    if (userId) {
-      insertData.user_id = userId
-    }
-
     console.log("📝 Inserting data:", insertData)
 
     const { data, error } = await supabaseClient.from("assessments").insert(insertData).select().single()
 
     if (error) {
       console.error("❌ Supabase error:", error)
-
-      // If it's a foreign key constraint error, try creating without user_id
-      if (error.message.includes("foreign key constraint") || error.message.includes("user_id_fkey")) {
-        console.log("🔄 Retrying without user_id constraint...")
-        const { user_id, ...dataWithoutUserId } = insertData
-        const { data: retryData, error: retryError } = await supabaseClient
-          .from("assessments")
-          .insert(dataWithoutUserId)
-          .select()
-          .single()
-
-        if (retryError) {
-          throw new Error(`Database error: ${retryError.message}`)
-        }
-
-        if (!retryData) {
-          throw new Error("No data returned from database")
-        }
-
-        console.log("✅ Assessment created successfully without user constraint:", retryData)
-        return retryData
-      }
-
       throw new Error(`Database error: ${error.message}`)
     }
 
@@ -421,15 +228,9 @@ export async function createAssessment(assessmentData: {
 // Update assessment status (only for the owner)
 export async function updateAssessmentStatus(id: string, status: string, riskScore?: number, riskLevel?: string) {
   try {
-    if (!isSupabaseConfigured()) {
-      console.log("Mock mode: Assessment status would be updated:", { id, status, riskScore, riskLevel })
-      return true
-    }
-
     const user = await getCurrentUser()
     if (!user) {
-      console.log("Mock mode: No user, assessment status would be updated:", { id, status, riskScore, riskLevel })
-      return true
+      throw new Error("User not authenticated. Cannot update assessment.")
     }
 
     const updateData: any = {
@@ -473,13 +274,6 @@ export async function submitAssessmentResponse(
     console.log("🔄 Submitting assessment response for ID:", assessmentId)
     console.log("📊 Vendor info:", vendorInfo)
     console.log("📝 Answers:", answers)
-
-    if (!isSupabaseConfigured()) {
-      console.log("⚠️ Mock mode: Assessment response would be submitted")
-      // Simulate delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      return
-    }
 
     // Calculate risk score first
     const riskScore = calculateRiskScore(answers)
@@ -543,15 +337,9 @@ export async function submitAssessmentResponse(
 // Delete assessment (only for the owner)
 export async function deleteAssessment(id: string) {
   try {
-    if (!isSupabaseConfigured()) {
-      console.log("Mock mode: Assessment would be deleted:", id)
-      return
-    }
-
     const user = await getCurrentUser()
     if (!user) {
-      console.log("Mock mode: No user, assessment would be deleted:", id)
-      return
+      throw new Error("User not authenticated. Cannot delete assessment.")
     }
 
     const { error } = await supabaseClient.from("assessments").delete().eq("id", id).eq("user_id", user.id)
