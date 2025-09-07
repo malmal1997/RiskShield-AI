@@ -19,14 +19,14 @@ import {
   Cog,
   LifeBuoy,
 } from "lucide-react"
-import { MainNavigation } from "@/components/main-navigation"
+// import { MainNavigation } from "@/components/main-navigation" // Removed import
 
 export default function SolutionsPage() {
   const [activeTab, setActiveTab] = useState("core")
 
   return (
     <div className="min-h-screen bg-white">
-      <MainNavigation showAuthButtons={true} />
+      {/* <MainNavigation showAuthButtons={true} /> */}
 
       {/* Solutions Hero Section */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">

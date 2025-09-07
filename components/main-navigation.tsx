@@ -22,14 +22,18 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
   const publicNavigationItems = [
     { name: "Platform", href: "/" },
     { name: "Solutions", href: "/solutions" },
+    { name: "About Us", href: "#" }, // Assuming these are anchor links or placeholder for now
+    { name: "Careers", href: "#" },
+    { name: "Documentation", href: "#" },
+    { name: "Help Center", href: "#" },
   ];
 
   const authenticatedNavigationItems = [
+    { name: "Dashboard", href: "/dashboard" },
     { name: "Risk Assessment", href: "/risk-assessment" },
     { name: "Third-Party Assessment", href: "/third-party-assessment" },
     { name: "Policy Generator", href: "/policy-generator" },
     { name: "Policy Library", href: "/policy-library" },
-    { name: "Dashboard", href: "/dashboard" },
     { name: "Settings", href: "/settings" },
   ];
 
