@@ -21,8 +21,9 @@ export interface DocumentAnalysisResult {
       relevance: string
       pageOrSection?: string
       quote?: string
-      pageNumber?: number
+      pageNumber?: number // Added
       lineNumber?: number
+      designation?: 'primary' | 'fourth-party'; // Added
     }>
   >
   directUploadResults?: Array<{
