@@ -1,7 +1,8 @@
 "use client"
 
 import React from 'react';
-import { Briefcase, Users, DollarSign, Lightbulb, ArrowRight } from 'lucide-react';
+import { Briefcase, Users, DollarSign, Lightbulb, ArrowRight }
+ from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,7 +50,7 @@ export default function CareersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-gradient-to-b from-blue-50 to-white py-20">
+      <section className="bg-gradient-to-b from-blue-50 to-white py-12"> {/* Adjusted padding-top */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             Join Our <span className="text-blue-600">RiskGuard AI</span> Team

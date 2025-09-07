@@ -95,7 +95,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 pt-12"> {/* Adjusted padding-top */}
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-10 w-10 text-blue-600" />
             <span className="text-2xl font-bold text-gray-900">RiskGuard AI</span>

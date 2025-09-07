@@ -409,8 +409,9 @@ export default function InteractiveDemo() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Removed local header to avoid duplication with global MainNavigation */}
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
+      {/* <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
@@ -450,10 +451,10 @@ export default function InteractiveDemo() {
             </nav>
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-blue-50 to-white py-20">
+      <section className="bg-gradient-to-b from-blue-50 to-white py-12"> {/* Adjusted padding-top */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Interactive Demo</Badge>
