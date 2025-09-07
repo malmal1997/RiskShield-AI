@@ -34,7 +34,8 @@ import {
   BarChart,
   Bar,
 } from "recharts"
-import { MainNavigation } from "@/components/main-navigation"
+// import { MainNavigation } from "@/components/main-navigation" // Removed import
+// import { useAuth } from "@/components/auth-context" // Removed import
 import type { RiskMetrics, VendorMetrics } from "@/lib/analytics-service"
 import type { Notification } from "@/lib/notification-service"
 import Link from "next/link"
@@ -110,6 +111,7 @@ const sampleNotifications: Notification[] = [
 ]
 
 export default function DashboardPage() {
+  // const { user, signOut } = useAuth() // Removed useAuth
   const [riskMetrics, setRiskMetrics] = useState<RiskMetrics>(sampleRiskMetrics)
   const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics>(sampleVendorMetrics)
   const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications)
@@ -134,7 +136,7 @@ export default function DashboardPage() {
       setRealTimeData((prev) => ({
         activeUsers: prev.activeUsers + Math.floor(Math.random() * 5) - 2,
         systemLoad: Math.max(0, Math.min(100, prev.systemLoad + Math.floor(Math.random() * 10) - 5)),
-        responseTime: Math.max(50, prev.responseTime + Math.floor(Math.random() * 20) - 10),
+        responseTime: Math.max(50, Math.min(1000, prev.responseTime + Math.floor(Math.random() * 20) - 10)),
         uptime: Math.max(99.0, Math.min(100, prev.uptime + (Math.random() - 0.5) * 0.1)),
       }))
     }, 3000)
@@ -158,15 +160,14 @@ export default function DashboardPage() {
     }, 1000)
   }
 
-  const handleSignOut = () => {
-    localStorage.removeItem("demo_session")
-    window.location.href = "/"
-  }
+  // const handleSignOut = () => { // Removed handleSignOut
+  //   localStorage.removeItem("demo_session")
+  //   window.location.href = "/"
+  // }
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <MainNavigation userEmail="demo@riskguard.ai" onSignOut={handleSignOut} />
+      {/* Navigation - Removed */}
 
       {/* Hero Section - matching other pages style */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">

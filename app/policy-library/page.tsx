@@ -23,7 +23,7 @@ import {
   Plus,
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
-import { MainNavigation } from "@/components/main-navigation"
+// import { MainNavigation } from "@/components/main-navigation" // Removed import
 import { useAuth } from "@/components/auth-context"
 
 // Mock data for saved policies
@@ -221,8 +221,7 @@ export default function PolicyLibrary() {
       previewMessage="Preview Mode: Viewing sample policies. Sign up to create and manage your policy library."
     >
       <div className="min-h-screen bg-white">
-        {/* Navigation */}
-        <MainNavigation userEmail={user?.email || "Guest"} onSignOut={signOut} />
+        {/* Navigation - Removed */}
 
         {/* Rest of the page content remains exactly the same... */}
         {/* Hero Section */}

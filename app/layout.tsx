@@ -5,6 +5,7 @@ import "./globals.css"
 import { AuthProvider } from "@/components/auth-context"
 import { Toaster } from "@/components/ui/toaster"
 import { TrackingProvider } from "@/components/tracking-provider"
+import { MainNavigation } from "@/components/main-navigation" // <-- Import MainNavigation
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <TrackingProvider>
+            <MainNavigation showAuthButtons={true} /> {/* Render MainNavigation here */}
             {children}
             <Toaster />
           </TrackingProvider>

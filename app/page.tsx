@@ -3,13 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { BarChart3, Shield, FileText, BadgeCheck, TrendingUp, CheckCircle } from "lucide-react"
 import Link from "next/link"
-import { MainNavigation } from "@/components/main-navigation"
+// import { MainNavigation } from "@/components/main-navigation" // Removed import
 
 export default function RiskGuardLanding() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <MainNavigation showAuthButtons={true} />
+      {/* Navigation - Removed */}
 
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-blue-100 to-white py-20">

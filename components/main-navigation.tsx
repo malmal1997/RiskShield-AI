@@ -6,25 +6,17 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useFeatureTracking } from "@/hooks/use-tracking"
+import { useAuth } from "@/components/auth-context" // <-- New import
 
 interface NavigationProps {
-  userEmail?: string
-  onSignOut?: () => void
   showAuthButtons?: boolean
 }
 
-export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }: NavigationProps) {
+export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { trackClick } = useFeatureTracking()
-
-  // Add preview detection
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
-
-  useEffect(() => {
-    const hasAuth = localStorage.getItem("demo_session") || userEmail
-    setIsPreviewMode(!hasAuth)
-  }, [userEmail])
+  const { user, signOut, isDemo } = useAuth() // <-- Use useAuth directly
 
   const navigationItems = [
     { name: "Platform", href: "/" },
@@ -34,7 +26,7 @@ export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }:
     { name: "Policy Generator", href: "/policy-generator" },
     { name: "Policy Library", href: "/policy-library" },
     { name: "Dashboard", href: "/dashboard" },
-    { name: "Settings", href: "/settings" }, // Added Settings link to navigation menu
+    { name: "Settings", href: "/settings" },
   ]
 
   const isActive = (href: string) => {
@@ -44,11 +36,11 @@ export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }:
   }
 
   const handleNavClick = (itemName: string, href: string) => {
-    trackClick("navigation", { page: itemName, href, isPreview: isPreviewMode })
+    trackClick("navigation", { page: itemName, href, isPreview: isDemo }) // Use isDemo
   }
 
   const handleAuthClick = (action: string) => {
-    trackClick("auth", { action, isPreview: isPreviewMode })
+    trackClick("auth", { action, isPreview: isDemo }) // Use isDemo
   }
 
   return (
@@ -80,28 +72,14 @@ export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }:
 
             {showAuthButtons && (
               <div className="flex items-center space-x-4 ml-6 xl:ml-8 pl-6 xl:pl-8 border-l border-gray-200">
-                {userEmail ? (
+                {user ? ( // Check if user object exists (logged in or demo)
                   <>
-                    <span className="text-sm text-gray-600 whitespace-nowrap">{userEmail}</span>
-                    <Button variant="outline" size="sm" onClick={onSignOut}>
+                    <span className="text-sm text-gray-600 whitespace-nowrap">{user.email}</span>
+                    <Button variant="outline" size="sm" onClick={signOut}> {/* Use signOut from useAuth */}
                       Sign Out
                     </Button>
                   </>
-                ) : isPreviewMode ? (
-                  <>
-                    <span className="text-xs text-blue-600 whitespace-nowrap">Preview Mode</span>
-                    <Link href="/auth/login" onClick={() => handleAuthClick("sign_in_click")}>
-                      <Button variant="outline" size="sm">
-                        Sign In
-                      </Button>
-                    </Link>
-                    <Link href="/auth/register" onClick={() => handleAuthClick("sign_up_click")}>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                        Sign Up Free
-                      </Button>
-                    </Link>
-                  </>
-                ) : (
+                ) : ( // Not logged in
                   <>
                     <Link href="/auth/login" onClick={() => handleAuthClick("sign_in_click")}>
                       <Button variant="outline" size="sm">
@@ -150,10 +128,10 @@ export function MainNavigation({ userEmail, onSignOut, showAuthButtons = true }:
 
               {showAuthButtons && (
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
-                  {userEmail ? (
+                  {user ? ( // Check if user object exists
                     <>
-                      <span className="text-sm text-gray-600">{userEmail}</span>
-                      <Button variant="outline" size="sm" onClick={onSignOut} className="w-fit bg-transparent">
+                      <span className="text-sm text-gray-600">{user.email}</span>
+                      <Button variant="outline" size="sm" onClick={signOut} className="w-fit bg-transparent">
                         Sign Out
                       </Button>
                     </>

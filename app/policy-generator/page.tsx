@@ -22,7 +22,7 @@ import {
   User,
 } from "lucide-react"
 import { generatePolicy } from "./actions"
-import { MainNavigation } from "@/components/main-navigation"
+// import { MainNavigation } from "@/components/main-navigation" // Removed import
 import { AuthGuard } from "@/components/auth-guard"
 
 const policyTypes = [
@@ -479,8 +479,7 @@ export default function PolicyGenerator() {
       previewMessage="Preview Mode: Generate policies for free! Sign up to save, edit, and export them."
     >
       <div className="min-h-screen bg-white">
-        {/* Header */}
-        <MainNavigation showAuthButtons={true} />
+        {/* Header - Removed */}
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
@@ -905,11 +904,11 @@ export default function PolicyGenerator() {
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <Label htmlFor="clientName" className="block text-sm font-medium text-gray-700 mb-2">
                           <User className="inline h-4 w-4 mr-1" />
                           Client Name *
-                        </label>
-                        <input
+                        </Label>
+                        <Input
                           type="text"
                           required
                           value={approvalData.clientName}
@@ -920,10 +919,10 @@ export default function PolicyGenerator() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <Label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
                           <User className="inline h-4 w-4 mr-1" />
                           Title/Role *
-                        </label>
+                        </Label>
                         <select
                           required
                           value={approvalData.role}
@@ -949,12 +948,12 @@ export default function PolicyGenerator() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <Label htmlFor="signature" className="block text-sm font-medium text-gray-700 mb-2">
                           <Edit3 className="inline h-4 w-4 mr-1" />
                           Digital Signature *
-                        </label>
+                        </Label>
                         <div className="relative">
-                          <input
+                          <Input
                             type="text"
                             required
                             value={approvalData.signature}
@@ -971,11 +970,11 @@ export default function PolicyGenerator() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <Label htmlFor="approvalDate" className="block text-sm font-medium text-gray-700 mb-2">
                           <Calendar className="inline h-4 w-4 mr-1" />
                           Approval Date
-                        </label>
-                        <input
+                        </Label>
+                        <Input
                           type="text"
                           value={new Date().toLocaleDateString()}
                           disabled
