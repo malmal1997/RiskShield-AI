@@ -16,8 +16,17 @@ export function DemoSessionSetup() {
         name: "Demo Organization",
         plan: "enterprise",
       },
-      role: "admin",
+      role: { // Storing role as an object directly
+        role: "admin",
+        permissions: { all: true },
+      },
       loginTime: new Date().toISOString(),
+      profile: {
+        first_name: "Demo",
+        last_name: "User",
+        organization_id: "demo-org-123",
+        avatar_url: "/placeholder.svg?height=32&width=32",
+      }
     }
 
     localStorage.setItem("demo_session", JSON.stringify(demoSession))
