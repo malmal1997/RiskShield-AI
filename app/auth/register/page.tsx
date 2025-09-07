@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Shield, Eye, EyeOff, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/components/auth-context"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -27,6 +28,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const { signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,11 +49,15 @@ export default function RegisterPage() {
     }
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      setSuccess(true)
+      const { error } = await signUp(formData.email, formData.password);
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess(true);
+      }
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      setError("An unexpected error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -71,8 +77,7 @@ export default function RegisterPage() {
                 <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
                 <h2 className="text-2xl font-bold text-gray-900">Registration Submitted!</h2>
                 <p className="text-gray-600">
-                  Thank you for your interest in RiskGuard AI. Our team will review your application and contact you
-                  within 1-2 business days to complete the setup process.
+                  Thank you for your interest in RiskGuard AI. Please check your email to confirm your account. Our team will review your application and contact you within 1-2 business days to complete the setup process.
                 </p>
                 <div className="pt-4">
                   <Link href="/">

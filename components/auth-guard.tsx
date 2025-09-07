@@ -31,32 +31,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     setIsSubmitting(true)
 
     try {
-      // Check for demo credentials
-      if (email === "demo@riskguard.ai" && password === "demo123") {
-        // Set demo session in localStorage
-        localStorage.setItem(
-          "demo_session",
-          JSON.stringify({
-            user: {
-              id: "demo-user-id",
-              email: "demo@riskguard.ai",
-              name: "Demo User",
-            },
-            organization: {
-              id: "demo-org-id",
-              name: "RiskGuard Demo Organization",
-              plan: "enterprise",
-            },
-            role: "admin",
-            loginTime: new Date().toISOString(),
-          }),
-        )
-
-        // Force refresh the page to trigger auth context update
-        window.location.reload()
-        return
-      }
-
       const { error } = isSignUp ? await signUp(email, password) : await signIn(email, password)
 
       if (error) {

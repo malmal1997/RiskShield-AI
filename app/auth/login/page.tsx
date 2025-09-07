@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Shield, Eye, EyeOff, Play } from "lucide-react"
+import { Shield, Eye, EyeOff, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/components/auth-context"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -19,6 +20,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const { signIn, refreshProfile } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,74 +28,16 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // Check for demo credentials
-      if (email === "demo@riskguard.ai" && password === "demo123") {
-        // Simulate successful demo login
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+      const { error } = await signIn(email, password)
 
-        // Set demo session in localStorage
-        localStorage.setItem(
-          "demo_session",
-          JSON.stringify({
-            user: {
-              id: "demo-user-id",
-              email: "demo@riskguard.ai",
-              name: "Demo User",
-            },
-            organization: {
-              id: "demo-org-id",
-              name: "RiskGuard Demo Organization",
-              plan: "enterprise",
-            },
-            role: "admin",
-            loginTime: new Date().toISOString(),
-          }),
-        )
-
-        // Redirect to dashboard
+      if (error) {
+        setError(error.message)
+      } else {
+        await refreshProfile(); // Refresh profile after successful login
         router.push("/dashboard")
-        return
       }
-
-      // For other credentials, show the configuration message
-      setError("Authentication system not yet configured. Use demo credentials: demo@riskguard.ai / demo123")
     } catch (err) {
-      setError("An error occurred. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleDemoLogin = async () => {
-    setEmail("demo@riskguard.ai")
-    setPassword("demo123")
-    setIsLoading(true)
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Set demo session
-      localStorage.setItem(
-        "demo_session",
-        JSON.stringify({
-          user: {
-            id: "demo-user-id",
-            email: "demo@riskguard.ai",
-            name: "Demo User",
-          },
-          organization: {
-            id: "demo-org-id",
-            name: "RiskGuard Demo Organization",
-            plan: "enterprise",
-          },
-          role: "admin",
-          loginTime: new Date().toISOString(),
-        }),
-      )
-
-      router.push("/dashboard")
-    } catch (err) {
-      setError("Demo login failed. Please try again.")
+      setError("An unexpected error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -117,30 +61,6 @@ export default function LoginPage() {
             <CardDescription>Enter your credentials to access your risk management dashboard</CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Demo Access Banner */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-blue-900">Demo Access</h3>
-                  <p className="text-sm text-blue-700">Try the full enterprise platform</p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    Email: demo@riskguard.ai
-                    <br />
-                    Password: demo123
-                  </p>
-                </div>
-                <Button
-                  onClick={handleDemoLogin}
-                  disabled={isLoading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  size="sm"
-                >
-                  <Play className="h-4 w-4 mr-1" />
-                  Demo
-                </Button>
-              </div>
-            </div>
-
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
