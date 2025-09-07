@@ -1582,11 +1582,8 @@ export default function RiskAssessmentPage() {
   }, [assessmentStarted, selectedCategory, currentQuestion, answers, socInfo])
 
   const handleStartAssessment = (categoryId: string) => {
-    const category = assessmentCategories.find((cat) => cat.id === categoryId)
-    if (category) {
-      // Navigate directly to AI assessment with the category pre-selected
-      window.location.href = `/risk-assessment/ai-assessment?category=${categoryId}&title=${encodeURIComponent(category.title)}&skip-selection=true`
-    }
+    setSelectedCategory(categoryId)
+    setCurrentStep("choose-method")
   }
 
   const handleChooseManual = () => {

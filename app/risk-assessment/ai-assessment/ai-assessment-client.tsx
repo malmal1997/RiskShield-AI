@@ -3,7 +3,6 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Shield, FileText, ArrowLeft, Brain, Building, Server } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
@@ -256,7 +255,7 @@ export default function AIAssessmentClient() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
-  >("select")
+  >("choose-method")
   const [uploadedFiles, setUploadedFiles] = useState<DocumentMetadata[]>([])
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AIAnalysisResult | null>(null)
@@ -295,25 +294,7 @@ export default function AIAssessmentClient() {
       const assessmentType = urlParams.get("type")
       const delegationType = urlParams.get("delegation") as "team" | "third-party"
       const method = urlParams.get("method") as "ai" | "questionnaire"
-      const directCategory = urlParams.get("category")
-      const skipSelection = urlParams.get("skip-selection")
-
-      console.log("🔍 URL Parameters:", {
-        delegated,
-        assessmentType,
-        delegationType,
-        method,
-        directCategory,
-        skipSelection,
-      })
-
-      if (directCategory && skipSelection === "true") {
-        console.log("🎯 Direct category selection:", directCategory)
-        setSelectedCategory(directCategory)
-        setCurrentStep("choose-method")
-        console.log("✅ Auto-selected category from main page and skipped selection step")
-        return
-      }
+      const category = urlParams.get("category")
 
       if (delegated === "true" && assessmentType && delegationType && method === "ai") {
         setIsDelegatedAssessment(true)
@@ -328,22 +309,19 @@ export default function AIAssessmentClient() {
           "Compliance Assessment": "compliance",
           "Operational Risk Assessment": "operational",
           "Technology Risk Assessment": "technology",
-          Cybersecurity: "cybersecurity",
-          Compliance: "compliance",
-          "Operational Risk": "operational",
-          "Technology Risk": "technology",
         }
 
-        const categoryId = categoryMap[assessmentType] || categoryMap[assessmentType + " Assessment"]
-        console.log("🎯 Category mapping:", { assessmentType, categoryId })
-
+        const categoryId = categoryMap[assessmentType]
         if (categoryId) {
           setSelectedCategory(categoryId)
-          setCurrentStep("choose-method")
-          console.log("✅ Auto-selected category and skipped selection step")
-        } else {
-          console.warn("⚠️ Could not map assessment type to category:", assessmentType)
+          setCurrentStep("soc-info")
         }
+      } else if (category) {
+        setSelectedCategory(category)
+        setCurrentStep("choose-method")
+      } else {
+        setSelectedCategory("cybersecurity")
+        setCurrentStep("choose-method")
       }
     }
   }, [])
@@ -387,57 +365,25 @@ export default function AIAssessmentClient() {
 
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {currentStep === "select" && (
-            <div>
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Select Assessment Type</h2>
-                <p className="text-lg text-gray-600">Choose the type of risk assessment you want to perform</p>
-              </div>
-
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {assessmentCategories.map((category) => {
-                  const IconComponent = category.icon
-                  return (
-                    <Card key={category.id} className="relative group hover:shadow-lg transition-shadow">
-                      <CardHeader>
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-blue-100 rounded-lg">
-                            <IconComponent className="h-6 w-6 text-blue-600" />
-                          </div>
-                          <div>
-                            <CardTitle className="text-lg">{category.title}</CardTitle>
-                            <CardDescription className="text-sm">{category.description}</CardDescription>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <Button
-                          onClick={() => {
-                            setSelectedCategory(category.id)
-                            setCurrentStep("choose-method")
-                          }}
-                          className="w-full"
-                        >
-                          Select Assessment
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
+          {selectedCategory && (
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center space-x-2 bg-blue-50 px-4 py-2 rounded-lg">
+                <span className="text-blue-700 font-medium">Assessment Type:</span>
+                <span className="text-blue-900 font-semibold">
+                  {assessmentCategories.find((cat) => cat.id === selectedCategory)?.title || "Selected Assessment"}
+                </span>
               </div>
             </div>
           )}
 
-          {currentStep !== "select" && (
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Assessment in Progress</h2>
-              <p className="text-gray-600">This feature is being loaded...</p>
-              <Button onClick={() => setCurrentStep("select")} variant="outline" className="mt-4">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Selection
-              </Button>
-            </div>
-          )}
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Assessment in Progress</h2>
+            <p className="text-gray-600">This feature is being loaded...</p>
+            <Button onClick={() => window.history.back()} variant="outline" className="mt-4">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Risk Assessment
+            </Button>
+          </div>
         </div>
       </section>
     </div>

@@ -84,21 +84,21 @@ function VendorAssessmentComponent() {
             .from("delegated_assessments")
             .select("*")
             .eq("id", assessmentId)
-            .single()
+            .single();
 
           if (delegationError || !delegation) {
-            console.error("Error fetching delegated assessment:", delegationError)
-            setError("Delegated assessment not found or unauthorized.")
-            setIsValidToken(false)
-            return
+            console.error("Error fetching delegated assessment:", delegationError);
+            setError("Delegated assessment not found or unauthorized.");
+            setIsValidToken(false);
+            return;
           }
 
-          const isAiPowered = delegation.method === "ai" || isAiFromUrl
-          const assessmentType = delegation.assessment_type
-          const delegationType = delegation.delegation_type
-          const method = delegation.method
+          let isAiPowered = delegation.method === "ai" || isAiFromUrl;
+          let assessmentType = delegation.assessment_type;
+          let delegationType = delegation.delegation_type;
+          let method = delegation.method;
 
-          console.log("📋 Delegated assessment found in DB:", delegation)
+          console.log("📋 Delegated assessment found in DB:", delegation);
 
           // Store the assessment info for the internal pages to use
           const internalAssessmentInfo = {
@@ -108,20 +108,19 @@ function VendorAssessmentComponent() {
             delegationType,
             method,
             token,
-          }
+          };
 
-          localStorage.setItem("internalAssessmentInfo", JSON.stringify(internalAssessmentInfo))
+          localStorage.setItem("internalAssessmentInfo", JSON.stringify(internalAssessmentInfo));
 
           // Redirect to appropriate internal assessment page
           if (isAiPowered || method === "ai") {
-            // Redirect to AI assessment page with proper parameters
-            const encodedType = encodeURIComponent(assessmentType.replace(" (AI-Powered)", ""))
-            window.location.href = `/risk-assessment/ai-assessment?delegated=true&type=${encodedType}&delegation=${delegationType}&method=ai&id=${assessmentId}&token=${token}`
+            // Redirect to AI assessment page
+            window.location.href = `/risk-assessment/ai-assessment?delegated=true&id=${assessmentId}&token=${token}`;
           } else {
             // Redirect to manual assessment page
-            window.location.href = `/risk-assessment?delegated=true&type=${encodeURIComponent(assessmentType)}&delegation=${delegationType}&method=questionnaire&id=${assessmentId}&token=${token}`
+            window.location.href = `/risk-assessment?delegated=true&id=${assessmentId}&token=${token}`;
           }
-          return
+          return;
         }
 
         // Load assessment from database for external assessments
@@ -276,10 +275,11 @@ function VendorAssessmentComponent() {
             // risk_level: getRiskLevel(calculateRiskScore(answers)),
           })
           .eq("id", assessmentId)
-          .eq("recipient_email", vendorInfo.email) // Ensure only the recipient can update
+          .eq("recipient_email", vendorInfo.email); // Ensure only the recipient can update
 
-        if (updateError) throw updateError
-        console.log("✅ Internal delegation completed successfully in DB")
+        if (updateError) throw updateError;
+        console.log("✅ Internal delegation completed successfully in DB");
+
       } else {
         console.log("🔄 Processing external vendor assessment submission...")
         // Submit to database for external vendor assessments
@@ -824,7 +824,7 @@ function VendorAssessmentComponent() {
               <CardTitle className="flex items-center space-x-2">
                 <span>Assessment Questions</span>
                 {analysisResults && (
-                  <Badge className="bg-blue-100 text-blue-700">
+                  <Badge className="bg-green-100 text-green-700">
                     <Bot className="h-3 w-3 mr-1" />
                     AI-Generated
                   </Badge>
@@ -1010,23 +1010,4 @@ export default function VendorAssessment() {
       </div>
     )
   }
-}
-
-function getAssessmentQuestions(assessmentType: string) {
-  // Dummy function to simulate fetching questions based on assessment type
-  return [
-    {
-      id: "q1",
-      question: "Does your company have a comprehensive security policy?",
-      type: "radio",
-      options: ["Yes", "No"],
-    },
-    {
-      id: "q2",
-      question: "What types of security measures are in place?",
-      type: "checkbox",
-      options: ["Firewall", "Encryption", "Access Controls"],
-    },
-    // Add more questions based on assessment type
-  ]
 }
