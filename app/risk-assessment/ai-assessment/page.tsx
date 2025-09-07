@@ -1912,10 +1912,10 @@ export default function AIAssessmentPage() {
         return "text-green-600 bg-green-100"
       case "medium":
         return "text-yellow-600 bg-yellow-100"
-      case "medium-high":
-        return "text-orange-600 bg-orange-100"
       case "high":
         return "text-red-600 bg-red-100"
+      case "critical":
+        return "text-red-800 bg-red-200"
       default:
         return "text-gray-600 bg-gray-100"
     }
@@ -1947,392 +1947,501 @@ export default function AIAssessmentPage() {
   const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
   const selectedFramework = assessmentCategories.find((cat) => cat.id === selectedCategory)
 
+  // Helper function to get risk level color for report
+  const getRiskLevelColorForReport = (level: string) => {
+    switch (level.toLowerCase()) {
+      case "low":
+        return "#10b981"; // green-600
+      case "medium":
+        return "#f59e0b"; // yellow-600
+      case "medium-high":
+        return "#ea580c"; // orange-600
+      case "high":
+        return "#dc2626"; // red-600
+      default:
+        return "#4b5563"; // gray-600
+    }
+  };
+
   const generateAndDownloadReport = async () => {
-    if (!aiAnalysisResult || !currentCategory) return
+    if (!aiAnalysisResult || !currentCategory) return;
 
     try {
-      // Import jsPDF dynamically to avoid SSR issues
-      const { jsPDF } = await import("jspdf")
+      // Create HTML content for PDF
+      const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>${currentCategory.name} Risk Assessment Report - ${companyInfo.companyName}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&display=swap');
+          body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 850px; /* Slightly wider for better report feel */
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #ffffff; /* Ensure white background for print */
+          }
+          .container {
+            border: 1px solid #e5e7eb; /* Light border around the whole report */
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          }
+          .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); /* Darker blue gradient */
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            border-bottom: 5px solid #10b981; /* Green accent line */
+          }
+          .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+          }
+          .header .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+          }
+          .content {
+            padding: 40px;
+          }
+          .section-heading {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1e40af; /* Primary blue for section titles */
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+          }
+          .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+          }
+          .summary-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+          }
+          .summary-card h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+          .summary-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1f2937;
+          }
+          .risk-score-value {
+            color: ${getRiskLevelColorForReport(aiAnalysisResult.riskLevel)};
+          }
+          .risk-level-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: white;
+            background-color: ${getRiskLevelColorForReport(aiAnalysisResult.riskLevel)};
+          }
+          .info-block {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+          }
+          .info-block h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+          }
+          .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+          }
+          .info-item {
+            font-size: 0.9rem;
+            color: #374151;
+          }
+          .info-item strong {
+            color: #1f2937;
+          }
+          .question-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+          }
+          .question-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 12px;
+          }
+          .question-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+          }
+          .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid;
+          }
+          .badge-outline {
+            background: white;
+            color: #6b7280;
+            border-color: #d1d5db;
+          }
+          .answer-section {
+            background: #eff6ff; /* blue-50 */
+            border-left: 4px solid #3b82f6; /* blue-500 */
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+          }
+          .section-label {
+            font-weight: 600;
+            color: #1e40af; /* primary blue */
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+          }
+          .answer-text {
+            font-weight: 500;
+            color: #1f2937;
+            font-size: 0.95rem;
+          }
+          .reasoning-section {
+            background: #f3f4f6; /* gray-100 */
+            border-left: 4px solid #9ca3af; /* gray-400 */
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+          }
+          .evidence-section {
+            background: #f0fdf4; /* green-50 */
+            border-left: 4px solid #10b981; /* green-600 */
+            border-radius: 6px;
+            padding: 15px;
+          }
+          .evidence-item {
+            margin-bottom: 10px;
+          }
+          .evidence-text {
+            font-style: italic;
+            color: #047857; /* green-800 */
+            font-size: 0.9rem;
+          }
+          .evidence-source {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 5px;
+          }
+          .risk-factors-list, .recommendations-list {
+            list-style: none;
+            padding: 0;
+          }
+          .risk-factors-list li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            background: #fef2f2; /* red-50 */
+            border: 1px solid #ef4444; /* red-500 */
+            color: #b91c1c; /* red-700 */
+            font-size: 0.9rem;
+          }
+          .recommendations-list li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            background: #f0fdf4; /* green-50 */
+            border: 1px solid #10b981; /* green-600 */
+            color: #047857; /* green-800 */
+            font-size: 0.9rem;
+          }
+          .list-icon {
+            margin-right: 10px;
+            margin-top: 2px;
+            flex-shrink: 0;
+          }
+          .disclaimer {
+            background: #fef3c7; /* amber-50 */
+            border: 1px solid #f59e0b; /* amber-500 */
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 40px;
+            color: #92400e; /* amber-800 */
+            font-size: 0.9rem;
+          }
+          .disclaimer h3 {
+            color: #92400e;
+            margin-bottom: 10px;
+            font-weight: 600;
+          }
+          .footer {
+            background: #f8fafc; /* gray-50 */
+            border-top: 1px solid #e5e7eb;
+            padding: 20px 40px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.8rem;
+            margin-top: 50px;
+          }
+          .footer .brand {
+            font-weight: 600;
+            color: #1e40af;
+          }
+          .page-break {
+            page-break-before: always;
+          }
+          .signature-line {
+            font-family: 'Dancing Script', cursive;
+            font-size: 24px;
+            color: #1e40af;
+            border-bottom: 1px solid #1e40af;
+            padding-bottom: 5px;
+            margin-top: 10px;
+            display: inline-block;
+            min-width: 200px;
+            text-align: center;
+          }
+          .approval-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+          }
+          .approval-status {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #10b981;
+            text-align: center;
+            margin-top: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>${currentCategory.name} Risk Assessment Report</h1>
+            <div class="subtitle">AI-Powered Risk Analysis • Generated ${new Date().toLocaleDateString()}</div>
+          </div>
+          
+          <div class="content">
+            <h2 class="section-heading">Assessment Summary</h2>
+            <div class="summary-grid">
+              <div class="summary-card">
+                <h3>Risk Score</h3>
+                <div class="value risk-score-value">${aiAnalysisResult.riskScore}%</div>
+              </div>
+              <div class="summary-card">
+                <h3>Risk Level</h3>
+                <div class="value">
+                  <span class="risk-level-badge">${aiAnalysisResult.riskLevel} Risk</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <h3>Documents Analyzed</h3>
+                <div class="value">${aiAnalysisResult.documentsAnalyzed}</div>
+              </div>
+            </div>
+            
+            <h2 class="section-heading">Company & Assessment Information</h2>
+            <div class="info-block">
+              <div class="info-grid">
+                <div class="info-item"><strong>Company Name:</strong> ${companyInfo.companyName || "Not specified"}</div>
+                <div class="info-item"><strong>Product/Service:</strong> ${companyInfo.productName || "Not specified"}</div>
+                <div class="info-item"><strong>Assessment Type:</strong> ${currentCategory.name}</div>
+                <div class="info-item"><strong>AI Provider:</strong> ${aiAnalysisResult.aiProvider || "N/A"}</div>
+                <div class="info-item"><strong>Analysis Date:</strong> ${new Date(aiAnalysisResult.analysisDate).toLocaleDateString()}</div>
+              </div>
+            </div>
 
-      const doc = new jsPDF()
-      const pageWidth = doc.internal.pageSize.getWidth()
-      const pageHeight = doc.internal.pageSize.getHeight()
-      const margin = 20
-      const contentWidth = pageWidth - 2 * margin
-      let yPosition = margin
-
-      // Helper function to add text with word wrapping
-      const addWrappedText = (
-        text: string,
-        x: number,
-        y: number,
-        maxWidth: number,
-        fontSize = 10,
-        fontStyle: "normal" | "bold" | "italic" = "normal",
-        textColor: number[] = [0, 0, 0],
-      ) => {
-        doc.setFontSize(fontSize)
-        doc.setFont("helvetica", fontStyle)
-        doc.setTextColor(textColor[0], textColor[1], textColor[2])
-        const lines = doc.splitTextToSize(text, maxWidth)
-        doc.text(lines, x, y)
-        return y + lines.length * (fontSize * 0.5) // Adjust line spacing
-      }
-
-      // Helper function to check if we need a new page
-      const checkNewPage = (requiredHeight: number) => {
-        if (yPosition + requiredHeight > pageHeight - margin) {
-          doc.addPage()
-          yPosition = margin
-        }
-      }
-
-      // --- Colors (RGB values from Tailwind config) ---
-      const BLUE_600 = [30, 64, 191] // #1e40af
-      const BLUE_50 = [239, 246, 255] // #eff6ff
-      const BLUE_100 = [219, 234, 254] // #dbeafe
-      const BLUE_200 = [191, 219, 254] // #bfdbfe
-      const BLUE_700 = [29, 77, 216] // #1d4ed8
-      const GREEN_600 = [22, 163, 74] // #16a34a
-      const GREEN_50 = [240, 253, 244] // #f0fdf4
-      const YELLOW_600 = [202, 138, 4] // #ca8a04
-      const YELLOW_50 = [254, 252, 232] // #fefce8
-      const ORANGE_600 = [234, 88, 12] // #ea580c
-      const RED_600 = [220, 38, 38] // #dc2626
-      const RED_50 = [254, 242, 242] // #fef2f2
-      const GRAY_900 = [17, 24, 39] // #111827
-      const GRAY_700 = [55, 65, 81] // #374151
-      const GRAY_600 = [75, 85, 99] // #4b5563
-      const GRAY_500 = [107, 114, 128] // #6b7280
-      const GRAY_200 = [229, 231, 235] // #e5e7eb
-      const GRAY_100 = [243, 244, 246] // #f3f4f6
-      const GRAY_50 = [249, 250, 251] // #f9fafb
-
-      // Header
-      doc.setFillColor(BLUE_600[0], BLUE_600[1], BLUE_600[2])
-      doc.rect(0, 0, pageWidth, 60, "F")
-
-      addWrappedText(
-        `${currentCategory.name} Risk Assessment Report`,
-        pageWidth / 2,
-        25,
-        contentWidth,
-        24,
-        "bold",
-        [255, 255, 255],
-      )
-      addWrappedText(
-        `AI-Powered Risk Analysis • Generated ${new Date().toLocaleDateString()}`,
-        pageWidth / 2,
-        40,
-        contentWidth,
-        12,
-        "normal",
-        [255, 255, 255],
-      )
-
-      yPosition = 80
-
-      // Summary Section
-      addWrappedText("Assessment Summary", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 20
-
-      // Summary boxes
-      const boxWidth = (contentWidth - 20) / 3
-      const boxHeight = 40
-
-      // Risk Score Box
-      doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
-      doc.rect(margin, yPosition, boxWidth, boxHeight, "F")
-      doc.setDrawColor(BLUE_100[0], BLUE_100[1], BLUE_100[2])
-      doc.rect(margin, yPosition, boxWidth, boxHeight, "S")
-      addWrappedText(
-        `${aiAnalysisResult.riskScore}%`,
-        margin + boxWidth / 2,
-        yPosition + 22,
-        boxWidth,
-        24,
-        "bold",
-        BLUE_600,
-      )
-      addWrappedText("Risk Score", margin + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
-
-      // Risk Level Box
-      const riskLevelColor = getRiskLevelColor(aiAnalysisResult.riskLevel)
-      let riskBgColor = GRAY_100
-      let riskTextColor = GRAY_700
-      if (riskLevelColor.includes("text-green-600")) {
-        riskBgColor = GREEN_50
-        riskTextColor = GREEN_600
-      } else if (riskLevelColor.includes("text-yellow-600")) {
-        riskBgColor = YELLOW_50
-        riskTextColor = YELLOW_600
-      } else if (riskLevelColor.includes("text-orange-600")) {
-        riskBgColor = [255, 237, 213] // orange-50
-        riskTextColor = ORANGE_600
-      } else if (riskLevelColor.includes("text-red-600")) {
-        riskBgColor = RED_50
-        riskTextColor = RED_600
-      }
-
-      doc.setFillColor(riskBgColor[0], riskBgColor[1], riskBgColor[2])
-      doc.rect(margin + boxWidth + 10, yPosition, boxWidth, boxHeight, "F")
-      doc.setDrawColor(riskTextColor[0], riskTextColor[1], riskTextColor[2])
-      doc.rect(margin + boxWidth + 10, yPosition, boxWidth, boxHeight, "S")
-      addWrappedText(
-        `${aiAnalysisResult.riskLevel} Risk`,
-        margin + boxWidth + 10 + boxWidth / 2,
-        yPosition + 22,
-        boxWidth,
-        14,
-        "bold",
-        riskTextColor,
-      )
-      addWrappedText("Risk Level", margin + boxWidth + 10 + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
-
-      // Documents Analyzed Box
-      doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
-      doc.rect(margin + 2 * (boxWidth + 10), yPosition, boxWidth, boxHeight, "F")
-      doc.setDrawColor(GREEN_600[0], GREEN_600[1], GREEN_600[2])
-      doc.rect(margin + 2 * (boxWidth + 10), yPosition, boxWidth, boxHeight, "S")
-      addWrappedText(
-        `${aiAnalysisResult.documentsAnalyzed}`,
-        margin + 2 * (boxWidth + 10) + boxWidth / 2,
-        yPosition + 22,
-        boxWidth,
-        24,
-        "bold",
-        GREEN_600,
-      )
-      addWrappedText("Documents Analyzed", margin + 2 * (boxWidth + 10) + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
-
-      yPosition += boxHeight + 30
-
-      // Company Information
-      checkNewPage(70)
-      addWrappedText("Company Information", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 20
-
-      doc.setFillColor(GRAY_50[0], GRAY_50[1], GRAY_50[2])
-      doc.rect(margin, yPosition, contentWidth, 45, "F")
-      doc.setDrawColor(GRAY_200[0], GRAY_200[1], GRAY_200[2])
-      doc.rect(margin, yPosition, contentWidth, 45, "S")
-
-      addWrappedText(`Company Name: ${companyInfo.companyName || "Not specified"}`, margin + 10, yPosition + 15, contentWidth - 20, 11, "normal", GRAY_700)
-      addWrappedText(`Product/Service: ${companyInfo.productName || "Not specified"}`, margin + 10, yPosition + 27, contentWidth - 20, 11, "normal", GRAY_700)
-      addWrappedText(`Assessment Date: ${new Date().toLocaleDateString()}`, margin + 10, yPosition + 39, contentWidth - 20, 11, "normal", GRAY_700)
-
-      yPosition += 60
-
-      // SOC Information (if applicable)
-      if (selectedCategory === "soc-compliance" && socInfo.socType) {
-        checkNewPage(120)
-        addWrappedText("SOC Assessment Information", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-        yPosition += 20
-
-        doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
-        doc.rect(margin, yPosition, contentWidth, 100, "F")
-        doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
-        doc.rect(margin, yPosition, contentWidth, 100, "S")
-
-        addWrappedText(`SOC Type: ${socInfo.socType}`, margin + 10, yPosition + 15, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Report Type: ${socInfo.reportType}`, margin + 10, yPosition + 27, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Auditor: ${socInfo.auditor || "Not specified"}`, margin + 10, yPosition + 39, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Expected Opinion: ${socInfo.auditorOpinion || "Not specified"}`, margin + 10, yPosition + 51, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Company: ${socInfo.companyName}`, margin + 10, yPosition + 63, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Product/Service: ${socInfo.productService}`, margin + 10, yPosition + 75, contentWidth - 20, 11, "normal", BLUE_700)
-
-        yPosition += 120
-      }
-
-      // Approval Information
-      checkNewPage(70)
-      addWrappedText("Approval Information", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 20
-
-      doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
-      doc.rect(margin, yPosition, contentWidth, 45, "F")
-      doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
-      doc.rect(margin, yPosition, contentWidth, 45, "S")
-
-      addWrappedText(`Approved By: ${approverInfo.name}`, margin + 10, yPosition + 15, contentWidth - 20, 11, "normal", GRAY_700)
-      addWrappedText(`Title: ${approverInfo.title}`, margin + 10, yPosition + 27, contentWidth - 20, 11, "normal", GRAY_700)
-      addWrappedText(`Digital Signature: ${approverInfo.signature}`, margin + 10, yPosition + 39, contentWidth - 20, 11, "italic", BLUE_600)
-
-      yPosition += 70
-
-      // Assessment Questions
-      addWrappedText("Assessment Questions & Responses", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 25
-
-      currentCategory.questions.forEach((question, index) => {
-        checkNewPage(120) // Check if we need space for question block
-
-        const answer = aiAnalysisResult.answers[question.id]
-        const reasoning = aiAnalysisResult.reasoning[question.id] || "No reasoning provided"
-        const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
-
-        // Question header with better spacing
-        doc.setFillColor(255, 255, 255)
-        doc.rect(margin, yPosition, contentWidth, 25, "F")
-        doc.setDrawColor(GRAY_200[0], GRAY_200[1], GRAY_200[2])
-        doc.rect(margin, yPosition, contentWidth, 25, "S")
-
-        const questionText = `${index + 1}. ${question.question}`
-        yPosition = addWrappedText(questionText, margin + 5, yPosition + 8, contentWidth - 10, 12, "bold", GRAY_900)
-
-        addWrappedText(`Weight: ${question.weight}`, margin + 5, yPosition + 8, contentWidth - 10, 9, "normal", GRAY_600)
-        yPosition += 20
-
-        // Answer with proper background
-        doc.setFillColor(BLUE_100[0], BLUE_100[1], BLUE_100[2])
-        doc.rect(margin + 5, yPosition, contentWidth - 10, 18, "F")
-        doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
-        doc.rect(margin + 5, yPosition, contentWidth - 10, 18, "S")
-
-        let answerText = ""
-        if (question.type === "boolean") {
-          answerText = typeof answer === "boolean" ? (answer ? "Yes" : "No") : String(answer)
-        } else if (question.type === "tested") {
-          answerText = answer === "tested" ? "Tested" : answer === "not_tested" ? "Not Tested" : String(answer)
-        } else {
-          answerText = String(answer)
-        }
-
-        addWrappedText(`Answer: ${answerText}`, margin + 10, yPosition + 12, contentWidth - 20, 11, "bold", BLUE_700)
-        yPosition += 25
-
-        // Reasoning with proper background and text wrapping
-        const reasoningHeight = Math.max(35, doc.splitTextToSize(reasoning, contentWidth - 20).length * 12 + 15)
-        doc.setFillColor(GRAY_100[0], GRAY_100[1], GRAY_100[2])
-        doc.rect(margin + 5, yPosition, contentWidth - 10, reasoningHeight, "F")
-        doc.setDrawColor(GRAY_200[0], GRAY_200[1], GRAY_200[2])
-        doc.rect(margin + 5, yPosition, contentWidth - 10, reasoningHeight, "S")
-        addWrappedText("Reasoning:", margin + 10, yPosition + 10, contentWidth - 20, 10, "bold", GRAY_700)
-        yPosition = addWrappedText(reasoning, margin + 10, yPosition + 18, contentWidth - 20, 9, "normal", GRAY_700)
-        yPosition += 15
-
-        // Evidence with proper background - SHOW ALL evidence
-        if (excerpts.length > 0) {
-          // Calculate height needed for all evidence items
-          let currentEvidenceY = yPosition + 18
-          let totalEvidenceHeight = 0
-          excerpts.forEach((excerpt) => {
-            const excerptLines = doc.splitTextToSize(`"${excerpt.excerpt}"`, contentWidth - 20).length
-            const sourceLines = excerpt.fileName ? 1 : 0
-            totalEvidenceHeight += (excerptLines + sourceLines) * 9 + 8 // 9 is approx line height, 8 is spacing
-          })
-          totalEvidenceHeight = Math.max(30, totalEvidenceHeight + 15) // Min height + padding
-
-          doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
-          doc.rect(margin + 5, yPosition, contentWidth - 10, totalEvidenceHeight, "F")
-          doc.setDrawColor(GREEN_600[0], GREEN_600[1], GREEN_600[2])
-          doc.rect(margin + 5, yPosition, contentWidth - 10, totalEvidenceHeight, "S")
-          addWrappedText("Evidence:", margin + 10, yPosition + 10, contentWidth - 20, 10, "bold", GRAY_700)
-          currentEvidenceY = yPosition + 18
-
-          excerpts.forEach((excerpt) => {
-            const excerptText = `"${excerpt.excerpt}"`
-            currentEvidenceY = addWrappedText(excerptText, margin + 10, currentEvidenceY, contentWidth - 20, 9, "normal", GREEN_600)
-            if (excerpt.fileName) {
-              currentEvidenceY = addWrappedText(`Source: ${excerpt.fileName}`, margin + 10, currentEvidenceY + 5, contentWidth - 20, 8, "italic", GRAY_500)
+            ${
+              selectedCategory === "soc-compliance" && socInfo.socType
+                ? `
+            <h2 class="section-heading">SOC Assessment Details</h2>
+            <div class="info-block">
+              <div class="info-grid">
+                <div class="info-item"><strong>SOC Type:</strong> ${socInfo.socType}</div>
+                ${socInfo.socType !== "SOC 3" ? `<div class="info-item"><strong>Report Type:</strong> ${socInfo.reportType}</div>` : ''}
+                <div class="info-item"><strong>Auditor:</strong> ${socInfo.auditor || "Not specified"}</div>
+                <div class="info-item"><strong>Auditor Opinion:</strong> ${socInfo.auditorOpinion || "Not specified"}</div>
+                <div class="info-item"><strong>Opinion Date:</strong> ${socInfo.auditorOpinionDate ? new Date(socInfo.auditorOpinionDate).toLocaleDateString() : "N/A"}</div>
+                ${socInfo.socType && socInfo.reportType && (socInfo.reportType === "Type 1" || socInfo.socType === "SOC 3") ? 
+                  `<div class="info-item"><strong>Date as of:</strong> ${socInfo.socDateAsOf ? new Date(socInfo.socDateAsOf).toLocaleDateString() : "N/A"}</div>` : 
+                  `<div class="info-item"><strong>Period Covered:</strong> ${socInfo.socStartDate ? new Date(socInfo.socStartDate).toLocaleDateString() : "N/A"} - ${socInfo.socEndDate ? new Date(socInfo.socEndDate).toLocaleDateString() : "N/A"}</div>`
+                }
+                <div class="info-item"><strong>Tested Status:</strong> ${socInfo.testedStatus || "N/A"}</div>
+                <div class="info-item"><strong>Company Assessed:</strong> ${socInfo.companyName}</div>
+                <div class="info-item"><strong>Product/Service:</strong> ${socInfo.productService}</div>
+              </div>
+              ${socInfo.subserviceOrganizations ? `<div style="margin-top: 15px;" class="info-item"><strong>Subservice Organizations:</strong> ${socInfo.subserviceOrganizations}</div>` : ''}
+            </div>
+            `
+                : ""
             }
-            currentEvidenceY += 8
-          })
-          yPosition += totalEvidenceHeight
-        }
 
-        yPosition += 20
-      })
+            <h2 class="section-heading">Assessment Questions & Responses</h2>
+            ${currentCategory.questions
+              .map((question, index) => {
+                const answer = editedAnswers[question.id] ?? aiAnalysisResult.answers[question.id];
+                const reasoning = editedReasoning[question.id] ?? aiAnalysisResult.reasoning[question.id] || "No reasoning provided by AI.";
+                const excerpts = editedEvidence[question.id] ?? aiAnalysisResult.documentExcerpts?.[question.id] || [];
 
-      // Overall Analysis
-      checkNewPage(80)
-      addWrappedText("Overall Analysis", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 20
+                let answerDisplay = "";
+                if (question.type === "boolean") {
+                  answerDisplay = typeof answer === "boolean" ? (answer ? "Yes" : "No") : String(answer);
+                } else if (question.type === "tested") {
+                  answerDisplay = answer === "tested" ? "Tested" : answer === "not_tested" ? "Not Tested" : String(answer);
+                } else {
+                  answerDisplay = String(answer);
+                }
 
-      const analysisHeight = Math.max(50, doc.splitTextToSize(aiAnalysisResult.overallAnalysis, contentWidth - 20).length * 12 + 20)
-      doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
-      doc.rect(margin, yPosition, contentWidth, analysisHeight, "F")
-      doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
-      doc.rect(margin, yPosition, contentWidth, analysisHeight, "S")
-      yPosition = addWrappedText(aiAnalysisResult.overallAnalysis, margin + 10, yPosition + 12, contentWidth - 20, 11, "normal", BLUE_700)
-      yPosition += 30
+                return `
+                <div class="question-card">
+                  <div class="question-title">${index + 1}. ${question.question}</div>
+                  <div class="question-meta">
+                    <span class="badge badge-outline">Weight: ${question.weight}</span>
+                    <span class="badge badge-outline">Type: ${question.type === "boolean" ? "Yes/No" : question.type === "tested" ? "Tested/Not Tested" : "Multiple Choice"}</span>
+                    <span class="badge badge-outline">Confidence: ${Math.round((aiAnalysisResult.confidenceScores[question.id] || 0) * 100)}%</span>
+                  </div>
+                  
+                  <div class="answer-section">
+                    <div class="section-label">AI Answer</div>
+                    <div class="answer-text">${answerDisplay}</div>
+                  </div>
+                  
+                  <div class="reasoning-section">
+                    <div class="section-label">AI Reasoning</div>
+                    <div class="answer-text">${reasoning}</div>
+                  </div>
+                  
+                  ${excerpts.length > 0 ? `
+                  <div class="evidence-section">
+                    <div class="section-label">Document Evidence</div>
+                    ${excerpts.map(excerpt => `
+                      <div class="evidence-item">
+                        <p class="evidence-text">"${excerpt.excerpt}"</p>
+                        <p class="evidence-source">Source: ${excerpt.fileName}${excerpt.pageNumber ? `, Page ${excerpt.pageNumber}` : ''}${excerpt.pageOrSection ? `, Section: ${excerpt.pageOrSection}` : ''}</p>
+                      </div>
+                    `).join('')}
+                  </div>
+                  ` : ''}
+                </div>
+              `;
+              })
+              .join("")}
 
-      // Risk Factors
-      if (aiAnalysisResult.riskFactors.length > 0) {
-        checkNewPage(60 + aiAnalysisResult.riskFactors.length * 15)
-        addWrappedText("Risk Factors", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-        yPosition += 20
+            <div class="page-break"></div>
 
-        const riskFactorsHeight = aiAnalysisResult.riskFactors.length * 18 + 20
-        doc.setFillColor(RED_50[0], RED_50[1], RED_50[2])
-        doc.rect(margin, yPosition, contentWidth, riskFactorsHeight, "F")
-        doc.setDrawColor(RED_600[0], RED_600[1], RED_600[2])
-        doc.rect(margin, yPosition, contentWidth, riskFactorsHeight, "S")
+            <h2 class="section-heading">Overall AI Analysis</h2>
+            <div class="info-block">
+              <p>${aiAnalysisResult.overallAnalysis}</p>
+            </div>
 
-        let factorY = yPosition + 15
-        aiAnalysisResult.riskFactors.forEach((factor) => {
-          factorY = addWrappedText(`• ${factor}`, margin + 10, factorY, contentWidth - 20, 11, "normal", RED_600)
-          factorY += 8
-        })
-        yPosition += riskFactorsHeight + 20
-      }
+            ${aiAnalysisResult.riskFactors.length > 0 ? `
+            <h2 class="section-heading">Identified Risk Factors</h2>
+            <ul class="risk-factors-list">
+              ${aiAnalysisResult.riskFactors.map(factor => `
+                <li>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="list-icon"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                  <span>${factor}</span>
+                </li>
+              `).join('')}
+            </ul>
+            ` : ''}
 
-      // Recommendations
-      if (aiAnalysisResult.recommendations.length > 0) {
-        checkNewPage(60 + aiAnalysisResult.recommendations.length * 15)
-        addWrappedText("Recommendations", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-        yPosition += 20
+            ${aiAnalysisResult.recommendations.length > 0 ? `
+            <h2 class="section-heading">Recommendations</h2>
+            <ul class="recommendations-list">
+              ${aiAnalysisResult.recommendations.map(recommendation => `
+                <li>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="list-icon"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>${recommendation}</span>
+                </li>
+              `).join('')}
+            </ul>
+            ` : ''}
 
-        const recommendationsHeight = aiAnalysisResult.recommendations.length * 18 + 20
-        doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
-        doc.rect(margin, yPosition, contentWidth, recommendationsHeight, "F")
-        doc.setDrawColor(GREEN_600[0], GREEN_600[1], GREEN_600[2])
-        doc.rect(margin, yPosition, contentWidth, recommendationsHeight, "S")
+            <div class="disclaimer">
+              <h3>⚠️ Important Disclaimer</h3>
+              <p>This assessment was generated using AI technology and should be reviewed by qualified professionals. RiskGuard AI may make mistakes. Please use with discretion and verify results with internal expertise.</p>
+            </div>
 
-        let recY = yPosition + 15
-        aiAnalysisResult.recommendations.forEach((recommendation) => {
-          recY = addWrappedText(`• ${recommendation}`, margin + 10, recY, contentWidth - 20, 11, "normal", GREEN_600)
-          recY += 8
-        })
-        yPosition += recommendationsHeight + 20
-      }
+            <div class="page-break"></div>
 
-      // Footer
-      const totalPages = doc.getNumberOfPages()
-      for (let i = 1; i <= totalPages; i++) {
-        doc.setPage(i)
-        doc.setFillColor(GRAY_50[0], GRAY_50[1], GRAY_50[2])
-        doc.rect(0, pageHeight - 30, pageWidth, 30, "F")
-        addWrappedText(
-          "Report generated by RiskGuard AI - AI-Powered Risk Assessment Platform",
-          pageWidth / 2,
-          pageHeight - 20,
-          contentWidth,
-          8,
-          "normal",
-          GRAY_500,
-        )
-        addWrappedText(
-          `Assessment ID: ${Date.now()} • Generation Date: ${new Date().toISOString().split("T")[0]}`,
-          pageWidth / 2,
-          pageHeight - 12,
-          contentWidth,
-          8,
-          "normal",
-          GRAY_500,
-        )
-        addWrappedText(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 8, margin, 8, "normal", GRAY_500)
-      }
+            <h2 class="section-heading">Assessment Approval</h2>
+            <div class="info-block">
+              <div class="approval-details-grid">
+                <div>
+                  <p><strong>Approved By:</strong> ${approverInfo.name}</p>
+                  <p><strong>Title:</strong> ${approverInfo.title}</p>
+                  <p><strong>Role in Assessment:</strong> ${approverInfo.role}</p>
+                </div>
+                <div>
+                  <p><strong>Digital Signature:</strong></p>
+                  <div class="signature-line">${approverInfo.signature}</div>
+                  <p style="font-size: 0.8rem; color: #6b7280; margin-top: 5px;">(By typing your name, you agree to digitally sign this document)</p>
+                </div>
+              </div>
+              <div class="approval-status">STATUS: APPROVED on ${new Date().toLocaleDateString()}</div>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <span class="brand">RiskGuard AI</span> • AI-Powered Risk Assessment Platform<br>
+            Assessment ID: ${Date.now()} • Report Generated: ${new Date().toLocaleDateString()}<br>
+            &copy; ${new Date().getFullYear()} RiskGuard AI. All rights reserved.
+          </div>
+        </div>
+      </body>
+      </html>
+      `;
 
-      // Save the PDF
-      const fileName = `${currentCategory.name.replace(/\s+/g, "_")}_AI_Risk_Assessment_Report_${new Date().toISOString().split("T")[0]}.pdf`
-      doc.save(fileName)
+      // Create blob and download
+      const blob = new Blob([htmlContent], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${currentCategory.name.replace(/\s+/g, "_")}_AI_Risk_Assessment_Report_${new Date().toISOString().split("T")[0]}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      alert('Report downloaded as HTML file. Use your browser\'s "Print to PDF" feature to convert to PDF for a professional, formatted report.');
     } catch (error) {
-      console.error("Error generating PDF:", error)
-      alert("Error generating PDF report. Please try again.")
+      console.error("Error generating PDF:", error);
+      alert("Error generating PDF report. Please try again.");
     }
-  }
+  };
 
   const allQuestionsApproved = currentCategory?.questions.every((q) => approvedQuestions.has(q.id)) || false
 
@@ -3867,18 +3976,18 @@ export default function AIAssessmentPage() {
                       <CardTitle>Assessment Summary</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div>
                           <div className="text-3xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}%</div>
                           <p className="text-sm text-gray-600">Risk Score</p>
                         </div>
-                        <div className="text-center">
+                        <div>
                           <Badge className={`text-sm px-3 py-1 ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
                             {aiAnalysisResult.riskLevel} Risk
                           </Badge>
                           <p className="text-sm text-gray-600 mt-2">Risk Level</p>
                         </div>
-                        <div className="text-center">
+                        <div>
                           <div className="text-3xl font-bold text-gray-900 mb-2">
                             {currentCategory.questions.length}
                           </div>
