@@ -3,9 +3,10 @@
 import type React from "react"
 import { useAuth } from "./auth-context"
 import { Button } from "@/components/ui/button"
-import { Shield, Play, Clock } from "lucide-react" // Added Clock icon
+import { Shield, Play, Clock } from "lucide-react"
 import { useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
+import { Card, CardContent } from "@/components/ui/card" // Import Card and CardContent
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -44,11 +45,11 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     // Scenario 2: User IS authenticated (Supabase user, not demo) but NOT APPROVED (no profile/role)
     // and tries to access any page other than login/register/forgot.
     // This means they've signed up but an admin hasn't approved them yet.
+    // IMPORTANT: We remove the signOut() and router.replace() here.
+    // Instead, the render logic will handle displaying a "Pending Approval" message.
     if (user && !isDemo && !isApproved && !isPublicPath && pathname !== '/auth/login' && pathname !== '/auth/register') {
-      console.log(`AuthGuard: User ${user.email} is authenticated but not approved. Redirecting to /auth/login to show pending message.`);
-      // Sign out the user to ensure they see the pending approval message on the login page
-      signOut(); 
-      router.replace('/auth/login');
+      console.log(`AuthGuard: User ${user.email} is authenticated but not approved. Will render pending message.`);
+      // Do NOT redirect or sign out here. Let the render logic handle it.
       return;
     }
 
@@ -99,10 +100,43 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     );
   }
 
-  // After loading, if not authenticated and not a public path, and not allowed preview, show preview banner or redirect
   const isAuthenticated = !!user || isDemo;
+  const isApproved = !!profile && !!role;
   const isPublicPath = publicPaths.includes(pathname);
 
+  // New render condition for authenticated but unapproved users on protected paths
+  if (user && !isDemo && !isApproved && !isPublicPath) {
+    console.log("AuthGuard: Rendering 'Pending Approval' message for authenticated but unapproved user.");
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
+                <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
+                <p className="text-gray-600">
+                  Your account ({user.email}) is currently pending review by our administrators. You will receive an email notification once your account has been approved.
+                </p>
+                <div className="pt-4">
+                  <Button className="w-full" onClick={signOut}>
+                    Sign Out
+                  </Button>
+                  <a href="/auth/login"> {/* Use <a> tag for full page reload to login page */}
+                    <Button variant="outline" className="w-full mt-2">
+                      Go to Login Page
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated and not a public path, and not allowed preview, show preview banner or redirect
   if (!isAuthenticated && allowPreview && !isPublicPath) {
     // This is the preview mode for protected pages
     console.log("AuthGuard: Rendering preview banner for protected page.");
