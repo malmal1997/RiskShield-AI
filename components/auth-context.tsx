@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { supabaseClient } from "@/lib/supabase-client"
 import type { User } from "@supabase/supabase-js"
+import { useRouter } from "next/navigation" // Import useRouter
 
 interface DemoUser {
   id: string
@@ -55,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [isDemo, setIsDemo] = useState(false)
+  const router = useRouter() // Initialize useRouter
 
   const refreshProfile = async () => {
     // Check for demo session first
@@ -286,6 +288,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(null)
     setOrganization(null)
     setRole(null)
+
+    // Explicitly redirect to login page
+    router.push("/auth/login")
   }
 
   const hasPermission = (permission: string): boolean => {
