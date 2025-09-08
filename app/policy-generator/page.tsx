@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input" // Added Input import
 import { Label } from "@/components/ui/label" // Added Label import
+import { ScrollArea } from "@/components/ui/scroll-area" // Import ScrollArea
 import {
   Shield,
   FileText,

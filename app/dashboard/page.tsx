@@ -88,7 +88,7 @@ const sampleNotifications: Notification[] = [
     message: "TechCorp assessment shows critical security gaps",
     type: "alert",
     data: {}, // Added
-    read_at: undefined, // Changed from null
+    read_at: undefined, // Changed from null to undefined to match Notification interface
     created_at: new Date().toISOString(),
   },
   {
@@ -99,7 +99,7 @@ const sampleNotifications: Notification[] = [
     message: "DataFlow Inc. submitted assessment request",
     type: "info",
     data: {}, // Added
-    read_at: undefined, // Changed from null
+    read_at: undefined, // Changed from null to undefined to match Notification interface
     created_at: new Date(Date.now() - 3600000).toISOString(),
   },
   {
@@ -205,7 +205,8 @@ function DashboardContent() {
               </Link>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
       {/* Real-time System Status - matching card style */}
       <section className="py-12 bg-gray-50">
@@ -395,7 +396,7 @@ function DashboardContent() {
                   <CardContent>
                     <ScrollArea className="h-[300px]">
                       <div className="space-y-4">
-                        {notifications.map((notification) => (
+                        {notifications.map((notification: Notification) => (
                           <div key={notification.id} className="flex items-start space-x-3">
                             <div
                               className={`p-1 rounded-full ${
@@ -422,7 +423,7 @@ function DashboardContent() {
                                 {new Date(notification.created_at).toLocaleTimeString()}
                               </p>
                             </div>
-                            {notification.read_at === undefined && (
+                            {notification.read_at === null && (
                               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                             )}
                           </div>
@@ -450,7 +451,9 @@ function DashboardContent() {
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="count"
-                          label={({ payload }: { payload: { level: string; count: number } }) => `${payload.level}: ${payload.count}`}
+                          label={({ payload }: { payload?: { level: string; count: number } }) => 
+                            payload ? `${payload.level}: ${payload.count}` : ''
+                          }
                         >
                           {riskMetrics.riskDistribution.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -481,12 +484,12 @@ function DashboardContent() {
                       </Button>
                     </Link>
                     <Button className="w-full justify-start bg-transparent" variant="outline">
-                      <BarChart3 className="mr-2 h-4 w-4" />
-                      Generate Report
+                        <BarChart3 className="mr-2 h-4 w-4" />
+                        Generate Report
                     </Button>
                     <Button className="w-full justify-start bg-transparent" variant="outline">
-                      <Shield className="mr-2 h-4 w-4" />
-                      Configure Workflows
+                        <Shield className="mr-2 h-4 w-4" />
+                        Configure Workflows
                     </Button>
                   </CardContent>
                 </Card>
@@ -570,158 +573,159 @@ function DashboardContent() {
                 <CardHeader>
                   <CardTitle>Compliance Dashboard</CardTitle>
                   <CardDescription>Real-time compliance monitoring and reporting</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Compliance Tracking</h3>
-                    <p className="text-gray-600">Advanced compliance monitoring features</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Compliance Tracking</h3>
+                      <p className="text-gray-600">Advanced compliance monitoring features</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-            <TabsContent value="alerts">
-              <Card className="border border-gray-200">
-                <CardHeader>
-                  <CardTitle>Live Alerts & Notifications</CardTitle>
-                  <CardDescription>Real-time security alerts and system notifications</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`p-4 rounded-lg border-l-4 ${
-                          notification.type === "alert"
-                            ? "border-l-red-500 bg-red-50"
-                            : notification.type === "warning"
-                              ? "border-l-yellow-500 bg-yellow-50"
-                              : "border-l-blue-500 bg-blue-50"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium text-gray-900">{notification.title}</h4>
-                          <Badge
-                            variant={notification.type === "alert" ? "destructive" : "secondary"}
-                            className="text-xs"
-                          >
-                            {notification.type}
-                          </Badge>
+              <TabsContent value="alerts">
+                <Card className="border border-gray-200">
+                  <CardHeader>
+                    <CardTitle>Live Alerts & Notifications</CardTitle>
+                    <CardDescription>Real-time security alerts and system notifications</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {notifications.map((notification: Notification) => (
+                        <div
+                          key={notification.id}
+                          className={`p-4 rounded-lg border-l-4 ${
+                            notification.type === "alert"
+                              ? "border-l-red-500 bg-red-50"
+                              : notification.type === "warning"
+                                ? "border-l-yellow-500 bg-yellow-50"
+                                : "border-l-blue-500 bg-blue-50"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium text-gray-900">{notification.title}</h4>
+                            <Badge
+                              variant={notification.type === "alert" ? "destructive" : "secondary"}
+                              className="text-xs"
+                            >
+                              {notification.type}
+                            </Badge>
+                          </div>
+                          <p className="text-sm mt-1 text-gray-600">{notification.message}</p>
+                          <p className="text-xs mt-2 text-gray-500">
+                            {new Date(notification.created_at).toLocaleString()}
+                          </p>
                         </div>
-                        <p className="text-sm mt-1 text-gray-600">{notification.message}</p>
-                        <p className="text-xs mt-2 text-gray-500">
-                          {new Date(notification.created_at).toLocaleString()}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </section>
 
-      {/* Footer - matching other pages */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Shield className="h-6 w-6 text-blue-400" />
-                <span className="text-lg font-bold">RiskShield AI</span>
+        {/* Footer - matching other pages */}
+        <footer className="bg-gray-900 text-white py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div>
+                <div className="flex items-center space-x-2 mb-4">
+                  <Shield className="h-6 w-6 text-blue-400" />
+                  <span className="text-lg font-bold">RiskShield AI</span>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
+                  risks.
+                </p>
               </div>
-              <p className="text-gray-400 text-sm">
-                AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
-                risks.
-              </p>
+
+              <div>
+                <h3 className="font-semibold mb-4">Platform</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Risk Assessment
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Compliance Monitoring
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Policy Generator
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Integrations
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Support</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Help Center
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Contact Support
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Status Page
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Company</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      About Us
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Careers
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Terms of Service
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
 
-            <div>
-              <h3 className="font-semibold mb-4">Platform</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Risk Assessment
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Compliance Monitoring
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Policy Generator
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Integrations
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Help Center
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Contact Support
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Status Page
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Terms of Service
-                  </a>
-                </li>
-              </ul>
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
+              <p>&copy; 2024 RiskShield AI. All rights reserved.</p>
             </div>
           </div>
-
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 RiskShield AI. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   )
 }

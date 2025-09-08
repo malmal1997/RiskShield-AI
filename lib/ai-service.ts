@@ -455,7 +455,7 @@ async function performDirectAIAnalysis(
     const testResult = await generateText({
       model: google("gemini-1.5-flash"),
       prompt: "Reply with 'OK' if you can read this.",
-      max_tokens: 10, // Changed from maxTokens
+      maxTokens: 10, // Changed from max_tokens
       temperature: 0.1,
     })
 
@@ -619,7 +619,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             },
           ],
           temperature: 0.1,
-          max_tokens: 4000, // Changed from maxTokens
+          maxTokens: 4000, // Changed from max_tokens
         })
         console.log(`✅ Successfully processed ${validPdfAttachments.length} PDF file(s) with Google AI`)
       } else {
@@ -629,7 +629,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           model: google("gemini-1.5-flash"),
           prompt: basePrompt,
           temperature: 0.1,
-          max_tokens: 4000, // Changed from maxTokens
+          maxTokens: 4000, // Changed from max_tokens
         })
       }
     } else {
@@ -638,7 +638,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         model: google("gemini-1.5-flash"),
         prompt: basePrompt,
         temperature: 0.1,
-        max_tokens: 4000, // Changed from maxTokens
+        maxTokens: 4000, // Changed from max_tokens
       })
     }
 
@@ -771,9 +771,9 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
               answers[question.id] = "not_tested"
             }
 
-            confidenceScores[question.id] = 0.9 // High confidence in conservative answer
-            reasoning[question.id] = `No directly relevant evidence found. ${relevanceCheck.reason}`
-            documentExcerpts[question.id] = []
+            confidenceScores[questionId] = 0.9 // High confidence in conservative answer
+            reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
+            documentExcerpts[questionId] = []
           }
         } else {
           // No evidence provided - use conservative answer
@@ -787,9 +787,9 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             answers[question.id] = "not_tested"
           }
 
-          confidenceScores[question.id] = 0.9
-          reasoning[question.id] = "No directly relevant evidence found in documents"
-          documentExcerpts[question.id] = []
+          confidenceScores[questionId] = 0.9
+          reasoning[questionId] = "No directly relevant evidence found in documents"
+          documentExcerpts[questionId] = []
         }
       })
     } catch (parseError) {
@@ -945,7 +945,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
       const result = await generateText({
         model: google("gemini-1.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
-        max_tokens: 10,
+        maxTokens: 10, // Changed from max_tokens
         temperature: 0.1,
       })
       results.google = result.text.toLowerCase().includes("ok")

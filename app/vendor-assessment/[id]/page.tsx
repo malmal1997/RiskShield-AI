@@ -19,6 +19,19 @@ console.log("🔍 Environment check:", {
   timestamp: new Date().toISOString(),
 })
 
+// Define a more specific interface for the assessment data used in the UI
+interface UIAssessment {
+  id: string;
+  companyName: string;
+  assessmentType: string;
+  dueDate: string;
+  customMessage: string;
+  contactEmail: string;
+  isAiPowered: boolean;
+  status?: string; // Add status to UIAssessment
+  completedDate?: string; // Add completedDate
+}
+
 // Assessment questions by type
 const getAssessmentQuestions = (type: string) => {
   const questionSets = {
@@ -438,7 +451,7 @@ function VendorAssessmentComponent() {
   const assessmentId = params.id as string
   const token = searchParams.get("token")
 
-  const [assessment, setAssessment] = useState<any>(null)
+  const [assessment, setAssessment] = useState<UIAssessment | null>(null)
   const [questions, setQuestions] = useState<any[]>([])
   const [currentStep, setCurrentStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, any>>({})
@@ -506,8 +519,8 @@ function VendorAssessmentComponent() {
               delegationType = delegation.delegationType || "team"
               method = delegation.method || "manual"
               console.log("📋 Delegation info found:", delegation)
-            } catch (error) {
-              console.error("Error parsing delegation info:", error)
+            } catch (error: any) { // Explicitly type error
+              console.error("Error parsing delegation info:", error.message)
             }
           }
 
@@ -523,8 +536,8 @@ function VendorAssessmentComponent() {
               method = delegation.method || "manual"
               console.log("📋 Delegated assessment found:", delegation)
             }
-          } catch (error) {
-            console.error("Error loading delegation data:", error)
+          } catch (error: any) { // Explicitly type error
+            console.error("Error loading delegation data:", error.message)
           }
 
           console.log("🤖 Final AI-powered status:", isAiPowered)
@@ -586,12 +599,14 @@ function VendorAssessmentComponent() {
               : "Please complete this assessment to help us evaluate our partnership."),
           contactEmail: "security@riskguard.ai",
           isAiPowered: isAiPowered,
+          status: assessmentData.status,
+          completedDate: assessmentData.completed_date,
         })
 
         setIsAiPoweredAssessment(isAiPowered)
         setQuestions(getAssessmentQuestions(assessmentData.assessment_type))
-      } catch (err) {
-        console.error("Error loading assessment:", err)
+      } catch (err: any) { // Explicitly type error
+        console.error("Error loading assessment:", err.message)
         setError("Failed to load assessment")
       } finally {
         setIsLoading(false)
@@ -651,7 +666,7 @@ function VendorAssessmentComponent() {
     }
 
     const stepQuestions = questions.slice(step * 2 - 2, step * 2)
-    return stepQuestions.every((q) => {
+    return stepQuestions.every((q: any) => { // Explicitly type q
       if (!q.required) return true
       const answer = answers[q.id]
       if (q.type === "checkbox") {
@@ -720,8 +735,8 @@ function VendorAssessmentComponent() {
 
           localStorage.setItem("delegatedAssessments", JSON.stringify(updatedDelegated))
           console.log("✅ Updated delegated assessments saved")
-        } catch (localStorageError) {
-          console.error("❌ Error updating localStorage:", localStorageError)
+        } catch (localStorageError: any) { // Explicitly type error
+          console.error("❌ Error updating localStorage:", localStorageError.message)
           // Don't fail the submission for localStorage errors
         }
 
@@ -755,15 +770,15 @@ function VendorAssessmentComponent() {
         } else {
           console.log("⚠️ Failed to send completion notification, but assessment was still submitted")
         }
-      } catch (notificationError) {
-        console.error("⚠️ Error sending completion notification:", notificationError)
+      } catch (notificationError: any) { // Explicitly type error
+        console.error("⚠️ Error sending completion notification:", notificationError.message)
         // Don't fail the submission for notification errors
       }
 
       console.log("🎉 Assessment submission completed successfully!")
       setIsSubmitted(true)
       alert("Assessment submitted successfully! The requesting company will be notified.")
-    } catch (error) {
+    } catch (error: any) { // Explicitly type error
       console.error("💥 Error submitting assessment:", error)
       console.error("Error details:", {
         message: error.message,
@@ -1001,7 +1016,7 @@ function VendorAssessmentComponent() {
                           type="file"
                           multiple
                           accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.ppt,.pptx"
-                          onChange={(e) => {
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => { // Explicitly type event
                             if (e.target.files) {
                               setUploadedFiles(Array.from(e.target.files))
                             }
@@ -1023,7 +1038,7 @@ function VendorAssessmentComponent() {
                       {uploadedFiles.length > 0 && (
                         <div className="mt-4 space-y-2">
                           <h5 className="font-medium text-blue-900">Uploaded Files ({uploadedFiles.length}):</h5>
-                          {uploadedFiles.map((file, index) => (
+                          {uploadedFiles.map((file: File, index: number) => ( // Explicitly type file and index
                             <div
                               key={index}
                               className="flex items-center justify-between p-3 bg-white border border-blue-200 rounded"
@@ -1058,7 +1073,7 @@ function VendorAssessmentComponent() {
                             documentsAnalyzed: uploadedFiles.length,
                             confidence: Math.floor(Math.random() * 15) + 80, // 80-95% confidence
                             suggestedAnswers: questions.reduce(
-                              (acc, q) => {
+                              (acc: Record<string, any>, q: any) => { // Explicitly type acc and q
                                 if (q.type === "radio") {
                                   acc[q.id] = q.options?.[0] || "Yes, comprehensive policy"
                                 } else if (q.type === "checkbox") {
@@ -1287,7 +1302,7 @@ function VendorAssessmentComponent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-8">
-              {currentQuestions.map((question, index) => (
+              {currentQuestions.map((question: any, index: number) => ( // Explicitly type question and index
                 <div key={question.id} className="space-y-4">
                   <div>
                     <div className="flex items-start space-x-2 mb-2">
@@ -1316,7 +1331,7 @@ function VendorAssessmentComponent() {
                             ? "Yes"
                             : "No"
                           : Array.isArray(analysisResults.suggestedAnswers[question.id])
-                            ? analysisResults.suggestedAnswers[question.id].join(", ")
+                            ? (analysisResults.suggestedAnswers[question.id] as string[]).join(", ")
                             : analysisResults.suggestedAnswers[question.id]}
                       </p>
                     </div>
@@ -1330,7 +1345,7 @@ function VendorAssessmentComponent() {
                       }
                       onValueChange={(value) => handleAnswerChange(question.id, value)}
                     >
-                      {question.options?.map((option) => (
+                      {question.options?.map((option: string) => ( // Explicitly type option
                         <div key={option} className="flex items-center space-x-2">
                           <RadioGroupItem value={option} id={`${question.id}-${option}`} />
                           <Label htmlFor={`${question.id}-${option}`}>{option}</Label>
@@ -1341,7 +1356,7 @@ function VendorAssessmentComponent() {
 
                   {question.type === "checkbox" && (
                     <div className="space-y-2">
-                      {question.options?.map((option) => (
+                      {question.options?.map((option: string) => ( // Explicitly type option
                         <div key={option} className="flex items-center space-x-2">
                           <Checkbox
                             id={`${question.id}-${option}`}
@@ -1349,7 +1364,7 @@ function VendorAssessmentComponent() {
                               answers[question.id] ||
                               (analysisResults ? analysisResults.suggestedAnswers[question.id] : [])
                             ).includes(option)}
-                            onCheckedChange={(checked) => {
+                            onCheckedChange={(checked: boolean) => { // Explicitly type checked
                               const currentAnswers =
                                 answers[question.id] ||
                                 (analysisResults ? analysisResults.suggestedAnswers[question.id] : [])
@@ -1448,7 +1463,7 @@ function VendorAssessmentComponent() {
 export default function VendorAssessment() {
   try {
     return <VendorAssessmentComponent />
-  } catch (error) {
+  } catch (error: any) { // Explicitly type error
     console.error("Component error:", error)
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">

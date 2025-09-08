@@ -15,6 +15,46 @@ import type { Assessment } from "@/lib/supabase"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 
+// Define a UI-specific interface for assessments to handle transformed data
+interface UIAssessment extends Omit<Assessment, 'vendor_name' | 'vendor_email' | 'contact_person' | 'assessment_type' | 'sent_date' | 'completed_date' | 'due_date' | 'risk_score' | 'risk_level' | 'custom_message'> {
+  vendorName: string;
+  vendorEmail: string;
+  contactPerson?: string;
+  assessmentType: string;
+  sentDate: string;
+  completedDate?: string;
+  dueDate?: string;
+  riskScore?: number;
+  riskLevel?: string;
+  customMessage?: string;
+  responses?: {
+    id: number;
+    vendor_info: {
+      companyName: string;
+      contactName: string;
+      email: string;
+      phone?: string;
+      website?: string;
+      employeeCount?: string;
+      industry?: string;
+      description?: string;
+    };
+    answers: Record<string, any>;
+    submitted_at: string;
+  } | null;
+  completedVendorInfo?: {
+    companyName: string;
+    contactName: string;
+    email: string;
+    phone?: string;
+    website?: string;
+    employeeCount?: string;
+    industry?: string;
+    description?: string;
+  } | null;
+  assessmentAnswers?: Record<string, any> | null;
+}
+
 export default function ThirdPartyAssessment() {
   const { user, isDemo } = useAuth()
   const [isPreviewMode, setIsPreviewMode] = useState(false)
@@ -34,7 +74,7 @@ export default function ThirdPartyAssessment() {
     "Business Continuity Assessment",
   ]
 
-  const [assessments, setAssessments] = useState<Assessment[]>([])
+  const [assessments, setAssessments] = useState<UIAssessment[]>([])
   const [showInviteForm, setShowInviteForm] = useState(false)
   const [inviteForm, setInviteForm] = useState({
     vendorName: "",
@@ -47,7 +87,7 @@ export default function ThirdPartyAssessment() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [copiedLink, setCopiedLink] = useState<string | null>(null)
-  const [selectedAssessment, setSelectedAssessment] = useState<any>(null)
+  const [selectedAssessment, setSelectedAssessment] = useState<UIAssessment | null>(null)
   const [showAssessmentDetails, setShowAssessmentDetails] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -60,12 +100,12 @@ export default function ThirdPartyAssessment() {
       setDebugInfo("Loading assessments...")
       console.log("🔄 Loading assessments...")
 
-      const data = await getAssessments()
+      const data: Assessment[] = await getAssessments()
       console.log("📋 Raw assessment data:", data)
 
       // Transform data to match our component expectations
-      const transformedData = data.map((assessment: any) => ({
-        id: assessment.id,
+      const transformedData: UIAssessment[] = data.map((assessment: Assessment) => ({
+        ...assessment, // Copy all original properties
         vendorName: assessment.vendor_name,
         vendorEmail: assessment.vendor_email,
         contactPerson: assessment.contact_person,
@@ -76,19 +116,17 @@ export default function ThirdPartyAssessment() {
         dueDate: assessment.due_date,
         riskScore: assessment.risk_score,
         riskLevel: assessment.risk_level || "pending",
-        companySize: assessment.company_size,
         customMessage: assessment.custom_message,
-        responses: assessment.assessment_responses?.[0] || null,
-        // Add vendor info from responses if available
-        completedVendorInfo: assessment.assessment_responses?.[0]?.vendor_info || null,
-        assessmentAnswers: assessment.assessment_responses?.[0]?.answers || null,
-      }))
+        responses: (assessment as any).assessment_responses?.[0] || null, // Access nested responses
+        completedVendorInfo: (assessment as any).assessment_responses?.[0]?.vendor_info || null,
+        assessmentAnswers: (assessment as any).assessment_responses?.[0]?.answers || null,
+      }));
 
       console.log("✅ Transformed assessment data:", transformedData)
       setAssessments(transformedData)
       setDebugInfo(`Successfully loaded ${transformedData.length} assessments`)
       console.log(`✅ Successfully loaded ${transformedData.length} assessments`)
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Error loading assessments:", error)
       const errorMessage = error instanceof Error ? error.message : "Unknown error"
       setDebugInfo(`Load error: ${errorMessage}`)
@@ -109,16 +147,16 @@ export default function ThirdPartyAssessment() {
       setAssessments([
         {
           id: "demo-assessment-1",
-          vendor_name: "MockCorp Solutions",
-          vendor_email: "mock@mockcorp.com",
-          contact_person: "Jane Doe",
-          assessment_type: "Cybersecurity Assessment",
+          vendorName: "MockCorp Solutions",
+          vendorEmail: "mock@mockcorp.com",
+          contactPerson: "Jane Doe",
+          assessmentType: "Cybersecurity Assessment",
           status: "pending",
-          sent_date: "2024-01-15T10:00:00Z",
-          due_date: "2024-02-15T23:59:59Z",
-          risk_score: null,
-          risk_level: "pending",
-          custom_message: "This is a mock assessment for demo purposes.",
+          sentDate: "2024-01-15T10:00:00Z",
+          dueDate: "2024-02-15T23:59:59Z",
+          riskScore: undefined,
+          riskLevel: "pending",
+          customMessage: "This is a mock assessment for demo purposes.",
           created_at: "2024-01-15T10:00:00Z",
           updated_at: "2024-01-15T10:00:00Z",
           responses: null,
@@ -127,17 +165,17 @@ export default function ThirdPartyAssessment() {
         },
         {
           id: "demo-assessment-2",
-          vendor_name: "Preview Analytics",
-          vendor_email: "preview@analytics.com",
-          contact_person: "John Smith",
-          assessment_type: "Data Privacy Assessment",
+          vendorName: "Preview Analytics",
+          vendorEmail: "preview@analytics.com",
+          contactPerson: "John Smith",
+          assessmentType: "Data Privacy Assessment",
           status: "completed",
-          sent_date: "2024-01-10T09:00:00Z",
-          completed_date: "2024-01-20T14:30:00Z",
-          due_date: "2024-02-10T23:59:59Z",
-          risk_score: 85,
-          risk_level: "low",
-          custom_message: "This assessment has been completed in demo mode.",
+          sentDate: "2024-01-10T09:00:00Z",
+          completedDate: "2024-01-20T14:30:00Z",
+          dueDate: "2024-02-10T23:59:59Z",
+          riskScore: 85,
+          riskLevel: "low",
+          customMessage: "This assessment has been completed in demo mode.",
           created_at: "2024-01-10T09:00:00Z",
           updated_at: "2024-01-20T14:30:00Z",
           responses: {
@@ -220,7 +258,7 @@ export default function ThirdPartyAssessment() {
         }
         console.log("📧 Email result:", emailResult)
         setDebugInfo(`Email result: ${emailResult.success ? "Success" : emailResult.message}`)
-      } catch (error) {
+      } catch (error: any) {
         console.error("📧 Email sending failed:", error)
         emailError = error instanceof Error ? error.message : "Unknown email error"
         setDebugInfo(`Email error: ${emailError}`)
@@ -278,7 +316,7 @@ ${assessmentLink}
             `The assessment is ready to be completed.`,
         )
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("💥 Error in assessment creation process:", error)
 
       // If assessment was created but there was another error, still show partial success
@@ -339,7 +377,7 @@ ${assessmentLink}
       await deleteAssessment(assessmentId)
       await loadAssessments() // Refresh the list
       alert("Assessment deleted successfully")
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting assessment:", error)
       alert("Failed to delete assessment. Please try again.")
     }
@@ -360,7 +398,7 @@ ${assessmentLink}
     }
   }
 
-  const getRiskLevelColor = (level: string) => {
+  const getRiskLevelColor = (level?: string) => { // Make level optional
     const normalizedLevel = level?.toLowerCase() || "pending"
     switch (normalizedLevel) {
       case "low":
@@ -376,7 +414,7 @@ ${assessmentLink}
     }
   }
 
-  const filteredAssessments = assessments.filter((assessment) => {
+  const filteredAssessments = assessments.filter((assessment: UIAssessment) => { // Explicitly type assessment
     const matchesSearch =
       assessment.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       assessment.vendorEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -389,10 +427,10 @@ ${assessmentLink}
 
   const getAssessmentStats = () => {
     const total = assessments.length
-    const completed = assessments.filter((a) => a.status === "completed").length
-    const pending = assessments.filter((a) => a.status === "pending").length
-    const inProgress = assessments.filter((a) => a.status === "in_progress").length
-    const overdue = assessments.filter((a) => a.status === "overdue").length
+    const completed = assessments.filter((a: UIAssessment) => a.status === "completed").length // Explicitly type a
+    const pending = assessments.filter((a: UIAssessment) => a.status === "pending").length // Explicitly type a
+    const inProgress = assessments.filter((a: UIAssessment) => a.status === "in_progress").length // Explicitly type a
+    const overdue = assessments.filter((a: UIAssessment) => a.status === "overdue").length // Explicitly type a
 
     return { total, completed, pending, inProgress, overdue }
   }
@@ -400,7 +438,7 @@ ${assessmentLink}
   const stats = getAssessmentStats()
 
   const viewAssessmentDetails = (assessmentId: string) => {
-    const assessment = assessments.find((a) => a.id === assessmentId)
+    const assessment = assessments.find((a: UIAssessment) => a.id === assessmentId) // Explicitly type a
     if (assessment) {
       setSelectedAssessment(assessment)
       setShowAssessmentDetails(true)
@@ -549,7 +587,7 @@ ${assessmentLink}
 
             {/* Assessments List */}
             <div className="space-y-4">
-              {filteredAssessments.map((assessment) => (
+              {filteredAssessments.map((assessment: UIAssessment) => ( // Explicitly type assessment
                 <Card key={assessment.id} className="border border-gray-200 hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -701,7 +739,7 @@ ${assessmentLink}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Select assessment type</option>
-                      {assessmentTypes.map((type) => (
+                      {assessmentTypes.map((type: string) => ( // Explicitly type type
                         <option key={type} value={type}>
                           {type}
                         </option>
@@ -861,7 +899,7 @@ ${assessmentLink}
                     <CardContent className="p-6">
                       <h3 className="text-lg font-semibold mb-4">Assessment Responses</h3>
                       <div className="space-y-4">
-                        {Object.entries(selectedAssessment.assessmentAnswers).map(([questionId, answer]) => (
+                        {Object.entries(selectedAssessment.assessmentAnswers).map(([questionId, answer]: [string, any]) => ( // Explicitly type questionId and answer
                           <div key={questionId} className="border-b border-gray-200 pb-3">
                             <p className="text-sm font-medium text-gray-700 mb-1">
                               {questionId.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
