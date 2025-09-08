@@ -3,7 +3,7 @@
 import type React from "react"
 import { useAuth } from "./auth-context"
 import { Button } from "@/components/ui/button"
-import { Shield, Play } from "lucide-react"
+import { Shield, Play, Clock } from "lucide-react" // Added Clock icon
 import { useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 
@@ -14,7 +14,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, allowPreview = false, previewMessage }: AuthGuardProps) {
-  const { user, loading, isDemo } = useAuth()
+  const { user, loading, isDemo, profile, role, signOut } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -22,7 +22,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status', '/demo-features'];
 
   useEffect(() => {
-    console.log(`AuthGuard useEffect: loading=${loading}, user=${user?.email}, isDemo=${isDemo}, pathname=${pathname}`);
+    console.log(`AuthGuard useEffect: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}, pathname=${pathname}`);
 
     // If still loading auth state, do nothing yet.
     if (loading) {
@@ -31,25 +31,37 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     }
 
     const isAuthenticated = !!user || isDemo;
+    const isApproved = !!profile && !!role; // User is approved if they have a profile and role
     const isPublicPath = publicPaths.includes(pathname);
 
-    // Scenario 1: User is NOT authenticated and tries to access a PROTECTED page
+    // Scenario 1: User is NOT authenticated (or demo) and tries to access a PROTECTED page
     if (!isAuthenticated && !isPublicPath && !allowPreview) {
       console.log(`AuthGuard: Redirecting unauthenticated user from ${pathname} to /auth/login`);
       router.replace('/auth/login');
-      return; // Prevent further execution
+      return;
     } 
     
-    // Scenario 2: User IS authenticated and tries to access an AUTH PAGE (login/register/forgot)
-    if (isAuthenticated && (pathname === '/auth/login' || pathname === '/auth/register' || pathname === '/auth/forgot-password')) {
-      console.log(`AuthGuard: Redirecting authenticated user from ${pathname} to /dashboard`);
-      router.replace('/dashboard');
-      return; // Prevent further execution
+    // Scenario 2: User IS authenticated (Supabase user, not demo) but NOT APPROVED (no profile/role)
+    // and tries to access any page other than login/register/forgot.
+    // This means they've signed up but an admin hasn't approved them yet.
+    if (user && !isDemo && !isApproved && !isPublicPath && pathname !== '/auth/login' && pathname !== '/auth/register') {
+      console.log(`AuthGuard: User ${user.email} is authenticated but not approved. Redirecting to /auth/login to show pending message.`);
+      // Sign out the user to ensure they see the pending approval message on the login page
+      signOut(); 
+      router.replace('/auth/login');
+      return;
     }
 
-    console.log(`AuthGuard: No redirect needed. isAuthenticated=${isAuthenticated}, isPublicPath=${isPublicPath}, allowPreview=${allowPreview}`);
+    // Scenario 3: User IS fully authenticated and APPROVED (has profile/role) and tries to access an AUTH PAGE (login/register/forgot)
+    if (isAuthenticated && isApproved && (pathname === '/auth/login' || pathname === '/auth/register' || pathname === '/auth/forgot-password')) {
+      console.log(`AuthGuard: Redirecting fully authenticated and approved user from ${pathname} to /dashboard`);
+      router.replace('/dashboard');
+      return;
+    }
 
-  }, [loading, user, isDemo, allowPreview, pathname, router, publicPaths]);
+    console.log(`AuthGuard: No redirect needed. isAuthenticated=${isAuthenticated}, isApproved=${isApproved}, isPublicPath=${isPublicPath}, allowPreview=${allowPreview}`);
+
+  }, [loading, user, isDemo, profile, role, allowPreview, pathname, router, signOut, publicPaths]);
 
   const handleDemoLogin = () => {
     console.log("AuthGuard: handleDemoLogin called.");

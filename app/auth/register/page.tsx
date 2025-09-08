@@ -9,16 +9,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Shield, Eye, EyeOff, CheckCircle } from "lucide-react"
+import { Shield, Eye, EyeOff, CheckCircle, Clock } from "lucide-react" // Added Clock icon
 import Link from "next/link"
 import { useAuth } from "@/components/auth-context"
-import { createOrganization } from "@/lib/auth-service" // Import createOrganization
+import { registerNewInstitution } from "@/lib/auth-service" // Import registerNewInstitution
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     institutionName: "",
-    contactFirstName: "", // Changed to contactFirstName
-    contactLastName: "",  // Added contactLastName
+    contactFirstName: "",
+    contactLastName: "",
     email: "",
     phone: "",
     institutionType: "",
@@ -30,7 +30,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
-  const { refreshProfile } = useAuth(); // Only need refreshProfile from useAuth
+  const { refreshProfile } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,20 +51,22 @@ export default function RegisterPage() {
     }
 
     try {
-      // Use createOrganization directly
-      const { error: orgCreationError } = await createOrganization({
-        organizationName: formData.institutionName,
-        userFirstName: formData.contactFirstName,
-        userLastName: formData.contactLastName,
-        userEmail: formData.email,
-        userPassword: formData.password,
+      const { error: registrationError } = await registerNewInstitution({
+        institutionName: formData.institutionName,
+        institutionType: formData.institutionType,
+        contactFirstName: formData.contactFirstName,
+        contactLastName: formData.contactLastName,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
       });
 
-      if (orgCreationError) {
-        setError(orgCreationError.message);
+      if (registrationError) {
+        setError(registrationError.message);
       } else {
         setSuccess(true);
-        await refreshProfile(); // Refresh profile after successful organization creation
+        // No need to refreshProfile immediately, as the user is not yet approved.
+        // The AuthContext listener will handle the initial user state (unapproved).
       }
     } catch (err: any) {
       setError("An unexpected error occurred: " + (err.message || "Unknown error"));
@@ -84,14 +86,14 @@ export default function RegisterPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
-                <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-                <h2 className="text-2xl font-bold text-gray-900">Registration Submitted!</h2>
+                <Clock className="h-16 w-16 text-yellow-500 mx-auto" /> {/* Changed to Clock icon */}
+                <h2 className="text-2xl font-bold text-gray-900">Registration Submitted for Approval</h2>
                 <p className="text-gray-600">
-                  Thank you for registering your institution with RiskGuard AI. Your account has been created, and a default organization has been set up for you. You can now sign in to access your dashboard.
+                  Thank you for registering your institution with RiskGuard AI. Your registration is now pending review by our administrators. You will receive an email notification once your account has been approved.
                 </p>
                 <div className="pt-4">
                   <Link href="/auth/login">
-                    <Button className="w-full">Go to Sign In</Button>
+                    <Button className="w-full">Back to Sign In</Button>
                   </Link>
                 </div>
               </div>

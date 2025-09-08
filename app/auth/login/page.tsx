@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Shield, Eye, EyeOff, User } from "lucide-react"
+import { Shield, Eye, EyeOff, User, Clock } from "lucide-react" // Added Clock icon
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth-context"
@@ -19,30 +19,80 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [showPendingApproval, setShowPendingApproval] = useState(false); // New state for pending approval
   const router = useRouter()
-  const { signIn } = useAuth() // Removed refreshProfile as it's handled by AuthContext's listener
+  const { signIn, user, profile, role, loading } = useAuth() // Get user, profile, role, loading from useAuth
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
+    setShowPendingApproval(false);
 
     try {
-      const { error } = await signIn(email, password)
+      const { error: signInError } = await signIn(email, password)
 
-      if (error) {
-        setError(error.message)
-        setIsLoading(false) // Ensure loading is set to false on error
-      } else {
-        // On successful sign-in, AuthContext's onAuthStateChange listener will
-        // update the user state and AuthGuard will handle the redirect to /dashboard.
-        // No explicit refreshProfile or router.push needed here.
-        // The isLoading state will be managed by AuthContext's listener as well.
+      if (signInError) {
+        setError(signInError.message)
+        setIsLoading(false)
+        return
       }
+
+      // If signIn is successful, AuthContext's onAuthStateChange listener will fire.
+      // We need to wait for the profile and role to be loaded by AuthContext.
+      // The redirect logic is now primarily handled by AuthGuard.
+      // If the user is signed in but has no profile/role, it means their registration is pending.
+      // This check will be done in the useEffect below.
+
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
-      setIsLoading(false) // Ensure loading is set to false on unexpected error
+      setIsLoading(false)
     }
+  }
+
+  // Effect to check user status after AuthContext has loaded
+  useEffect(() => {
+    if (!loading && user && !profile && !role) {
+      // User is authenticated in Supabase, but no profile/role means pending approval
+      setShowPendingApproval(true);
+      setError("Your account is pending approval. Please wait for an administrator to approve your registration.");
+      // Optionally, sign out the user if they are not approved to prevent them from staying logged in
+      // signOut(); 
+    } else if (!loading && user && profile && role) {
+      // User is fully authenticated and approved, redirect to dashboard
+      router.replace('/dashboard');
+    }
+  }, [loading, user, profile, role, router]);
+
+
+  if (showPendingApproval) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
+                <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
+                <p className="text-gray-600">
+                  Your registration for <strong>{email}</strong> is currently pending review by our administrators. You will receive an email notification once your account has been approved.
+                </p>
+                <div className="pt-4">
+                  <Button className="w-full" onClick={() => {
+                    setShowPendingApproval(false);
+                    setError("");
+                    setEmail("");
+                    setPassword("");
+                  }}>
+                    Try Again
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -121,7 +171,7 @@ export default function LoginPage() {
               <div className="text-sm text-gray-600">
                 {"Don't have an account? "}
                 <Link href="/auth/register" className="text-blue-600 hover:underline">
-                  Contact your administrator
+                  Register your institution
                 </Link>
               </div>
             </div>

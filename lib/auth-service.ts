@@ -40,6 +40,25 @@ export interface UserRole {
   created_at: string
 }
 
+export interface PendingRegistration {
+  id: string;
+  institution_name: string;
+  institution_type: string;
+  contact_name: string;
+  email: string;
+  phone?: string;
+  password_hash: string; // Note: This will be a placeholder as raw passwords are not accessible
+  status: 'pending' | 'approved' | 'rejected';
+  notes?: string;
+  approved_by?: string;
+  approved_at?: string;
+  rejected_by?: string;
+  rejection_reason?: string;
+  rejected_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 // Get current user with profile and organization
 export async function getCurrentUserWithProfile(): Promise<{
   user: User | null
@@ -95,74 +114,129 @@ export async function getCurrentUserWithProfile(): Promise<{
   }
 }
 
-// Create organization and user profile
-export async function createOrganization(data: {
-  organizationName: string
-  userFirstName: string
-  userLastName: string
-  userEmail: string
-  userPassword: string
-}): Promise<{ data: { organization: Organization, user: User } | null, error: any | null }> {
+// Register a new user and create a pending registration entry
+export async function registerNewInstitution(data: {
+  institutionName: string
+  institutionType: string
+  contactFirstName: string
+  contactLastName: string
+  email: string
+  phone: string
+  password: string
+}): Promise<{ data: { user: User } | null, error: any | null }> {
   try {
-    // Sign up user
+    // First, sign up the user in Supabase Auth
     const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-      email: data.userEmail,
-      password: data.userPassword,
-    })
+      email: data.email,
+      password: data.password,
+      options: {
+        data: {
+          first_name: data.contactFirstName,
+          last_name: data.contactLastName,
+          organization_name: data.institutionName,
+          institution_type: data.institutionType,
+          phone: data.phone,
+        },
+      },
+    });
 
     if (authError || !authData.user) {
-      return { data: null, error: authError || new Error("Failed to create user") }
+      return { data: null, error: authError || new Error("Failed to create user") };
     }
 
-    // Create organization
-    const orgSlug = data.organizationName.toLowerCase().replace(/[^a-z0-9]/g, "-")
+    // The handle_new_user trigger will automatically create a pending_registration entry.
+    // We don't create profile/organization/role here directly.
+    // The user will be in auth.users but won't have a profile/role until approved.
+
+    return { data: { user: authData.user }, error: null };
+  } catch (error) {
+    console.error("Error registering new institution:", error);
+    return { data: null, error: error };
+  }
+}
+
+// Function to approve a pending registration (Admin action)
+export async function approveRegistration(registrationId: string, adminUserId: string): Promise<{ success: boolean, error: any | null }> {
+  try {
+    // 1. Fetch the pending registration details
+    const { data: pendingReg, error: fetchError } = await supabaseClient
+      .from('pending_registrations')
+      .select('*')
+      .eq('id', registrationId)
+      .single();
+
+    if (fetchError || !pendingReg) {
+      throw new Error(fetchError?.message || 'Pending registration not found.');
+    }
+
+    if (pendingReg.status === 'approved') {
+      return { success: true, error: null }; // Already approved
+    }
+
+    // 2. Create the organization
+    const orgSlug = pendingReg.institution_name.toLowerCase().replace(/[^a-z0-9]/g, "-");
     const { data: organization, error: orgError } = await supabaseClient
       .from("organizations")
       .insert({
-        name: data.organizationName,
+        name: pendingReg.institution_name,
         slug: orgSlug,
         subscription_plan: "trial",
         trial_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
       })
       .select()
-      .single()
+      .single();
 
     if (orgError) {
-      return { data: null, error: orgError }
+      throw new Error(orgError.message);
     }
 
-    // Create user profile
+    // 3. Create the user profile
     const { error: profileError } = await supabaseClient.from("user_profiles").insert({
-      user_id: authData.user.id,
+      user_id: pendingReg.id, // The ID in pending_registrations is the user_id from auth.users
       organization_id: organization.id,
-      first_name: data.userFirstName,
-      last_name: data.userLastName,
+      first_name: pendingReg.contact_name.split(' ')[0],
+      last_name: pendingReg.contact_name.split(' ').slice(1).join(' '),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       language: "en",
-    })
+    });
 
     if (profileError) {
-      return { data: null, error: profileError }
+      throw new Error(profileError.message);
     }
 
-    // Create admin role
+    // 4. Create the admin role for the user
     const { error: roleError } = await supabaseClient.from("user_roles").insert({
       organization_id: organization.id,
-      user_id: authData.user.id,
+      user_id: pendingReg.id,
       role: "admin",
       permissions: {
         all: true,
       },
-    })
+    });
 
     if (roleError) {
-      return { data: null, error: roleError }
+      throw new Error(roleError.message);
     }
 
-    return { data: { organization, user: authData.user }, error: null }
+    // 5. Update the pending registration status
+    const { error: updateError } = await supabaseClient
+      .from('pending_registrations')
+      .update({
+        status: 'approved',
+        approved_by: adminUserId,
+        approved_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', registrationId);
+
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
+
+    return { success: true, error: null };
   } catch (error) {
-    console.error("Error creating organization:", error)
-    return { data: null, error: error }
+    console.error("Error approving registration:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
 

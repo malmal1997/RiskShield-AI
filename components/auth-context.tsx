@@ -33,7 +33,7 @@ interface AuthContextType {
   isDemo: boolean
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
-  refreshProfile: () => Promise<void>
+  refreshProfile: (sessionFromListener?: Session | null) => Promise<void> // Made sessionFromListener optional
   hasPermission: (permission: string) => boolean
 }
 
@@ -47,8 +47,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [isDemo, setIsDemo] = useState(false)
 
-  const refreshProfile = async (sessionFromListener?: Session | null) => { // Add optional session parameter
+  const clearAuthState = () => {
+    setUser(null);
+    setProfile(null);
+    setOrganization(null);
+    setRole(null);
+    setIsDemo(false);
+    setLoading(false);
+    console.log("AuthContext: Cleared all auth state.");
+  };
+
+  const refreshProfile = async (sessionFromListener?: Session | null) => {
     console.log("AuthContext: refreshProfile called.", { sessionFromListener: !!sessionFromListener });
+    setLoading(true); // Start loading when refreshing profile
+
     // Check for demo session first
     const demoSession = localStorage.getItem("demo_session")
     if (demoSession) {
@@ -89,13 +101,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (userError || !fetchedUser) {
           console.log("AuthContext: No Supabase user found or error:", userError);
-          setUser(null)
-          setProfile(null)
-          setOrganization(null)
-          setRole(null)
-          setIsDemo(false)
-          setLoading(false); // Ensure loading is false here
-          return
+          clearAuthState(); // Clear state if no user
+          return;
         }
         currentUser = fetchedUser;
         console.log("AuthContext: Supabase user fetched:", currentUser.email, currentUser.id);
@@ -113,12 +120,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (profileError || !profile) {
         console.log("AuthContext: No user profile found or error:", profileError)
-        setProfile(null)
-        setOrganization(null)
-        setRole(null)
-        setIsDemo(false)
-        setLoading(false); // Ensure loading is false here
-        return
+        // If user is authenticated but no profile, it means pending approval
+        setProfile(null);
+        setOrganization(null);
+        setRole(null);
+        setIsDemo(false);
+        setLoading(false); // Still set loading to false
+        return;
       }
       console.log("AuthContext: User profile found:", profile)
       setProfile(profile)
@@ -159,11 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsDemo(false)
     } catch (error) {
       console.error("AuthContext: Error in refreshProfile:", error)
-      setUser(null)
-      setProfile(null)
-      setOrganization(null)
-      setRole(null)
-      setIsDemo(false)
+      clearAuthState(); // Clear state on any unexpected error during refresh
     } finally {
       console.log("AuthContext: refreshProfile finished. Setting loading to false.")
       setLoading(false);
@@ -188,12 +192,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
         console.log("AuthContext: Auth state changed. Event:", event, "Session:", session)
-        // Pass the session directly to refreshProfile if it's a SIGNED_IN event
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
           await refreshProfile(session);
         } else if (event === 'SIGNED_OUT') {
-          // For SIGNED_OUT, we still want to clear state, but refreshProfile might not need a session
-          await refreshProfile(); // Or a dedicated signOut handler
+          clearAuthState(); // Explicitly clear state on sign out
         } else {
           await refreshProfile(); // For other events, just refresh normally
         }
@@ -219,30 +221,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     console.log("AuthContext: signIn called for email:", email)
+    setLoading(true); // Set loading true during sign-in attempt
     const { error } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
     })
     if (error) {
       console.error("AuthContext: signIn error:", error)
+      setLoading(false); // Set loading false on sign-in error
     } else {
       console.log("AuthContext: signIn successful (awaiting onAuthStateChange to update state).")
+      // onAuthStateChange will handle setting loading to false after profile refresh
     }
     return { error }
   }
 
   const signOut = async () => {
     console.log("AuthContext: signOut called.")
+    setLoading(true); // Set loading true during sign-out attempt
     localStorage.removeItem("demo_session")
     setIsDemo(false)
 
-    await supabaseClient.auth.signOut()
-
-    setUser(null)
-    setProfile(null)
-    setOrganization(null)
-    setRole(null)
-    console.log("AuthContext: User state reset after signOut.")
+    const { error } = await supabaseClient.auth.signOut()
+    if (error) {
+      console.error("AuthContext: signOut error:", error);
+      setLoading(false); // Set loading false on sign-out error
+    } else {
+      console.log("AuthContext: signOut successful (awaiting onAuthStateChange to clear state).")
+      // onAuthStateChange will handle clearing state and setting loading to false
+    }
   }
 
   const hasPermission = (permission: string): boolean => {
