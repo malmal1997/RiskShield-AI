@@ -35,11 +35,12 @@ import {
   CheckCircle2,
   Plus,
   ArrowRight,
-  Eye, // Added Eye import
+  Eye,
+  Clock,
 } from "lucide-react"
-import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
-import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
+import { analyzeDocuments } from "@/lib/ai-service" // Import AI service
+import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service" // For delegation email
 
 // Complete assessment categories for AI assessment
 const assessmentCategories = [
@@ -1317,22 +1318,51 @@ interface Question {
   category?: string
 }
 
-export default function RiskAssessmentPage() {
+interface AnalysisResult {
+  answers: Record<string, boolean | string>
+  confidenceScores: Record<string, number>
+  reasoning: Record<string, string>
+  overallAnalysis: string
+  riskFactors: string[]
+  recommendations: string[]
+  riskScore: number
+  riskLevel: string
+  analysisDate: string
+  documentsAnalyzed: number
+  aiProvider?: string
+  documentExcerpts?: Record<
+    string,
+    Array<{
+      fileName: string
+      excerpt: string
+      relevance: string
+      pageOrSection?: string
+      quote?: string
+      pageNumber?: number
+      lineNumber?: number
+    }>
+  >
+  directUploadResults?: Array<{
+    fileName: string
+    success: boolean
+    fileSize: number
+    fileType: string
+    processingMethod: string
+  }>
+}
+
+export default function AIAssessmentPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
-    "select" | "choose-method" | "soc-info" | "assessment" | "results"
-  >("select")
+    "select-category" | "upload-documents" | "soc-info" | "review-answers" | "results"
+  >("select-category")
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null)
   const [answers, setAnswers] = useState<Record<string, any>>({})
   const [riskScore, setRiskScore] = useState<number | null>(null)
   const [riskLevel, setRiskLevel] = useState<string | null>(null)
-  const [showDelegateForm, setShowDelegateForm] = useState(false)
-  const [delegateForm, setDelegateForm] = useState({
-    assessmentType: "",
-    recipientName: "",
-    recipientEmail: "",
-    dueDate: "",
-    customMessage: "",
-  })
+  const [error, setError] = useState<string | null>(null)
   const [socInfo, setSocInfo] = useState({
     socType: "", // SOC 1, SOC 2, SOC 3
     reportType: "", // Type 1, Type 2
@@ -1354,76 +1384,67 @@ export default function RiskAssessmentPage() {
   useEffect(() => {
     // Check for pre-selected category from main risk assessment page
     const preSelectedCategory = localStorage.getItem("selectedAssessmentCategory")
-    const skipMethodSelection = localStorage.getItem("skipMethodSelection")
-
     if (preSelectedCategory) {
       setSelectedCategory(preSelectedCategory)
-
-      if (skipMethodSelection === "true") {
-        // For SOC assessments, go to SOC info collection first
-        if (preSelectedCategory === "soc-compliance") {
-          setCurrentStep("soc-info")
-        } else {
-          // For other assessments, go directly to assessment
-          setCurrentStep("assessment")
-        }
-        localStorage.removeItem("skipMethodSelection")
+      if (preSelectedCategory === "soc-compliance") {
+        setCurrentStep("soc-info")
       } else {
-        setCurrentStep("choose-method")
+        setCurrentStep("upload-documents")
       }
-
-      // Clear the stored category so it doesn't interfere with future visits
-      localStorage.removeItem("selectedAssessmentCategory")
+      localStorage.removeItem("selectedAssessmentCategory") // Clear it after use
     }
   }, [])
+
+  const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
+  const questionsForCategory = currentCategory?.questions || []
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setUploadedFiles(Array.from(e.target.files))
+    }
+  }
+
+  const handleRemoveFile = (indexToRemove: number) => {
+    setUploadedFiles((prevFiles) => prevFiles.filter((_, index) => index !== indexToRemove))
+  }
+
+  const handleAnalyzeDocuments = async () => {
+    if (!currentCategory || uploadedFiles.length === 0) {
+      setError("Please select an assessment category and upload documents.")
+      return
+    }
+
+    setIsAnalyzing(true)
+    setError(null)
+    setAnalysisResults(null)
+    setAnswers({})
+
+    try {
+      const result = await analyzeDocuments(uploadedFiles, questionsForCategory, currentCategory.name)
+      setAnalysisResults(result)
+      setAnswers(result.answers) // Pre-fill answers with AI suggestions
+      setRiskScore(result.riskScore)
+      setRiskLevel(result.riskLevel)
+      setCurrentStep("review-answers")
+    } catch (err: any) {
+      console.error("AI Analysis Failed:", err)
+      setError(err.message || "Failed to perform AI analysis. Please try again.")
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
 
   const handleAnswerChange = (questionId: string, value: any) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }))
   }
 
-  const calculateRisk = () => {
-    if (!selectedCategory) return
+  const handleSOCInfoComplete = () => {
+    setCurrentStep("upload-documents")
+  }
 
-    const category = assessmentCategories.find((cat) => cat.id === selectedCategory)
-    if (!category) return
-
-    let totalScore = 0
-    let maxPossibleScore = 0
-
-    category.questions.forEach((question) => {
-      const answer = answers[question.id]
-      const weight = question.weight || 1 // Default weight to 1 if not specified
-
-      if (question.type === "boolean") {
-        maxPossibleScore += weight
-        if (answer === true) {
-          totalScore += weight
-        }
-      } else if (question.type === "multiple" && question.options) {
-        // For multiple choice, assign score based on position (e.g., first option is best)
-        maxPossibleScore += weight * question.options.length // Max score if all best options are chosen
-        const answerIndex = question.options.indexOf(answer)
-        if (answerIndex !== -1) {
-          totalScore += weight * (question.options.length - 1 - answerIndex) // Higher score for earlier options
-        }
-      } else if (question.type === "tested") {
-        maxPossibleScore += weight
-        if (answer === "tested") {
-          totalScore += weight
-        }
-      }
-      // Textarea questions don't directly contribute to score, but indicate completeness
-    })
-
-    const calculatedRiskScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0
-    setRiskScore(calculatedRiskScore)
-
-    let level = "High"
-    if (calculatedRiskScore >= 75) level = "Low"
-    else if (calculatedRiskScore >= 50) level = "Medium"
-    else if (calculatedRiskScore >= 25) level = "Medium-High"
-    setRiskLevel(level)
-
+  const handleFinalSubmit = () => {
+    // Here you would typically save the final answers and risk score to your database
+    // For this demo, we'll just transition to the results page.
     setCurrentStep("results")
   }
 
@@ -1442,105 +1463,15 @@ export default function RiskAssessmentPage() {
     }
   }
 
-  const handleStartAssessment = (categoryId: string) => {
-    setSelectedCategory(categoryId)
-    setAnswers({})
-    setRiskScore(null)
-    setRiskLevel(null)
-    setCurrentStep("choose-method")
+  const calculateProgress = () => {
+    let progress = 0
+    if (currentStep === "select-category") progress = 10
+    else if (currentStep === "soc-info") progress = 30
+    else if (currentStep === "upload-documents") progress = 50
+    else if (currentStep === "review-answers") progress = 75
+    else if (currentStep === "results") progress = 100
+    return progress
   }
-
-  const handleChooseManual = () => {
-    if (selectedCategory === "soc-compliance") {
-      setCurrentStep("soc-info")
-    } else {
-      setCurrentStep("assessment")
-    }
-  }
-
-  const handleChooseAI = () => {
-    if (selectedCategory) {
-      localStorage.setItem("selectedAssessmentCategory", selectedCategory)
-      localStorage.setItem("skipMethodSelection", "true") // Indicate to skip method selection on redirect
-      window.location.href = "/risk-assessment/ai-assessment"
-    }
-  }
-
-  const handleSOCInfoComplete = () => {
-    setCurrentStep("assessment")
-  }
-
-  const handleDelegateAssessment = (categoryId: string) => {
-    const category = assessmentCategories.find((cat) => cat.id === categoryId)
-    if (category) {
-      setDelegateForm({
-        ...delegateForm,
-        assessmentType: category.name,
-      })
-      setShowDelegateForm(true)
-    }
-  }
-
-  const handleSendDelegation = async () => {
-    if (!delegateForm.recipientName || !delegateForm.recipientEmail || !delegateForm.assessmentType) {
-      alert("Please fill in all required fields")
-      return
-    }
-
-    try {
-      const assessmentId = `internal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-
-      // Store delegation info locally for the recipient page to pick up
-      const delegationInfo = {
-        assessmentId,
-        assessmentType: delegateForm.assessmentType,
-        delegationType: "team", // Assuming internal team delegation
-        method: "manual", // For manual assessment delegation
-        recipientName: delegateForm.recipientName,
-        recipientEmail: delegateForm.recipientEmail,
-        dueDate: delegateForm.dueDate,
-        customMessage: delegateForm.customMessage,
-      }
-      localStorage.setItem(`delegation-${assessmentId}`, JSON.stringify(delegationInfo))
-
-      // Also add to a general list of delegated assessments for the delegator to track
-      const existingDelegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
-      localStorage.setItem("delegatedAssessments", JSON.stringify([...existingDelegated, delegationInfo]))
-
-      const emailResult = await sendAssessmentEmail({
-        vendorName: "Internal Team",
-        vendorEmail: delegateForm.recipientEmail,
-        contactPerson: delegateForm.recipientName,
-        assessmentType: delegateForm.assessmentType,
-        dueDate: delegateForm.dueDate,
-        customMessage:
-          delegateForm.customMessage ||
-          `You have been assigned to complete the ${delegateForm.assessmentType} assessment.`,
-        assessmentId: assessmentId,
-        companyName: "Your Organization",
-      })
-
-      setDelegateForm({
-        assessmentType: "",
-        recipientName: "",
-        recipientEmail: "",
-        dueDate: "",
-        customMessage: "",
-      })
-      setShowDelegateForm(false)
-
-      if (emailResult.success) {
-        alert(`Assessment delegation sent successfully!`)
-      } else {
-        alert(`Assessment delegation created but email delivery failed.`)
-      }
-    } catch (error) {
-      console.error("Error sending delegation:", error)
-      alert("Failed to send assessment delegation. Please try again.")
-    }
-  }
-
-  const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
 
   return (
     <AuthGuard
@@ -1552,15 +1483,14 @@ export default function RiskAssessmentPage() {
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Risk Assessment</Badge>
+              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">AI-Powered Risk Assessment</Badge>
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-                Risk Assessment Platform
+                AI Assessment Platform
                 <br />
-                <span className="text-blue-600">Comprehensive Risk Evaluation</span>
+                <span className="text-blue-600">Automated Risk Evaluation</span>
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-                Conduct in-depth risk assessments across various domains, identify vulnerabilities, and ensure
-                regulatory compliance.
+                Upload your documents and let AI analyze them to automatically complete your risk assessments.
               </p>
               <div className="mt-8">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
@@ -1574,21 +1504,47 @@ export default function RiskAssessmentPage() {
           </div>
         </section>
 
+        {/* Progress Bar */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Assessment Progress</span>
+                <span className="text-sm text-gray-600">{Math.round(calculateProgress())}% Complete</span>
+              </div>
+              <Progress value={calculateProgress()} className="h-2" />
+            </div>
+          </div>
+        </div>
+
         <section className="py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Step 1: Select Assessment Category */}
-            {currentStep === "select" && (
+            {currentStep === "select-category" && (
               <div>
                 <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Select Assessment Type</h2>
-                  <p className="text-lg text-gray-600">Choose the type of risk assessment you want to perform</p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Select AI Assessment Type</h2>
+                  <p className="text-lg text-gray-600">
+                    Choose the type of risk assessment you want AI to perform for you.
+                  </p>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {assessmentCategories.map((category) => {
                     const IconComponent = category.icon
                     return (
-                      <Card key={category.id} className="relative group hover:shadow-lg transition-shadow">
+                      <Card
+                        key={category.id}
+                        className="relative group hover:shadow-lg transition-shadow cursor-pointer"
+                        onClick={() => {
+                          setSelectedCategory(category.id)
+                          if (category.id === "soc-compliance") {
+                            setCurrentStep("soc-info")
+                          } else {
+                            setCurrentStep("upload-documents")
+                          }
+                        }}
+                      >
                         <CardHeader>
                           <div className="flex items-center space-x-3">
                             <div className="p-2 bg-blue-100 rounded-lg">
@@ -1601,23 +1557,10 @@ export default function RiskAssessmentPage() {
                         </CardHeader>
                         <CardContent>
                           <CardDescription className="mb-4">{category.description}</CardDescription>
-                          <div className="flex flex-col space-y-2">
-                            <Button
-                              onClick={() => handleStartAssessment(category.id)}
-                              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              <Eye className="mr-2 h-4 w-4" />
-                              Start Assessment
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={() => handleDelegateAssessment(category.id)}
-                              className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
-                            >
-                              <Send className="mr-2 h-4 w-4" />
-                              Delegate to Team
-                            </Button>
-                          </div>
+                          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                            <Bot className="mr-2 h-4 w-4" />
+                            Select for AI Analysis
+                          </Button>
                         </CardContent>
                       </Card>
                     )
@@ -1626,109 +1569,17 @@ export default function RiskAssessmentPage() {
               </div>
             )}
 
-            {/* Step 2: Choose Assessment Method */}
-            {currentStep === "choose-method" && currentCategory && (
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <Button variant="ghost" onClick={() => setCurrentStep("select")} className="mb-4 hover:bg-blue-50">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Assessment Selection
-                  </Button>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Assessment Method</h2>
-                  <p className="text-lg text-gray-600">
-                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
-                  </p>
-                </div>
-
-                <div className="grid gap-8 md:grid-cols-2">
-                  <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseManual}>
-                    <CardHeader>
-                      <div className="flex items-center space-x-3">
-                        <div className="p-3 bg-green-100 rounded-lg">
-                          <User className="h-8 w-8 text-green-600" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-xl">Manual Assessment</CardTitle>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="mb-6 text-base">
-                        Complete the assessment manually by answering questions step by step. Full control over
-                        responses with detailed explanations.
-                      </CardDescription>
-                      <div className="space-y-3 mb-6">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
-                          Step-by-step question flow
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
-                          Full control over answers
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
-                          Detailed explanations
-                        </div>
-                      </div>
-                      <Button className="w-full bg-green-600 hover:bg-green-500">
-                        <User className="mr-2 h-4 w-4" />
-                        Start Manual Assessment
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseAI}>
-                    <CardHeader>
-                      <div className="flex items-center space-x-3">
-                        <div className="p-3 bg-blue-100 rounded-lg">
-                          <Bot className="h-8 w-8 text-blue-600" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-xl">AI Assessment</CardTitle>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="mb-6 text-base">
-                        Upload your documents and let AI analyze them automatically. Fast, comprehensive analysis with
-                        evidence extraction.
-                      </CardDescription>
-                      <div className="space-y-3 mb-6">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle2 className="h-4 w-4 text-blue-500 mr-2" />
-                          Automated document analysis
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle2 className="h-4 w-4 text-blue-500 mr-2" />
-                          Evidence extraction
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle2 className="h-4 w-4 text-blue-500 mr-2" />
-                          Fast and comprehensive
-                        </div>
-                      </div>
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                        <Bot className="mr-2 h-4 w-4" />
-                        Start AI Assessment
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2.5: SOC Information (only for SOC assessments) */}
+            {/* Step 2: SOC Information (only for SOC assessments) */}
             {currentStep === "soc-info" && selectedCategory === "soc-compliance" && (
               <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
                   <Button
                     variant="ghost"
-                    onClick={() => setCurrentStep("choose-method")}
+                    onClick={() => setCurrentStep("select-category")}
                     className="mb-6 hover:bg-blue-50"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Method Selection
+                    Back to Category Selection
                   </Button>
                 </div>
 
@@ -1919,7 +1770,7 @@ export default function RiskAssessmentPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setCurrentStep("choose-method")}
+                        onClick={() => setCurrentStep("select-category")}
                         className="flex items-center"
                       >
                         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1930,7 +1781,7 @@ export default function RiskAssessmentPage() {
                         onClick={handleSOCInfoComplete}
                         className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
                       >
-                        Continue to Assessment
+                        Continue to Document Upload
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
@@ -1939,37 +1790,203 @@ export default function RiskAssessmentPage() {
               </div>
             )}
 
-            {/* Step 3: Assessment Questions */}
-            {currentStep === "assessment" && currentCategory && (
+            {/* Step 3: Upload Documents */}
+            {currentStep === "upload-documents" && currentCategory && (
               <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
+                <div className="mb-8">
                   <Button
                     variant="ghost"
-                    onClick={() => {
-                      if (selectedCategory === "soc-compliance") {
-                        setCurrentStep("soc-info")
-                      } else {
-                        setCurrentStep("choose-method")
-                      }
-                    }}
-                    className="mb-4 hover:bg-blue-50"
+                    onClick={() =>
+                      setCurrentStep(selectedCategory === "soc-compliance" ? "soc-info" : "select-category")
+                    }
+                    className="mb-6 hover:bg-blue-50"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to {selectedCategory === "soc-compliance" ? "SOC Information" : "Method Selection"}
+                    Back to {selectedCategory === "soc-compliance" ? "SOC Information" : "Category Selection"}
                   </Button>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    {currentCategory.name} Assessment Questions
-                  </h2>
-                  <p className="text-lg text-gray-600">Answer the questions to complete your risk assessment</p>
+                </div>
+
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents for AI Analysis</h2>
+                  <p className="text-lg text-gray-600">
+                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                  </p>
+                  <p className="text-gray-600 mt-2">
+                    Upload your policies, reports, and procedures. Our AI will analyze them to answer the assessment
+                    questions.
+                  </p>
+                </div>
+
+                <Card className="mb-8 border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Upload className="h-6 w-6 text-blue-600" />
+                      <span className="text-blue-900">Document Upload</span>
+                      <Badge className="bg-green-100 text-green-700 text-xs">AI-POWERED</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="bg-white p-4 rounded-lg border border-blue-200">
+                        <h4 className="font-semibold text-blue-900 mb-3">📄 Upload Your Documents</h4>
+                        <p className="text-sm text-blue-800 mb-4">
+                          Upload your security policies, SOC reports, compliance documents, and procedures. Our AI will
+                          analyze them and automatically complete the assessment for you.
+                        </p>
+
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="document-upload" className="text-sm font-medium text-gray-700">
+                              Upload Supporting Documents
+                            </Label>
+                            <div className="mt-2 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors bg-blue-25">
+                              <input
+                                id="document-upload"
+                                type="file"
+                                multiple
+                                accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.ppt,.pptx"
+                                onChange={handleFileChange}
+                                className="hidden"
+                              />
+                              <label htmlFor="document-upload" className="cursor-pointer">
+                                <Upload className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                                <p className="text-lg font-medium text-blue-900 mb-1">
+                                  Click to upload or drag and drop
+                                </p>
+                                <p className="text-sm text-blue-700">
+                                  PDF, DOC, DOCX, TXT, CSV, XLSX, PPT, PPTX up to 10MB each
+                                </p>
+                                <p className="text-xs text-blue-600 mt-2">
+                                  💡 Recommended: Security policies, SOC reports, compliance certificates, procedures
+                                </p>
+                              </label>
+                            </div>
+
+                            {uploadedFiles.length > 0 && (
+                              <div className="mt-4 space-y-2">
+                                <h5 className="font-medium text-blue-900">Uploaded Files ({uploadedFiles.length}):</h5>
+                                {uploadedFiles.map((file: File, index: number) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center justify-between p-3 bg-white border border-blue-200 rounded"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <FileText className="h-4 w-4 text-blue-600" />
+                                      <span className="text-sm text-gray-700">{file.name}</span>
+                                      <span className="text-xs text-gray-500">
+                                        ({(file.size / 1024 / 1024).toFixed(1)} MB)
+                                      </span>
+                                    </div>
+                                    <Button variant="outline" size="sm" onClick={() => handleRemoveFile(index)}>
+                                      Remove
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {uploadedFiles.length > 0 && (
+                            <Button
+                              onClick={handleAnalyzeDocuments}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                              disabled={isAnalyzing}
+                            >
+                              {isAnalyzing ? (
+                                <>
+                                  <Clock className="mr-2 h-5 w-5 animate-spin" />
+                                  Analyzing Documents... This may take a few moments
+                                </>
+                              ) : (
+                                <>
+                                  <Bot className="mr-2 h-5 w-5" />
+                                  🚀 Analyze Documents with AI
+                                </>
+                              )}
+                            </Button>
+                          )}
+
+                          {isAnalyzing && (
+                            <div className="p-4 bg-blue-100 border border-blue-300 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <Clock className="h-5 w-5 text-blue-600 animate-spin" />
+                                <div>
+                                  <h4 className="font-semibold text-blue-900">AI Analysis in Progress</h4>
+                                  <p className="text-sm text-blue-800">
+                                    Processing {uploadedFiles.length} documents and generating assessment responses...
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {error && (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-lg mt-4">
+                              <div className="flex items-center space-x-2">
+                                <AlertCircle className="h-5 w-5 text-red-600" />
+                                <p className="text-sm text-red-800">
+                                  <strong>Error:</strong> {error}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-2">
+                          <AlertCircle className="h-5 w-5 text-amber-600" />
+                          <p className="text-sm text-amber-800">
+                            <strong>Note:</strong> AI-generated responses are suggestions based on your documents.
+                            Please review and verify all answers before submission.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Step 4: Review AI-Generated Answers */}
+            {currentStep === "review-answers" && currentCategory && analysisResults && (
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setCurrentStep("upload-documents")}
+                    className="mb-6 hover:bg-blue-50"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Document Upload
+                  </Button>
+                </div>
+
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Review AI-Generated Answers</h2>
+                  <p className="text-lg text-gray-600">
+                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                  </p>
+                  <p className="text-gray-600 mt-2">
+                    The AI has analyzed your documents and provided suggested answers. Please review and edit as needed.
+                  </p>
                 </div>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Assessment Questions</CardTitle>
-                    <CardDescription>Please answer all questions to the best of your knowledge.</CardDescription>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Bot className="h-5 w-5 text-blue-600" />
+                      <span>AI-Suggested Responses</span>
+                      <Badge className="bg-green-100 text-green-700">
+                        Confidence: {analysisResults.confidenceScores ? Math.round(Object.values(analysisResults.confidenceScores).reduce((sum, val) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100) : 0}%
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription>
+                      Review the AI's answers and make any necessary adjustments.
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-8">
-                    {currentCategory.questions.map((question, index) => (
+                    {questionsForCategory.map((question, index) => (
                       <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
                         <div>
                           <div className="flex items-start space-x-2 mb-2">
@@ -1977,85 +1994,120 @@ export default function RiskAssessmentPage() {
                               {question.category}
                             </Badge>
                             {question.required && <span className="text-red-500 text-sm">*</span>}
+                            {analysisResults.confidenceScores?.[question.id] !== undefined && (
+                              <Badge className="bg-blue-100 text-blue-700 text-xs">
+                                AI Confidence: {Math.round(analysisResults.confidenceScores[question.id] * 100)}%
+                              </Badge>
+                            )}
                           </div>
                           <h3 className="text-lg font-medium text-gray-900">
                             {index + 1}. {question.question}
                           </h3>
                         </div>
 
-                        {question.type === "boolean" && (
-                          <div className="flex space-x-4">
-                            <label className="flex items-center">
-                              <input
-                                type="radio"
-                                name={`question-${question.id}`}
-                                checked={answers[question.id] === true}
-                                onChange={() => handleAnswerChange(question.id, true)}
-                                className="mr-2"
-                              />
-                              Yes
-                            </label>
-                            <label className="flex items-center">
-                              <input
-                                type="radio"
-                                name={`question-${question.id}`}
-                                checked={answers[question.id] === false}
-                                onChange={() => handleAnswerChange(question.id, false)}
-                                className="mr-2"
-                              />
-                              No
-                            </label>
-                          </div>
-                        )}
+                        {/* AI Suggested Answer Display */}
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-sm text-blue-800 mb-2">
+                            <Bot className="inline h-4 w-4 mr-1" />
+                            AI Suggestion:
+                          </p>
+                          <p className="text-sm font-medium text-blue-900">
+                            {typeof analysisResults.answers[question.id] === "boolean"
+                              ? analysisResults.answers[question.id]
+                                ? "Yes"
+                                : "No"
+                              : Array.isArray(analysisResults.answers[question.id])
+                                ? (analysisResults.answers[question.id] as string[]).join(", ")
+                                : analysisResults.answers[question.id]}
+                          </p>
+                          {analysisResults.documentExcerpts?.[question.id] &&
+                            analysisResults.documentExcerpts[question.id].length > 0 && (
+                              <div className="mt-3 text-xs text-blue-700 italic">
+                                <Info className="inline h-3 w-3 mr-1" />
+                                Evidence: "{analysisResults.documentExcerpts[question.id][0].excerpt}" (from{" "}
+                                {analysisResults.documentExcerpts[question.id][0].fileName})
+                              </div>
+                            )}
+                        </div>
 
-                        {question.type === "multiple" && (
-                          <select
-                            value={answers[question.id] || ""}
-                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="">Select an option</option>
-                            {question.options?.map((option) => (
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                        )}
-
-                        {question.type === "tested" && (
-                          <div className="flex space-x-4">
-                            <label className="flex items-center">
-                              <input
-                                type="radio"
-                                name={`question-${question.id}`}
-                                checked={answers[question.id] === "tested"}
-                                onChange={() => handleAnswerChange(question.id, "tested")}
-                                className="mr-2"
-                              />
-                              Tested
-                            </label>
-                            <label className="flex items-center">
-                              <input
-                                type="radio"
-                                name={`question-${question.id}`}
-                                checked={answers[question.id] === "not_tested"}
-                                onChange={() => handleAnswerChange(question.id, "not_tested")}
-                                className="mr-2"
-                              />
-                              Not Tested
-                            </label>
-                          </div>
-                        )}
-
-                        {question.type === "textarea" && (
-                          <Textarea
-                            value={answers[question.id] || ""}
-                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                            placeholder="Provide your detailed response here..."
-                            rows={4}
-                          />
-                        )}
+                        {/* Editable Answer Field */}
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <Label htmlFor={`answer-${question.id}`} className="text-sm font-medium text-gray-700">
+                            Your Final Answer (Edit if needed)
+                          </Label>
+                          {question.type === "boolean" && (
+                            <div className="flex space-x-4 mt-2">
+                              <label className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`question-${question.id}`}
+                                  checked={answers[question.id] === true}
+                                  onChange={() => handleAnswerChange(question.id, true)}
+                                  className="mr-2"
+                                />
+                                Yes
+                              </label>
+                              <label className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`question-${question.id}`}
+                                  checked={answers[question.id] === false}
+                                  onChange={() => handleAnswerChange(question.id, false)}
+                                  className="mr-2"
+                                />
+                                No
+                              </label>
+                            </div>
+                          )}
+                          {question.type === "multiple" && (
+                            <select
+                              value={answers[question.id] || ""}
+                              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                            >
+                              <option value="">Select an option</option>
+                              {question.options?.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {question.type === "tested" && (
+                            <div className="flex space-x-4 mt-2">
+                              <label className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`question-${question.id}`}
+                                  checked={answers[question.id] === "tested"}
+                                  onChange={() => handleAnswerChange(question.id, "tested")}
+                                  className="mr-2"
+                                />
+                                Tested
+                              </label>
+                              <label className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`question-${question.id}`}
+                                  checked={answers[question.id] === "not_tested"}
+                                  onChange={() => handleAnswerChange(question.id, "not_tested")}
+                                  className="mr-2"
+                                />
+                                Not Tested
+                              </label>
+                            </div>
+                          )}
+                          {question.type === "textarea" && (
+                            <Textarea
+                              id={`answer-${question.id}`}
+                              value={answers[question.id] || ""}
+                              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                              placeholder="Provide your detailed response here..."
+                              rows={4}
+                              className="mt-2"
+                            />
+                          )}
+                        </div>
                       </div>
                     ))}
                   </CardContent>
@@ -2064,32 +2116,27 @@ export default function RiskAssessmentPage() {
                 <div className="mt-8 flex justify-between">
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      if (selectedCategory === "soc-compliance") {
-                        setCurrentStep("soc-info")
-                      } else {
-                        setCurrentStep("choose-method")
-                      }
-                    }}
+                    onClick={() => setCurrentStep("upload-documents")}
+                    className="hover:bg-gray-50"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back
+                    Back to Upload
                   </Button>
-                  <Button onClick={calculateRisk} className="bg-blue-600 hover:bg-blue-700 text-white">
-                    Calculate Risk
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button onClick={handleFinalSubmit} className="bg-green-600 hover:bg-green-700 text-white">
+                    <FileCheck className="mr-2 h-4 w-4" />
+                    Finalize Assessment
                   </Button>
                 </div>
               </div>
             )}
 
-            {/* Step 4: Results */}
-            {currentStep === "results" && currentCategory && (
+            {/* Step 5: Results */}
+            {currentStep === "results" && currentCategory && analysisResults && (
               <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Results</h2>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">AI Assessment Complete!</h2>
                   <p className="text-lg text-gray-600">
-                    Your {currentCategory.name} risk assessment is complete.
+                    Your {currentCategory.name} risk assessment has been finalized.
                   </p>
                 </div>
 
@@ -2104,38 +2151,39 @@ export default function RiskAssessmentPage() {
                         {riskLevel} Risk
                       </Badge>
                       <p className="text-sm text-gray-600 mt-4">
-                        This score reflects your current posture based on the assessment.
+                        This score reflects your current posture based on the AI analysis and your review.
                       </p>
                     </CardContent>
                   </Card>
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>Key Findings & Recommendations</CardTitle>
+                      <CardTitle>AI Analysis Summary</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                          <h3 className="font-semibold text-blue-900 mb-2">Summary</h3>
-                          <p className="text-sm text-blue-800">
-                            Based on your responses, your organization demonstrates a <strong>{riskLevel}</strong> risk
-                            posture in {currentCategory.name.toLowerCase()}.
-                            Further review of specific areas is recommended to enhance security and compliance.
+                          <h3 className="font-semibold text-blue-900 mb-2">Overall Analysis</h3>
+                          <p className="text-sm text-blue-800">{analysisResults.overallAnalysis}</p>
+                          <p className="text-xs text-blue-700 mt-2">
+                            AI Provider: {analysisResults.aiProvider} | Documents Analyzed:{" "}
+                            {analysisResults.documentsAnalyzed}
                           </p>
                         </div>
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                          <h3 className="font-semibold text-red-900 mb-2">Areas for Improvement</h3>
+                          <h3 className="font-semibold text-red-900 mb-2">Identified Risk Factors</h3>
                           <ul className="text-sm text-red-800 list-disc pl-5 space-y-1">
-                            <li>Review and update incident response plan annually.</li>
-                            <li>Implement multi-factor authentication for all critical systems.</li>
-                            <li>Increase frequency of vulnerability assessments to quarterly.</li>
+                            {analysisResults.riskFactors.map((factor, index) => (
+                              <li key={index}>{factor}</li>
+                            ))}
                           </ul>
                         </div>
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                          <h3 className="font-semibold text-green-900 mb-2">Strengths</h3>
+                          <h3 className="font-semibold text-green-900 mb-2">Recommendations</h3>
                           <ul className="text-sm text-green-800 list-disc pl-5 space-y-1">
-                            <li>Strong data encryption standards in place.</li>
-                            <li>Regular security awareness training for employees.</li>
+                            {analysisResults.recommendations.map((rec, index) => (
+                              <li key={index}>{rec}</li>
+                            ))}
                           </ul>
                         </div>
                       </div>
@@ -2145,98 +2193,18 @@ export default function RiskAssessmentPage() {
                   <div className="flex justify-between">
                     <Button
                       variant="outline"
-                      onClick={() => setCurrentStep("assessment")}
+                      onClick={() => setCurrentStep("review-answers")}
                       className="hover:bg-gray-50"
                     >
                       <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Questions
+                      Back to Review
                     </Button>
                     <Button onClick={() => alert("Report Downloaded!")} className="bg-blue-600 hover:bg-blue-700">
                       <Download className="mr-2 h-4 w-4" />
-                      Download Report
+                      Download Full Report
                     </Button>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Delegate Assessment Modal */}
-            {showDelegateForm && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <Card className="w-full max-w-md">
-                  <CardHeader>
-                    <div className="flex justify-between items-center">
-                      <CardTitle>Delegate Assessment</CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowDelegateForm(false)}
-                        className="hover:bg-gray-100"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <CardDescription>Send this assessment to a team member or third-party</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="assessmentType">Assessment Type</Label>
-                      <Input id="assessmentType" value={delegateForm.assessmentType} disabled className="bg-gray-50" />
-                    </div>
-                    <div>
-                      <Label htmlFor="recipientName">Recipient Name *</Label>
-                      <Input
-                        id="recipientName"
-                        value={delegateForm.recipientName}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, recipientName: e.target.value }))}
-                        placeholder="Enter recipient's name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="recipientEmail">Recipient Email *</Label>
-                      <Input
-                        id="recipientEmail"
-                        type="email"
-                        value={delegateForm.recipientEmail}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, recipientEmail: e.target.value }))}
-                        placeholder="Enter recipient's email"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="dueDate">Due Date (Optional)</Label>
-                      <Input
-                        id="dueDate"
-                        type="date"
-                        value={delegateForm.dueDate}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, dueDate: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="customMessage">Custom Message (Optional)</Label>
-                      <textarea
-                        id="customMessage"
-                        value={delegateForm.customMessage}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, customMessage: e.target.value }))}
-                        placeholder="Add any additional instructions..."
-                        className="w-full p-2 border border-gray-300 rounded-md min-h-[80px]"
-                      />
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        onClick={handleSendDelegation}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <Send className="mr-2 h-4 w-4" />
-                        Send Assessment
-                      </Button>
-                      <Button variant="outline" onClick={() => setShowDelegateForm(false)} className="hover:bg-gray-50">
-                        Cancel
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             )}
           </div>
