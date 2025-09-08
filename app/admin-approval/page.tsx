@@ -16,6 +16,7 @@ import {
   Check,
   X,
   AlertTriangle,
+  Shield, // Added Shield import
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
