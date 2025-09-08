@@ -88,7 +88,7 @@ const sampleNotifications: Notification[] = [
     message: "TechCorp assessment shows critical security gaps",
     type: "alert",
     data: {}, // Added
-    read_at: null,
+    read_at: undefined, // Changed from null
     created_at: new Date().toISOString(),
   },
   {
@@ -99,7 +99,7 @@ const sampleNotifications: Notification[] = [
     message: "DataFlow Inc. submitted assessment request",
     type: "info",
     data: {}, // Added
-    read_at: null,
+    read_at: undefined, // Changed from null
     created_at: new Date(Date.now() - 3600000).toISOString(),
   },
   {
@@ -205,8 +205,7 @@ function DashboardContent() {
               </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Real-time System Status - matching card style */}
       <section className="py-12 bg-gray-50">
@@ -423,7 +422,7 @@ function DashboardContent() {
                                 {new Date(notification.created_at).toLocaleTimeString()}
                               </p>
                             </div>
-                            {!notification.read_at && (
+                            {notification.read_at === undefined && (
                               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                             )}
                           </div>
@@ -451,7 +450,7 @@ function DashboardContent() {
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="count"
-                          label={({ level, count }: { level: string; count: number }) => `${level}: ${count}`}
+                          label={({ payload }: { payload: { level: string; count: number } }) => `${payload.level}: ${payload.count}`}
                         >
                           {riskMetrics.riskDistribution.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

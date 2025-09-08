@@ -92,8 +92,8 @@ function AnalyticsContent() {
       const totalPageViews = pageViews?.length || 0
       const totalInteractions = interactions?.length || 0
       const totalLeads = leads?.length || 0
-      const avgTimeSpent = sessions?.reduce((sum, s) => sum + (s.total_time_spent || 0), 0) / totalSessions || 0
-      const conversions = sessions?.filter((s) => s.converted_user_id).length || 0
+      const avgTimeSpent = sessions?.reduce((sum: number, s: any) => sum + (s.total_time_spent || 0), 0) / totalSessions || 0
+      const conversions = sessions?.filter((s: any) => s.converted_user_id).length || 0
       const conversionRate = totalSessions > 0 ? (conversions / totalSessions) * 100 : 0
 
       setData({
@@ -130,7 +130,7 @@ function AnalyticsContent() {
   const getTopPages = () => {
     if (!data) return []
     const pageStats = data.pageViews.reduce(
-      (acc, pv) => {
+      (acc: Record<string, number>, pv: any) => {
         acc[pv.page_path] = (acc[pv.page_path] || 0) + 1
         return acc
       },
@@ -146,7 +146,7 @@ function AnalyticsContent() {
   const getTopFeatures = () => {
     if (!data) return []
     const featureStats = data.interactions.reduce(
-      (acc, int) => {
+      (acc: Record<string, number>, int: any) => {
         acc[int.feature_name] = (acc[int.feature_name] || 0) + 1
         return acc
       },

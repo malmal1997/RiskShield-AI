@@ -33,7 +33,7 @@ const FormItem = React.forwardRef<
   const id = React.useId()
 
   return (
-    <FormItemContext.Provider value={{ id, name: "" }}> {/* Provide a default empty name */}
+    <FormItemContext.Provider value={{ id, name: "" as FieldPath<FieldValues> }}> {/* Provide a default empty name */}
       <div ref={ref} className={cn("space-y-2", className)} {...props} />
     </FormItemContext.Provider>
   )
