@@ -16,7 +16,9 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { trackClick } = useFeatureTracking()
-  const { user, signOut, isDemo } = useAuth()
+  const { user, signOut, isDemo, role } = useAuth() // Get role from useAuth
+
+  const isAdmin = role?.role === "admin" || isDemo; // Consider demo users as admin for navigation purposes
 
   // Define navigation items with their visibility rules
   const publicNavigationItems = [
@@ -36,6 +38,11 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
     { name: "Policy Library", href: "/policy-library" },
     { name: "Settings", href: "/settings" },
   ];
+
+  // Add Admin Approval link if the user is an admin
+  if (isAdmin) {
+    authenticatedNavigationItems.push({ name: "Admin Approval", href: "/admin-approval" });
+  }
 
   const navigationItems = user ? authenticatedNavigationItems : publicNavigationItems;
 
