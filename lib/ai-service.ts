@@ -382,16 +382,9 @@ export async function analyzeDocuments(
 ): Promise<DocumentAnalysisResult> {
   console.log("🤖 Starting direct Google AI analysis with file upload support...")
 
-  // TEMPORARY DEBUGGING LINE:
-  console.log("DEBUG: GOOGLE_GENERATIVE_AI_API_KEY value at runtime:", 
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY ? 
-    "Loaded (length " + process.env.GOOGLE_GENERATIVE_AI_API_KEY.length + ")" : 
-    "UNDEFINED"
-  );
-
   // Check if Google AI API key is available
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) { // This is line 387
-    throw new Error("Google AI API key not found. Please add GOOGLE_GENERATIVE_AI_API_KEY environment variable.")
+  if (!process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY) {
+    throw new Error("Google AI API key not found. Please add NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY environment variable.")
   }
 
   // Filter and process supported files
@@ -927,7 +920,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
   const results: Record<string, boolean> = {}
 
   // Test Google AI
-  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY) {
     try {
       const result = await generateText({
         model: google("gemini-1.5-flash"),
