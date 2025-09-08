@@ -20,11 +20,11 @@ import {
   User,
   ArrowLeft,
   Building2,
-  CheckCircle2,
-  Download, // Added Download import
-  X, // Added X import
+  CheckCircle2, // Corrected import to CheckCircle2
+  Download,
+  X,
+  ArrowRight, // Added ArrowRight import
 } from "lucide-react"
-// import { MainNavigation } from "@/components/main-navigation" // Removed import
 import { AuthGuard } from "@/components/auth-guard"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -41,14 +41,14 @@ const assessmentCategories = [
     questions: [
       {
         id: "cs1",
-        category: "Security Policies", // Added category
+        category: "Security Policies",
         question: "Does your organization have a formal cybersecurity policy?",
         type: "boolean",
         weight: 10,
       },
       {
         id: "cs2",
-        category: "Security Training", // Added category
+        category: "Security Training",
         question: "How often do you conduct cybersecurity training for employees?",
         type: "multiple",
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
@@ -56,14 +56,14 @@ const assessmentCategories = [
       },
       {
         id: "cs3",
-        category: "Access Control", // Added category
+        category: "Access Control",
         question: "Do you have multi-factor authentication implemented for all critical systems?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "cs4",
-        category: "Vulnerability Management", // Added category
+        category: "Vulnerability Management",
         question: "How frequently do you perform vulnerability assessments?",
         type: "multiple",
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
@@ -71,7 +71,7 @@ const assessmentCategories = [
       },
       {
         id: "cs5",
-        category: "Incident Response", // Added category
+        category: "Incident Response",
         question: "Do you have an incident response plan in place?",
         type: "boolean",
         weight: 9,
@@ -86,14 +86,14 @@ const assessmentCategories = [
     questions: [
       {
         id: "rc1",
-        category: "Regulatory Adherence", // Added category
+        category: "Regulatory Adherence",
         question: "Are you compliant with current FDIC regulations?",
         type: "boolean",
         weight: 10,
       },
       {
         id: "rc2",
-        category: "Policy Management", // Added category
+        category: "Policy Management",
         question: "How often do you review and update compliance policies?",
         type: "multiple",
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
@@ -101,14 +101,14 @@ const assessmentCategories = [
       },
       {
         id: "rc3",
-        category: "Governance", // Added category
+        category: "Governance",
         question: "Do you have a dedicated compliance officer?",
         type: "boolean",
         weight: 7,
       },
       {
         id: "rc4",
-        category: "Audits", // Added category
+        category: "Audits",
         question: "How frequently do you conduct compliance audits?",
         type: "multiple",
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
@@ -116,7 +116,7 @@ const assessmentCategories = [
       },
       {
         id: "rc5",
-        category: "Documentation", // Added category
+        category: "Documentation",
         question: "Do you maintain proper documentation for all compliance activities?",
         type: "boolean",
         weight: 8,
@@ -131,14 +131,14 @@ const assessmentCategories = [
     questions: [
       {
         id: "or1",
-        category: "Procedures", // Added category
+        category: "Procedures",
         question: "Do you have documented operational procedures for all critical processes?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "or2",
-        category: "Procedures", // Added category
+        category: "Procedures",
         question: "How often do you review and update operational procedures?",
         type: "multiple",
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
@@ -146,14 +146,14 @@ const assessmentCategories = [
       },
       {
         id: "or3",
-        category: "Internal Controls", // Added category
+        category: "Internal Controls",
         question: "Do you have adequate segregation of duties in place?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "or4",
-        category: "Risk Assessment", // Added category
+        category: "Risk Assessment",
         question: "How frequently do you conduct operational risk assessments?",
         type: "multiple",
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Quarterly"],
@@ -161,7 +161,7 @@ const assessmentCategories = [
       },
       {
         id: "or5",
-        category: "Business Continuity", // Added category
+        category: "Business Continuity",
         question: "Do you have a business continuity plan?",
         type: "boolean",
         weight: 9,
@@ -176,14 +176,14 @@ const assessmentCategories = [
     questions: [
       {
         id: "bc1",
-        category: "BCM Program", // Added category
+        category: "BCM Program",
         question: "Do you have a documented Business Continuity Management (BCM) program in place?",
         type: "boolean",
         weight: 10,
       },
       {
         id: "bc2",
-        category: "BCM Program", // Added category
+        category: "BCM Program",
         question: "How frequently do you review and update your BCM program?",
         type: "multiple",
         options: ["Never", "Every 3+ years", "Every 2-3 years", "Annually", "Semi-annually"],
@@ -191,14 +191,14 @@ const assessmentCategories = [
       },
       {
         id: "bc3",
-        category: "Governance", // Added category
+        category: "Governance",
         question: "Does your BCM program have executive oversight and sponsorship?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc4",
-        category: "Training", // Added category
+        category: "Training",
         question: "How often do you conduct BCM training for employees?",
         type: "multiple",
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
@@ -206,35 +206,35 @@ const assessmentCategories = [
       },
       {
         id: "bc5",
-        category: "System Availability", // Added category
+        category: "System Availability",
         question: "Do you monitor system capacity and availability on an ongoing basis?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc6",
-        category: "Physical Security", // Added category
+        category: "Physical Security",
         question: "Do you have adequate physical security controls for critical facilities?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc7",
-        category: "Environmental Controls", // Added category
+        category: "Environmental Controls",
         question: "Do you have environmental security controls (fire suppression, climate control, etc.)?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc8",
-        category: "Infrastructure Redundancy", // Added category
+        category: "Infrastructure Redundancy",
         question: "Do you have redundant telecommunications infrastructure to handle failures?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "bc9",
-        category: "Maintenance", // Added category
+        category: "Maintenance",
         question: "How frequently do you perform equipment maintenance and firmware updates?",
         type: "multiple",
         options: ["Never", "As needed only", "Annually", "Semi-annually", "Quarterly"],
@@ -242,105 +242,105 @@ const assessmentCategories = [
       },
       {
         id: "bc10",
-        category: "Power Systems", // Added category
+        category: "Power Systems",
         question: "Do you have backup power systems (UPS/generators) for critical operations?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "bc11",
-        category: "Data Protection", // Added category
+        category: "Data Protection",
         question: "Do you have comprehensive data protection (firewall, anti-virus, encryption)?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "bc12",
-        category: "Third-Party Risk", // Added category
+        category: "Third-Party Risk",
         question: "Do you have contingency plans for failures of critical third-party providers?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc13",
-        category: "Personnel Security", // Added category
+        category: "Personnel Security",
         question: "Do you conduct background checks on employees with access to critical systems?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc14",
-        category: "Staffing", // Added category
+        category: "Staffing",
         question: "Do you have adequate staffing depth and cross-training for critical functions?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc15",
-        category: "Disaster Recovery", // Added category
+        category: "Disaster Recovery",
         question: "Do you have a documented Disaster Recovery Plan separate from your BCM?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "bc16",
-        category: "Crisis Communication", // Added category
+        category: "Crisis Communication",
         question: "Do you have established internal and external communication protocols for crisis management?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc17",
-        category: "Communication", // Added category
+        category: "Communication",
         question: "Do you have communication procedures for planned system outages?",
         type: "boolean",
         weight: 7,
       },
       {
         id: "bc18",
-        category: "Incident Management", // Added category
+        category: "Incident Management",
         question: "Do you have a cybersecurity incident management plan?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "bc19",
-        category: "Insurance", // Added category
+        category: "Insurance",
         question: "Do you maintain appropriate business continuity insurance coverage?",
         type: "boolean",
         weight: 7,
       },
       {
         id: "bc20",
-        category: "Emergency Planning", // Added category
+        category: "Emergency Planning",
         question: "Do you have pandemic/health emergency continuity plans?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc21",
-        category: "Remote Access", // Added category
+        category: "Remote Access",
         question: "Do you have remote administration contingencies for critical systems?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc22",
-        category: "Software Development", // Added category
+        category: "Software Development",
         question: "Do you have proper source code management and version control systems?",
         type: "boolean",
         weight: 7,
       },
       {
         id: "bc23",
-        category: "System Obsolescence", // Added category
+        category: "System Obsolescence",
         question: "Have you identified and addressed any outdated systems that pose continuity risks?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc24",
-        category: "Data Backup", // Added category
+        category: "Data Backup",
         question: "How frequently do you backup critical business data?",
         type: "multiple",
         options: ["Never", "Monthly", "Weekly", "Daily", "Real-time/Continuous"],
@@ -348,28 +348,28 @@ const assessmentCategories = [
       },
       {
         id: "bc25",
-        category: "Impact Analysis", // Added category
+        category: "Impact Analysis",
         question: "Have you conducted a formal Business Impact Analysis (BIA)?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "bc26",
-        category: "Recovery Objectives", // Added category
+        category: "Recovery Objectives",
         question: "Have you defined Recovery Point Objectives (RPO) for critical systems?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "bc27",
-        category: "Recovery Objectives", // Added category
+        category: "Recovery Objectives",
         question: "Have you defined Recovery Time Objectives (RTO) for critical systems?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "bc28",
-        category: "Testing", // Added category
+        category: "Testing",
         question: "How frequently do you test your BCM/DR plans?",
         type: "multiple",
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
@@ -377,7 +377,7 @@ const assessmentCategories = [
       },
       {
         id: "bc29",
-        category: "Testing", // Added category
+        category: "Testing",
         question: "How frequently do you test your incident response procedures?",
         type: "multiple",
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
@@ -385,7 +385,7 @@ const assessmentCategories = [
       },
       {
         id: "bc30",
-        category: "Testing", // Added category
+        category: "Testing",
         question: "How frequently do you test your data backup and recovery procedures?",
         type: "multiple",
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Quarterly"],
@@ -393,14 +393,14 @@ const assessmentCategories = [
       },
       {
         id: "bc31",
-        category: "Testing Documentation", // Added category
+        category: "Testing Documentation",
         question: "Do you document and analyze the results of your BC/DR testing?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "bc32",
-        category: "Audits", // Added category
+        category: "Audits",
         question: "Do you have independent audits of your BC/DR plan testing conducted?",
         type: "boolean",
         weight: 8,
@@ -415,14 +415,14 @@ const assessmentCategories = [
     questions: [
       {
         id: "fs1",
-        category: "Regulatory Compliance", // Added category
+        category: "Regulatory Compliance",
         question: "Are you compliant with current banking regulations (e.g., Basel III, Dodd-Frank)?",
         type: "boolean",
         weight: 10,
       },
       {
         id: "fs2",
-        category: "AML/KYC", // Added category
+        category: "AML/KYC",
         question: "How often do you conduct anti-money laundering (AML) training?",
         type: "multiple",
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
@@ -430,14 +430,14 @@ const assessmentCategories = [
       },
       {
         id: "fs3",
-        category: "AML/KYC", // Added category
+        category: "AML/KYC",
         question: "Do you have a comprehensive Know Your Customer (KYC) program?",
         type: "boolean",
         weight: 10,
       },
       {
         id: "fs4",
-        category: "Credit Risk", // Added category
+        category: "Credit Risk",
         question: "How frequently do you review and update your credit risk policies?",
         type: "multiple",
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
@@ -445,21 +445,21 @@ const assessmentCategories = [
       },
       {
         id: "fs5",
-        category: "Capital Management", // Added category
+        category: "Capital Management",
         question: "Do you maintain adequate capital reserves as required by regulators?",
         type: "boolean",
         weight: 10,
       },
       {
         id: "fs6",
-        category: "Consumer Protection", // Added category
+        category: "Consumer Protection",
         question: "Are you compliant with consumer protection regulations (e.g., CFPB guidelines)?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "fs7",
-        category: "Stress Testing", // Added category
+        category: "Stress Testing",
         question: "How often do you conduct stress testing on your financial portfolios?",
         type: "multiple",
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Quarterly"],
@@ -467,7 +467,7 @@ const assessmentCategories = [
       },
       {
         id: "fs8",
-        category: "Client Asset Segregation", // Added category
+        category: "Client Asset Segregation",
         question: "Do you have proper segregation of client funds and assets?",
         type: "boolean",
         weight: 10,
@@ -482,14 +482,14 @@ const assessmentCategories = [
     questions: [
       {
         id: "dp1",
-        category: "Regulatory Compliance", // Added category
+        category: "Regulatory Compliance",
         question: "Are you compliant with applicable data privacy regulations (GDPR, CCPA, etc.)?",
         type: "boolean",
         weight: 10,
       },
       {
         id: "dp2",
-        category: "Privacy Impact Assessment", // Added category
+        category: "Privacy Impact Assessment",
         question: "How often do you conduct data privacy impact assessments?",
         type: "multiple",
         options: ["Never", "As needed only", "Annually", "Semi-annually", "For all new projects"],
@@ -497,14 +497,14 @@ const assessmentCategories = [
       },
       {
         id: "dp3",
-        category: "Data Retention", // Added category
+        category: "Data Retention",
         question: "Do you have documented data retention and deletion policies?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "dp4",
-        category: "Data Subject Rights", // Added category
+        category: "Data Subject Rights",
         question: "How do you handle data subject access requests?",
         type: "multiple",
         options: ["No formal process", "Manual process", "Semi-automated", "Fully automated", "Comprehensive system"],
@@ -512,21 +512,21 @@ const assessmentCategories = [
       },
       {
         id: "dp5",
-        category: "Governance", // Added category
+        category: "Governance",
         question: "Do you have a designated Data Protection Officer (DPO)?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "dp6",
-        category: "Third-Party Data Processors", // Added category
+        category: "Third-Party Data Processors",
         question: "Are all third-party data processors properly vetted and contracted?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "dp7",
-        category: "Training", // Added category
+        category: "Training",
         question: "How often do you provide data privacy training to employees?",
         type: "multiple",
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
@@ -534,28 +534,28 @@ const assessmentCategories = [
       },
       {
         id: "dp8",
-        category: "Data Processing Records", // Added category
+        category: "Data Processing Records",
         question: "Do you maintain records of all data processing activities?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "dp9",
-        category: "Privacy by Design", // Added category
+        category: "Privacy by Design",
         question: "Have you implemented privacy by design principles in your systems?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "dp10",
-        category: "Information Security Policy", // Added category
+        category: "Information Security Policy",
         question: "Do you have a written Information Security Policy (ISP)?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "dp11",
-        category: "Information Security Policy", // Added category
+        category: "Information Security Policy",
         question: "How often do you review and update your Information Security Policy?",
         type: "multiple",
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
@@ -563,14 +563,14 @@ const assessmentCategories = [
       },
       {
         id: "dp12",
-        category: "Information Security Policy", // Added category
+        category: "Information Security Policy",
         question: "Do you have a designated person responsible for Information Security Policy?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "dp13",
-        category: "Compliance Monitoring", // Added category
+        category: "Compliance Monitoring",
         question: "Do you have data privacy compliance monitoring procedures in place?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -578,7 +578,7 @@ const assessmentCategories = [
       },
       {
         id: "dp14",
-        category: "Physical Security", // Added category
+        category: "Physical Security",
         question: "Do you have physical perimeter and boundary security controls?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -586,7 +586,7 @@ const assessmentCategories = [
       },
       {
         id: "dp15",
-        category: "Physical Security", // Added category
+        category: "Physical Security",
         question: "Do you have controls to protect against environmental extremes?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -594,7 +594,7 @@ const assessmentCategories = [
       },
       {
         id: "dp16",
-        category: "Audits & Assessments", // Added category
+        category: "Audits & Assessments",
         question: "Do you conduct independent audits/assessments of your Information Security Policy?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -602,7 +602,7 @@ const assessmentCategories = [
       },
       {
         id: "dp17",
-        category: "Asset Management", // Added category
+        category: "Asset Management",
         question: "Do you have an IT asset management program?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -610,7 +610,7 @@ const assessmentCategories = [
       },
       {
         id: "dp18",
-        category: "Asset Management", // Added category
+        category: "Asset Management",
         question: "Do you have restrictions on storage devices?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -618,7 +618,7 @@ const assessmentCategories = [
       },
       {
         id: "dp19",
-        category: "Endpoint Protection", // Added category
+        category: "Endpoint Protection",
         question: "Do you have anti-malware/endpoint protection solutions deployed?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -626,7 +626,7 @@ const assessmentCategories = [
       },
       {
         id: "dp20",
-        category: "Network Security", // Added category
+        category: "Network Security",
         question: "Do you implement network segmentation?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -634,7 +634,7 @@ const assessmentCategories = [
       },
       {
         id: "dp21",
-        category: "Network Security", // Added category
+        category: "Network Security",
         question: "Do you have real-time network monitoring and alerting?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -642,7 +642,7 @@ const assessmentCategories = [
       },
       {
         id: "dp22",
-        category: "Security Testing", // Added category
+        category: "Security Testing",
         question: "How frequently do you conduct vulnerability scanning?",
         type: "multiple",
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
@@ -650,7 +650,7 @@ const assessmentCategories = [
       },
       {
         id: "dp23",
-        category: "Security Testing", // Added category
+        category: "Security Testing",
         question: "How frequently do you conduct penetration testing?",
         type: "multiple",
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
@@ -658,7 +658,7 @@ const assessmentCategories = [
       },
       {
         id: "dp24",
-        category: "Regulatory Compliance", // Added category
+        category: "Regulatory Compliance",
         question: "Which regulatory compliance/industry standards does your company follow?",
         type: "multiple",
         options: ["None", "ISO 27001", "SOC 2", "HIPAA", "PCI DSS", "NIST"],
@@ -666,7 +666,7 @@ const assessmentCategories = [
       },
       {
         id: "dp25",
-        category: "Access Control", // Added category
+        category: "Access Control",
         question: "Do you have a formal access control policy?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -674,7 +674,7 @@ const assessmentCategories = [
       },
       {
         id: "dp26",
-        category: "Wireless Security", // Added category
+        category: "Wireless Security",
         question: "Do you have physical access controls for wireless infrastructure?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -682,7 +682,7 @@ const assessmentCategories = [
       },
       {
         id: "dp27",
-        category: "Access Control", // Added category
+        category: "Access Control",
         question: "Do you have defined password parameters and requirements?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -690,7 +690,7 @@ const assessmentCategories = [
       },
       {
         id: "dp28",
-        category: "Access Control", // Added category
+        category: "Access Control",
         question: "Do you implement least privilege access principles?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -698,7 +698,7 @@ const assessmentCategories = [
       },
       {
         id: "dp29",
-        category: "Access Control", // Added category
+        category: "Access Control",
         question: "How frequently do you conduct access reviews?",
         type: "multiple",
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
@@ -706,7 +706,7 @@ const assessmentCategories = [
       },
       {
         id: "dp30",
-        category: "Network Access", // Added category
+        category: "Network Access",
         question: "Do you require device authentication for network access?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -714,7 +714,7 @@ const assessmentCategories = [
       },
       {
         id: "dp31",
-        category: "Remote Access", // Added category
+        category: "Remote Access",
         question: "Do you have secure remote logical access controls?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -722,7 +722,7 @@ const assessmentCategories = [
       },
       {
         id: "dp32",
-        category: "Third-Party Management", // Added category
+        category: "Third-Party Management",
         question: "Do you have a third-party oversight program?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -730,7 +730,7 @@ const assessmentCategories = [
       },
       {
         id: "dp33",
-        category: "Third-Party Management", // Added category
+        category: "Third-Party Management",
         question: "Do you assess third-party security controls?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -738,7 +738,7 @@ const assessmentCategories = [
       },
       {
         id: "dp34",
-        category: "Third-Party Management", // Added category
+        category: "Third-Party Management",
         question: "Do you verify third-party compliance controls?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -746,7 +746,7 @@ const assessmentCategories = [
       },
       {
         id: "dp35",
-        category: "Human Resources", // Added category
+        category: "Human Resources",
         question: "Do you conduct background screening for employees with access to sensitive data?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -754,7 +754,7 @@ const assessmentCategories = [
       },
       {
         id: "dp36",
-        category: "Training", // Added category
+        category: "Training",
         question: "Do you provide information security training to employees?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -762,7 +762,7 @@ const assessmentCategories = [
       },
       {
         id: "dp37",
-        category: "Training", // Added category
+        category: "Training",
         question: "Do you provide privacy training to employees?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -770,7 +770,7 @@ const assessmentCategories = [
       },
       {
         id: "dp38",
-        category: "Training", // Added category
+        category: "Training",
         question: "Do you provide role-specific compliance training?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -778,7 +778,7 @@ const assessmentCategories = [
       },
       {
         id: "dp39",
-        category: "Policy Management", // Added category
+        category: "Policy Management",
         question: "Do you have policy compliance and disciplinary measures?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -786,7 +786,7 @@ const assessmentCategories = [
       },
       {
         id: "dp40",
-        category: "Human Resources", // Added category
+        category: "Human Resources",
         question: "Do you have formal onboarding and offboarding controls?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -794,7 +794,7 @@ const assessmentCategories = [
       },
       {
         id: "dp41",
-        category: "Data Management", // Added category
+        category: "Data Management",
         question: "Do you have a data management program?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -802,7 +802,7 @@ const assessmentCategories = [
       },
       {
         id: "dp42",
-        category: "Privacy Policy", // Added category
+        category: "Privacy Policy",
         question: "Do you have a published privacy policy?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -810,7 +810,7 @@ const assessmentCategories = [
       },
       {
         id: "dp43",
-        category: "Data Retention", // Added category
+        category: "Data Retention",
         question: "Do you have consumer data retention policies?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -818,7 +818,7 @@ const assessmentCategories = [
       },
       {
         id: "dp44",
-        category: "Data Protection", // Added category
+        category: "Data Protection",
         question: "Do you have controls to ensure PII is safeguarded?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -826,7 +826,7 @@ const assessmentCategories = [
       },
       {
         id: "dp45",
-        category: "Incident Response", // Added category
+        category: "Incident Response",
         question: "Do you have data breach protocols?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -834,7 +834,7 @@ const assessmentCategories = [
       },
       {
         id: "dp46",
-        category: "Consumer Rights", // Added category
+        category: "Consumer Rights",
         question: "Do you support consumer rights to dispute, copy, complain, delete, and opt out?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -842,7 +842,7 @@ const assessmentCategories = [
       },
       {
         id: "dp47",
-        category: "Data Collection", // Added category
+        category: "Data Collection",
         question: "Do you collect NPI, PII, or PHI data?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -858,14 +858,14 @@ const assessmentCategories = [
     questions: [
       {
         id: "is1",
-        category: "Network Segmentation", // Added category
+        category: "Network Segmentation",
         question: "Do you have network segmentation implemented for critical systems?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "is2",
-        category: "Patch Management", // Added category
+        category: "Patch Management",
         question: "How often do you update and patch your server infrastructure?",
         type: "multiple",
         options: ["Never", "As needed only", "Monthly", "Weekly", "Automated/Real-time"],
@@ -873,14 +873,14 @@ const assessmentCategories = [
       },
       {
         id: "is3",
-        category: "Intrusion Detection", // Added category
+        category: "Intrusion Detection",
         question: "Do you have intrusion detection and prevention systems (IDS/IPS) deployed?",
         type: "boolean",
         weight: 9,
       },
       {
         id: "is4",
-        category: "Penetration Testing", // Added category
+        category: "Penetration Testing",
         question: "How frequently do you conduct penetration testing?",
         type: "multiple",
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
@@ -888,21 +888,21 @@ const assessmentCategories = [
       },
       {
         id: "is5",
-        category: "Access Management", // Added category
+        category: "Access Management",
         question: "Are all administrative accounts protected with privileged access management?",
         type: "boolean",
         weight: 10,
       },
       {
         id: "is6",
-        category: "Logging & Monitoring", // Added category
+        category: "Logging & Monitoring",
         question: "Do you have comprehensive logging and monitoring for all critical systems?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "is7",
-        category: "Firewall Management", // Added category
+        category: "Firewall Management",
         question: "How often do you review and update firewall rules?",
         type: "multiple",
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
@@ -910,21 +910,21 @@ const assessmentCategories = [
       },
       {
         id: "is8",
-        category: "Configuration Management", // Added category
+        category: "Configuration Management",
         question: "Do you have secure configuration standards for all infrastructure components?",
         type: "boolean",
         weight: 8,
       },
       {
         id: "is9",
-        category: "Data Encryption", // Added category
+        category: "Data Encryption",
         question: "Are all data transmissions encrypted both in transit and at rest?",
         type: "boolean",
         weight: 10,
       },
       {
         id: "is10",
-        category: "Vulnerability Management", // Added category
+        category: "Vulnerability Management",
         question: "Do you have a formal vulnerability management program?",
         type: "boolean",
         weight: 9,
@@ -940,7 +940,7 @@ const assessmentCategories = [
       // Organization and Governance
       {
         id: "soc1",
-        category: "Governance", // Added category
+        category: "Governance",
         question:
           "Has management established a governance structure with clear roles and responsibilities for SOC compliance?",
         type: "tested",
@@ -948,28 +948,28 @@ const assessmentCategories = [
       },
       {
         id: "soc2",
-        category: "Policies & Procedures", // Added category
+        category: "Policies & Procedures",
         question: "Are there documented policies and procedures for all SOC-relevant control activities?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc3",
-        category: "Risk Assessment", // Added category
+        category: "Risk Assessment",
         question: "Has management established a risk assessment process to identify and evaluate risks?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc4",
-        category: "Control Objectives", // Added category
+        category: "Control Objectives",
         question: "Are control objectives clearly defined and communicated throughout the organization?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc5",
-        category: "Control Monitoring", // Added category
+        category: "Control Monitoring",
         question: "Is there a formal process for monitoring and evaluating control effectiveness?",
         type: "tested",
         weight: 9,
@@ -978,70 +978,70 @@ const assessmentCategories = [
       // Security Controls
       {
         id: "soc6",
-        category: "Logical Access", // Added category
+        category: "Logical Access",
         question: "Are logical access controls implemented to restrict access to systems and data?",
         type: "tested",
         weight: 10,
       },
       {
         id: "soc7",
-        category: "User Access Management", // Added category
+        category: "User Access Management",
         question: "Is user access provisioning and deprovisioning performed in a timely manner?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc8",
-        category: "Privileged Access", // Added category
+        category: "Privileged Access",
         question: "Are privileged access rights regularly reviewed and approved?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc9",
-        category: "Authentication", // Added category
+        category: "Authentication",
         question: "Is multi-factor authentication implemented for all critical systems?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc10",
-        category: "Password Management", // Added category
+        category: "Password Management",
         question: "Are password policies enforced and regularly updated?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc11",
-        category: "Data Encryption", // Added category
+        category: "Data Encryption",
         question: "Is data encryption implemented for data at rest and in transit?",
         type: "tested",
         weight: 10,
       },
       {
         id: "soc12",
-        category: "Incident Response", // Added category
+        category: "Incident Response",
         question: "Are security incident response procedures documented and tested?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc13",
-        category: "Vulnerability Management", // Added category
+        category: "Vulnerability Management",
         question: "Is vulnerability management performed regularly with timely remediation?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc14",
-        category: "Network Security", // Added category
+        category: "Network Security",
         question: "Are network security controls (firewalls, IDS/IPS) properly configured and monitored?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc15",
-        category: "Physical Security", // Added category
+        category: "Physical Security",
         question: "Is physical access to data centers and facilities properly controlled?",
         type: "tested",
         weight: 8,
@@ -1050,35 +1050,35 @@ const assessmentCategories = [
       // Availability Controls
       {
         id: "soc16",
-        category: "System Monitoring", // Added category
+        category: "System Monitoring",
         question: "Are system capacity and performance monitored to ensure availability?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc17",
-        category: "Business Continuity", // Added category
+        category: "Business Continuity",
         question: "Is there a documented business continuity and disaster recovery plan?",
         type: "tested",
         weight: 10,
       },
       {
         id: "soc18",
-        category: "Backup & Recovery", // Added category
+        category: "Backup & Recovery",
         question: "Are backup and recovery procedures regularly tested?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc19",
-        category: "System Availability", // Added category
+        category: "System Availability",
         question: "Is system availability monitored with appropriate alerting mechanisms?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc20",
-        category: "Change Management", // Added category
+        category: "Change Management",
         question: "Are change management procedures in place for system modifications?",
         type: "tested",
         weight: 9,
@@ -1087,35 +1087,35 @@ const assessmentCategories = [
       // Processing Integrity Controls
       {
         id: "soc21",
-        category: "Data Processing", // Added category
+        category: "Data Processing",
         question: "Are data processing controls implemented to ensure completeness and accuracy?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc22",
-        category: "Data Input Validation", // Added category
+        category: "Data Input Validation",
         question: "Is data input validation performed to prevent processing errors?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc23",
-        category: "Automated Controls", // Added category
+        category: "Automated Controls",
         question: "Are automated controls in place to detect and prevent duplicate transactions?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc24",
-        category: "Error Monitoring", // Added category
+        category: "Error Monitoring",
         question: "Is data processing monitored for exceptions and errors?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc25",
-        category: "Data Reconciliation", // Added category
+        category: "Data Reconciliation",
         question: "Are reconciliation procedures performed to ensure data integrity?",
         type: "tested",
         weight: 9,
@@ -1124,28 +1124,28 @@ const assessmentCategories = [
       // Confidentiality Controls
       {
         id: "soc26",
-        category: "Confidentiality Agreements", // Added category
+        category: "Confidentiality Agreements",
         question: "Are confidentiality agreements in place with employees and third parties?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc27",
-        category: "Data Classification", // Added category
+        category: "Data Classification",
         question: "Is sensitive data classified and handled according to its classification?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc28",
-        category: "Data Retention & Disposal", // Added category
+        category: "Data Retention & Disposal",
         question: "Are data retention and disposal policies implemented and followed?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc29",
-        category: "Access to Confidential Info", // Added category
+        category: "Access to Confidential Info",
         question: "Is access to confidential information restricted on a need-to-know basis?",
         type: "tested",
         weight: 9,
@@ -1154,35 +1154,35 @@ const assessmentCategories = [
       // Privacy Controls
       {
         id: "soc30",
-        category: "Privacy Policies", // Added category
+        category: "Privacy Policies",
         question: "Are privacy policies and procedures documented and communicated?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc31",
-        category: "Personal Information Handling", // Added category
+        category: "Personal Information Handling",
         question: "Is personal information collected, used, and disclosed in accordance with privacy policies?",
         type: "tested",
         weight: 10,
       },
       {
         id: "soc32",
-        category: "Data Subject Notice", // Added category
+        category: "Data Subject Notice",
         question: "Are individuals provided with notice about data collection and use practices?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc33",
-        category: "Consent Management", // Added category
+        category: "Consent Management",
         question: "Is consent obtained for the collection and use of personal information where required?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc34",
-        category: "Data Subject Rights", // Added category
+        category: "Data Subject Rights",
         question: "Are data subject rights (access, correction, deletion) supported and processed?",
         type: "tested",
         weight: 9,
@@ -1191,28 +1191,28 @@ const assessmentCategories = [
       // Monitoring and Logging
       {
         id: "soc35",
-        category: "System Activity Logging", // Added category
+        category: "System Activity Logging",
         question: "Are system activities logged and monitored for security events?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc36",
-        category: "Log Protection", // Added category
+        category: "Log Protection",
         question: "Is log data protected from unauthorized access and modification?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc37",
-        category: "Log Review", // Added category
+        category: "Log Review",
         question: "Are logs regularly reviewed for suspicious activities?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc38",
-        category: "Centralized Logging", // Added category
+        category: "Centralized Logging",
         question: "Is there a centralized logging system for security monitoring?",
         type: "tested",
         weight: 8,
@@ -1221,21 +1221,21 @@ const assessmentCategories = [
       // Third-Party Management
       {
         id: "soc39",
-        category: "Third-Party Evaluation", // Added category
+        category: "Third-Party Evaluation",
         question: "Are third-party service providers evaluated for SOC compliance?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc40",
-        category: "Contract Review", // Added category
+        category: "Contract Review",
         question: "Are contracts with service providers reviewed for appropriate control requirements?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc41",
-        category: "Third-Party Monitoring", // Added category
+        category: "Third-Party Monitoring",
         question: "Is third-party performance monitored against contractual requirements?",
         type: "tested",
         weight: 8,
@@ -1244,21 +1244,21 @@ const assessmentCategories = [
       // Training and Awareness
       {
         id: "soc42",
-        category: "Security & Compliance Training", // Added category
+        category: "Security & Compliance Training",
         question: "Is security and compliance training provided to all relevant personnel?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc43",
-        category: "Role & Responsibility Awareness", // Added category
+        category: "Role & Responsibility Awareness",
         question: "Are employees made aware of their roles and responsibilities for SOC compliance?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc44",
-        category: "Ongoing Training", // Added category
+        category: "Ongoing Training",
         question: "Is ongoing training provided to keep personnel current with policies and procedures?",
         type: "tested",
         weight: 7,
@@ -1267,28 +1267,28 @@ const assessmentCategories = [
       // Management Review and Oversight
       {
         id: "soc45",
-        category: "Management Review", // Added category
+        category: "Management Review",
         question: "Does management regularly review control effectiveness and compliance status?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc46",
-        category: "Deficiency Remediation", // Added category
+        category: "Deficiency Remediation",
         question: "Are control deficiencies identified, documented, and remediated in a timely manner?",
         type: "tested",
         weight: 9,
       },
       {
         id: "soc47",
-        category: "Control Change Approval", // Added category
+        category: "Control Change Approval",
         question: "Is there a formal process for management to approve significant changes to controls?",
         type: "tested",
         weight: 8,
       },
       {
         id: "soc48",
-        category: "Internal Audits", // Added category
+        category: "Internal Audits",
         question: "Are internal audits performed to assess control effectiveness?",
         type: "tested",
         weight: 9,
@@ -1302,9 +1302,9 @@ interface Question {
   question: string
   type: "boolean" | "multiple" | "tested" | "textarea"
   options?: string[]
-  weight?: number // Made optional
+  weight?: number
   required?: boolean
-  category?: string // Added category
+  category?: string
 }
 
 export default function RiskAssessmentPage() {
@@ -1649,15 +1649,15 @@ export default function RiskAssessmentPage() {
                       </CardDescription>
                       <div className="space-y-3 mb-6">
                         <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                          <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
                           Step-by-step question flow
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                          <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
                           Full control over answers
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                          <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
                           Detailed explanations
                         </div>
                       </div>
@@ -1686,15 +1686,15 @@ export default function RiskAssessmentPage() {
                       </CardDescription>
                       <div className="space-y-3 mb-6">
                         <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
+                          <CheckCircle2 className="h-4 w-4 text-blue-500 mr-2" />
                           Automated document analysis
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
+                          <CheckCircle2 className="h-4 w-4 text-blue-500 mr-2" />
                           Evidence extraction
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
-                          <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
+                          <CheckCircle2 className="h-4 w-4 text-blue-500 mr-2" />
                           Fast and comprehensive
                         </div>
                       </div>
@@ -1921,7 +1921,7 @@ export default function RiskAssessmentPage() {
                         className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
                       >
                         Continue to Assessment
-                        <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
                   </CardContent>
@@ -2067,7 +2067,7 @@ export default function RiskAssessmentPage() {
                   </Button>
                   <Button onClick={calculateRisk} className="bg-blue-600 hover:bg-blue-700 text-white">
                     Calculate Risk
-                    <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               </div>
