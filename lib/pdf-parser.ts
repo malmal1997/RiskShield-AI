@@ -12,6 +12,10 @@ export interface PDFExtractionResult {
     fileSize?: number
     hasImages?: boolean
     hasEmbeddedFonts?: boolean
+    title?: string;
+    author?: string;
+    creator?: string;
+    producer?: string;
   }
 }
 
@@ -23,26 +27,34 @@ export async function parsePDFContent(file: File): Promise<PDFExtractionResult> 
     // Try to use PDF.js for text extraction
     const pdfJsResult = await extractWithPDFJS(file)
     
-    if (pdfJsResult.success && pdfJsResult.text.length > 100) {
+    if (pdfJsResult.success && pdfJsResult.text && pdfJsResult.text.length > 100) {
       console.log(`✅ PDF.js extraction successful: ${pdfJsResult.text.length} characters`)
       return {
         ...pdfJsResult,
+        success: true, // Ensure success is true if text is found
+        text: pdfJsResult.text,
         method: "PDF.js",
-        confidence: 0.9
-      }
+        confidence: 0.9,
+        issues: pdfJsResult.issues || [],
+        metadata: pdfJsResult.metadata,
+      } as PDFExtractionResult; // Type assertion
     }
 
     // Fallback to binary analysis
     console.log("⚠️ PDF.js failed, trying binary analysis...")
     const binaryResult = await extractFromBinary(file)
     
-    if (binaryResult.success && binaryResult.text.length > 50) {
+    if (binaryResult.success && binaryResult.text && binaryResult.text.length > 50) {
       console.log(`⚠️ Binary extraction partial success: ${binaryResult.text.length} characters`)
       return {
         ...binaryResult,
+        success: true, // Ensure success is true if text is found
+        text: binaryResult.text,
         method: "Binary Analysis",
-        confidence: 0.3
-      }
+        confidence: 0.3,
+        issues: binaryResult.issues || [],
+        metadata: binaryResult.metadata,
+      } as PDFExtractionResult; // Type assertion
     }
 
     // All methods failed
@@ -60,7 +72,6 @@ export async function parsePDFContent(file: File): Promise<PDFExtractionResult> 
       ],
       metadata: { fileSize: file.size }
     }
-
   } catch (error) {
     console.error("💥 PDF extraction error:", error)
     return {
@@ -87,16 +98,17 @@ async function extractWithPDFJS(file: File): Promise<Partial<PDFExtractionResult
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
 
     let fullText = ""
-    const metadata: any = { pages: pdf.numPages }
+    const metadata: PDFExtractionResult['metadata'] = { pages: pdf.numPages }
 
     // Extract metadata
     try {
       const info = await pdf.getMetadata()
       if (info.info) {
-        metadata.title = info.info.Title
-        metadata.author = info.info.Author
-        metadata.creator = info.info.Creator
-        metadata.producer = info.info.Producer
+        const infoObj = info.info as { Title?: string; Author?: string; Creator?: string; Producer?: string };
+        metadata.title = infoObj.Title;
+        metadata.author = infoObj.Author;
+        metadata.creator = infoObj.Creator;
+        metadata.producer = infoObj.Producer;
       }
     } catch (metaError) {
       console.warn("Could not extract PDF metadata:", metaError)

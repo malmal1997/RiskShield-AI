@@ -451,7 +451,6 @@ async function performDirectAIAnalysis(
     const testResult = await generateText({
       model: google("gemini-1.5-flash"),
       prompt: "Reply with 'OK' if you can read this.",
-      maxTokens: 10,
       temperature: 0.1,
     })
 
@@ -615,7 +614,6 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             },
           ],
           temperature: 0.1,
-          maxTokens: 4000,
         })
         console.log(`✅ Successfully processed ${validPdfAttachments.length} PDF file(s) with Google AI`)
       } else {
@@ -625,7 +623,6 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           model: google("gemini-1.5-flash"),
           prompt: basePrompt,
           temperature: 0.1,
-          maxTokens: 4000,
         })
       }
     } else {
@@ -634,7 +631,6 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         model: google("gemini-1.5-flash"),
         prompt: basePrompt,
         temperature: 0.1,
-        maxTokens: 4000,
       })
     }
 
@@ -931,7 +927,6 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
       const result = await generateText({
         model: google("gemini-1.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
-        maxTokens: 10,
         temperature: 0.1,
       })
       results.google = result.text.toLowerCase().includes("ok")

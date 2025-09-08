@@ -138,7 +138,7 @@ function AnalyticsContent() {
     )
 
     return Object.entries(pageStats)
-      .sort(([, a], [, b]) => b - a)
+      .sort(([, a]: [string, number], [, b]: [string, number]) => b - a)
       .slice(0, 10)
       .map(([path, views]) => ({ path, views }))
   }
@@ -154,7 +154,7 @@ function AnalyticsContent() {
     )
 
     return Object.entries(featureStats)
-      .sort(([, a], [, b]) => b - a)
+      .sort(([, a]: [string, number], [, b]: [string, number]) => b - a)
       .slice(0, 10)
       .map(([feature, interactions]) => ({ feature, interactions }))
   }
@@ -286,7 +286,7 @@ function AnalyticsContent() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {data?.sessions.map((session) => (
+                  {data?.sessions.map((session: any) => (
                     <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div>
                         <div className="font-medium">Session {session.session_id.slice(-8)}</div>
@@ -318,7 +318,7 @@ function AnalyticsContent() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {data?.leads.map((lead) => (
+                  {data?.leads.map((lead: any) => (
                     <div key={lead.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div>
                         <div className="font-medium flex items-center space-x-2">
@@ -399,7 +399,7 @@ function AnalyticsContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {data?.interactions.slice(0, 10).map((interaction) => (
+                    {data?.interactions.slice(0, 10).map((interaction: any) => (
                       <div key={interaction.id} className="flex items-center justify-between text-sm">
                         <div>
                           <span className="font-medium">{interaction.feature_name}</span>
