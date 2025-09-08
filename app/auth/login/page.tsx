@@ -29,6 +29,7 @@ export default function LoginPage() {
     setError("")
 
     try {
+      // The signIn function in AuthContext now handles clearing the demo session
       const { error } = await signIn(email, password)
 
       if (error) {

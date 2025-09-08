@@ -2,8 +2,16 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react" // Import useState and useEffect
 
 export function DemoSessionSetup() {
+  const [hasDemoSession, setHasDemoSession] = useState(false) // Initialize client-side state
+
+  useEffect(() => {
+    // Check localStorage only after the component has mounted on the client
+    setHasDemoSession(localStorage.getItem("demo_session") !== null)
+  }, [])
+
   const createDemoSession = () => {
     const demoSession = {
       user: {
@@ -37,8 +45,6 @@ export function DemoSessionSetup() {
     localStorage.removeItem("demo_session")
     window.location.reload()
   }
-
-  const hasDemoSession = typeof window !== "undefined" && localStorage.getItem("demo_session")
 
   return (
     <Card className="max-w-md mx-auto mt-8">

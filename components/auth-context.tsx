@@ -254,6 +254,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    // Clear demo session before attempting a real login
+    localStorage.removeItem("demo_session")
+    setIsDemo(false)
+
     const { error } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
