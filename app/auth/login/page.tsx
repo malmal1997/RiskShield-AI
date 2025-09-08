@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [showPendingApproval, setShowPendingApproval] = useState(false); // New state for pending approval
   const router = useRouter()
-  const { signIn, user, profile, role, loading } = useAuth() // Get user, profile, role, loading from useAuth
+  const { signIn, user, profile, role, loading, signOut } = useAuth() // Get user, profile, role, loading from useAuth
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,7 +62,7 @@ export default function LoginPage() {
       // User is fully authenticated and approved, redirect to dashboard
       router.replace('/dashboard');
     }
-  }, [loading, user, profile, role, router]);
+  }, [loading, user, profile, role, setShowPendingApproval, setError, router, signOut]);
 
 
   if (showPendingApproval) {
