@@ -130,6 +130,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setOrganization(null)
       setRole(null)
       setIsDemo(false)
+    } finally {
+      setLoading(false); // Ensure loading is always set to false here
     }
   }
 
@@ -138,7 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const getInitialSession = async () => {
       await refreshProfile() // This handles both real and demo sessions
-      setLoading(false)
+      // setLoading(false) // Removed redundant setLoading(false) here, as it's in finally block of refreshProfile
     }
 
     getInitialSession()
@@ -151,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Always refresh profile on auth state change, let refreshProfile handle demo logic
         // This ensures the context is always up-to-date with Supabase's state
         await refreshProfile()
-        setLoading(false)
+        // setLoading(false) // Removed redundant setLoading(false) here, as it's in finally block of refreshProfile
       })
 
       subscription = authSubscription

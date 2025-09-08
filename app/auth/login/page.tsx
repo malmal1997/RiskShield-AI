@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { signIn, refreshProfile } = useAuth()
+  const { signIn } = useAuth() // Removed refreshProfile as it's handled by AuthContext's listener
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,14 +32,16 @@ export default function LoginPage() {
 
       if (error) {
         setError(error.message)
+        setIsLoading(false) // Ensure loading is set to false on error
       } else {
-        await refreshProfile(); // Refresh profile after successful login
-        router.push("/dashboard")
+        // On successful sign-in, AuthContext's onAuthStateChange listener will
+        // update the user state and AuthGuard will handle the redirect to /dashboard.
+        // No explicit refreshProfile or router.push needed here.
+        // The isLoading state will be managed by AuthContext's listener as well.
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
-    } finally {
-      setIsLoading(false)
+      setIsLoading(false) // Ensure loading is set to false on unexpected error
     }
   }
 
