@@ -59,6 +59,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter() // Initialize useRouter
 
   const refreshProfile = async () => {
+    setLoading(true); // Ensure loading is true at the start of refresh
+
     // Check for demo session first
     const demoSession = localStorage.getItem("demo_session")
     if (demoSession) {
@@ -87,23 +89,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } = await supabaseClient.auth.getUser()
 
       if (userError) {
-        console.error("AuthContext: Supabase getUser error:", userError.message)
-        setUser(null)
-        setProfile(null)
-        setOrganization(null)
-        setRole(null)
-        setIsDemo(false)
-        return
+        console.error("AuthContext: Supabase getUser error:", userError.message);
+        setUser(null); setProfile(null); setOrganization(null); setRole(null); setIsDemo(false);
+        return;
       }
 
       if (!user) {
-        console.log("AuthContext: No authenticated Supabase user found.")
-        setUser(null)
-        setProfile(null)
-        setOrganization(null)
-        setRole(null)
-        setIsDemo(false)
-        return
+        console.log("AuthContext: No authenticated Supabase user found.");
+        setUser(null); setProfile(null); setOrganization(null); setRole(null); setIsDemo(false);
+        return;
       }
 
       console.log("AuthContext: Supabase user found:", user.email, "ID:", user.id)
@@ -117,23 +111,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (profileError) {
-        console.error("AuthContext: Supabase profile error:", profileError.message)
-        setUser(user) // Still set user even if profile fails
-        setProfile(null)
-        setOrganization(null)
-        setRole(null)
-        setIsDemo(false)
-        return
+        console.error("AuthContext: Supabase profile error:", profileError.message);
+        setUser(user); setProfile(null); setOrganization(null); setRole(null); setIsDemo(false);
+        return;
       }
 
       if (!profile) {
-        console.log("AuthContext: No user profile found for user ID:", user.id)
-        setUser(user)
-        setProfile(null)
-        setOrganization(null)
-        setRole(null)
-        setIsDemo(false)
-        return
+        console.log("AuthContext: No user profile found for user ID:", user.id);
+        setUser(user); setProfile(null); setOrganization(null); setRole(null); setIsDemo(false);
+        return;
       }
 
       console.log("AuthContext: User profile found:", profile)
@@ -147,23 +133,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (orgError) {
-        console.error("AuthContext: Supabase organization error:", orgError.message)
-        setUser(user)
-        setProfile(profile)
-        setOrganization(null)
-        setRole(null)
-        setIsDemo(false)
-        return
+        console.error("AuthContext: Supabase organization error:", orgError.message);
+        setUser(user); setProfile(profile); setOrganization(null); setRole(null); setIsDemo(false);
+        return;
       }
 
       if (!organization) {
-        console.log("AuthContext: No organization found for ID:", profile.organization_id)
-        setUser(user)
-        setProfile(profile)
-        setOrganization(null)
-        setRole(null)
-        setIsDemo(false)
-        return
+        console.log("AuthContext: No organization found for ID:", profile.organization_id);
+        setUser(user); setProfile(profile); setOrganization(null); setRole(null); setIsDemo(false);
+        return;
       }
 
       console.log("AuthContext: Organization found:", organization.name)
@@ -178,23 +156,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (roleError) {
-        console.error("AuthContext: Supabase role error:", roleError.message)
-        setUser(user)
-        setProfile(profile)
-        setOrganization(organization)
-        setRole(null)
-        setIsDemo(false)
-        return
+        console.error("AuthContext: Supabase role error:", roleError.message);
+        setUser(user); setProfile(profile); setOrganization(organization); setRole(null); setIsDemo(false);
+        return;
       }
 
       if (!roleData) {
-        console.log("AuthContext: No user role found for user ID:", user.id)
-        setUser(user)
-        setProfile(profile)
-        setOrganization(organization)
-        setRole(null)
-        setIsDemo(false)
-        return
+        console.log("AuthContext: No user role found for user ID:", user.id);
+        setUser(user); setProfile(profile); setOrganization(organization); setRole(null); setIsDemo(false);
+        return;
       }
 
       console.log("AuthContext: User role found:", roleData.role)
@@ -222,7 +192,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const getInitialSession = async () => {
       await refreshProfile() // This handles both real and demo sessions
-      setLoading(false)
     }
 
     getInitialSession()
@@ -232,10 +201,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        console.log("AuthContext: Auth state changed:", event);
         // Always refresh profile on auth state change, let refreshProfile handle demo logic
         // This ensures the context is always up-to-date with Supabase's state
         await refreshProfile()
-        setLoading(false)
       })
 
       subscription = authSubscription

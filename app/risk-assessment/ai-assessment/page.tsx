@@ -40,6 +40,7 @@ import {
 // import { MainNavigation } from "@/components/main-navigation"
 import { AuthGuard } from "@/components/auth-guard"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
+import { getCurrentUserWithProfile } from "@/lib/auth-service" // Import for server-side user context
 
 // Complete assessment categories for AI assessment
 const assessmentCategories = [
@@ -2409,7 +2410,7 @@ ${emailResult.message}`)
               <ul class="recommendations-list">
                   ${riskResults.recommendations
                     .map(
-                      (recommendation) => `
+                      (recommendation: string, index: number) => `
                       <li>
                           <span class="list-icon">✅</span>
                           <span>${recommendation}</span>
@@ -2625,7 +2626,7 @@ ${emailResult.message}`)
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
                                   {delegation.delegationType === "third-party" ? (
-                                    <Building2 className="h-5 w-5 text-purple-600" />
+                                    <Building className="h-5 w-5 text-purple-600" />
                                   ) : (
                                     <Users className="h-5 w-5 text-purple-600" />
                                   )}
@@ -3005,10 +3006,10 @@ ${emailResult.message}`)
                           <Progress value={Math.round(progress)} />
                           <div className="mt-4">
                             <Label htmlFor="question">
-                              {currentQuestion + 1}. {currentQuestionData.question}
+                              {currentQuestion + 1}. {currentQuestionData?.question}
                             </Label>
                             <div className="mt-2">
-                              {currentQuestionData.type === "boolean" ? (
+                              {currentQuestionData?.type === "boolean" ? (
                                 <div className="flex space-x-4">
                                   <Button
                                     variant={answers[currentQuestionData.id] === true ? "default" : "outline"}
@@ -3023,7 +3024,7 @@ ${emailResult.message}`)
                                     No
                                   </Button>
                                 </div>
-                              ) : currentQuestionData.type === "tested" ? (
+                              ) : currentQuestionData?.type === "tested" ? (
                                 <div className="flex space-x-4">
                                   <Button
                                     variant={answers[currentQuestionData.id] === "tested" ? "default" : "outline"}
@@ -3044,7 +3045,7 @@ ${emailResult.message}`)
                                 </div>
                               ) : (
                                 <div className="grid gap-2">
-                                  {currentQuestionData.options?.map((option) => (
+                                  {currentQuestionData?.options?.map((option: string) => (
                                     <Button
                                       key={option}
                                       variant={answers[currentQuestionData.id] === option ? "default" : "outline"}
@@ -3060,8 +3061,8 @@ ${emailResult.message}`)
                                 <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
                                 <Textarea
                                   id="additionalInfo"
-                                  value={answers[`${currentQuestionData.id}_additional`] || ""}
-                                  onChange={(e) => handleAnswer(`${currentQuestionData.id}_additional`, e.target.value)}
+                                  value={answers[`${currentQuestionData?.id}_additional`] || ""}
+                                  onChange={(e) => handleAnswer(`${currentQuestionData?.id}_additional`, e.target.value)}
                                 />
                               </div>
                             </div>
@@ -3158,7 +3159,7 @@ ${emailResult.message}`)
                               onClick={() => handleDelegateTypeSelection("third-party")}
                             >
                               <div className="flex items-center space-x-2">
-                                <Building2 className="h-5 w-5 text-purple-600" />
+                                <Building className="h-5 w-5 text-purple-600" />
                                 <span className="font-semibold">Third-Party</span>
                               </div>
                               <span className="text-sm text-gray-600">Delegate to an external vendor or partner</span>

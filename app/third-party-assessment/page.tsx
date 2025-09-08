@@ -11,7 +11,7 @@ import { MainNavigation } from "@/components/main-navigation"
 import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Shield } from "lucide-react"
 import { sendAssessmentEmail } from "./email-service"
 import { getAssessments, createAssessment, deleteAssessment } from "@/lib/assessment-service"
-import type { Assessment } from "@/lib/supabase"
+import type { Assessment } from "@/lib/supabase" // Use the updated Assessment interface
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 
@@ -64,7 +64,7 @@ export default function ThirdPartyAssessment() {
       console.log("📋 Raw assessment data:", data)
 
       // Transform data to match our component expectations
-      const transformedData = data.map((assessment: any) => ({
+      const transformedData = data.map((assessment: Assessment) => ({
         id: assessment.id,
         vendorName: assessment.vendor_name,
         vendorEmail: assessment.vendor_email,
@@ -78,10 +78,12 @@ export default function ThirdPartyAssessment() {
         riskLevel: assessment.risk_level || "pending",
         companySize: assessment.company_size,
         customMessage: assessment.custom_message,
-        responses: assessment.assessment_responses?.[0] || null,
-        // Add vendor info from responses if available
-        completedVendorInfo: assessment.assessment_responses?.[0]?.vendor_info || null,
-        assessmentAnswers: assessment.assessment_responses?.[0]?.answers || null,
+        // Assuming assessment_responses is an array and we take the first one
+        responses: (assessment as any).assessment_responses?.[0] || null,
+        completedVendorInfo: (assessment as any).assessment_responses?.[0]?.vendor_info || null,
+        assessmentAnswers: (assessment as any).assessment_responses?.[0]?.answers || null,
+        user_id: assessment.user_id,
+        organization_id: assessment.organization_id,
       }))
 
       console.log("✅ Transformed assessment data:", transformedData)
@@ -102,9 +104,9 @@ export default function ThirdPartyAssessment() {
   }
 
   useEffect(() => {
-    if (!isPreviewMode) { // Only load real data if not in preview mode
+    if (!isPreviewMode && user) { // Only load real data if not in preview mode AND user is authenticated
       loadAssessments()
-    } else {
+    } else if (isPreviewMode) {
       // For preview mode, show some mock data
       setAssessments([
         {
@@ -121,6 +123,8 @@ export default function ThirdPartyAssessment() {
           custom_message: "This is a mock assessment for demo purposes.",
           created_at: "2024-01-15T10:00:00Z",
           updated_at: "2024-01-15T10:00:00Z",
+          user_id: "demo-user-id",
+          organization_id: "demo-org-id",
           responses: null,
           completedVendorInfo: null,
           assessmentAnswers: null,
@@ -140,6 +144,8 @@ export default function ThirdPartyAssessment() {
           custom_message: "This assessment has been completed in demo mode.",
           created_at: "2024-01-10T09:00:00Z",
           updated_at: "2024-01-20T14:30:00Z",
+          user_id: "demo-user-id",
+          organization_id: "demo-org-id",
           responses: {
             id: 1,
             vendor_info: { companyName: "Preview Analytics", contactName: "John Smith", email: "preview@analytics.com" },
@@ -152,7 +158,7 @@ export default function ThirdPartyAssessment() {
       ]);
       setIsLoading(false);
     }
-  }, [isPreviewMode])
+  }, [isPreviewMode, user]) // Depend on user to trigger reload when auth state changes
 
   // Modify handleSendInvite to show preview limitation
   const handleSendInvite = async () => {
@@ -378,9 +384,9 @@ ${assessmentLink}
 
   const filteredAssessments = assessments.filter((assessment) => {
     const matchesSearch =
-      assessment.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assessment.vendorEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assessment.assessmentType?.toLowerCase().includes(searchTerm.toLowerCase())
+      assessment.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      assessment.vendor_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      assessment.assessment_type?.toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesStatus = statusFilter === "all" || assessment.status === statusFilter
 
@@ -558,17 +564,17 @@ ${assessmentLink}
                           <Building className="h-5 w-5 text-gray-600" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900">{assessment.vendorName}</h3>
-                          <p className="text-sm text-gray-600">{assessment.vendorEmail}</p>
+                          <h3 className="font-semibold text-gray-900">{assessment.vendor_name}</h3>
+                          <p className="text-sm text-gray-600">{assessment.vendor_email}</p>
                           <div className="flex items-center space-x-4 mt-1">
                             {getStatusBadge(assessment.status)}
-                            <span className="text-sm text-gray-500">{assessment.assessmentType}</span>
-                            {assessment.riskLevel && assessment.riskLevel !== "pending" && (
-                              <Badge className={getRiskLevelColor(assessment.riskLevel)}>
-                                {assessment.riskLevel} Risk
+                            <span className="text-sm text-gray-500">{assessment.assessment_type}</span>
+                            {assessment.risk_level && assessment.risk_level !== "pending" && (
+                              <Badge className={getRiskLevelColor(assessment.risk_level)}>
+                                {assessment.risk_level} Risk
                               </Badge>
                             )}
-                            {assessment.responses && <Badge className="bg-blue-100 text-blue-800">Has Data</Badge>}
+                            {(assessment as any).responses && <Badge className="bg-blue-100 text-blue-800">Has Data</Badge>}
                           </div>
                         </div>
                       </div>
@@ -576,15 +582,15 @@ ${assessmentLink}
                         <div className="text-right">
                           <div className="text-sm text-gray-600">
                             <div>
-                              Sent: {assessment.sentDate ? new Date(assessment.sentDate).toLocaleDateString() : "N/A"}
+                              Sent: {assessment.sent_date ? new Date(assessment.sent_date).toLocaleDateString() : "N/A"}
                             </div>
-                            {assessment.dueDate && <div>Due: {new Date(assessment.dueDate).toLocaleDateString()}</div>}
-                            {assessment.completedDate && (
-                              <div>Completed: {new Date(assessment.completedDate).toLocaleDateString()}</div>
+                            {assessment.due_date && <div>Due: {new Date(assessment.due_date).toLocaleDateString()}</div>}
+                            {assessment.completed_date && (
+                              <div>Completed: {new Date(assessment.completed_date).toLocaleDateString()}</div>
                             )}
                           </div>
-                          {assessment.riskScore && (
-                            <div className="text-lg font-semibold text-gray-900 mt-1">{assessment.riskScore}/100</div>
+                          {assessment.risk_score && (
+                            <div className="text-lg font-semibold text-gray-900 mt-1">{assessment.risk_score}/100</div>
                           )}
                         </div>
                         <div className="flex space-x-2">
@@ -780,7 +786,7 @@ ${assessmentLink}
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">Assessment Results</h2>
                     <p className="text-gray-600">
-                      {selectedAssessment.vendorName} - {selectedAssessment.assessmentType}
+                      {selectedAssessment.vendor_name} - {selectedAssessment.assessment_type}
                     </p>
                   </div>
                   <Button variant="outline" onClick={() => setShowAssessmentDetails(false)}>
@@ -791,12 +797,12 @@ ${assessmentLink}
 
               <div className="p-6 space-y-6">
                 {/* Show if this has real data */}
-                {selectedAssessment.responses && (
+                {(selectedAssessment as any).responses && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <h3 className="font-semibold text-green-900 mb-2">✅ Assessment Completed</h3>
                     <p className="text-sm text-green-800">
                       This assessment was completed on{" "}
-                      {new Date(selectedAssessment.responses.submitted_at).toLocaleString()}
+                      {new Date((selectedAssessment as any).responses.submitted_at).toLocaleString()}
                     </p>
                   </div>
                 )}
@@ -807,11 +813,11 @@ ${assessmentLink}
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold">Risk Assessment Summary</h3>
                       <div className="flex items-center space-x-4">
-                        <Badge className={getRiskLevelColor(selectedAssessment.riskLevel)}>
-                          {selectedAssessment.riskLevel} Risk
+                        <Badge className={getRiskLevelColor(selectedAssessment.risk_level)}>
+                          {selectedAssessment.risk_level} Risk
                         </Badge>
-                        {selectedAssessment.riskScore && (
-                          <div className="text-2xl font-bold text-gray-900">{selectedAssessment.riskScore}/100</div>
+                        {selectedAssessment.risk_score && (
+                          <div className="text-2xl font-bold text-gray-900">{selectedAssessment.risk_score}/100</div>
                         )}
                       </div>
                     </div>
@@ -819,36 +825,36 @@ ${assessmentLink}
                       <div>
                         <p className="text-sm text-gray-600">Completed Date</p>
                         <p className="font-medium">
-                          {selectedAssessment.completedDate
-                            ? new Date(selectedAssessment.completedDate).toLocaleDateString()
+                          {selectedAssessment.completed_date
+                            ? new Date(selectedAssessment.completed_date).toLocaleDateString()
                             : "Not completed"}
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Assessment Type</p>
-                        <p className="font-medium">{selectedAssessment.assessmentType}</p>
+                        <p className="font-medium">{selectedAssessment.assessment_type}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Contact Person</p>
-                        <p className="font-medium">{selectedAssessment.contactPerson || "Not provided"}</p>
+                        <p className="font-medium">{selectedAssessment.contact_person || "Not provided"}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Vendor Information */}
-                {selectedAssessment.responses && (
+                {(selectedAssessment as any).responses && (
                   <Card>
                     <CardContent className="p-6">
                       <h3 className="text-lg font-semibold mb-4">Vendor Information</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-sm text-gray-600">Vendor Name</p>
-                          <p className="font-medium">{selectedAssessment.vendorName}</p>
+                          <p className="font-medium">{selectedAssessment.vendor_name}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Contact Person</p>
-                          <p className="font-medium">{selectedAssessment.contactPerson || "Not provided"}</p>
+                          <p className="font-medium">{selectedAssessment.contact_person || "Not provided"}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -856,18 +862,18 @@ ${assessmentLink}
                 )}
 
                 {/* Assessment Responses */}
-                {selectedAssessment.responses && selectedAssessment.assessmentAnswers && (
+                {(selectedAssessment as any).responses && (selectedAssessment as any).assessmentAnswers && (
                   <Card>
                     <CardContent className="p-6">
                       <h3 className="text-lg font-semibold mb-4">Assessment Responses</h3>
                       <div className="space-y-4">
-                        {Object.entries(selectedAssessment.assessmentAnswers).map(([questionId, answer]) => (
+                        {Object.entries((selectedAssessment as any).assessmentAnswers).map(([questionId, answer]) => (
                           <div key={questionId} className="border-b border-gray-200 pb-3">
                             <p className="text-sm font-medium text-gray-700 mb-1">
                               {questionId.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                             </p>
                             <p className="text-sm text-gray-600">
-                              {Array.isArray(answer) ? answer.join(", ") : answer}
+                              {Array.isArray(answer) ? answer.join(", ") : String(answer)}
                             </p>
                           </div>
                         ))}

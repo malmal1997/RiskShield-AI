@@ -25,7 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <TrackingProvider>
-            <MainNavigation showAuthButtons={true} /> {/* Render MainNavigation here */}
+            <MainNavigation /> {/* Render MainNavigation here without props */}
             {children}
             <Toaster />
           </TrackingProvider>
