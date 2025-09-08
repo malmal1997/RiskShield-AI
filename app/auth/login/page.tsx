@@ -64,6 +64,11 @@ export default function LoginPage() {
     }
   }, [loading, user, profile, role, setShowPendingApproval, setError, router, signOut]);
 
+  const handleDemoLogin = () => {
+    localStorage.setItem("demo_session", JSON.stringify({ user: { id: "demo-user-id", email: "demo@riskguard.ai", name: "Demo User" }, organization: { id: "demo-org-id", name: "RiskGuard Demo Organization", plan: "enterprise" }, role: "admin", loginTime: new Date().toISOString() }));
+    window.location.href = "/dashboard"; // Redirect to dashboard after setting demo session
+  };
+
 
   if (showPendingApproval) {
     return (
@@ -92,7 +97,7 @@ export default function LoginPage() {
           </Card>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -174,6 +179,9 @@ export default function LoginPage() {
                   Register your institution
                 </Link>
               </div>
+              <Button variant="link" onClick={handleDemoLogin} className="w-full text-blue-600 hover:underline">
+                Continue as Demo User
+              </Button>
             </div>
           </CardContent>
         </Card>
