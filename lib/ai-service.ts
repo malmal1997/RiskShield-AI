@@ -40,6 +40,7 @@ interface Question {
   type: "boolean" | "multiple" | "tested"
   options?: string[]
   weight: number
+  category?: string; // Added category
 }
 
 // Convert file to buffer for Google AI API
@@ -374,7 +375,7 @@ function checkSemanticRelevance(
 }
 
 // Direct Google AI analysis with file upload support
-async function performDirectAIAnalysis(
+export async function analyzeDocuments(
   files: File[],
   questions: Question[],
   assessmentType: string,
@@ -455,7 +456,7 @@ async function performDirectAIAnalysis(
     const testResult = await generateText({
       model: google("gemini-1.5-flash"),
       prompt: "Reply with 'OK' if you can read this.",
-      maxTokens: 10, // Changed from max_tokens
+      max_tokens: 10, 
       temperature: 0.1,
     })
 
@@ -523,7 +524,7 @@ CRITICAL INSTRUCTIONS:
 - For PDF files, use your native PDF reading capabilities to extract and analyze the content
 - THOROUGHLY scan ALL sections, pages, and content areas of each document
 - Look for ALL cybersecurity-related content including but not limited to:
-  * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen tests, pentests, security testing, vulnerability assessment, ethical hacking, red team, security audit, intrusion testing, security evaluation, vulnerability analysis
+  * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen tests, pentests, security testing, vulnerability assessment, ethical hacking, red team, security audit, intrusion testing, security evaluation, vulnerability testing
   * PENETRATION TESTING: penetration tests, pen tests, pentests, ethical hacking, red team exercises, intrusion testing, security audits
   * Security policies, procedures, controls, and measures
   * Access controls, authentication, authorization, user management
@@ -619,7 +620,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             },
           ],
           temperature: 0.1,
-          maxTokens: 4000, // Changed from max_tokens
+          max_tokens: 4000, 
         })
         console.log(`✅ Successfully processed ${validPdfAttachments.length} PDF file(s) with Google AI`)
       } else {
@@ -629,7 +630,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           model: google("gemini-1.5-flash"),
           prompt: basePrompt,
           temperature: 0.1,
-          maxTokens: 4000, // Changed from max_tokens
+          max_tokens: 4000, 
         })
       }
     } else {
@@ -638,7 +639,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         model: google("gemini-1.5-flash"),
         prompt: basePrompt,
         temperature: 0.1,
-        maxTokens: 4000, // Changed from max_tokens
+        max_tokens: 4000, 
       })
     }
 
@@ -897,44 +898,6 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   }
 }
 
-// Main analysis function
-export async function analyzeDocuments(
-  files: File[],
-  questions: Question[],
-  assessmentType: string,
-): Promise<DocumentAnalysisResult> {
-  console.log(`🚀 Starting Google AI analysis of ${files.length} files for ${assessmentType}`)
-
-  if (!files || files.length === 0) {
-    throw new Error("No files provided for analysis")
-  }
-
-  if (!questions || questions.length === 0) {
-    throw new Error("No questions provided for analysis")
-  }
-
-  try {
-    console.log("📁 File analysis:")
-    files.forEach((file, index) => {
-      const supported = isSupportedFileType(file)
-      const statusIcon = supported ? "✅" : "❌"
-      const supportText = supported ? "Supported for analysis" : "Unsupported format"
-      console.log(
-        `${statusIcon} ${file.name}: ${Math.round(file.size / 1024)}KB, ${file.type || "unknown"} - ${supportText}`,
-      )
-    })
-
-    // Perform direct AI analysis
-    const result = await performDirectAIAnalysis(files, questions, assessmentType)
-
-    console.log("🎉 Google AI analysis completed successfully")
-    return result
-  } catch (error) {
-    console.error("💥 Analysis failed:", error)
-    throw error
-  }
-}
-
 // Test Google AI provider
 export async function testAIProviders(): Promise<Record<string, boolean>> {
   const results: Record<string, boolean> = {}
@@ -945,7 +908,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
       const result = await generateText({
         model: google("gemini-1.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
-        maxTokens: 10, // Changed from max_tokens
+        max_tokens: 10, 
         temperature: 0.1,
       })
       results.google = result.text.toLowerCase().includes("ok")

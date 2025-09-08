@@ -205,8 +205,7 @@ function DashboardContent() {
               </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Real-time System Status - matching card style */}
       <section className="py-12 bg-gray-50">
@@ -726,6 +725,5 @@ function DashboardContent() {
           </div>
         </footer>
       </div>
-    </div>
   )
 }
