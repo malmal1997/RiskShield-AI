@@ -12,11 +12,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Shield, Eye, EyeOff, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/components/auth-context"
+import { createOrganization } from "@/lib/auth-service" // Import createOrganization
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     institutionName: "",
-    contactName: "",
+    contactFirstName: "", // Changed to contactFirstName
+    contactLastName: "",  // Added contactLastName
     email: "",
     phone: "",
     institutionType: "",
@@ -28,7 +30,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
-  const { signUp } = useAuth();
+  const { refreshProfile } = useAuth(); // Only need refreshProfile from useAuth
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,15 +51,23 @@ export default function RegisterPage() {
     }
 
     try {
-      const { error } = await signUp(formData.email, formData.password);
+      // Use createOrganization directly
+      const { error: orgCreationError } = await createOrganization({
+        organizationName: formData.institutionName,
+        userFirstName: formData.contactFirstName,
+        userLastName: formData.contactLastName,
+        userEmail: formData.email,
+        userPassword: formData.password,
+      });
 
-      if (error) {
-        setError(error.message);
+      if (orgCreationError) {
+        setError(orgCreationError.message);
       } else {
         setSuccess(true);
+        await refreshProfile(); // Refresh profile after successful organization creation
       }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.")
+    } catch (err: any) {
+      setError("An unexpected error occurred: " + (err.message || "Unknown error"));
     } finally {
       setIsLoading(false)
     }
@@ -77,11 +87,11 @@ export default function RegisterPage() {
                 <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
                 <h2 className="text-2xl font-bold text-gray-900">Registration Submitted!</h2>
                 <p className="text-gray-600">
-                  Thank you for your interest in RiskGuard AI. Please check your email to confirm your account. Our team will review your application and contact you within 1-2 business days to complete the setup process.
+                  Thank you for registering your institution with RiskGuard AI. Your account has been created, and a default organization has been set up for you. You can now sign in to access your dashboard.
                 </p>
                 <div className="pt-4">
-                  <Link href="/">
-                    <Button className="w-full">Return to Home</Button>
+                  <Link href="/auth/login">
+                    <Button className="w-full">Go to Sign In</Button>
                   </Link>
                 </div>
               </div>
@@ -138,15 +148,27 @@ export default function RegisterPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="contactName">Primary Contact Name *</Label>
-                <Input
-                  id="contactName"
-                  placeholder="John Smith"
-                  value={formData.contactName}
-                  onChange={(e) => handleInputChange("contactName", e.target.value)}
-                  required
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contactFirstName">Primary Contact First Name *</Label>
+                  <Input
+                    id="contactFirstName"
+                    placeholder="John"
+                    value={formData.contactFirstName}
+                    onChange={(e) => handleInputChange("contactFirstName", e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contactLastName">Primary Contact Last Name *</Label>
+                  <Input
+                    id="contactLastName"
+                    placeholder="Smith"
+                    value={formData.contactLastName}
+                    onChange={(e) => handleInputChange("contactLastName", e.target.value)}
+                    required
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

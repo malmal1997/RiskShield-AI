@@ -37,7 +37,7 @@ export interface DocumentAnalysisResult {
 interface Question {
   id: string
   question: string
-  type: "boolean" | "multiple"
+  type: "boolean" | "multiple" | "tested"
   options?: string[]
   weight: number
 }
@@ -410,6 +410,10 @@ async function performDirectAIAnalysis(
         answers[question.id] = question.options[0] || "Never"
         confidenceScores[question.id] = 0.95
         reasoning[question.id] = "No supported documents available for analysis. Using most conservative option."
+      } else if (question.type === "tested") {
+        answers[question.id] = "not_tested"
+        confidenceScores[question.id] = 0.95
+        reasoning[question.id] = "No supported documents available for analysis. Defaulting to 'Not Tested' for safety."
       }
     })
 
@@ -451,7 +455,7 @@ async function performDirectAIAnalysis(
     const testResult = await generateText({
       model: google("gemini-1.5-flash"),
       prompt: "Reply with 'OK' if you can read this.",
-      maxTokens: 10,
+      max_tokens: 10, // Changed from maxTokens
       temperature: 0.1,
     })
 
@@ -571,7 +575,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   try {
     console.log("🧠 Processing documents with Google AI (including PDFs)...")
 
-    let result
+    let result;
 
     if (pdfFiles.length > 0) {
       console.log(`📄 Sending ${pdfFiles.length} PDF file(s) directly to Google AI...`)
@@ -615,7 +619,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             },
           ],
           temperature: 0.1,
-          maxTokens: 4000,
+          max_tokens: 4000, // Changed from maxTokens
         })
         console.log(`✅ Successfully processed ${validPdfAttachments.length} PDF file(s) with Google AI`)
       } else {
@@ -625,7 +629,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           model: google("gemini-1.5-flash"),
           prompt: basePrompt,
           temperature: 0.1,
-          maxTokens: 4000,
+          max_tokens: 4000, // Changed from maxTokens
         })
       }
     } else {
@@ -634,7 +638,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         model: google("gemini-1.5-flash"),
         prompt: basePrompt,
         temperature: 0.1,
-        maxTokens: 4000,
+        max_tokens: 4000, // Changed from maxTokens
       })
     }
 
@@ -763,6 +767,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
               answers[questionId] = false
             } else if (question.options && question.options.length > 0) {
               answers[questionId] = question.options[0] // Most conservative option
+            } else if (question.type === "tested") {
+              answers[questionId] = "not_tested"
             }
 
             confidenceScores[questionId] = 0.9 // High confidence in conservative answer
@@ -777,6 +783,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             answers[questionId] = false
           } else if (question.options && question.options.length > 0) {
             answers[questionId] = question.options[0]
+          } else if (question.type === "tested") {
+            answers[questionId] = "not_tested"
           }
 
           confidenceScores[questionId] = 0.9
@@ -806,11 +814,17 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
 
   questions.forEach((question) => {
     const answer = answers[question.id]
-    maxScore += question.weight * (question.type === "boolean" ? 1 : 4)
-
-    if (question.type === "boolean") {
+    
+    if (question.type === "tested") {
+      maxScore += question.weight;
+      if (answer === "tested") {
+        totalScore += question.weight;
+      }
+    } else if (question.type === "boolean") {
+      maxScore += question.weight
       totalScore += answer ? question.weight : 0
     } else if (question.type === "multiple" && question.options) {
+      maxScore += question.weight * 4
       const optionIndex = question.options.indexOf(answer as string)
       if (optionIndex !== -1) {
         const scoreMultiplier = (question.options.length - 1 - optionIndex) / (question.options.length - 1)
@@ -931,7 +945,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
       const result = await generateText({
         model: google("gemini-1.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
-        maxTokens: 10,
+        max_tokens: 10, // Changed from maxTokens
         temperature: 0.1,
       })
       results.google = result.text.toLowerCase().includes("ok")

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input" // Added Input import
+import { Label } from "@/components/ui/label" // Added Label import
 import {
   Shield,
   FileText,
@@ -35,1226 +37,1162 @@ const policyTypes = [
   },
   {
     id: "compliance",
-    name: "Regulatory Compliance Policy",
-    description: "FDIC, OCC, and regulatory compliance policies tailored to your institution type and size.",
-    features: ["FDIC Compliance", "BSA/AML Requirements", "Consumer Protection", "Audit Procedures"],
-  },
-  {
-    id: "third-party",
-    name: "Third-Party Risk Management",
-    description: "Vendor management and third-party risk assessment policies with due diligence frameworks.",
-    features: ["Vendor Due Diligence", "Risk Assessment", "Contract Management", "Ongoing Monitoring"],
-  },
-  {
-    id: "business-continuity",
-    name: "Business Continuity Plan",
-    description: "Disaster recovery and business continuity planning with crisis management procedures.",
-    features: ["Disaster Recovery", "Crisis Management", "Communication Plans", "Recovery Procedures"],
-  },
-  {
-    id: "privacy",
-    name: "Privacy & Data Protection",
-    description: "Customer privacy protection policies compliant with federal and state regulations.",
-    features: ["Data Privacy", "Customer Rights", "Data Retention", "Breach Notification"],
-  },
-  {
-    id: "operational",
-    name: "Operational Risk Policy",
-    description: "Internal controls and operational risk management framework for daily operations.",
-    features: ["Internal Controls", "Risk Assessment", "Process Management", "Quality Assurance"],
-  },
-]
+    name: "Regulatory<dyad-problem-report summary="121 problems">
+<problem file="lib/ai-service.ts" line="458" column="7" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; max_tokens: number; temperature: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="lib/ai-service.ts" line="622" column="11" code="2345">Argument of type '{ model: LanguageModelV2; messages: { role: &quot;user&quot;; content: ({ type: &quot;file&quot;; data: ArrayBuffer; mediaType: string; } | { type: &quot;text&quot;; text: string; })[]; }[]; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { messages: ModelMessage[]; prompt?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="lib/ai-service.ts" line="632" column="11" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="lib/ai-service.ts" line="641" column="9" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="lib/ai-service.ts" line="948" column="9" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; max_tokens: number; temperature: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="lib/pdf-parser.ts" line="30" column="32" code="18048">'pdfJsResult.text' is possibly 'undefined'.</problem>
+<problem file="lib/pdf-parser.ts" line="31" column="54" code="18048">'pdfJsResult.text' is possibly 'undefined'.</problem>
+<problem file="lib/pdf-parser.ts" line="34" column="9" code="2322">Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.</problem>
+<problem file="lib/pdf-parser.ts" line="47" column="33" code="18048">'binaryResult.text' is possibly 'undefined'.</problem>
+<problem file="lib/pdf-parser.ts" line="48" column="60" code="18048">'binaryResult.text' is possibly 'undefined'.</problem>
+<problem file="lib/pdf-parser.ts" line="51" column="9" code="2322">Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.</problem>
+<problem file="app/analytics/page.tsx" line="141" column="13" code="2345">Argument of type '([, a]: [string, number], [, b]: [string, number]) =&gt; number' is not assignable to parameter of type '(a: [string, unknown], b: [string, unknown]) =&gt; number'.
+  Types of parameters '__0' and 'a' are incompatible.
+    Type '[string, unknown]' is not assignable to type '[string, number]'.
+      Type at position 1 in source is not compatible with type at position 1 in target.
+        Type 'unknown' is not assignable to type 'number'.</problem>
+<problem file="app/analytics/page.tsx" line="157" column="13" code="2345">Argument of type '([, a]: [string, number], [, b]: [string, number]) =&gt; number' is not assignable to parameter of type '(a: [string, unknown], b: [string, unknown]) =&gt; number'.
+  Types of parameters '__0' and 'a' are incompatible.
+    Type '[string, unknown]' is not assignable to type '[string, number]'.</problem>
+<problem file="app/dashboard/page.tsx" line="91" column="5" code="2322">Type 'null' is not assignable to type 'string | undefined'.</problem>
+<problem file="app/dashboard/page.tsx" line="102" column="5" code="2322">Type 'null' is not assignable to type 'string | undefined'.</problem>
+<problem file="app/dashboard/page.tsx" line="454" column="27" code="2322">Type '({ level, count }: { level: string; count: number; }) =&gt; string' is not assignable to type 'PieLabel&lt;PieLabelProps&gt; | undefined'.
+  Type '({ level, count }: { level: string; count: number; }) =&gt; string' is not assignable to type '(props: PieLabelProps) =&gt; ReactNode | ReactElement&lt;SVGElement, string | JSXElementConstructor&lt;any&gt;&gt;'.
+    Types of parameters '__0' and 'props' are incompatible.
+      Type 'PieLabelProps' is missing the following properties from type '{ level: string; count: number; }': level, count</problem>
+<problem file="app/policy-generator/page.tsx" line="907" column="26" code="2304">Cannot find name 'Label'.</problem>
+<problem file="app/policy-generator/page.tsx" line="910" column="27" code="2304">Cannot find name 'Label'.</problem>
+<problem file="app/policy-generator/page.tsx" line="911" column="26" code="2552">Cannot find name 'Input'. Did you mean 'oninput'?</problem>
+<problem file="app/policy-generator/page.tsx" line="915" column="38" code="7006">Parameter 'e' implicitly has an 'any' type.</problem>
+<problem file="app/policy-generator/page.tsx" line="922" column="26" code="2304">Cannot find name 'Label'.</problem>
+<problem file="app/policy-generator/page.tsx" line="925" column="27" code="2304">Cannot find name 'Label'.</problem>
+<problem file="app/policy-generator/page.tsx" line="951" column="26" code="2304">Cannot find name 'Label'.</problem>
+<problem file="app/policy-generator/page.tsx" line="954" column="27" code="2304">Cannot find name 'Label'.</problem>
+<problem file="app/policy-generator/page.tsx" line="956" column="28" code="2304">Cannot find name 'Input'.</problem>
+<problem file="app/policy-generator/page.tsx" line="960" column="40" code="7006">Parameter 'e' implicitly has an 'any' type.</problem>
+<problem file="app/policy-generator/page.tsx" line="973" column="26" code="2304">Cannot find name 'Label'.</problem>
+<problem file="app/policy-generator/page.tsx" line="976" column="27" code="2304">Cannot find name 'Label'.</problem>
+<problem file="app/policy-generator/page.tsx" line="977" column="26" code="2304">Cannot find name 'Input'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="1383" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="1385" column="25" code="18048">'question.weight' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="1390" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="1391" column="23" code="2532">Object is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="1393" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="1396" column="23" code="18048">'question.weight' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2129" column="24" code="7006">Parameter 'recommendation' implicitly has an 'any' type.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2727" column="51" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2730" column="28" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2733" column="50" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2734" column="61" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2739" column="50" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2740" column="61" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2745" column="31" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2748" column="50" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2749" column="61" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2754" column="50" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2755" column="61" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2766" column="32" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2769" column="52" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2770" column="63" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2782" column="49" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2783" column="64" code="18048">'currentQuestionData' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2826" column="58" code="7006">Parameter 'recommendation' implicitly has an 'any' type.</problem>
+<problem file="app/risk-assessment/page.tsx" line="2826" column="74" code="7006">Parameter 'index' implicitly has an 'any' type.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1362" column="27" code="2345">Argument of type '(prev: Record&lt;string, &quot;&quot; | &quot;exception&quot; | &quot;non-operational&quot;&gt;) =&gt; { [x: string]: &quot;&quot; | &quot;operational&quot; | &quot;exception&quot; | &quot;non-operational&quot;; }' is not assignable to parameter of type 'SetStateAction&lt;Record&lt;string, &quot;&quot; | &quot;exception&quot; | &quot;non-operational&quot;&gt;&gt;'.
+  Type '(prev: Record&lt;string, &quot;&quot; | &quot;exception&quot; | &quot;non-operational&quot;&gt;) =&gt; { [x: string]: &quot;&quot; | &quot;operational&quot; | &quot;exception&quot; | &quot;non-operational&quot;; }' is not assignable to type '(prevState: Record&lt;string, &quot;&quot; | &quot;exception&quot; | &quot;non-operational&quot;&gt;) =&gt; Record&lt;string, &quot;&quot; | &quot;exception&quot; | &quot;non-operational&quot;&gt;'.
+    Type '{ [x: string]: &quot;&quot; | &quot;operational&quot; | &quot;exception&quot; | &quot;non-operational&quot;; }' is not assignable to type 'Record&lt;string, &quot;&quot; | &quot;exception&quot; | &quot;non-operational&quot;&gt;'.
+      'string' index signatures are incompatible.
+        Type '&quot;&quot; | &quot;operational&quot; | &quot;exception&quot; | &quot;non-operational&quot;' is not assignable to type '&quot;&quot; | &quot;exception&quot; | &quot;non-operational&quot;'.
+          Type '&quot;operational&quot;' is not assignable to type '&quot;&quot; | &quot;exception&quot; | &quot;non-operational&quot;'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1617" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1618" column="23" code="2532">Object is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1620" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1624" column="25" code="18048">'question.weight' is possibly 'undefined'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2337" column="59" code="2349">This expression is not callable.
+  Each member of the union type '{ &lt;S extends { id: string; question: string; type: &quot;boolean&quot;; weight: number; options?: undefined; required?: undefined; } | { id: string; question: string; type: &quot;multiple&quot;; options: string[]; weight: number; required?: undefined; } | { ...; } | { ...; }&gt;(predicate: (value: { ...; } | ... 2 more ... | { ...; }, ind...' has signatures, but none of those signatures are compatible with each other.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2337" column="66" code="7006">Parameter 'q' implicitly has an 'any' type.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2387" column="29" code="2345">Argument of type 'Record&lt;string, &quot;&quot; | &quot;operational&quot; | &quot;exception&quot; | &quot;non-operational&quot;&gt;' is not assignable to parameter of type 'SetStateAction&lt;Record&lt;string, &quot;&quot; | &quot;exception&quot; | &quot;non-operational&quot;&gt;&gt;'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2433" column="26" code="2349">This expression is not callable.
+  Each member of the union type '{ &lt;S extends { referencedControl: string; controlDescription: string; testingDescription: string; auditorResponse: string; managementResponse: string; }&gt;(predicate: (value: { referencedControl: string; controlDescription: string; testingDescription: string; auditorResponse: string; managementResponse: string; }, ind...' has signatures, but none of those signatures are compatible with each other.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2433" column="34" code="7006">Parameter '_' implicitly has an 'any' type.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2433" column="37" code="7006">Parameter 'i' implicitly has an 'any' type.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="4076" column="40" code="2345">Argument of type '{ socType: string; reportType: string; auditor: string; auditorOpinion: string; auditorOpinionDate: string; socStartDate: string; socEndDate: string; exceptions: string; nonOperationalControls: string; ... 4 more ...; socDateAsOf: string; }' is not assignable to parameter of type 'SetStateAction&lt;{ socType: string; reportType: string; auditor: string; auditorOpinion: string; auditorOpinionDate: string; socStartDate: string; socEndDate: string; socDateAsOf: string; testedStatus: string; ... 5 more ...; userEntityControls: string; }&gt;'.
+  Property 'testedStatus' is missing in type '{ socType: string; reportType: string; auditor: string; auditorOpinion: string; auditorOpinionDate: string; socStartDate: string; socEndDate: string; exceptions: string; nonOperationalControls: string; ... 4 more ...; socDateAsOf: string; }' but required in type '{ socType: string; reportType: string; auditor: string; auditorOpinion: string; auditorOpinionDate: string; socStartDate: string; socEndDate: string; socDateAsOf: string; testedStatus: string; ... 5 more ...; userEntityControls: string; }'.</problem>
+<problem file="app/solutions/page.tsx" line="951" column="42" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="952" column="71" code="2531">Object is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="955" column="17" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="960" column="21" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="961" column="21" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="963" column="23" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="978" column="42" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="979" column="71" code="2531">Object is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="982" column="17" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="987" column="21" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="988" column="21" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="990" column="23" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="7" column="80" code="2307">Cannot find module '@/components/ui/form' or its corresponding type declarations.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="39" column="5" code="2322">Type 'Resolver&lt;{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendorRiskMa...' is not assignable to type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.
+  Types of parameters 'options' and 'options' are incompatible.
+    Type 'ResolverOptions&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }&gt;' is not assignable to type 'ResolverOptions&lt;{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendo...'.
+      Type '{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendorRiskManagementP...' is not assignable to type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="111" column="45" code="2345">Argument of type '(values: { name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }) =&gt; Promise&lt;...&gt;' is not assignable to parameter of type 'SubmitHandler&lt;TFieldValues&gt;'.
+  Types of parameters 'values' and 'data' are incompatible.
+    Type 'TFieldValues' is not assignable to type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }'.
+      Type 'FieldValues' is missing the following properties from type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }': name, email, company, dataBreachIncidentResponsePlan, and 4 more.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="115" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="128" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="141" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="155" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="171" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="187" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="203" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="219" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="235" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
+<problem file="app/third-party-assessment/page.tsx" line="88" column="22" code="2345">Argument of type '{ id: any; vendorName: any; vendorEmail: any; contactPerson: any; assessmentType: any; status: any; sentDate: any; completedDate: any; dueDate: any; riskScore: any; riskLevel: any; companySize: any; customMessage: any; responses: any; completedVendorInfo: any; assessmentAnswers: any; }[]' is not assignable to parameter of type 'SetStateAction&lt;Assessment[]&gt;'.
+  Type '{ id: any; vendorName: any; vendorEmail: any; contactPerson: any; assessmentType: any; status: any; sentDate: any; completedDate: any; dueDate: any; riskScore: any; riskLevel: any; companySize: any; customMessage: any; responses: any; completedVendorInfo: any; assessmentAnswers: any; }[]' is not assignable to type 'Assessment[]'.
+    Type '{ id: any; vendorName: any; vendorEmail: any; contactPerson: any; assessmentType: any; status: any; sentDate: any; completedDate: any; dueDate: any; riskScore: any; riskLevel: any; companySize: any; customMessage: any; responses: any; completedVendorInfo: any; assessmentAnswers: any; }' is missing the following properties from type 'Assessment': vendor_name, vendor_email, assessment_type, sent_date, and 3 more.</problem>
+<problem file="app/third-party-assessment/page.tsx" line="119" column="11" code="2322">Type 'null' is not assignable to type 'number | undefined'.</problem>
+<problem file="app/third-party-assessment/page.tsx" line="143" column="11" code="2322">Type '{ id: string; vendor_name: string; vendor_email: string; contact_person: string; assessment_type: string; status: &quot;completed&quot;; sent_date: string; completed_date: string; due_date: string; risk_score: number; ... 6 more ...; assessmentAnswers: { ...; }; }' is not assignable to type 'Assessment'.
+  Object literal may only specify known properties, and 'responses' does not exist in type 'Assessment'.</problem>
+<problem file="app/third-party-assessment/page.tsx" line="381" column="18" code="2551">Property 'vendorName' does not exist on type 'Assessment'. Did you mean 'vendor_name'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="382" column="18" code="2551">Property 'vendorEmail' does not exist on type 'Assessment'. Did you mean 'vendor_email'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="383" column="18" code="2551">Property 'assessmentType' does not exist on type 'Assessment'. Did you mean 'assessment_type'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="413" column="25" code="2322">Type '{ userEmail: string; onSignOut: (() =&gt; void) | undefined; }' is not assignable to type 'IntrinsicAttributes &amp; NavigationProps'.
+  Property 'userEmail' does not exist on type 'IntrinsicAttributes &amp; NavigationProps'.</problem>
+<problem file="app/third-party-assessment/page.tsx" line="432" column="25" code="2322">Type '{ userEmail: string; onSignOut: (() =&gt; void) | undefined; }' is not assignable to type 'IntrinsicAttributes &amp; NavigationProps'.
+  Property 'userEmail' does not exist on type 'IntrinsicAttributes &amp; NavigationProps'.</problem>
+<problem file="app/third-party-assessment/page.tsx" line="561" column="83" code="2551">Property 'vendorName' does not exist on type 'Assessment'. Did you mean 'vendor_name'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="562" column="76" code="2551">Property 'vendorEmail' does not exist on type 'Assessment'. Did you mean 'vendor_email'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="565" column="81" code="2551">Property 'assessmentType' does not exist on type 'Assessment'. Did you mean 'assessment_type'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="566" column="41" code="2551">Property 'riskLevel' does not exist on type 'Assessment'. Did you mean 'risk_level'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="566" column="65" code="2551">Property 'riskLevel' does not exist on type 'Assessment'. Did you mean 'risk_level'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="567" column="78" code="2551">Property 'riskLevel' does not exist on type 'Assessment'. Did you mean 'risk_level'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="568" column="45" code="2551">Property 'riskLevel' does not exist on type 'Assessment'. Did you mean 'risk_level'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="571" column="41" code="2339">Property 'responses' does not exist on type 'Assessment'.</problem>
+<problem file="app/third-party-assessment/page.tsx" line="579" column="49" code="2551">Property 'sentDate' does not exist on type 'Assessment'. Did you mean 'sent_date'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="579" column="80" code="2551">Property 'sentDate' does not exist on type 'Assessment'. Did you mean 'sent_date'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="581" column="41" code="2551">Property 'dueDate' does not exist on type 'Assessment'. Did you mean 'due_date'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="581" column="83" code="2551">Property 'dueDate' does not exist on type 'Assessment'. Did you mean 'due_date'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="582" column="41" code="2551">Property 'completedDate' does not exist on type 'Assessment'. Did you mean 'completed_date'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="583" column="68" code="2551">Property 'completedDate' does not exist on type 'Assessment'. Did you mean 'completed_date'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="586" column="39" code="2551">Property 'riskScore' does not exist on type 'Assessment'. Did you mean 'risk_score'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="587" column="99" code="2551">Property 'riskScore' does not exist on type 'Assessment'. Did you mean 'risk_score'?</problem>
+<problem file="app/third-party-assessment/page.tsx" line="870" column="31" code="2322">Type 'unknown' is not assignable to type 'ReactNode'.</problem>
+<problem file="app/vendor-assessment/[id]/page.tsx" line="769" column="18" code="18046">'error' is of type 'unknown'.</problem>
+<problem file="app/vendor-assessment/[id]/page.tsx" line="770" column="16" code="18046">'error' is of type 'unknown'.</problem>
+<problem file="app/vendor-assessment/[id]/page.tsx" line="1333" column="47" code="7006">Parameter 'option' implicitly has an 'any' type.</problem>
+<problem file="app/vendor-assessment/[id]/page.tsx" line="1344" column="47" code="7006">Parameter 'option' implicitly has an 'any' type.</problem>
+<problem file="components/mobile-nav.tsx" line="5" column="51" code="2307">Cannot find module '@/components/ui/sheet' or its corresponding type declarations.</problem>
+<problem file="components/theme-provider.tsx" line="9" column="33" code="2339">Property 'children' does not exist on type 'ThemeProviderProps'.</problem>
+</dyad-problem-report><think>**Begin Implementation**
 
-const institutionTypes = [
-  "Community Bank",
-  "Regional Bank",
-  "Credit Union",
-  "Fintech Company",
-  "Investment Firm",
-  "Insurance Company",
-  "Mortgage Company",
-  "Payment Processor",
-]
+I'm now diving into the implementation phase. Based on my analysis, I've outlined the necessary changes to address the 121 TypeScript errors. My approach prioritizes efficiency, starting with the most impactful fixes first. I'll meticulously apply the planned changes, focusing on ensuring each adjustment aligns with the project's overall structure and maintains code integrity.
 
-export default function PolicyGenerator() {
-  const [formData, setFormData] = useState({
-    companyName: "",
-    institutionType: "",
-    selectedPolicy: "",
-    employeeCount: "",
-    assets: "",
-  })
-  const [generatedPolicy, setGeneratedPolicy] = useState<any>(null)
-  const [editedPolicy, setEditedPolicy] = useState<any>(null)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [isApproved, setIsApproved] = useState(false)
-  const [approvalData, setApprovalData] = useState({
-    clientName: "",
-    role: "",
-    signature: "",
-    date: "",
-  })
-  const [copied, setCopied] = useState(false)
-  const [currentStep, setCurrentStep] = useState<"form" | "generated" | "editing" | "approval" | "completed">("form")
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
 
-  useEffect(() => {
-    const hasAuth = localStorage.getItem("demo_session")
-    setIsPreviewMode(!hasAuth)
-  }, [])
+**Executing the Fixes**
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!formData.companyName || !formData.institutionType || !formData.selectedPolicy) {
-      return
-    }
+I'm systematically implementing the fixes, beginning with `ai-service.ts` to address the `maxTokens` discrepancies and ensure `question.weight` is handled correctly as a number. Following that, I'll tackle the `pdf-parser.ts` file, ensuring robust type handling for text extraction and access to PDF metadata. Next, I'll move on to `app/analytics/page.tsx`, and make those minor type adjustments. I anticipate smooth sailing for the remaining files, applying the planned changes one by one.
 
-    if (isPreviewMode) {
-      alert("Preview Mode: Policy generated! Sign up to save, edit, and export your policies.")
-    }
 
-    setIsGenerating(true)
-    try {
-      const policy = await generatePolicy(formData)
-      setGeneratedPolicy(policy)
-      setEditedPolicy(policy)
-      setCurrentStep("generated")
-    } catch (error) {
-      console.error("Error generating policy:", error)
-    } finally {
-      setIsGenerating(false)
-    }
-  }
+**Initiating Fix Implementation**
 
-  const handleEdit = () => {
-    setIsEditing(true)
-    setCurrentStep("editing")
-  }
+I'm now starting the implementation of the fixes. My immediate focus is on `lib/ai-service.ts`, addressing `max_tokens` discrepancies and ensuring the correct handling of `question.weight`. After that, I'll move on to `lib/pdf-parser.ts`, making sure text extraction and metadata access are robust. Then, the focus will shift to `app/analytics/page.tsx` and the simple type adjustments needed there. The changes should be straightforward to implement.
 
-  const handleSaveEdit = () => {
-    setGeneratedPolicy(editedPolicy)
-    setIsEditing(false)
-    setCurrentStep("generated")
-  }
 
-  const handleCancelEdit = () => {
-    setEditedPolicy(generatedPolicy)
-    setIsEditing(false)
-    setCurrentStep("generated")
-  }
+**Implementing the Changes**
 
-  const handleApprove = () => {
-    setCurrentStep("approval")
-  }
+I'm now methodically applying the fixes. Starting with `lib/ai-service.ts`, I've adjusted `maxTokens` and ensured `question.weight` is a number. Next, I'll tackle `lib/pdf-parser.ts`, ensuring robust type handling for text and metadata. Progress is steady; the straightforward changes in `app/analytics/page.tsx` will follow. I'll maintain this structured approach for the remaining files.
 
-  const handleFinalApproval = () => {
-    if (!approvalData.clientName || !approvalData.role || !approvalData.signature) {
-      alert("Please fill in all approval fields including your role")
-      return
-    }
 
-    setApprovalData({
-      ...approvalData,
-      date: new Date().toLocaleDateString(),
-    })
-    setIsApproved(true)
-    setCurrentStep("completed")
-  }
+</think>Okay, I understand the remaining TypeScript errors. It seems like a mix of type mismatches, implicit `any` types, missing component imports, and incorrect property access on potentially null/undefined objects.
 
-  const copyToClipboard = async () => {
-    const textContent = convertPolicyToText(editedPolicy)
-    await navigator.clipboard.writeText(textContent)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+I'll go through and fix these errors by:
 
-  const convertPolicyToText = (policy: any) => {
-    if (!policy) return ""
+1.  **Correcting AI SDK parameter**: Changing `maxTokens` to `max_tokens` in `lib/ai-service.ts`.
+2.  **Refining PDF parsing types**: Ensuring `text` is always a string and casting metadata to `any` in `lib/pdf-parser.ts`.
+3.  **Adding explicit types**: Specifying types for parameters in `map`, `sort`, and event handlers.
+4.  **Importing missing UI components**: Adding `Label` and `Input` imports where needed.
+5.  **Creating `components/ui/form.tsx`**: This file is missing but referenced by `app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx`. I'll create it with the necessary `Form` components.
+6.  **Adjusting form schema and handlers**: Modifying types in `app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx` to align with `react-hook-form` and `zod`.
+7.  **Updating `Assessment` interface and data mapping**: Creating a `UIAssessment` interface for UI-specific data and mapping database fields correctly in `app/third-party-assessment/page.tsx`.
+8.  **Removing unused `MainNavigation` props**: Removing `userEmail` and `onSignOut` from `MainNavigation` calls.
+9.  **Adding null checks**: Implementing checks for potentially `null` or `undefined` objects.
+10. **Creating `components/ui/sheet.tsx`**: This file is missing but referenced by `components/mobile-nav.tsx`. I'll create it with the necessary `Sheet` components.
+11. **Updating `ThemeProviderProps`**: Adding `children: React.ReactNode` to the `ThemeProviderProps` interface.
 
-    let text = `${policy.title}\n${policy.companyName}\n\n`
-    text += `Effective Date: ${policy.effectiveDate}\n`
-    text += `Institution Type: ${policy.institutionType}\n`
-    if (policy.employeeCount) text += `Employee Count: ${policy.employeeCount}\n`
-    if (policy.assets) text += `Total Assets: ${policy.assets}\n\n`
+These changes will resolve all the reported TypeScript errors.
 
-    policy.sections.forEach((section: any) => {
-      text += `${section.number}. ${section.title}\n`
-      if (section.content) {
-        text += `${section.content}\n\n`
+<dyad-write path="lib/ai-service.ts" description="Updating AI SDK calls to use 'max_tokens' instead of 'maxTokens' and refining types for document excerpts.">
+import { generateText } from "ai"
+import { google } from "@ai-sdk/google"
+
+export interface DocumentAnalysisResult {
+  answers: Record<string, boolean | string>
+  confidenceScores: Record<string, number>
+  reasoning: Record<string, string>
+  overallAnalysis: string
+  riskFactors: string[]
+  recommendations: string[]
+  riskScore: number
+  riskLevel: string
+  analysisDate: string
+  documentsAnalyzed: number
+  aiProvider?: string
+  documentExcerpts?: Record<
+    string,
+    Array<{
+      fileName: string
+      excerpt: string
+      relevance: string
+      pageOrSection?: string
+      quote?: string
+      pageNumber?: number
+      lineNumber?: number
+    }>
+  >
+  directUploadResults?: Array<{
+    fileName: string
+    success: boolean
+    fileSize: number
+    fileType: string
+    processingMethod: string
+  }>
+}
+
+interface Question {
+  id: string
+  question: string
+  type: "boolean" | "multiple" | "tested"
+  options?: string[]
+  weight: number
+}
+
+// Convert file to buffer for Google AI API
+async function fileToBuffer(file: File): Promise<ArrayBuffer> {
+  return await file.arrayBuffer()
+}
+
+// Extract text content from files directly (for non-PDF files)
+async function extractTextFromFile(file: File): Promise<{ text: string; success: boolean; method: string }> {
+  const fileType = file.type.toLowerCase()
+  const fileName = file.name.toLowerCase()
+
+  try {
+    // Handle PDF files - we'll send these directly to Google AI
+    if (fileType.includes("application/pdf") || fileName.endsWith(".pdf")) {
+      console.log(`📄 PDF file detected: ${file.name} - will be sent directly to Google AI`)
+      return {
+        text: "", // Empty text - PDF will be sent as file attachment
+        success: true,
+        method: "pdf-direct-upload",
       }
-      if (section.items) {
-        section.items.forEach((item: string) => {
-          text += `- ${item}\n`
-        })
-        text += "\n"
+    }
+
+    // Handle plain text files
+    if (fileType.includes("text/plain") || fileName.endsWith(".txt")) {
+      const text = await file.text()
+      console.log(`✅ Text file processed: ${text.length} characters`)
+      return {
+        text,
+        success: true,
+        method: "direct-text",
       }
-    })
-
-    return text
-  }
-
-  const downloadAsPDF = async () => {
-    if (isPreviewMode) {
-      alert("Preview Mode: Sign up to download and save your policies. This feature requires an account.")
-      return
     }
-    try {
-      // Create HTML content for PDF
-      const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>${editedPolicy?.title} - ${formData.companyName}</title>
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
-          body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            line-height: 1.6; 
-            color: #333; 
-            max-width: 800px; 
-            margin: 0 auto; 
-            padding: 40px 20px;
-          }
-          .header { 
-            text-align: center; 
-            border-bottom: 3px solid #2563eb; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-          }
-          .company-name { 
-            font-size: 28px; 
-            font-weight: bold; 
-            color: #2563eb; 
-            margin-bottom: 10px; 
-          }
-          .policy-title { 
-            font-size: 24px; 
-            font-weight: bold; 
-            color: #1f2937; 
-            margin-bottom: 20px; 
-          }
-          .meta-info { 
-            background: #f8fafc; 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin-bottom: 30px; 
-          }
-          .section { 
-            margin-bottom: 25px; 
-          }
-          .section-title { 
-            font-size: 18px; 
-            font-weight: bold; 
-            color: #2563eb; 
-            margin-bottom: 10px; 
-            border-left: 4px solid #2563eb; 
-            padding-left: 15px; 
-          }
-          .section-content { 
-            margin-left: 20px; 
-            margin-bottom: 15px; 
-          }
-          .section-items { 
-            margin-left: 40px; 
-          }
-          .section-items li { 
-            margin-bottom: 5px; 
-          }
-          .approval-section { 
-            margin-top: 50px; 
-            padding-top: 30px; 
-            border-top: 2px solid #e5e7eb; 
-          }
-          .signature-container {
-            margin: 20px 0;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 8px;
-          }
-          .signature-line { 
-            font-family: 'Dancing Script', cursive;
-            font-size: 24px;
-            color: #2563eb;
-            border-bottom: 2px solid #2563eb;
-            padding: 10px 0;
-            margin: 10px 0;
-            text-align: center;
-            font-weight: 700;
-          }
-          .approver-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 20px 0;
-          }
-          .footer { 
-            margin-top: 50px; 
-            text-align: center; 
-            font-size: 12px; 
-            color: #6b7280; 
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <div class="company-name">${formData.companyName}</div>
-          <div class="policy-title">${editedPolicy?.title}</div>
-        </div>
-        
-        <div class="meta-info">
-          <strong>Effective Date:</strong> ${editedPolicy?.effectiveDate}<br>
-          <strong>Institution Type:</strong> ${editedPolicy?.institutionType}<br>
-          ${editedPolicy?.employeeCount ? `<strong>Employee Count:</strong> ${editedPolicy.employeeCount}<br>` : ""}
-          ${editedPolicy?.assets ? `<strong>Total Assets:</strong> ${editedPolicy.assets}<br>` : ""}
-          <strong>Document Status:</strong> ${isApproved ? "APPROVED" : "DRAFT"}
-        </div>
-        
-        ${editedPolicy?.sections
-          .map(
-            (section: any) => `
-          <div class="section">
-            <div class="section-title">${section.number}. ${section.title}</div>
-            ${section.content ? `<div class="section-content">${section.content}</div>` : ""}
-            ${
-              section.items
-                ? `
-              <ul class="section-items">
-                ${section.items.map((item: string) => `<li>${item}</li>`).join("")}
-              </ul>
-            `
-                : ""
-            }
-          </div>
-        `,
-          )
-          .join("")}
-        
-        ${
-          isApproved
-            ? `
-          <div class="approval-section">
-            <h3>POLICY APPROVAL</h3>
-            <div class="approver-info">
-              <div>
-                <p><strong>Approved by:</strong> ${approvalData.clientName}</p>
-                <p><strong>Title/Role:</strong> ${approvalData.role}</p>
-                <p><strong>Date:</strong> ${approvalData.date}</p>
-              </div>
-              <div>
-                <p><strong>Digital Signature:</strong></p>
-                <div class="signature-container">
-                  <div class="signature-line">${approvalData.signature}</div>
-                </div>
-              </div>
-            </div>
-            <p style="text-align: center; margin-top: 20px;"><strong>Status: APPROVED</strong></p>
-          </div>
-        `
-            : ""
-        }
-        
-        <div class="footer">
-          Generated by RiskGuard AI Policy Generator<br>
-          ${new Date().toLocaleDateString()} - Confidential Document
-        </div>
-      </body>
-      </html>
-    `
 
-      // Create blob and download
-      const blob = new Blob([htmlContent], { type: "text/html" })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `${formData.companyName}-${formData.selectedPolicy}-policy-${isApproved ? "APPROVED" : "DRAFT"}.html`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+    // Handle other supported text-based formats
+    if (
+      fileName.endsWith(".md") ||
+      fileName.endsWith(".csv") ||
+      fileName.endsWith(".json") ||
+      fileName.endsWith(".html") ||
+      fileName.endsWith(".xml")
+    ) {
+      const text = await file.text()
+      console.log(`✅ ${fileName.split(".").pop()?.toUpperCase()} file processed: ${text.length} characters`)
+      return {
+        text,
+        success: true,
+        method: "direct-text",
+      }
+    }
 
-      // Note: For true PDF generation, you would need a library like jsPDF or Puppeteer
-      // This creates an HTML file that can be printed to PDF by the browser
-      alert('Policy downloaded as HTML file. Use your browser\'s "Print to PDF" feature to convert to PDF.')
-    } catch (error) {
-      console.error("Error downloading policy:", error)
-      alert("Error downloading policy. Please try again.")
+    // Fallback for other files
+    return {
+      text: `[UNSUPPORTED FILE: ${file.name}] - File format not supported for text extraction`,
+      success: false,
+      method: "unsupported",
+    }
+  } catch (error) {
+    console.error(`Error processing file ${file.name}:`, error)
+    return {
+      text: `[ERROR: ${file.name}] - ${error instanceof Error ? error.message : "Unknown error"}`,
+      success: false,
+      method: "error",
     }
   }
+}
 
-  const resetForm = () => {
-    setFormData({
-      companyName: "",
-      institutionType: "",
-      selectedPolicy: "",
-      employeeCount: "",
-      assets: "",
-    })
-    setGeneratedPolicy(null)
-    setEditedPolicy(null)
-    setIsApproved(false)
-    setApprovalData({
-      clientName: "",
-      role: "",
-      signature: "",
-      date: "",
-    })
-    setCurrentStep("form")
-  }
+// Check if file type is supported by Google AI
+function isSupportedFileType(file: File): boolean {
+  const supportedTypes = [
+    "application/pdf",
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json",
+    "text/html",
+    "application/xml",
+    "text/xml",
+  ]
 
-  const selectedPolicyDetails = policyTypes.find((p) => p.id === formData.selectedPolicy)
-
-  // Render policy in a professional format
-  const renderPolicy = (policy: any) => {
-    if (!policy) return null
-
-    return (
-      <div className="bg-white">
-        {/* Policy Header */}
-        <div className="text-center border-b-4 border-blue-600 pb-6 mb-8">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">{formData.companyName}</h1>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">{policy.title}</h2>
-          <div className="bg-gray-50 rounded-lg p-4 inline-block">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <strong>Effective Date:</strong> {policy.effectiveDate}
-              </div>
-              <div>
-                <strong>Institution Type:</strong> {policy.institutionType}
-              </div>
-              {policy.employeeCount && (
-                <div>
-                  <strong>Employee Count:</strong> {policy.employeeCount}
-                </div>
-              )}
-              {policy.assets && (
-                <div>
-                  <strong>Total Assets:</strong> {policy.assets}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Policy Sections */}
-        <div className="space-y-8">
-          {policy.sections.map((section: any, index: number) => (
-            <div key={index} className="border-l-4 border-blue-200 pl-6">
-              <h3 className="text-xl font-bold text-blue-600 mb-3">
-                {section.number}. {section.title}
-              </h3>
-              {section.content && (
-                <div className="text-gray-700 mb-4 leading-relaxed">
-                  {section.content.split("\n").map((paragraph: string, pIndex: number) => (
-                    <p key={pIndex} className="mb-3">
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              )}
-              {section.items && (
-                <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
-                  {section.items.map((item: string, itemIndex: number) => (
-                    <li key={itemIndex}>{item}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="mt-12 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
-          <p>Next Review Date: {policy.nextReviewDate}</p>
-          <p className="mt-2">Generated by RiskGuard AI Policy Generator</p>
-        </div>
-      </div>
-    )
-  }
+  const supportedExtensions = [".pdf", ".txt", ".md", ".csv", ".json", ".html", ".xml", ".htm"]
 
   return (
-    <AuthGuard
-      allowPreview={true}
-      previewMessage="Preview Mode: Generate policies for free! Sign up to save, edit, and export them."
-    >
-      <div className="min-h-screen bg-white">
-        {/* Header - Removed */}
-
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-blue-50 to-white py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">AI-Powered</Badge>
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-                AI Policy Generator
-                <br />
-                <span className="text-blue-600">for All Organizations</span>
-              </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-                Generate, edit, approve, and export all types of policies - from cybersecurity and compliance to
-                operational and privacy policies for any organization.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Progress Steps */}
-        <section className="py-8 bg-gray-50">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-center space-x-8">
-              <div
-                className={`flex items-center space-x-2 ${
-                  currentStep === "form"
-                    ? "text-blue-600"
-                    : currentStep === "generated" ||
-                        currentStep === "editing" ||
-                        currentStep === "approval" ||
-                        currentStep === "completed"
-                      ? "text-green-600"
-                      : "text-gray-400"
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    currentStep === "form"
-                      ? "bg-blue-600 text-white"
-                      : currentStep === "generated" ||
-                          currentStep === "editing" ||
-                          currentStep === "approval" ||
-                          currentStep === "completed"
-                        ? "bg-green-600 text-white"
-                        : "bg-gray-300"
-                  }`}
-                >
-                  1
-                </div>
-                <span className="font-medium">Generate</span>
-              </div>
-              <div
-                className={`w-16 h-1 ${
-                  currentStep === "generated" ||
-                  currentStep === "editing" ||
-                  currentStep === "approval" ||
-                  currentStep === "completed"
-                    ? "bg-green-600"
-                    : "bg-gray-300"
-                }`}
-              ></div>
-              <div
-                className={`flex items-center space-x-2 ${
-                  currentStep === "generated" || currentStep === "editing"
-                    ? "text-blue-600"
-                    : currentStep === "approval" || currentStep === "completed"
-                      ? "text-green-600"
-                      : "text-gray-400"
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    currentStep === "generated" || currentStep === "editing"
-                      ? "bg-blue-600 text-white"
-                      : currentStep === "approval" || currentStep === "completed"
-                        ? "bg-green-600 text-white"
-                        : "bg-gray-300"
-                  }`}
-                >
-                  2
-                </div>
-                <span className="font-medium">Review & Edit</span>
-              </div>
-              <div
-                className={`w-16 h-1 ${
-                  currentStep === "approval" || currentStep === "completed" ? "bg-green-600" : "bg-gray-300"
-                }`}
-              ></div>
-              <div
-                className={`flex items-center space-x-2 ${
-                  currentStep === "approval"
-                    ? "text-blue-600"
-                    : currentStep === "completed"
-                      ? "text-green-600"
-                      : "text-gray-400"
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    currentStep === "approval"
-                      ? "bg-blue-600 text-white"
-                      : currentStep === "completed"
-                        ? "bg-green-600 text-white"
-                        : "bg-gray-300"
-                  }`}
-                >
-                  3
-                </div>
-                <span className="font-medium">Approve & Export</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Main Content */}
-        <section className="py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {/* Step 1: Form */}
-            {currentStep === "form" && (
-              <div className="max-w-4xl mx-auto flex justify-center">
-                {/* Form */}
-                <div>
-                  <Card className="border border-gray-200">
-                    <CardHeader>
-                      <CardTitle className="text-2xl">Generate Your Custom Policy</CardTitle>
-                      <CardDescription>
-                        Provide your company details and select the type of policy you need. Our AI will generate a
-                        comprehensive, tailored policy document.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Company Name *</label>
-                          <input
-                            type="text"
-                            required
-                            value={formData.companyName}
-                            onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your company name"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Institution Type *</label>
-                          <select
-                            required
-                            value={formData.institutionType}
-                            onChange={(e) => setFormData({ ...formData, institutionType: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="">Select institution type</option>
-                            {institutionTypes.map((type) => (
-                              <option key={type} value={type}>
-                                {type}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Employee Count</label>
-                          <select
-                            value={formData.employeeCount}
-                            onChange={(e) => setFormData({ ...formData, employeeCount: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="">Select employee count</option>
-                            <option value="1-10">1-10 employees</option>
-                            <option value="11-50">11-50 employees</option>
-                            <option value="51-200">51-200 employees</option>
-                            <option value="201-500">201-500 employees</option>
-                            <option value="500+">500+ employees</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Total Assets (Optional)
-                          </label>
-                          <select
-                            value={formData.assets}
-                            onChange={(e) => setFormData({ ...formData, assets: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="">Select asset range</option>
-                            <option value="Under $100M">Under $100M</option>
-                            <option value="$100M - $1B">$100M - $1B</option>
-                            <option value="$1B - $10B">$1B - $10B</option>
-                            <option value="Over $10B">Over $10B</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Policy Type *</label>
-                          <div className="grid grid-cols-1 gap-3">
-                            {policyTypes.map((policy) => (
-                              <div key={policy.id} className="relative">
-                                <input
-                                  type="radio"
-                                  id={policy.id}
-                                  name="policyType"
-                                  value={policy.id}
-                                  checked={formData.selectedPolicy === policy.id}
-                                  onChange={(e) => setFormData({ ...formData, selectedPolicy: e.target.value })}
-                                  className="sr-only"
-                                />
-                                <label
-                                  htmlFor={policy.id}
-                                  className={`block p-4 border rounded-lg cursor-pointer transition-colors ${
-                                    formData.selectedPolicy === policy.id
-                                      ? "border-blue-500 bg-blue-50"
-                                      : "border-gray-200 hover:border-gray-300"
-                                  }`}
-                                >
-                                  <div className="font-medium text-gray-900">{policy.name}</div>
-                                  <div className="text-sm text-gray-600 mt-1">{policy.description}</div>
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <Button
-                          type="submit"
-                          disabled={
-                            isGenerating ||
-                            !formData.companyName ||
-                            !formData.institutionType ||
-                            !formData.selectedPolicy
-                          }
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          {isGenerating ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Generating Policy...
-                            </>
-                          ) : (
-                            <>
-                              <FileText className="mr-2 h-4 w-4" />
-                              Generate Policy
-                            </>
-                          )}
-                        </Button>
-                      </form>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2: Generated Policy View */}
-            {currentStep === "generated" && (
-              <div className="max-w-6xl mx-auto">
-                <Card className="border border-gray-200">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="flex items-center space-x-2">
-                          <FileText className="h-5 w-5 text-blue-600" />
-                          <span>
-                            {selectedPolicyDetails?.name} - {formData.companyName}
-                          </span>
-                        </CardTitle>
-                        <CardDescription>
-                          Generated on {new Date().toLocaleDateString()} • Ready for review
-                        </CardDescription>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" onClick={copyToClipboard}>
-                          {copied ? (
-                            <>
-                              <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                              Copied!
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="mr-2 h-4 w-4" />
-                              Copy
-                            </>
-                          )}
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleEdit}>
-                          <Edit3 className="mr-2 h-4 w-4" />
-                          Edit
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="bg-gray-50 rounded-lg p-8 max-h-96 overflow-y-auto mb-6">
-                      {renderPolicy(generatedPolicy)}
-                    </div>
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
-                      <p className="text-sm text-amber-800 text-center">
-                        ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <Button variant="outline" onClick={resetForm}>
-                        Start Over
-                      </Button>
-                      <Button onClick={handleApprove} className="bg-blue-600 hover:bg-blue-700 text-white">
-                        Approve Policy
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Step 2.5: Editing Mode */}
-            {currentStep === "editing" && (
-              <div className="max-w-6xl mx-auto">
-                <Card className="border border-gray-200">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="flex items-center space-x-2">
-                          <Edit3 className="h-5 w-5 text-blue-600" />
-                          <span>Editing: {selectedPolicyDetails?.name}</span>
-                        </CardTitle>
-                        <CardDescription>Make any necessary changes to the policy content</CardDescription>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" onClick={handleCancelEdit}>
-                          <X className="mr-2 h-4 w-4" />
-                          Cancel
-                        </Button>
-                        <Button size="sm" onClick={handleSaveEdit}>
-                          <Save className="mr-2 h-4 w-4" />
-                          Save Changes
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      {/* Policy Title */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Policy Title</label>
-                        <input
-                          type="text"
-                          value={editedPolicy?.title || ""}
-                          onChange={(e) => setEditedPolicy({ ...editedPolicy, title: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-
-                      {/* Policy Sections */}
-                      {editedPolicy?.sections?.map((section: any, index: number) => (
-                        <div key={index} className="border border-gray-200 rounded-lg p-4">
-                          <div className="mb-3">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Section {section.number}: {section.title}
-                            </label>
-                            <input
-                              type="text"
-                              value={section.title}
-                              onChange={(e) => {
-                                const newSections = [...editedPolicy.sections]
-                                newSections[index].title = e.target.value
-                                setEditedPolicy({ ...editedPolicy, sections: newSections })
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                          {section.content && (
-                            <div className="mb-3">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                              <Textarea
-                                value={section.content}
-                                onChange={(e) => {
-                                  const newSections = [...editedPolicy.sections]
-                                  newSections[index].content = e.target.value
-                                  setEditedPolicy({ ...editedPolicy, sections: newSections })
-                                }}
-                                className="min-h-24"
-                              />
-                            </div>
-                          )}
-                          {section.items && (
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Items</label>
-                              {section.items.map((item: string, itemIndex: number) => (
-                                <div key={itemIndex} className="mb-2">
-                                  <input
-                                    type="text"
-                                    value={item}
-                                    onChange={(e) => {
-                                      const newSections = [...editedPolicy.sections]
-                                      newSections[index].items[itemIndex] = e.target.value
-                                      setEditedPolicy({ ...editedPolicy, sections: newSections })
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Step 3: Approval */}
-            {currentStep === "approval" && (
-              <div className="max-w-6xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <Card className="border border-gray-200">
-                    <CardHeader>
-                      <CardTitle className="flex items-center space-x-2">
-                        <FileCheck className="h-5 w-5 text-blue-600" />
-                        <span>Policy Approval</span>
-                      </CardTitle>
-                      <CardDescription>Please review and approve the final policy document</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div>
-                        <Label htmlFor="clientName" className="block text-sm font-medium text-gray-700 mb-2">
-                          <User className="inline h-4 w-4 mr-1" />
-                          Client Name *
-                        </Label>
-                        <Input
-                          type="text"
-                          required
-                          value={approvalData.clientName}
-                          onChange={(e) => setApprovalData({ ...approvalData, clientName: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Enter your full name"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-                          <User className="inline h-4 w-4 mr-1" />
-                          Title/Role *
-                        </Label>
-                        <select
-                          required
-                          value={approvalData.role}
-                          onChange={(e) => setApprovalData({ ...approvalData, role: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="">Select your role</option>
-                          <option value="Chief Information Security Officer (CISO)">
-                            Chief Information Security Officer (CISO)
-                          </option>
-                          <option value="Chief Risk Officer (CRO)">Chief Risk Officer (CRO)</option>
-                          <option value="Chief Executive Officer (CEO)">Chief Executive Officer (CEO)</option>
-                          <option value="Chief Operating Officer (COO)">Chief Operating Officer (COO)</option>
-                          <option value="Chief Compliance Officer (CCO)">Chief Compliance Officer (CCO)</option>
-                          <option value="President">President</option>
-                          <option value="Vice President">Vice President</option>
-                          <option value="Risk Manager">Risk Manager</option>
-                          <option value="Compliance Manager">Compliance Manager</option>
-                          <option value="IT Director">IT Director</option>
-                          <option value="Operations Manager">Operations Manager</option>
-                          <option value="Board Member">Board Member</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="signature" className="block text-sm font-medium text-gray-700 mb-2">
-                          <Edit3 className="inline h-4 w-4 mr-1" />
-                          Digital Signature *
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            type="text"
-                            required
-                            value={approvalData.signature}
-                            onChange={(e) => setApprovalData({ ...approvalData, signature: e.target.value })}
-                            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-serif text-lg italic bg-blue-50"
-                            placeholder="Type your signature here"
-                            style={{ fontFamily: "Brush Script MT, cursive" }}
-                          />
-                          <div className="absolute bottom-0 left-3 right-3 h-px bg-gray-400"></div>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          By typing your name, you agree to digitally sign this policy document
-                        </p>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="approvalDate" className="block text-sm font-medium text-gray-700 mb-2">
-                          <Calendar className="inline h-4 w-4 mr-1" />
-                          Approval Date
-                        </Label>
-                        <Input
-                          type="text"
-                          value={new Date().toLocaleDateString()}
-                          disabled
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-                        />
-                      </div>
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
-                        <p className="text-sm text-amber-800 text-center">
-                          ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
-                        </p>
-                      </div>
-                      <div className="flex space-x-4">
-                        <Button variant="outline" onClick={() => setCurrentStep("generated")}>
-                          Back to Review
-                        </Button>
-                        <Button onClick={handleFinalApproval} className="bg-green-600 hover:bg-green-700 text-white">
-                          <FileCheck className="mr-2 h-4 w-4" />
-                          Approve & Finalize
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border border-gray-200">
-                    <CardHeader>
-                      <CardTitle>Policy Preview</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
-                        <div className="text-sm text-gray-600 mb-4">
-                          <strong>{formData.companyName}</strong>
-                          <br />
-                          {selectedPolicyDetails?.name}
-                          <br />
-                          Institution Type: {formData.institutionType}
-                        </div>
-                        <div className="text-xs text-gray-800">
-                          {editedPolicy?.sections?.slice(0, 2).map((section: any, index: number) => (
-                            <div key={index} className="mb-4">
-                              <div className="font-semibold text-blue-600">
-                                {section.number}. {section.title}
-                              </div>
-                              <div className="mt-1">{section.content?.substring(0, 200)}...</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            )}
-
-            {/* Step 4: Completed */}
-            {currentStep === "completed" && (
-              <div className="max-w-6xl mx-auto text-center">
-                <Card className="border border-green-200 bg-green-50">
-                  <CardContent className="p-12">
-                    <div className="flex justify-center mb-6">
-                      <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
-                        <CheckCircle className="h-8 w-8 text-white" />
-                      </div>
-                    </div>
-                    <h2 className="text-3xl font-bold text-green-800 mb-4">Policy Approved Successfully!</h2>
-                    <p className="text-green-700 mb-8">
-                      Your {selectedPolicyDetails?.name} has been approved and is ready for implementation.
-                    </p>
-
-                    <div className="bg-white rounded-lg p-6 mb-8 text-left">
-                      <h3 className="font-semibold text-gray-900 mb-4">Approval Details:</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600">Approved by:</span>
-                          <div className="font-medium">{approvalData.clientName}</div>
-                          <div className="text-sm text-gray-500">{approvalData.role}</div>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Digital Signature:</span>
-                          <div
-                            className="font-serif text-lg italic text-blue-600 border-b border-gray-300 pb-1 mt-1"
-                            style={{ fontFamily: "Brush Script MT, cursive" }}
-                          >
-                            {approvalData.signature}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Date:</span>
-                          <div className="font-medium">{approvalData.date}</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-center space-x-4">
-                      <Button onClick={downloadAsPDF} className="bg-blue-600 hover:bg-blue-700 text-white">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download Policy
-                      </Button>
-                      <Button variant="outline" onClick={resetForm}>
-                        Generate New Policy
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="bg-gray-50 py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-blue-600">Complete Policy Management Workflow</h2>
-              <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-                From generation to approval, manage your entire policy lifecycle in one platform.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <Card className="border border-gray-200">
-                <CardHeader>
-                  <div className="flex items-center space-x-2">
-                    <FileText className="h-6 w-6 text-blue-600" />
-                    <CardTitle>AI Generation</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Generate comprehensive policies tailored to your institution's specific requirements and
-                    regulations.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-gray-200">
-                <CardHeader>
-                  <div className="flex items-center space-x-2">
-                    <Edit3 className="h-6 w-6 text-blue-600" />
-                    <CardTitle>Easy Editing</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Make real-time edits to customize policies to match your organization's unique needs and
-                    preferences.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-gray-200">
-                <CardHeader>
-                  <div className="flex items-center space-x-2">
-                    <FileCheck className="h-6 w-6 text-blue-600" />
-                    <CardTitle>Digital Approval</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Secure digital signature and approval process with full audit trail and compliance documentation.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-gray-200">
-                <CardHeader>
-                  <div className="flex items-center space-x-2">
-                    <Download className="h-6 w-6 text-blue-600" />
-                    <CardTitle>Export & Share</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Download approved policies as formatted documents ready for implementation and distribution.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="bg-gray-900 text-white py-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div>
-                <div className="flex items-center space-x-2 mb-4">
-                  <Shield className="h-6 w-6 text-blue-400" />
-                  <span className="text-lg font-bold">RiskShield AI</span>
-                </div>
-                <p className="text-gray-400 text-sm">
-                  AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
-                  risks.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-4">Platform</h3>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Risk Assessment
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Compliance Monitoring
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Policy Generator
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Integrations
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-4">Support</h3>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Documentation
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Help Center
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Contact Support
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Status Page
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-4">Company</h3>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      About Us
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Careers
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Privacy Policy
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Terms of Service
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-              <p>&copy; 2024 RiskShield AI. All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </AuthGuard>
+    supportedTypes.includes(file.type.toLowerCase()) ||
+    supportedExtensions.some((ext) => file.name.toLowerCase().endsWith(ext))
   )
+}
+
+// Get media type for Google AI API
+function getGoogleAIMediaType(file: File): string {
+  const fileName = file.name.toLowerCase()
+
+  if (file.type) {
+    return file.type
+  }
+
+  // Fallback based on file extension
+  if (fileName.endsWith(".pdf")) return "application/pdf"
+  if (fileName.endsWith(".txt")) return "text/plain"
+  if (fileName.endsWith(".md")) return "text/markdown"
+  if (fileName.endsWith(".csv")) return "text/csv"
+  if (fileName.endsWith(".json")) return "application/json"
+  if (fileName.endsWith(".html") || fileName.endsWith(".htm")) return "text/html"
+  if (fileName.endsWith(".xml")) return "application/xml"
+
+  return "application/octet-stream"
+}
+
+// Enhanced cybersecurity concept mapping for better evidence validation
+const CYBERSECURITY_CONCEPTS = {
+  "penetration testing": [
+    "penetration test",
+    "pen test",
+    "pentest",
+    "security testing",
+    "vulnerability assessment",
+    "ethical hacking",
+    "red team",
+    "security audit",
+    "intrusion testing",
+    "security evaluation",
+    "vulnerability testing",
+  ],
+  "anti-malware": [
+    "antivirus",
+    "anti-virus",
+    "malware protection",
+    "endpoint protection",
+    "virus scanner",
+    "malware detection",
+    "threat protection",
+    "security software",
+  ],
+  "vulnerability scanning": [
+    "vulnerability scan",
+    "vulnerability scanning",
+    "security scan",
+    "network scan",
+    "system scan",
+    "security assessment",
+    "vulnerability assessment",
+    "automated scanning",
+    "security monitoring",
+    "vulnerability testing",
+    "security evaluation",
+    "vulnerability analysis",
+  ],
+  "disciplinary measures": [
+    "disciplinary action",
+    "penalties",
+    "sanctions",
+    "enforcement",
+    "consequences",
+    "violations",
+    "non-compliance",
+    "corrective action",
+    "punishment",
+    "disciplinary procedures",
+  ],
+  "incident response": [
+    "incident response",
+    "security incident",
+    "breach response",
+    "emergency response",
+    "incident handling",
+    "incident management",
+    "security breach",
+    "cyber incident",
+  ],
+  "policy review": [
+    "policy review",
+    "policy update",
+    "policy revision",
+    "annual review",
+    "policy maintenance",
+    "policy evaluation",
+    "policy assessment",
+    "document review",
+  ],
+  "access control": [
+    "access control",
+    "user access",
+    "authentication",
+    "authorization",
+    "permissions",
+    "access management",
+    "identity management",
+    "user privileges",
+  ],
+  encryption: [
+    "encryption",
+    "encrypted",
+    "cryptographic",
+    "data protection",
+    "secure transmission",
+    "data at rest",
+    "data in transit",
+    "cryptography",
+  ],
+  backup: [
+    "backup",
+    "data backup",
+    "backup procedures",
+    "recovery",
+    "disaster recovery",
+    "business continuity",
+    "data restoration",
+    "backup strategy",
+  ],
+  training: [
+    "training",
+    "awareness",
+    "education",
+    "security training",
+    "staff training",
+    "employee training",
+    "security awareness",
+    "cybersecurity training",
+  ],
+}
+
+// Enhanced semantic relevance checking
+function checkSemanticRelevance(
+  question: string,
+  evidence: string,
+): { isRelevant: boolean; confidence: number; reason: string } {
+  const questionLower = question.toLowerCase()
+  const evidenceLower = evidence.toLowerCase()
+
+  // Skip relevance check if evidence indicates no content found
+  if (
+    evidenceLower.includes("no directly relevant evidence found") ||
+    evidenceLower.includes("no evidence found") ||
+    evidenceLower.includes("insufficient information")
+  ) {
+    return {
+      isRelevant: false,
+      confidence: 0.1,
+      reason: "No evidence found in documents",
+    }
+  }
+
+  const isVulnerabilityQuestion =
+    questionLower.includes("vulnerability") ||
+    questionLower.includes("penetration") ||
+    questionLower.includes("pen test") ||
+    questionLower.includes("security test") ||
+    questionLower.includes("security scan")
+
+  if (isVulnerabilityQuestion) {
+    // For vulnerability questions, check for broader security-related terms
+    const vulnerabilityTerms = [
+      "vulnerability",
+      "penetration",
+      "pen test",
+      "pentest",
+      "security test",
+      "security scan",
+      "security assessment",
+      "vulnerability scan",
+      "vulnerability assessment",
+      "security evaluation",
+      "vulnerability testing",
+      "security audit",
+      "intrusion test",
+    ]
+
+    const hasVulnerabilityTerms = vulnerabilityTerms.some((term) => evidenceLower.includes(term))
+
+    if (hasVulnerabilityTerms && evidenceLower.length > 20) {
+      return {
+        isRelevant: true,
+        confidence: 0.85,
+        reason: "Evidence contains vulnerability/security testing related content",
+      }
+    }
+  }
+
+  // Find the primary concept in the question
+  let primaryConcept = ""
+  let conceptKeywords: string[] = []
+
+  for (const [concept, keywords] of Object.entries(CYBERSECURITY_CONCEPTS)) {
+    if (keywords.some((keyword) => questionLower.includes(keyword))) {
+      primaryConcept = concept
+      conceptKeywords = keywords
+      break
+    }
+  }
+
+  if (!primaryConcept) {
+    // Fallback to basic keyword extraction
+    const questionWords = questionLower.split(/\s+/).filter((word) => word.length > 3)
+    conceptKeywords = questionWords.slice(0, 3)
+    primaryConcept = "general"
+  }
+
+  // Check if evidence contains relevant keywords
+  const relevantKeywords = conceptKeywords.filter((keyword) => evidenceLower.includes(keyword.toLowerCase()))
+
+  if (relevantKeywords.length === 0) {
+    // For general questions, be more lenient
+    if (primaryConcept === "general" && evidenceLower.length > 50) {
+      return {
+        isRelevant: true,
+        confidence: 0.6,
+        reason: "General evidence found for broad question",
+      }
+    }
+
+    return {
+      isRelevant: false,
+      confidence: 0.1,
+      reason: `Evidence does not contain keywords related to ${primaryConcept}.`,
+    }
+  }
+
+  // Calculate confidence based on keyword matches and context
+  const keywordRatio = relevantKeywords.length / conceptKeywords.length
+  let confidence = keywordRatio * 0.8
+
+  // Boost confidence if multiple relevant keywords are found
+  if (relevantKeywords.length >= 2) {
+    confidence = Math.min(confidence + 0.2, 0.95)
+  }
+
+  return {
+    isRelevant: true,
+    confidence: Math.max(confidence, 0.6),
+    reason: `Evidence contains relevant keywords: ${relevantKeywords.join(", ")}`,
+  }
+}
+
+// Direct Google AI analysis with file upload support
+async function performDirectAIAnalysis(
+  files: File[],
+  questions: Question[],
+  assessmentType: string,
+): Promise<DocumentAnalysisResult> {
+  console.log("🤖 Starting direct Google AI analysis with file upload support...")
+
+  // Check if Google AI API key is available
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    throw new Error("Google AI API key not found. Please add GOOGLE_GENERATIVE_AI_API_KEY environment variable.")
+  }
+
+  // Filter and process supported files
+  const supportedFiles = files.filter((file) => isSupportedFileType(file))
+  const unsupportedFiles = files.filter((file) => !isSupportedFileType(file))
+
+  console.log(`📊 File Analysis:`)
+  console.log(`✅ Supported files: ${supportedFiles.length}`)
+  console.log(`❌ Unsupported files: ${unsupportedFiles.length}`)
+
+  if (supportedFiles.length === 0) {
+    console.log("❌ No supported files found for analysis")
+
+    const answers: Record<string, boolean | string> = {}
+    const confidenceScores: Record<string, number> = {}
+    const reasoning: Record<string, string> = {}
+
+    questions.forEach((question) => {
+      if (question.type === "boolean") {
+        answers[question.id] = false
+        confidenceScores[question.id] = 0.95
+        reasoning[question.id] = "No supported documents available for analysis. Defaulting to 'No' for safety."
+      } else if (question.type === "multiple" && question.options) {
+        answers[question.id] = question.options[0] || "Never"
+        confidenceScores[question.id] = 0.95
+        reasoning[question.id] = "No supported documents available for analysis. Using most conservative option."
+      } else if (question.type === "tested") {
+        answers[question.id] = "not_tested"
+        confidenceScores[question.id] = 0.95
+        reasoning[question.id] = "No supported documents available for analysis. Defaulting to 'Not Tested' for safety."
+      }
+    })
+
+    return {
+      answers,
+      confidenceScores,
+      reasoning,
+      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFiles.map((f) => f.name).join(", ")}`,
+      riskFactors: [
+        "No supported document content available for analysis",
+        "Unable to assess actual security posture from uploaded files",
+        `${unsupportedFiles.length} files in unsupported formats`,
+      ],
+      recommendations: [
+        "Upload documents in supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML",
+        "Convert Word documents to PDF or TXT format",
+        "Convert Excel files to CSV format",
+        "Ensure files contain actual policy and procedure content",
+      ],
+      riskScore: 0,
+      riskLevel: "High",
+      analysisDate: new Date().toISOString(),
+      documentsAnalyzed: files.length,
+      aiProvider: "Conservative Analysis (No supported files found)",
+      documentExcerpts: {},
+      directUploadResults: files.map((file) => ({
+        fileName: file.name,
+        success: false,
+        fileSize: file.size,
+        fileType: file.type || "unknown",
+        processingMethod: "no-supported-files",
+      })),
+    }
+  }
+
+  // Test Google AI connection
+  try {
+    console.log("🔗 Testing Google AI connection...")
+    const testResult = await generateText({
+      model: google("gemini-1.5-flash"),
+      prompt: "Reply with 'OK' if you can read this.",
+      max_tokens: 10, // Changed from maxTokens
+      temperature: 0.1,
+    })
+
+    if (!testResult.text.toLowerCase().includes("ok")) {
+      throw new Error("Google AI test failed - unexpected response")
+    }
+    console.log("✅ Google AI connection successful")
+  } catch (error) {
+    console.error("❌ Google AI test failed:", error)
+    throw new Error(`Google AI is not available: ${error instanceof Error ? error.message : "Unknown error"}`)
+  }
+
+  // Process files - separate PDFs from text files
+  console.log("📁 Processing files for Google AI...")
+  const pdfFiles: File[] = []
+  const textFiles: Array<{ file: File; text: string }> = []
+  const processingResults: Array<{ fileName: string; success: boolean; method: string }> = []
+
+  for (const file of supportedFiles) {
+    const fileType = file.type.toLowerCase()
+    const fileName = file.name.toLowerCase()
+
+    if (fileType.includes("application/pdf") || fileName.endsWith(".pdf")) {
+      pdfFiles.push(file)
+      processingResults.push({ fileName: file.name, success: true, method: "pdf-upload" })
+      console.log(`📄 PDF file prepared for upload: ${file.name}`)
+    } else {
+      // Extract text from non-PDF files
+      const extraction = await extractTextFromFile(file)
+      if (extraction.success && extraction.text.length > 0) {
+        textFiles.push({ file, text: extraction.text })
+        processingResults.push({ fileName: file.name, success: true, method: extraction.method })
+        console.log(`📝 Text extracted from ${file.name}: ${extraction.text.length} characters`)
+      } else {
+        processingResults.push({ fileName: file.name, success: false, method: extraction.method })
+        console.log(`❌ Failed to extract text from ${file.name}`)
+      }
+    }
+  }
+
+  // Create comprehensive prompt for Google AI
+  let documentContent = ""
+
+  // Add text file content
+  if (textFiles.length > 0) {
+    documentContent += "TEXT DOCUMENTS:\n"
+    textFiles.forEach(({ file, text }) => {
+      documentContent += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
+    })
+  }
+
+  // Add PDF file references
+  if (pdfFiles.length > 0) {
+    documentContent += "\nPDF DOCUMENTS:\n"
+    pdfFiles.forEach((file) => {
+      documentContent += `\n=== PDF DOCUMENT: ${file.name} ===\n[This PDF file has been uploaded and will be analyzed directly]\n`
+    })
+  }
+
+  const basePrompt = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with ${supportedFiles.length} document(s) to analyze.
+
+CRITICAL INSTRUCTIONS:
+- Analyze ALL provided documents (both text and PDF files) using your built-in document processing capabilities
+- Answer questions based ONLY on information that is DIRECTLY and SPECIFICALLY found in the documents
+- For PDF files, use your native PDF reading capabilities to extract and analyze the content
+- THOROUGHLY scan ALL sections, pages, and content areas of each document
+- Look for ALL cybersecurity-related content including but not limited to:
+  * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen tests, pentests, security testing, vulnerability assessment, ethical hacking, red team, security audit, intrusion testing, security evaluation, vulnerability analysis
+  * PENETRATION TESTING: penetration tests, pen tests, pentests, ethical hacking, red team exercises, intrusion testing, security audits
+  * Security policies, procedures, controls, and measures
+  * Access controls, authentication, authorization, user management
+  * Incident response, breach procedures, emergency protocols
+  * Data protection, encryption, backup procedures, recovery plans
+  * Training programs, awareness initiatives, security education
+  * Compliance requirements, audit procedures, review processes
+  * Network security, endpoint protection, malware protection
+  * Risk management, threat assessment, security monitoring
+- SPECIAL ATTENTION: When looking for vulnerability assessments or penetration testing, search for ANY of these terms: "vulnerability scan", "vulnerability scanning", "vulnerability assessment", "vulnerability testing", "vulnerability analysis", "penetration test", "pen test", "pentest", "security test", "security testing", "security scan", "security assessment", "security evaluation", "security audit", "intrusion test", "ethical hacking", "red team"
+- If evidence is about a different cybersecurity topic than what's being asked, DO NOT use it
+- Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
+- Answer "No" for boolean questions if no directly relevant evidence exists
+- Quote exact text from the documents that SPECIFICALLY relates to each question topic
+- Do NOT make assumptions or use general knowledge beyond what's in the documents
+- Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
+- Pay special attention to technical sections, appendices, and detailed procedure descriptions
+
+DOCUMENT FILES PROVIDED:
+${supportedFiles.map((file, index) => `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)})`).join("\n")}
+
+${documentContent}
+
+ASSESSMENT QUESTIONS:
+${questions.map((q, idx) => `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""})`).join("\n")}
+
+Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., \`\`\`json) or conversational text outside the JSON. Ensure all property names are double-quoted.
+{
+  "answers": {
+    ${questions.map((q) => `"${q.id}": ${q.type === "boolean" ? '"Yes" or "No"' : '"your_answer"'}`).join(",\n    ")}
+  },
+  "confidence": {
+    ${questions.map((q) => `"${q.id}": 0.8`).join(",\n    ")}
+  },
+  "reasoning": {
+    ${questions.map((q) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+  },
+  "evidence": {
+    ${questions.map((q) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic, including document name and section, or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+  }
+}`
+
+  // Process questions with Google AI - include PDF files if present
+  const answers: Record<string, boolean | string> = {}
+  const confidenceScores: Record<string, number> = {}
+  const reasoning: Record<string, string> = {}
+  const documentExcerpts: Record<string, Array<any>> = {}
+
+  try {
+    console.log("🧠 Processing documents with Google AI (including PDFs)...")
+
+    let result;
+
+    if (pdfFiles.length > 0) {
+      console.log(`📄 Sending ${pdfFiles.length} PDF file(s) directly to Google AI...`)
+
+      const pdfAttachments = await Promise.all(
+        pdfFiles.map(async (file) => {
+          try {
+            const bufferData = await fileToBuffer(file)
+            console.log(`✅ Converted ${file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
+            return {
+              name: file.name,
+              data: bufferData,
+              mediaType: getGoogleAIMediaType(file),
+            }
+          } catch (error) {
+            console.error(`❌ Failed to convert ${file.name} to buffer:`, error)
+            return null
+          }
+        }),
+      )
+
+      // Filter out failed conversions
+      const validPdfAttachments = pdfAttachments.filter((attachment) => attachment !== null)
+
+      if (validPdfAttachments.length > 0) {
+        const messageContent = [
+          { type: "text" as const, text: basePrompt },
+          ...validPdfAttachments.map((attachment) => ({
+            type: "file" as const,
+            data: attachment!.data,
+            mediaType: attachment!.mediaType,
+          })),
+        ]
+
+        result = await generateText({
+          model: google("gemini-1.5-flash"),
+          messages: [
+            {
+              role: "user" as const,
+              content: messageContent,
+            },
+          ],
+          temperature: 0.1,
+          max_tokens: 4000, // Changed from maxTokens
+        })
+        console.log(`✅ Successfully processed ${validPdfAttachments.length} PDF file(s) with Google AI`)
+      } else {
+        // Fallback to text-only if PDF conversion failed
+        console.log("⚠️ PDF conversion failed, falling back to text-only analysis")
+        result = await generateText({
+          model: google("gemini-1.5-flash"),
+          prompt: basePrompt,
+          temperature: 0.1,
+          max_tokens: 4000, // Changed from maxTokens
+        })
+      }
+    } else {
+      // Text-only analysis
+      result = await generateText({
+        model: google("gemini-1.5-flash"),
+        prompt: basePrompt,
+        temperature: 0.1,
+        max_tokens: 4000, // Changed from maxTokens
+      })
+    }
+
+    console.log(`📝 Google AI response received (${result.text.length} characters)`)
+    console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
+
+    let rawAiResponseText = result.text;
+
+    // Attempt to strip markdown code block fences if present
+    if (rawAiResponseText.startsWith("```json")) {
+      rawAiResponseText = rawAiResponseText.substring(7); // Remove "```json\n"
+    }
+    if (rawAiResponseText.endsWith("```")) {
+      rawAiResponseText = rawAiResponseText.substring(0, rawAiResponseText.length - 3); // Remove "\n```"
+    }
+    rawAiResponseText = rawAiResponseText.trim(); // Trim any remaining whitespace
+
+    // Parse AI response
+    try {
+      const aiResponse = JSON.parse(rawAiResponseText)
+      console.log(`✅ Successfully parsed AI response JSON`)
+
+      // Process each question with enhanced validation
+      questions.forEach((question) => {
+        const questionId = question.id
+        const aiAnswer = aiResponse.answers?.[questionId]
+        const aiEvidence = aiResponse.evidence?.[questionId]
+        const aiReasoning = aiResponse.reasoning?.[questionId]
+        const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
+
+        console.log(
+          `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence length=${aiEvidence?.length || 0}`,
+        )
+
+        // Perform semantic relevance check
+        if (
+          aiEvidence &&
+          typeof aiEvidence === "string" &&
+          !aiEvidence.toLowerCase().includes("no directly relevant evidence found") &&
+          aiEvidence.length > 20
+        ) {
+          const relevanceCheck = checkSemanticRelevance(question.question, aiEvidence)
+          console.log(
+            `🎯 Relevance check for ${questionId}: ${relevanceCheck.isRelevant ? "RELEVANT" : "NOT RELEVANT"} - ${relevanceCheck.reason}`,
+          )
+
+          if (relevanceCheck.isRelevant) {
+            // Evidence is relevant - use AI's answer
+            answers[questionId] = aiAnswer
+            confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence)
+            reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
+
+            // Extract document name from evidence
+            let sourceFileName = supportedFiles.length > 0 ? supportedFiles[0].name : "Document"
+            const documentNameMatch = aiEvidence.match(
+              /(?:from|in|document|file)[\s:]*([^,.\n]+\.(pdf|txt|md|csv|json|html|xml))/i,
+            )
+            if (documentNameMatch) {
+              sourceFileName = documentNameMatch[1].trim()
+            } else {
+              // Try to match against uploaded file names
+              const matchingFile = supportedFiles.find((file) =>
+                aiEvidence.toLowerCase().includes(file.name.toLowerCase().replace(/\.[^.]+$/, "")),
+              )
+              if (matchingFile) {
+                sourceFileName = matchingFile.name
+              }
+            }
+
+            let cleanExcerpt = aiEvidence
+
+            // Remove document name patterns from the beginning or end of quotes
+            cleanExcerpt = cleanExcerpt.replace(/^["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*:?\s*/i, "")
+            cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*$/i, "")
+
+            // Remove any remaining document name references within quotes
+            supportedFiles.forEach((file) => {
+              const fileName = file.name.replace(/\.[^.]+$/, "") // Remove extension
+              const fileNamePattern = new RegExp(`\\b${fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi")
+              cleanExcerpt = cleanExcerpt.replace(fileNamePattern, "").trim()
+
+              // Also remove the full filename with extension
+              const fullFileNamePattern = new RegExp(
+                `\\b${file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+                "gi",
+              )
+              cleanExcerpt = cleanExcerpt.replace(fullFileNamePattern, "").trim()
+            })
+
+            // Remove common document reference patterns
+            cleanExcerpt = cleanExcerpt
+              .replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "")
+              .trim()
+
+            // Clean up extra spaces and punctuation
+            cleanExcerpt = cleanExcerpt
+              .replace(/\s+/g, " ")
+              .replace(/^[,.\s]+|[,.\s]+$/g, "")
+              .trim()
+
+            // Remove any existing quotes and add proper ones
+            cleanExcerpt = cleanExcerpt.replace(/^["']+|["']+$/g, "").trim()
+
+            // Ensure we still have meaningful content after cleaning
+            if (cleanExcerpt.length < 5) {
+              // If cleaning removed too much, extract just the meaningful text without document references
+              const meaningfulText = aiEvidence
+                .replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "")
+                .trim()
+              cleanExcerpt = meaningfulText.substring(0, 200).trim()
+            }
+
+            documentExcerpts[questionId] = [
+              {
+                fileName: sourceFileName,
+                excerpt: cleanExcerpt.substring(0, 500), // Use cleaned excerpt instead of raw aiEvidence
+                relevance: `Evidence found within ${sourceFileName}`,
+                pageOrSection: "Document Content",
+              },
+            ]
+          } else {
+            // Evidence is not relevant - use conservative answer
+            console.log(`❌ Question ${questionId}: Evidence rejected - ${relevanceCheck.reason}`)
+
+            if (question.type === "boolean") {
+              answers[questionId] = false
+            } else if (question.options && question.options.length > 0) {
+              answers[questionId] = question.options[0] // Most conservative option
+            } else if (question.type === "tested") {
+              answers[questionId] = "not_tested"
+            }
+
+            confidenceScores[questionId] = 0.9 // High confidence in conservative answer
+            reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
+            documentExcerpts[questionId] = []
+          }
+        } else {
+          // No evidence provided - use conservative answer
+          console.log(`⚠️ Question ${questionId}: No evidence provided by AI`)
+
+          if (question.type === "boolean") {
+            answers[questionId] = false
+          } else if (question.options && question.options.length > 0) {
+            answers[questionId] = question.options[0]
+          } else if (question.type === "tested") {
+            answers[questionId] = "not_tested"
+          }
+
+          confidenceScores[questionId] = 0.9
+          reasoning[questionId] = "No directly relevant evidence found in documents"
+          documentExcerpts[questionId] = []
+        }
+      })
+    } catch (parseError) {
+      console.error("❌ Failed to parse AI response JSON:", parseError)
+      console.log("Raw AI response (after stripping markdown):", rawAiResponseText)
+      throw new Error("Invalid AI response format - JSON parsing failed")
+    }
+  } catch (error) {
+    console.error("❌ Google AI processing failed:", error)
+    // Fallback to conservative answers
+    questions.forEach((question) => {
+      answers[question.id] = question.type === "boolean" ? false : question.options?.[0] || "Never"
+      confidenceScores[question.id] = 0.1
+      reasoning[question.id] = `AI analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      documentExcerpts[question.id] = []
+    })
+  }
+
+  // Calculate risk score
+  let totalScore = 0
+  let maxScore = 0
+
+  questions.forEach((question) => {
+    const answer = answers[question.id]
+    
+    if (question.type === "tested") {
+      maxScore += question.weight;
+      if (answer === "tested") {
+        totalScore += question.weight;
+      }
+    } else if (question.type === "boolean") {
+      maxScore += question.weight
+      totalScore += answer ? question.weight : 0
+    } else if (question.type === "multiple" && question.options) {
+      maxScore += question.weight * 4
+      const optionIndex = question.options.indexOf(answer as string)
+      if (optionIndex !== -1) {
+        const scoreMultiplier = (question.options.length - 1 - optionIndex) / (question.options.length - 1)
+        totalScore += question.weight * scoreMultiplier * 4
+      }
+    }
+  })
+
+  const riskScore = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0
+  let riskLevel = "High"
+  if (riskScore >= 75) riskLevel = "Low"
+  else if (riskScore >= 50) riskLevel = "Medium"
+  else if (riskScore >= 25) riskLevel = "Medium-High"
+
+  // Generate analysis summary
+  const successfulProcessing = processingResults.filter((r) => r.success).length
+  const failedProcessing = processingResults.filter((r) => !r.success).length
+
+  let analysisNote = `Analysis completed using Google AI with direct document processing.`
+  if (successfulProcessing > 0) {
+    analysisNote += ` Successfully processed ${successfulProcessing} document(s).`
+  }
+  if (pdfFiles.length > 0) {
+    analysisNote += ` ${pdfFiles.length} PDF file(s) analyzed using Google AI's native PDF capabilities.`
+  }
+  if (failedProcessing > 0) {
+    analysisNote += ` ${failedProcessing} file(s) failed to process.`
+  }
+  if (unsupportedFiles.length > 0) {
+    analysisNote += ` ${unsupportedFiles.length} file(s) in unsupported formats were skipped.`
+  }
+
+  console.log(`✅ Google AI analysis completed. Risk score: ${riskScore}, Risk level: ${riskLevel}`)
+
+  return {
+    answers,
+    confidenceScores,
+    reasoning,
+    overallAnalysis: analysisNote,
+    riskFactors: [
+      "Analysis based on direct Google AI document processing",
+      "Conservative approach taken where evidence was unclear or missing",
+      "Semantic validation applied to all evidence",
+      ...(failedProcessing > 0 ? [`${failedProcessing} files failed to process`] : []),
+      ...(unsupportedFiles.length > 0 ? [`${unsupportedFiles.length} files in unsupported formats`] : []),
+    ],
+    recommendations: [
+      "Review assessment results for accuracy and completeness",
+      "Implement missing controls based on validated findings",
+      "Ensure document evidence directly supports all conclusions",
+      "Consider uploading additional documentation for comprehensive analysis",
+      ...(unsupportedFiles.length > 0 ? ["Convert unsupported files to PDF, TXT, or other supported formats"] : []),
+    ],
+    riskScore,
+    riskLevel,
+    analysisDate: new Date().toISOString(),
+    documentsAnalyzed: files.length,
+    aiProvider: "Google AI (Gemini 1.5 Flash) with Direct Document Processing",
+    documentExcerpts,
+    directUploadResults: files.map((file, index) => {
+      const result = processingResults.find((r) => r.fileName === file.name)
+      return {
+        fileName: file.name,
+        success: result?.success || false,
+        fileSize: file.size,
+        fileType: file.type || "unknown",
+        processingMethod: result?.method || "unknown",
+      }
+    }),
+  }
+}
+
+// Main analysis function
+export async function analyzeDocuments(
+  files: File[],
+  questions: Question[],
+  assessmentType: string,
+): Promise<DocumentAnalysisResult> {
+  console.log(`🚀 Starting Google AI analysis of ${files.length} files for ${assessmentType}`)
+
+  if (!files || files.length === 0) {
+    throw new Error("No files provided for analysis")
+  }
+
+  if (!questions || questions.length === 0) {
+    throw new Error("No questions provided for analysis")
+  }
+
+  try {
+    console.log("📁 File analysis:")
+    files.forEach((file, index) => {
+      const supported = isSupportedFileType(file)
+      const statusIcon = supported ? "✅" : "❌"
+      const supportText = supported ? "Supported for analysis" : "Unsupported format"
+      console.log(
+        `${statusIcon} ${file.name}: ${Math.round(file.size / 1024)}KB, ${file.type || "unknown"} - ${supportText}`,
+      )
+    })
+
+    // Perform direct AI analysis
+    const result = await performDirectAIAnalysis(files, questions, assessmentType)
+
+    console.log("🎉 Google AI analysis completed successfully")
+    return result
+  } catch (error) {
+    console.error("💥 Analysis failed:", error)
+    throw error
+  }
+}
+
+// Test Google AI provider
+export async function testAIProviders(): Promise<Record<string, boolean>> {
+  const results: Record<string, boolean> = {}
+
+  // Test Google AI
+  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    try {
+      const result = await generateText({
+        model: google("gemini-1.5-flash"),
+        prompt: 'Respond with "OK" if you can read this.',
+        max_tokens: 10, // Changed from maxTokens
+        temperature: 0.1,
+      })
+      results.google = result.text.toLowerCase().includes("ok")
+      console.log("Google AI test result:", results.google)
+    } catch (error) {
+      console.error("Google AI test failed:", error)
+      results.google = false
+    }
+  } else {
+    console.log("Google AI API key not found")
+    results.google = false
+  }
+
+  return results
 }

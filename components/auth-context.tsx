@@ -32,7 +32,6 @@ interface AuthContextType {
   loading: boolean
   isDemo: boolean
   signIn: (email: string, password: string) => Promise<{ error: any }>
-  signUp: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
   hasPermission: (permission: string) => boolean
@@ -180,13 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error }
   }
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-    })
-    return { error }
-  }
+  // Removed signUp function as it's no longer used directly from AuthContext
 
   const signOut = async () => {
     // Clear demo session
@@ -217,7 +210,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     isDemo,
     signIn,
-    signUp,
     signOut,
     refreshProfile,
     hasPermission,

@@ -76,7 +76,7 @@ export async function getCurrentUserWithProfile(): Promise<{
       .single()
 
     // Get user role
-    const { data: role, error: roleError } = await supabaseClient
+    const { data: roleData, error: roleError } = await supabaseClient
       .from("user_roles")
       .select("*")
       .eq("user_id", user.id)
@@ -87,7 +87,7 @@ export async function getCurrentUserWithProfile(): Promise<{
       user,
       profile,
       organization: orgError ? null : organization,
-      role: roleError ? null : role,
+      role: roleError ? null : roleData,
     }
   } catch (error) {
     console.error("Error getting user with profile:", error)
@@ -102,7 +102,7 @@ export async function createOrganization(data: {
   userLastName: string
   userEmail: string
   userPassword: string
-}) {
+}): Promise<{ data: { organization: Organization, user: User } | null, error: any | null }> {
   try {
     // Sign up user
     const { data: authData, error: authError } = await supabaseClient.auth.signUp({
@@ -111,7 +111,7 @@ export async function createOrganization(data: {
     })
 
     if (authError || !authData.user) {
-      throw new Error(authError?.message || "Failed to create user")
+      return { data: null, error: authError || new Error("Failed to create user") }
     }
 
     // Create organization
@@ -128,7 +128,7 @@ export async function createOrganization(data: {
       .single()
 
     if (orgError) {
-      throw new Error(orgError.message)
+      return { data: null, error: orgError }
     }
 
     // Create user profile
@@ -142,7 +142,7 @@ export async function createOrganization(data: {
     })
 
     if (profileError) {
-      throw new Error(profileError.message)
+      return { data: null, error: profileError }
     }
 
     // Create admin role
@@ -156,13 +156,13 @@ export async function createOrganization(data: {
     })
 
     if (roleError) {
-      throw new Error(roleError.message)
+      return { data: null, error: roleError }
     }
 
-    return { organization, user: authData.user }
+    return { data: { organization, user: authData.user }, error: null }
   } catch (error) {
     console.error("Error creating organization:", error)
-    throw error
+    return { data: null, error: error }
   }
 }
 

@@ -82,28 +82,34 @@ const sampleVendorMetrics: VendorMetrics = {
 const sampleNotifications: Notification[] = [
   {
     id: "1",
+    organization_id: "org1", // Added
     user_id: "user1",
     title: "High-risk vendor assessment completed",
     message: "TechCorp assessment shows critical security gaps",
     type: "alert",
+    data: {}, // Added
     read_at: null,
     created_at: new Date().toISOString(),
   },
   {
     id: "2",
+    organization_id: "org1", // Added
     user_id: "user1",
     title: "New vendor onboarding request",
     message: "DataFlow Inc. submitted assessment request",
     type: "info",
+    data: {}, // Added
     read_at: null,
     created_at: new Date(Date.now() - 3600000).toISOString(),
   },
   {
     id: "3",
+    organization_id: "org1", // Added
     user_id: "user1",
     title: "Compliance deadline approaching",
     message: "SOC 2 audit due in 7 days",
     type: "warning",
+    data: {}, // Added
     read_at: new Date().toISOString(),
     created_at: new Date(Date.now() - 7200000).toISOString(),
   },
@@ -445,7 +451,7 @@ function DashboardContent() {
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="count"
-                          label={({ level, count }) => `${level}: ${count}`}
+                          label={({ level, count }: { level: string; count: number }) => `${level}: ${count}`}
                         >
                           {riskMetrics.riskDistribution.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
