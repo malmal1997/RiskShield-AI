@@ -6,7 +6,7 @@ export async function GET() {
     status: "AI Assessment API is running",
     timestamp: new Date().toISOString(),
     providers: {
-      google: !!process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+      google: !!process.env.GOOGLE_GENERATIVE_AI_KEY,
     },
   })
 }

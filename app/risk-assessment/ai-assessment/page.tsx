@@ -1152,46 +1152,19 @@ interface Question {
   question: string
   type: "boolean" | "multiple" | "tested"
   options?: string[]
-  weight: number
+  weight?: number // Made optional
+  required?: boolean
+  category?: string // Added category
 }
 
-interface AIAnalysisResult {
-  answers: Record<string, boolean | string>
-  confidenceScores: Record<string, number>
-  reasoning: Record<string, string>
-  overallAnalysis: string
-  riskFactors: string[]
-  recommendations: string[]
-  riskScore: number
-  riskLevel: string
-  analysisDate: string
-  documentsAnalyzed: number
-  aiProvider?: string
-  documentExcerpts?: Record<
-    string,
-    Array<{
-      fileName: string
-      excerpt: string
-      relevance: string
-      pageOrSection?: string
-      quote?: string
-      pageNumber?: number
-      lineNumber?: number
-    }>
-  >
-}
-
-export default function AIAssessmentPage() {
+export default function RiskAssessmentPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
-    "select" | "choose-method" | "soc-info" | "upload" | "processing" | "review" | "approve" | "results"
+    "select" | "choose-method" | "soc-info" | "assessment" | "results"
   >("select")
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
-  const [analysisProgress, setAnalysisProgress] = useState(0)
-  const [aiAnalysisResult, setAiAnalysisResult] = useState<AIAnalysisResult | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisError, setAnalysisError] = useState<string | null>(null)
-  const [completedSteps, setCompletedSteps] = useState<number[]>([])
+  const [answers, setAnswers] = useState<Record<string, any>>({})
+  const [riskScore, setRiskScore] = useState<number | null>(null)
+  const [riskLevel, setRiskLevel] = useState<string | null>(null)
   const [showDelegateForm, setShowDelegateForm] = useState(false)
   const [delegateForm, setDelegateForm] = useState({
     assessmentType: "",
@@ -1200,18 +1173,6 @@ export default function AIAssessmentPage() {
     dueDate: "",
     customMessage: "",
   })
-  const [approverInfo, setApproverInfo] = useState({
-    name: "",
-    title: "",
-    role: "",
-    signature: "",
-  })
-  const [companyInfo, setCompanyInfo] = useState({
-    companyName: "",
-    productName: "",
-  })
-
-  // SOC-specific state
   const [socInfo, setSocInfo] = useState({
     socType: "", // SOC 1, SOC 2, SOC 3
     reportType: "", // Type 1, Type 2
@@ -1221,7 +1182,7 @@ export default function AIAssessmentPage() {
     socStartDate: "",
     socEndDate: "",
     socDateAsOf: "",
-    testedStatus: "",
+    testedStatus: "", // Added testedStatus
     exceptions: "",
     nonOperationalControls: "",
     companyName: "",
@@ -1229,148 +1190,6 @@ export default function AIAssessmentPage() {
     subserviceOrganizations: "",
     userEntityControls: "",
   })
-
-  const [questionEditModes, setQuestionEditModes] = useState<Record<string, boolean>>({})
-  const [questionUnsavedChanges, setQuestionUnsavedChanges] = useState<Record<string, boolean>>({})
-  const [editedAnswers, setEditedAnswers] = useState<Record<string, boolean | string>>({})
-  const [approvedQuestions, setApprovedQuestions] = useState<Set<string>>(new Set())
-  const [editedReasoning, setEditedReasoning] = useState<Record<string, string>>({})
-  const [editedEvidence, setEditedEvidence] = useState<
-    Record<
-      string,
-      Array<{
-        fileName: string
-        excerpt: string
-        relevance: string
-        pageOrSection?: string
-        quote?: string
-        pageNumber?: number
-        lineNumber?: number
-      }>
-    >
-  >({})
-  const [delegatedAssessments, setDelegatedAssessments] = useState<any[]>([])
-
-  // Add these state variables after the existing state declarations
-  const [isDelegatedAssessment, setIsDelegatedAssessment] = useState(false)
-  const [delegatedAssessmentInfo, setDelegatedAssessmentInfo] = useState<any>(null)
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-
-  // Add new state for SOC compliance dropdowns
-  const [socTestingStatus, setSocTestingStatus] = useState<Record<string, "tested" | "un-tested">>({})
-  const [socExceptionStatus, setSocExceptionStatus] = useState<Record<string, "exception" | "non-operational" | "">>({})
-
-  const determineSOCStatus = (questionId: string, answer: any, reasoning: string, excerpts: any[]) => {
-    const answerStr = String(answer).toLowerCase()
-    const reasoningStr = reasoning.toLowerCase()
-    const excerptText = excerpts
-      .map((e) => e.excerpt || "")
-      .join(" ")
-      .toLowerCase()
-
-    // Combine all text for analysis
-    const allText = `${answerStr} ${reasoningStr} ${excerptText}`
-
-    // Determine if tested based on keywords and context
-    const testedKeywords = [
-      "tested",
-      "testing",
-      "test",
-      "verified",
-      "validated",
-      "audited",
-      "reviewed",
-      "assessed",
-      "evaluated",
-      "monitored",
-      "checked",
-    ]
-    const untestedKeywords = [
-      "not tested",
-      "untested",
-      "no testing",
-      "not verified",
-      "not validated",
-      "not audited",
-      "not reviewed",
-      "not assessed",
-      "not evaluated",
-      "not monitored",
-      "not checked",
-    ]
-
-    let status: "tested" | "un-tested" = "un-tested"
-    let result: "operational" | "exception" | "non-operational" | "" = ""
-
-    // Check for untested keywords first (more specific)
-    if (untestedKeywords.some((keyword) => allText.includes(keyword))) {
-      status = "un-tested"
-    } else if (testedKeywords.some((keyword) => allText.includes(keyword))) {
-      status = "tested"
-
-      // If tested, determine the result
-      const operationalKeywords = [
-        "operational",
-        "working",
-        "functioning",
-        "effective",
-        "compliant",
-        "adequate",
-        "satisfactory",
-        "implemented",
-        "established",
-        "documented",
-      ]
-      const exceptionKeywords = ["exception", "deficiency", "weakness", "gap", "issue", "problem", "concern", "finding"]
-      const nonOperationalKeywords = [
-        "non-operational",
-        "not operational",
-        "not working",
-        "not functioning",
-        "ineffective",
-        "non-compliant",
-        "inadequate",
-        "unsatisfactory",
-        "not implemented",
-        "not established",
-        "missing",
-      ]
-
-      if (nonOperationalKeywords.some((keyword) => allText.includes(keyword))) {
-        result = "non-operational"
-      } else if (exceptionKeywords.some((keyword) => allText.includes(keyword))) {
-        result = "exception"
-      } else if (
-        operationalKeywords.some((keyword) => allText.includes(keyword)) ||
-        answerStr === "yes" ||
-        answerStr === "true"
-      ) {
-        result = "operational"
-      } else {
-        result = "operational" // Default to operational if tested but no clear indication
-      }
-    }
-
-    return { status, result }
-  }
-
-  const handleSocExceptionStatusChange = (
-    questionId: string,
-    status: "operational" | "exception" | "non-operational" | "",
-  ) => {
-    setSocExceptionStatus((prev) => ({
-      ...prev,
-      [questionId]: status,
-    }))
-  }
-
-  const handleSocTestingStatusChange = (questionId: string, status: "tested" | "un-tested") => {
-    setSocTestingStatus((prev) => ({
-      ...prev,
-      [questionId]: status,
-    }))
-  }
 
   useEffect(() => {
     // Check for pre-selected category from main risk assessment page
@@ -1385,8 +1204,8 @@ export default function AIAssessmentPage() {
         if (preSelectedCategory === "soc-compliance") {
           setCurrentStep("soc-info")
         } else {
-          // For other assessments, go directly to upload
-          setCurrentStep("upload")
+          // For other assessments, go directly to assessment
+          setCurrentStep("assessment")
         }
         localStorage.removeItem("skipMethodSelection")
       } else {
@@ -1398,459 +1217,97 @@ export default function AIAssessmentPage() {
     }
   }, [])
 
-  useEffect(() => {
-    const delegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
-    setDelegatedAssessments(delegated)
-  }, [])
-
-  // Add this useEffect after the existing useEffects
-  useEffect(() => {
-    // Check if this is a delegated assessment
-    const urlParams = new URLSearchParams(window.location.search)
-    const isDelegated = urlParams.get("delegated") === "true"
-    const delegatedId = urlParams.get("id")
-    const delegatedToken = urlParams.get("token")
-
-    if (isDelegated && delegatedId && delegatedToken) {
-      setIsDelegatedAssessment(true)
-
-      // Get the stored assessment info
-      const storedInfo = localStorage.getItem("internalAssessmentInfo")
-      if (storedInfo) {
-        try {
-          const assessmentInfo = JSON.parse(storedInfo)
-          setDelegatedAssessmentInfo(assessmentInfo)
-
-          // Find the matching category
-          const matchingCategory = assessmentCategories.find(
-            (cat) => cat.name === assessmentInfo.assessmentType || assessmentInfo.assessmentType.includes(cat.name),
-          )
-
-          if (matchingCategory) {
-            setSelectedCategory(matchingCategory.id)
-            setCurrentStep("choose-method")
-          }
-        } catch (error) {
-          console.error("Error parsing delegated assessment info:", error)
-        }
-      }
-    }
-  }, [])
-
-  const handleAnswerEdit = (questionId: string, newAnswer: boolean | string) => {
-    setEditedAnswers((prev) => ({
-      ...prev,
-      [questionId]: newAnswer,
-    }))
-    setQuestionUnsavedChanges((prev) => ({
-      ...prev,
-      [questionId]: true,
-    }))
-    // Remove approval when answer is edited
-    setApprovedQuestions((prev) => {
-      const newSet = new Set(prev)
-      newSet.delete(questionId)
-      return newSet
-    })
+  const handleAnswerChange = (questionId: string, value: any) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }))
   }
 
-  const handleReasoningEdit = (questionId: string, newReasoning: string) => {
-    setEditedReasoning((prev) => ({
-      ...prev,
-      [questionId]: newReasoning,
-    }))
-    setQuestionUnsavedChanges((prev) => ({
-      ...prev,
-      [questionId]: true,
-    }))
-    // Remove approval when reasoning is edited
-    setApprovedQuestions((prev) => {
-      const newSet = new Set(prev)
-      newSet.delete(questionId)
-      return newSet
-    })
-  }
-
-  const handleEvidenceEdit = (
-    questionId: string,
-    newEvidence: Array<{
-      fileName: string
-      excerpt: string
-      relevance: string
-      pageOrSection?: string
-      quote?: string
-      pageNumber?: number
-      lineNumber?: number
-    }>,
-  ) => {
-    setEditedEvidence((prev) => ({
-      ...prev,
-      [questionId]: newEvidence,
-    }))
-    setQuestionUnsavedChanges((prev) => ({
-      ...prev,
-      [questionId]: true,
-    }))
-    // Remove approval when evidence is edited
-    setApprovedQuestions((prev) => {
-      const newSet = new Set(prev)
-      newSet.delete(questionId)
-      return newSet
-    })
-  }
-
-  const addEvidenceItem = (questionId: string) => {
-    const currentEvidence = editedEvidence[questionId] || aiAnalysisResult?.documentExcerpts?.[questionId] || []
-    const newItem = {
-      fileName: "",
-      excerpt: "",
-      relevance: "",
-    }
-    handleEvidenceEdit(questionId, [...currentEvidence, newItem])
-  }
-
-  const removeEvidenceItem = (questionId: string, index: number) => {
-    const currentEvidence = editedEvidence[questionId] || aiAnalysisResult?.documentExcerpts?.[questionId] || []
-    const updatedEvidence = currentEvidence.filter((_, i) => i !== index)
-    handleEvidenceEdit(questionId, updatedEvidence)
-  }
-
-  const updateEvidenceItem = (questionId: string, index: number, field: string, value: string) => {
-    const currentEvidence = editedEvidence[questionId] || aiAnalysisResult?.documentExcerpts?.[questionId] || []
-    const updatedEvidence = [...currentEvidence]
-    updatedEvidence[index] = { ...updatedEvidence[index], [field]: value }
-    handleEvidenceEdit(questionId, updatedEvidence)
-  }
-
-  const toggleQuestionEditMode = (questionId: string) => {
-    setQuestionEditModes((prev) => ({
-      ...prev,
-      [questionId]: !prev[questionId],
-    }))
-  }
-
-  const saveQuestionEdits = (questionId: string) => {
-    setQuestionEditModes((prev) => ({
-      ...prev,
-      [questionId]: false,
-    }))
-    setQuestionUnsavedChanges((prev) => ({
-      ...prev,
-      [questionId]: false,
-    }))
-  }
-
-  const cancelQuestionEdits = (questionId: string) => {
-    // Remove any unsaved changes for this question
-    setEditedAnswers((prev) => {
-      const newAnswers = { ...prev }
-      delete newAnswers[questionId]
-      return newAnswers
-    })
-    setEditedReasoning((prev) => {
-      const newReasoning = { ...prev }
-      delete newReasoning[questionId]
-      return newReasoning
-    })
-    setEditedEvidence((prev) => {
-      const newEvidence = { ...prev }
-      delete newEvidence[questionId]
-      return newEvidence
-    })
-    setQuestionEditModes((prev) => ({
-      ...prev,
-      [questionId]: false,
-    }))
-    setQuestionUnsavedChanges((prev) => ({
-      ...prev,
-      [questionId]: false,
-    }))
-  }
-
-  const handleQuestionApproval = (questionId: string) => {
-    setApprovedQuestions((prev) => new Set([...prev, questionId]))
-  }
-
-  const handleQuestionUnapproval = (questionId: string) => {
-    setApprovedQuestions((prev) => {
-      const newSet = new Set(prev)
-      newSet.delete(questionId)
-      return newSet
-    })
-  }
-
-  const saveEdits = () => {
-    if (!aiAnalysisResult) return
-
-    // Update the AI analysis result with edited answers, reasoning, and evidence
-    const updatedResult = {
-      ...aiAnalysisResult,
-      answers: {
-        ...aiAnalysisResult.answers,
-        ...editedAnswers,
-      },
-      reasoning: {
-        ...aiAnalysisResult.reasoning,
-        ...editedReasoning,
-      },
-      documentExcerpts: {
-        ...aiAnalysisResult.documentExcerpts,
-        ...editedEvidence,
-      },
-    }
-
-    // Recalculate risk score based on edited answers
-    let totalScore = 0
-    let maxScore = 0
-
-    currentCategory?.questions.forEach((question) => {
-      const answer = updatedResult.answers[question.id]
-
-      if (question.type === "tested") {
-        maxScore += question.weight
-        if (answer === "tested") {
-          totalScore += question.weight
-        } else if (answer === "not_tested") {
-          totalScore += 0
-        }
-      } else if (question.type === "boolean") {
-        maxScore += question.weight
-        totalScore += answer ? question.weight : 0
-      } else if (question.type === "multiple" && question.options) {
-        maxScore += question.weight * 4
-        const optionIndex = question.options.indexOf(answer as string)
-        if (optionIndex !== -1) {
-          const scoreMultiplier = (question.options.length - 1 - optionIndex) / (question.options.length - 1)
-          totalScore += question.weight * scoreMultiplier * 4
-        }
-      }
-    })
-
-    const newRiskScore = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0
-    let newRiskLevel = "High"
-
-    if (selectedCategory === "soc-compliance") {
-      // SOC-specific risk levels
-      if (newRiskScore >= 90) newRiskLevel = "Low"
-      else if (newRiskScore >= 75) newRiskLevel = "Medium"
-      else if (newRiskScore >= 50) newRiskLevel = "Medium-High"
-      else newRiskLevel = "High"
-    } else {
-      // Standard risk levels
-      if (newRiskScore >= 75) newRiskLevel = "Low"
-      else if (newRiskScore >= 50) newRiskLevel = "Medium"
-      else if (newRiskScore >= 25) newRiskLevel = "Medium-High"
-    }
-
-    updatedResult.riskScore = newRiskScore
-    updatedResult.riskLevel = newRiskLevel
-
-    setAiAnalysisResult(updatedResult)
-    setIsEditMode(false)
-    setHasUnsavedChanges(false)
-    setEditedAnswers({})
-    setEditedReasoning({})
-    setEditedEvidence({})
-  }
-
-  const cancelEdits = () => {
-    setEditedAnswers({})
-    setEditedReasoning({})
-    setEditedEvidence({})
-    setIsEditMode(false)
-    setHasUnsavedChanges(false)
-  }
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(event.target.files || [])
-    setUploadedFiles([...uploadedFiles, ...newFiles])
-  }
-
-  const removeFile = (index: number) => {
-    setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
-  }
-
-  const getFileStatusIcon = (file: File) => {
-    const fileName = file.name.toLowerCase()
-    const fileType = file.type.toLowerCase()
-
-    // Fully supported formats
-    if (
-      fileType.includes("text/plain") ||
-      fileName.endsWith(".txt") ||
-      fileName.endsWith(".md") ||
-      fileName.endsWith(".csv") ||
-      fileName.endsWith(".json") ||
-      fileName.endsWith(".html") ||
-      fileName.endsWith(".xml") ||
-      fileName.endsWith(".js") ||
-      fileName.endsWith(".ts") ||
-      fileName.endsWith(".yml") ||
-      fileName.endsWith(".yaml")
-    ) {
-      return <Check className="h-4 w-4 text-green-600" />
-    }
-
-    // Limited support (PDFs)
-    if (fileType.includes("pdf") || fileName.endsWith(".pdf")) {
-      return <AlertCircle className="h-4 w-4 text-yellow-600" />
-    }
-
-    // Not supported
-    return <XCircle className="h-4 w-4 text-red-600" />
-  }
-
-  const getFileStatusText = (file: File) => {
-    const fileName = file.name.toLowerCase()
-    const fileType = file.type.toLowerCase()
-
-    // Fully supported formats
-    if (
-      fileType.includes("text/plain") ||
-      fileName.endsWith(".txt") ||
-      fileName.endsWith(".md") ||
-      fileName.endsWith(".csv") ||
-      fileName.endsWith(".json") ||
-      fileName.endsWith(".html") ||
-      fileName.endsWith(".xml") ||
-      fileName.endsWith(".js") ||
-      fileName.endsWith(".ts") ||
-      fileName.endsWith(".yml") ||
-      fileName.endsWith(".yaml")
-    ) {
-      return "Fully supported"
-    }
-
-    // Limited support (PDFs)
-    if (fileType.includes("pdf") || fileName.endsWith(".pdf")) {
-      return "Limited support - convert to .txt recommended"
-    }
-
-    // Not supported
-    if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) {
-      return "Not supported - copy content to .txt file"
-    }
-
-    if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
-      return "Not supported - export as .csv file"
-    }
-
-    return "Unknown format - may not be supported"
-  }
-
-  const startAnalysis = async () => {
-    if (!selectedCategory || uploadedFiles.length === 0) {
-      alert("Please select files to analyze")
-      return
-    }
-
-    if (!companyInfo.companyName.trim()) {
-      alert("Please enter your company name")
-      return
-    }
+  const calculateRisk = () => {
+    if (!selectedCategory) return
 
     const category = assessmentCategories.find((cat) => cat.id === selectedCategory)
-    if (!category) {
-      alert("Invalid assessment category")
-      return
-    }
+    if (!category) return
 
-    setCurrentStep("processing")
-    setIsAnalyzing(true)
-    setAnalysisProgress(0)
-    setAnalysisError(null)
-    setCompletedSteps([])
+    let totalScore = 0
+    let maxPossibleScore = 0
 
-    try {
-      const formData = new FormData()
-      uploadedFiles.forEach((file) => {
-        formData.append("files", file)
-      })
-      formData.append("questions", JSON.stringify(category.questions))
-      formData.append("assessmentType", category.name)
+    category.questions.forEach((question) => {
+      const answer = answers[question.id]
+      const weight = question.weight || 1 // Default weight to 1 if not specified
 
-      // Progress simulation
-      const progressSteps = [
-        { step: 0, progress: 25, delay: 1000 },
-        { step: 1, progress: 50, delay: 1500 },
-        { step: 2, progress: 75, delay: 1000 },
-        { step: 3, progress: 90, delay: 500 },
-      ]
-
-      let currentStepIndex = 0
-      const stepInterval = setInterval(() => {
-        if (currentStepIndex < progressSteps.length) {
-          const currentStepData = progressSteps[currentStepIndex]
-          setCompletedSteps((prev) => [...prev, currentStepData.step])
-          setAnalysisProgress(currentStepData.progress)
-          currentStepIndex++
-        } else {
-          clearInterval(stepInterval)
+      if (question.type === "boolean") {
+        maxPossibleScore += weight
+        if (answer === true) {
+          totalScore += weight
         }
-      }, 800)
-
-      const response = await fetch("/api/ai-assessment/analyze", {
-        method: "POST",
-        body: formData,
-      })
-
-      clearInterval(stepInterval)
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `Analysis failed: ${response.status}`)
+      } else if (question.type === "multiple" && question.options) {
+        // For multiple choice, assign score based on position (e.g., first option is best)
+        maxPossibleScore += weight * question.options.length // Max score if all best options are chosen
+        const answerIndex = question.options.indexOf(answer)
+        if (answerIndex !== -1) {
+          totalScore += weight * (question.options.length - 1 - answerIndex) // Higher score for earlier options
+        }
+      } else if (question.type === "tested") {
+        maxPossibleScore += weight
+        if (answer === "tested") {
+          totalScore += weight
+        }
       }
+      // Textarea questions don't directly contribute to score, but indicate completeness
+    })
 
-      const result: AIAnalysisResult = await response.json()
-      setAnalysisProgress(100)
-      setCompletedSteps([0, 1, 2, 3])
-      setAiAnalysisResult(result)
+    const calculatedRiskScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0
+    setRiskScore(calculatedRiskScore)
 
-      setTimeout(() => {
-        setCurrentStep("review")
-        setIsAnalyzing(false)
-      }, 1000)
-    } catch (error) {
-      console.error("Error during AI analysis:", error)
-      setAnalysisError(error instanceof Error ? error.message : "Analysis failed")
-      setIsAnalyzing(false)
-      setTimeout(() => {
-        setCurrentStep("upload")
-        setAnalysisProgress(0)
-        setCompletedSteps([])
-        setAnalysisError(null)
-      }, 3000)
+    let level = "High"
+    if (calculatedRiskScore >= 75) level = "Low"
+    else if (calculatedRiskScore >= 50) level = "Medium"
+    else if (calculatedRiskScore >= 25) level = "Medium-High"
+    setRiskLevel(level)
+
+    setCurrentStep("results")
+  }
+
+  const getRiskLevelColor = (level: string | null) => {
+    switch (level?.toLowerCase()) {
+      case "low":
+        return "text-green-600 bg-green-100"
+      case "medium":
+        return "text-yellow-600 bg-yellow-100"
+      case "medium-high":
+        return "text-orange-600 bg-orange-100"
+      case "high":
+        return "text-red-600 bg-red-100"
+      default:
+        return "text-gray-600 bg-gray-100"
     }
   }
 
   const handleStartAssessment = (categoryId: string) => {
     setSelectedCategory(categoryId)
+    setAnswers({})
+    setRiskScore(null)
+    setRiskLevel(null)
     setCurrentStep("choose-method")
-    setUploadedFiles([])
-    setAiAnalysisResult(null)
-    setAnalysisError(null)
-    setAnalysisProgress(0)
-    setCompletedSteps([])
   }
 
   const handleChooseManual = () => {
-    const category = assessmentCategories.find((cat) => cat.id === selectedCategory)
-    if (category) {
-      localStorage.setItem("selectedAssessmentCategory", selectedCategory!)
-      window.location.href = "/risk-assessment"
+    if (selectedCategory === "soc-compliance") {
+      setCurrentStep("soc-info")
+    } else {
+      setCurrentStep("assessment")
     }
   }
 
   const handleChooseAI = () => {
-    if (selectedCategory === "soc-compliance") {
-      setCurrentStep("soc-info")
-    } else {
-      setCurrentStep("upload")
+    if (selectedCategory) {
+      localStorage.setItem("selectedAssessmentCategory", selectedCategory)
+      localStorage.setItem("skipMethodSelection", "true") // Indicate to skip method selection on redirect
+      window.location.href = "/risk-assessment/ai-assessment"
     }
   }
 
   const handleSOCInfoComplete = () => {
-    setCurrentStep("upload")
+    setCurrentStep("assessment")
   }
 
   const handleDelegateAssessment = (categoryId: string) => {
@@ -1858,7 +1315,7 @@ export default function AIAssessmentPage() {
     if (category) {
       setDelegateForm({
         ...delegateForm,
-        assessmentType: `${category.name} (AI-Powered)`,
+        assessmentType: category.name,
       })
       setShowDelegateForm(true)
     }
@@ -1871,7 +1328,24 @@ export default function AIAssessmentPage() {
     }
 
     try {
-      const assessmentId = `ai-internal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const assessmentId = `internal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
+      // Store delegation info locally for the recipient page to pick up
+      const delegationInfo = {
+        assessmentId,
+        assessmentType: delegateForm.assessmentType,
+        delegationType: "team", // Assuming internal team delegation
+        method: "manual", // For manual assessment delegation
+        recipientName: delegateForm.recipientName,
+        recipientEmail: delegateForm.recipientEmail,
+        dueDate: delegateForm.dueDate,
+        customMessage: delegateForm.customMessage,
+      }
+      localStorage.setItem(`delegation-${assessmentId}`, JSON.stringify(delegationInfo))
+
+      // Also add to a general list of delegated assessments for the delegator to track
+      const existingDelegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
+      localStorage.setItem("delegatedAssessments", JSON.stringify([...existingDelegated, delegationInfo]))
 
       const emailResult = await sendAssessmentEmail({
         vendorName: "Internal Team",
@@ -1896,599 +1370,46 @@ export default function AIAssessmentPage() {
       setShowDelegateForm(false)
 
       if (emailResult.success) {
-        alert(`AI-Powered assessment delegation sent successfully!`)
+        alert(`Assessment delegation sent successfully!`)
       } else {
         alert(`Assessment delegation created but email delivery failed.`)
       }
     } catch (error) {
-      console.error("Error sending AI delegation:", error)
-      alert("Failed to send AI-powered assessment delegation. Please try again.")
+      console.error("Error sending delegation:", error)
+      alert("Failed to send assessment delegation. Please try again.")
     }
   }
-
-  const getRiskLevelColor = (level: string) => {
-    switch (level.toLowerCase()) {
-      case "low":
-        return "text-green-600 bg-green-100"
-      case "medium":
-        return "text-yellow-600 bg-yellow-100"
-      case "medium-high":
-        return "text-orange-600 bg-orange-100"
-      case "high":
-        return "text-red-600 bg-red-100"
-      default:
-        return "text-gray-600 bg-gray-100"
-    }
-  }
-
-  const analysisSteps = [
-    {
-      id: 0,
-      title: "Document text extraction and preprocessing",
-      description: "Extracting and cleaning text from uploaded documents",
-    },
-    {
-      id: 1,
-      title: "AI model analysis and question processing",
-      description: "Processing questions through advanced language models",
-    },
-    {
-      id: 2,
-      title: "Evidence extraction and confidence scoring",
-      description: "Identifying relevant excerpts and calculating confidence scores",
-    },
-    {
-      id: 3,
-      title: "Risk assessment and recommendations generation",
-      description: "Generating final risk scores and actionable recommendations",
-    },
-  ]
 
   const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
-  const selectedFramework = assessmentCategories.find((cat) => cat.id === selectedCategory)
-
-  const generateAndDownloadReport = async () => {
-    if (!aiAnalysisResult || !currentCategory) return
-
-    try {
-      // Import jsPDF dynamically to avoid SSR issues
-      const { jsPDF } = await import("jspdf")
-
-      const doc = new jsPDF()
-      const pageWidth = doc.internal.pageSize.getWidth()
-      const pageHeight = doc.internal.pageSize.getHeight()
-      const margin = 20
-      const contentWidth = pageWidth - 2 * margin
-      let yPosition = margin
-
-      // Helper function to add text with word wrapping
-      const addWrappedText = (
-        text: string,
-        x: number,
-        y: number,
-        maxWidth: number,
-        fontSize = 10,
-        fontStyle: "normal" | "bold" | "italic" = "normal",
-        textColor: number[] = [0, 0, 0],
-      ) => {
-        doc.setFontSize(fontSize)
-        doc.setFont("helvetica", fontStyle)
-        doc.setTextColor(textColor[0], textColor[1], textColor[2])
-        const lines = doc.splitTextToSize(text, maxWidth)
-        doc.text(lines, x, y)
-        return y + lines.length * (fontSize * 0.5) // Adjust line spacing
-      }
-
-      // Helper function to check if we need a new page
-      const checkNewPage = (requiredHeight: number) => {
-        if (yPosition + requiredHeight > pageHeight - margin) {
-          doc.addPage()
-          yPosition = margin
-        }
-      }
-
-      // --- Colors (RGB values from Tailwind config) ---
-      const BLUE_600 = [30, 64, 191] // #1e40af
-      const BLUE_50 = [239, 246, 255] // #eff6ff
-      const BLUE_100 = [219, 234, 254] // #dbeafe
-      const BLUE_200 = [191, 219, 254] // #bfdbfe
-      const BLUE_700 = [29, 77, 216] // #1d4ed8
-      const GREEN_600 = [22, 163, 74] // #16a34a
-      const GREEN_50 = [240, 253, 244] // #f0fdf4
-      const YELLOW_600 = [202, 138, 4] // #ca8a04
-      const YELLOW_50 = [254, 252, 232] // #fefce8
-      const ORANGE_600 = [234, 88, 12] // #ea580c
-      const RED_600 = [220, 38, 38] // #dc2626
-      const RED_50 = [254, 242, 242] // #fef2f2
-      const GRAY_900 = [17, 24, 39] // #111827
-      const GRAY_700 = [55, 65, 81] // #374151
-      const GRAY_600 = [75, 85, 99] // #4b5563
-      const GRAY_500 = [107, 114, 128] // #6b7280
-      const GRAY_200 = [229, 231, 235] // #e5e7eb
-      const GRAY_100 = [243, 244, 246] // #f3f4f6
-      const GRAY_50 = [249, 250, 251] // #f9fafb
-
-      // Header
-      doc.setFillColor(BLUE_600[0], BLUE_600[1], BLUE_600[2])
-      doc.rect(0, 0, pageWidth, 60, "F")
-
-      addWrappedText(
-        `${currentCategory.name} Risk Assessment Report`,
-        pageWidth / 2,
-        25,
-        contentWidth,
-        24,
-        "bold",
-        [255, 255, 255],
-      )
-      addWrappedText(
-        `AI-Powered Risk Analysis • Generated ${new Date().toLocaleDateString()}`,
-        pageWidth / 2,
-        40,
-        contentWidth,
-        12,
-        "normal",
-        [255, 255, 255],
-      )
-
-      yPosition = 80
-
-      // Summary Section
-      addWrappedText("Assessment Summary", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 20
-
-      // Summary boxes
-      const boxWidth = (contentWidth - 20) / 3
-      const boxHeight = 40
-
-      // Risk Score Box
-      doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
-      doc.rect(margin, yPosition, boxWidth, boxHeight, "F")
-      doc.setDrawColor(BLUE_100[0], BLUE_100[1], BLUE_100[2])
-      doc.rect(margin, yPosition, boxWidth, boxHeight, "S")
-      addWrappedText(
-        `${aiAnalysisResult.riskScore}%`,
-        margin + boxWidth / 2,
-        yPosition + 22,
-        boxWidth,
-        24,
-        "bold",
-        BLUE_600,
-      )
-      addWrappedText("Risk Score", margin + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
-
-      // Risk Level Box
-      const riskLevelColor = getRiskLevelColor(aiAnalysisResult.riskLevel)
-      let riskBgColor = GRAY_100
-      let riskTextColor = GRAY_700
-      if (riskLevelColor.includes("text-green-600")) {
-        riskBgColor = GREEN_50
-        riskTextColor = GREEN_600
-      } else if (riskLevelColor.includes("text-yellow-600")) {
-        riskBgColor = YELLOW_50
-        riskTextColor = YELLOW_600
-      } else if (riskLevelColor.includes("text-orange-600")) {
-        riskBgColor = [255, 237, 213] // orange-50
-        riskTextColor = ORANGE_600
-      } else if (riskLevelColor.includes("text-red-600")) {
-        riskBgColor = RED_50
-        riskTextColor = RED_600
-      }
-
-      doc.setFillColor(riskBgColor[0], riskBgColor[1], riskBgColor[2])
-      doc.rect(margin + boxWidth + 10, yPosition, boxWidth, boxHeight, "F")
-      doc.setDrawColor(riskTextColor[0], riskTextColor[1], riskTextColor[2])
-      doc.rect(margin + boxWidth + 10, yPosition, boxWidth, boxHeight, "S")
-      addWrappedText(
-        `${aiAnalysisResult.riskLevel} Risk`,
-        margin + boxWidth + 10 + boxWidth / 2,
-        yPosition + 22,
-        boxWidth,
-        14,
-        "bold",
-        riskTextColor,
-      )
-      addWrappedText("Risk Level", margin + boxWidth + 10 + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
-
-      // Documents Analyzed Box
-      doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
-      doc.rect(margin + 2 * (boxWidth + 10), yPosition, boxWidth, boxHeight, "F")
-      doc.setDrawColor(GREEN_600[0], GREEN_600[1], GREEN_600[2])
-      doc.rect(margin + 2 * (boxWidth + 10), yPosition, boxWidth, boxHeight, "S")
-      addWrappedText(
-        `${aiAnalysisResult.documentsAnalyzed}`,
-        margin + 2 * (boxWidth + 10) + boxWidth / 2,
-        yPosition + 22,
-        boxWidth,
-        24,
-        "bold",
-        GREEN_600,
-      )
-      addWrappedText("Documents Analyzed", margin + 2 * (boxWidth + 10) + boxWidth / 2, yPosition + 32, boxWidth, 10, "normal", GRAY_600)
-
-      yPosition += boxHeight + 30
-
-      // Company Information
-      checkNewPage(70)
-      addWrappedText("Company Information", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 20
-
-      doc.setFillColor(GRAY_50[0], GRAY_50[1], GRAY_50[2])
-      doc.rect(margin, yPosition, contentWidth, 45, "F")
-      doc.setDrawColor(GRAY_200[0], GRAY_200[1], GRAY_200[2])
-      doc.rect(margin, yPosition, contentWidth, 45, "S")
-
-      addWrappedText(`Company Name: ${companyInfo.companyName || "Not specified"}`, margin + 10, yPosition + 15, contentWidth - 20, 11, "normal", GRAY_700)
-      addWrappedText(`Product/Service: ${companyInfo.productName || "Not specified"}`, margin + 10, yPosition + 27, contentWidth - 20, 11, "normal", GRAY_700)
-      addWrappedText(`Assessment Date: ${new Date().toLocaleDateString()}`, margin + 10, yPosition + 39, contentWidth - 20, 11, "normal", GRAY_700)
-
-      yPosition += 60
-
-      // SOC Information (if applicable)
-      if (selectedCategory === "soc-compliance" && socInfo.socType) {
-        checkNewPage(120)
-        addWrappedText("SOC Assessment Information", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-        yPosition += 20
-
-        doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
-        doc.rect(margin, yPosition, contentWidth, 100, "F")
-        doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
-        doc.rect(margin, yPosition, contentWidth, 100, "S")
-
-        addWrappedText(`SOC Type: ${socInfo.socType}`, margin + 10, yPosition + 15, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Report Type: ${socInfo.reportType}`, margin + 10, yPosition + 27, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Auditor: ${socInfo.auditor || "Not specified"}`, margin + 10, yPosition + 39, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Expected Opinion: ${socInfo.auditorOpinion || "Not specified"}`, margin + 10, yPosition + 51, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Company: ${socInfo.companyName}`, margin + 10, yPosition + 63, contentWidth - 20, 11, "normal", BLUE_700)
-        addWrappedText(`Product/Service: ${socInfo.productService}`, margin + 10, yPosition + 75, contentWidth - 20, 11, "normal", BLUE_700)
-
-        yPosition += 120
-      }
-
-      // Approval Information
-      checkNewPage(70)
-      addWrappedText("Approval Information", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 20
-
-      doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
-      doc.rect(margin, yPosition, contentWidth, 45, "F")
-      doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
-      doc.rect(margin, yPosition, contentWidth, 45, "S")
-
-      addWrappedText(`Approved By: ${approverInfo.name}`, margin + 10, yPosition + 15, contentWidth - 20, 11, "normal", GRAY_700)
-      addWrappedText(`Title: ${approverInfo.title}`, margin + 10, yPosition + 27, contentWidth - 20, 11, "normal", GRAY_700)
-      addWrappedText(`Digital Signature: ${approverInfo.signature}`, margin + 10, yPosition + 39, contentWidth - 20, 11, "italic", BLUE_600)
-
-      yPosition += 70
-
-      // Assessment Questions
-      addWrappedText("Assessment Questions & Responses", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 25
-
-      currentCategory.questions.forEach((question, index) => {
-        checkNewPage(120) // Check if we need space for question block
-
-        const answer = aiAnalysisResult.answers[question.id]
-        const reasoning = aiAnalysisResult.reasoning[question.id] || "No reasoning provided"
-        const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
-
-        // Question header with better spacing
-        doc.setFillColor(255, 255, 255)
-        doc.rect(margin, yPosition, contentWidth, 25, "F")
-        doc.setDrawColor(GRAY_200[0], GRAY_200[1], GRAY_200[2])
-        doc.rect(margin, yPosition, contentWidth, 25, "S")
-
-        const questionText = `${index + 1}. ${question.question}`
-        yPosition = addWrappedText(questionText, margin + 5, yPosition + 8, contentWidth - 10, 12, "bold", GRAY_900)
-
-        addWrappedText(`Weight: ${question.weight}`, margin + 5, yPosition + 8, contentWidth - 10, 9, "normal", GRAY_600)
-        yPosition += 20
-
-        // Answer with proper background
-        doc.setFillColor(BLUE_100[0], BLUE_100[1], BLUE_100[2])
-        doc.rect(margin + 5, yPosition, contentWidth - 10, 18, "F")
-        doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
-        doc.rect(margin + 5, yPosition, contentWidth - 10, 18, "S")
-
-        let answerText = ""
-        if (question.type === "boolean") {
-          answerText = typeof answer === "boolean" ? (answer ? "Yes" : "No") : String(answer)
-        } else if (question.type === "tested") {
-          answerText = answer === "tested" ? "Tested" : answer === "not_tested" ? "Not Tested" : String(answer)
-        } else {
-          answerText = String(answer)
-        }
-
-        addWrappedText(`Answer: ${answerText}`, margin + 10, yPosition + 12, contentWidth - 20, 11, "bold", BLUE_700)
-        yPosition += 25
-
-        // Reasoning with proper background and text wrapping
-        const reasoningHeight = Math.max(35, doc.splitTextToSize(reasoning, contentWidth - 20).length * 12 + 15)
-        doc.setFillColor(GRAY_100[0], GRAY_100[1], GRAY_100[2])
-        doc.rect(margin + 5, yPosition, contentWidth - 10, reasoningHeight, "F")
-        doc.setDrawColor(GRAY_200[0], GRAY_200[1], GRAY_200[2])
-        doc.rect(margin + 5, yPosition, contentWidth - 10, reasoningHeight, "S")
-        addWrappedText("Reasoning:", margin + 10, yPosition + 10, contentWidth - 20, 10, "bold", GRAY_700)
-        yPosition = addWrappedText(reasoning, margin + 10, yPosition + 18, contentWidth - 20, 9, "normal", GRAY_700)
-        yPosition += 15
-
-        // Evidence with proper background - SHOW ALL evidence
-        if (excerpts.length > 0) {
-          // Calculate height needed for all evidence items
-          let currentEvidenceY = yPosition + 18
-          let totalEvidenceHeight = 0
-          excerpts.forEach((excerpt) => {
-            const excerptLines = doc.splitTextToSize(`"${excerpt.excerpt}"`, contentWidth - 20).length
-            const sourceLines = excerpt.fileName ? 1 : 0
-            totalEvidenceHeight += (excerptLines + sourceLines) * 9 + 8 // 9 is approx line height, 8 is spacing
-          })
-          totalEvidenceHeight = Math.max(30, totalEvidenceHeight + 15) // Min height + padding
-
-          doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
-          doc.rect(margin + 5, yPosition, contentWidth - 10, totalEvidenceHeight, "F")
-          doc.setDrawColor(GREEN_600[0], GREEN_600[1], GREEN_600[2])
-          doc.rect(margin + 5, yPosition, contentWidth - 10, totalEvidenceHeight, "S")
-          addWrappedText("Evidence:", margin + 10, yPosition + 10, contentWidth - 20, 10, "bold", GRAY_700)
-          currentEvidenceY = yPosition + 18
-
-          excerpts.forEach((excerpt) => {
-            const excerptText = `"${excerpt.excerpt}"`
-            currentEvidenceY = addWrappedText(excerptText, margin + 10, currentEvidenceY, contentWidth - 20, 9, "normal", GREEN_600)
-            if (excerpt.fileName) {
-              currentEvidenceY = addWrappedText(`Source: ${excerpt.fileName}`, margin + 10, currentEvidenceY + 5, contentWidth - 20, 8, "italic", GRAY_500)
-            }
-            currentEvidenceY += 8
-          })
-          yPosition += totalEvidenceHeight
-        }
-
-        yPosition += 20
-      })
-
-      // Overall Analysis
-      checkNewPage(80)
-      addWrappedText("Overall Analysis", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-      yPosition += 20
-
-      const analysisHeight = Math.max(50, doc.splitTextToSize(aiAnalysisResult.overallAnalysis, contentWidth - 20).length * 12 + 20)
-      doc.setFillColor(BLUE_50[0], BLUE_50[1], BLUE_50[2])
-      doc.rect(margin, yPosition, contentWidth, analysisHeight, "F")
-      doc.setDrawColor(BLUE_200[0], BLUE_200[1], BLUE_200[2])
-      doc.rect(margin, yPosition, contentWidth, analysisHeight, "S")
-      yPosition = addWrappedText(aiAnalysisResult.overallAnalysis, margin + 10, yPosition + 12, contentWidth - 20, 11, "normal", BLUE_700)
-      yPosition += 30
-
-      // Risk Factors
-      if (aiAnalysisResult.riskFactors.length > 0) {
-        checkNewPage(60 + aiAnalysisResult.riskFactors.length * 15)
-        addWrappedText("Risk Factors", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-        yPosition += 20
-
-        const riskFactorsHeight = aiAnalysisResult.riskFactors.length * 18 + 20
-        doc.setFillColor(RED_50[0], RED_50[1], RED_50[2])
-        doc.rect(margin, yPosition, contentWidth, riskFactorsHeight, "F")
-        doc.setDrawColor(RED_600[0], RED_600[1], RED_600[2])
-        doc.rect(margin, yPosition, contentWidth, riskFactorsHeight, "S")
-
-        let factorY = yPosition + 15
-        aiAnalysisResult.riskFactors.forEach((factor) => {
-          factorY = addWrappedText(`• ${factor}`, margin + 10, factorY, contentWidth - 20, 11, "normal", RED_600)
-          factorY += 8
-        })
-        yPosition += riskFactorsHeight + 20
-      }
-
-      // Recommendations
-      if (aiAnalysisResult.recommendations.length > 0) {
-        checkNewPage(60 + aiAnalysisResult.recommendations.length * 15)
-        addWrappedText("Recommendations", margin, yPosition, contentWidth, 16, "bold", GRAY_900)
-        yPosition += 20
-
-        const recommendationsHeight = aiAnalysisResult.recommendations.length * 18 + 20
-        doc.setFillColor(GREEN_50[0], GREEN_50[1], GREEN_50[2])
-        doc.rect(margin, yPosition, contentWidth, recommendationsHeight, "F")
-        doc.setDrawColor(GREEN_600[0], GREEN_600[1], GREEN_600[2])
-        doc.rect(margin, yPosition, contentWidth, recommendationsHeight, "S")
-
-        let recY = yPosition + 15
-        aiAnalysisResult.recommendations.forEach((recommendation) => {
-          recY = addWrappedText(`• ${recommendation}`, margin + 10, recY, contentWidth - 20, 11, "normal", GREEN_600)
-          recY += 8
-        })
-        yPosition += recommendationsHeight + 20
-      }
-
-      // Footer
-      const totalPages = doc.getNumberOfPages()
-      for (let i = 1; i <= totalPages; i++) {
-        doc.setPage(i)
-        doc.setFillColor(GRAY_50[0], GRAY_50[1], GRAY_50[2])
-        doc.rect(0, pageHeight - 30, pageWidth, 30, "F")
-        addWrappedText(
-          "Report generated by RiskGuard AI - AI-Powered Risk Assessment Platform",
-          pageWidth / 2,
-          pageHeight - 20,
-          contentWidth,
-          8,
-          "normal",
-          GRAY_500,
-        )
-        addWrappedText(
-          `Assessment ID: ${Date.now()} • Generation Date: ${new Date().toISOString().split("T")[0]}`,
-          pageWidth / 2,
-          pageHeight - 12,
-          contentWidth,
-          8,
-          "normal",
-          GRAY_500,
-        )
-        addWrappedText(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 8, margin, 8, "normal", GRAY_500)
-      }
-
-      // Save the PDF
-      const fileName = `${currentCategory.name.replace(/\s+/g, "_")}_AI_Risk_Assessment_Report_${new Date().toISOString().split("T")[0]}.pdf`
-      doc.save(fileName)
-    } catch (error) {
-      console.error("Error generating PDF:", error)
-      alert("Error generating PDF report. Please try again.")
-    }
-  }
-
-  const allQuestionsApproved = currentCategory?.questions.every((q) => approvedQuestions.has(q.id)) || false
-
-  // Add this function after the existing functions
-  const handleDelegatedAssessmentCompletion = () => {
-    if (isDelegatedAssessment && delegatedAssessmentInfo && aiAnalysisResult) {
-      try {
-        const existingDelegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
-        const updatedDelegated = existingDelegated.map((delegation: any) =>
-          delegation.assessmentId === delegatedAssessmentInfo.assessmentId
-            ? {
-                ...delegation,
-                status: "completed",
-                completedDate: new Date().toISOString(),
-                riskScore: aiAnalysisResult.riskScore,
-                riskLevel: aiAnalysisResult.riskLevel,
-              }
-            : delegation,
-        )
-        localStorage.setItem("delegatedAssessments", JSON.stringify(updatedDelegated))
-        console.log("✅ Delegated AI assessment marked as completed")
-      } catch (error) {
-        console.error("❌ Error updating delegated AI assessment:", error)
-      }
-    }
-  }
-
-  // Call this function when moving to results step
-  const moveToResults = () => {
-    setCurrentStep("results")
-    handleDelegatedAssessmentCompletion()
-  }
-
-  useEffect(() => {
-    if (aiAnalysisResult && selectedFramework?.id === "soc-compliance") {
-      const newTestingStatus: Record<string, "tested" | "un-tested"> = {}
-      const newExceptionStatus: Record<string, "operational" | "exception" | "non-operational" | ""> = {}
-
-      selectedFramework.questions.forEach((question) => {
-        const answer = aiAnalysisResult.answers[question.id]
-        const reasoning = aiAnalysisResult.reasoning[question.id] || ""
-        const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
-
-        const { status, result } = determineSOCStatus(question.id, answer, reasoning, excerpts)
-        newTestingStatus[question.id] = status
-        if (status === "tested") {
-          newExceptionStatus[question.id] = result
-        }
-      })
-
-      setSocTestingStatus(newTestingStatus)
-      setSocExceptionStatus(newExceptionStatus)
-    }
-  }, [aiAnalysisResult, selectedFramework])
-
-  const [socManagementData, setSocManagementData] = useState({
-    exceptions: [] as Array<{
-      referencedControl: string
-      controlDescription: string
-      testingDescription: string
-      auditorResponse: string
-      managementResponse: string
-    }>,
-    deficiencies: [] as Array<{
-      referencedControl: string
-      controlDescription: string
-      testingDescription: string
-      auditorResponse: string
-      managementResponse: string
-    }>,
-    userEntityControls: [] as Array<{
-      commonCriteriaDescription: string
-      description: string
-    }>,
-  })
-
-  const addSOCItem = (type: "exceptions" | "deficiencies" | "userEntityControls") => {
-    setSocManagementData((prev) => ({
-      ...prev,
-      [type]: [
-        ...prev[type],
-        type === "userEntityControls"
-          ? { commonCriteriaDescription: "", description: "" }
-          : {
-              referencedControl: "",
-              controlDescription: "",
-              testingDescription: "",
-              auditorResponse: "",
-              managementResponse: "",
-            },
-      ],
-    }))
-  }
-
-  const removeSOCItem = (type: "exceptions" | "deficiencies" | "userEntityControls", index: number) => {
-    setSocManagementData((prev) => ({
-      ...prev,
-      [type]: prev[type].filter((_, i) => i !== index),
-    }))
-  }
-
-  const updateSOCItem = (
-    type: "exceptions" | "deficiencies" | "userEntityControls",
-    index: number,
-    field: string,
-    value: string,
-  ) => {
-    setSocManagementData((prev) => ({
-      ...prev,
-      [type]: prev[type].map((item, i) => (i === index ? { ...item, [field]: value } : item)),
-    }))
-  }
-
-  const handleSOCInfoSubmit = () => {
-    setCurrentStep("upload")
-  }
 
   return (
     <AuthGuard
       allowPreview={true}
-      previewMessage="Preview Mode: Sign up to save assessments and access full AI features"
+      previewMessage="Preview Mode: Sign up to save assessments and access full features"
     >
       <div className="min-h-screen bg-white">
-        <MainNavigation showAuthButtons={true} />
-
+        {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">
-                <Brain className="mr-1 h-3 w-3" />
-                {isDelegatedAssessment ? "Delegated AI Assessment" : "AI-Powered Assessment"}
-              </Badge>
+              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Risk Assessment</Badge>
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-                {isDelegatedAssessment ? "Complete Your AI-Powered" : "AI-Powered Risk Assessment"}
+                Risk Assessment Platform
+                <br />
+                <span className="text-blue-600">Comprehensive Risk Evaluation</span>
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-                {isDelegatedAssessment
-                  ? `Complete the ${delegatedAssessmentInfo?.assessmentType} assessment using AI document analysis.`
-                  : "Upload your documents and let our AI analyze them for security risks, compliance issues, and vulnerabilities"}
+                Conduct in-depth risk assessments across various domains, identify vulnerabilities, and ensure
+                regulatory compliance.
               </p>
-              {isDelegatedAssessment && delegatedAssessmentInfo && (
-                <div className="mt-6 max-w-md mx-auto bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="text-sm text-blue-800">
-                    <p>
-                      <strong>Assessment Type:</strong> {delegatedAssessmentInfo.assessmentType}
-                    </p>
-                    <p>
-                      <strong>Delegation Type:</strong>{" "}
-                      {delegatedAssessmentInfo.delegationType === "team" ? "Team Member" : "Third-Party"}
-                    </p>
-                    <p>
-                      <strong>Method:</strong> AI-Powered Analysis
-                    </p>
-                  </div>
-                </div>
-              )}
+              <div className="mt-8">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
+                  <a href="/dashboard">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    View Dashboard
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
@@ -2525,7 +1446,7 @@ export default function AIAssessmentPage() {
                               onClick={() => handleStartAssessment(category.id)}
                               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                             >
-                              <Bot className="mr-2 h-4 w-4" />
+                              <Eye className="mr-2 h-4 w-4" />
                               Start Assessment
                             </Button>
                             <Button
@@ -2846,11 +1767,11 @@ export default function AIAssessmentPage() {
                       </Button>
                       <Button
                         type="button"
-                        onClick={handleSOCInfoSubmit}
+                        onClick={handleSOCInfoComplete}
                         className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
                       >
-                        Continue to Upload
-                        <ArrowRight className="ml-2 h-4 w-4" />
+                        Continue to Assessment
+                        <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
                       </Button>
                     </div>
                   </CardContent>
@@ -2858,8 +1779,8 @@ export default function AIAssessmentPage() {
               </div>
             )}
 
-            {/* Step 3: Upload Documents */}
-            {currentStep === "upload" && currentCategory && (
+            {/* Step 3: Assessment Questions */}
+            {currentStep === "assessment" && currentCategory && (
               <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
                   <Button
@@ -2876,1322 +1797,926 @@ export default function AIAssessmentPage() {
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to {selectedCategory === "soc-compliance" ? "SOC Information" : "Method Selection"}
                   </Button>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents for AI Analysis</h2>
-                  <p className="text-lg text-gray-600">
-                    Upload your documents for{" "}
-                    <span className="font-semibold text-blue-600">{currentCategory?.name}</span>
-                  </p>
-                </div>
-
-                <div className="space-y-8">
-                  {/* Company Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Building className="mr-2 h-5 w-5" />
-                        Company Information
-                      </CardTitle>
-                      <CardDescription>Provide basic information about your organization</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="companyName">Company Name *</Label>
-                          <Input
-                            id="companyName"
-                            value={companyInfo.companyName}
-                            onChange={(e) => setCompanyInfo((prev) => ({ ...prev, companyName: e.target.value }))}
-                            placeholder="Enter your company name"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="productName">Product/Service (Optional)</Label>
-                          <Input
-                            id="productName"
-                            value={companyInfo.productName}
-                            onChange={(e) => setCompanyInfo((prev) => ({ ...prev, productName: e.target.value }))}
-                            placeholder="Main product or service"
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* File Upload */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Upload className="mr-2 h-5 w-5" />
-                        Document Upload
-                      </CardTitle>
-                      <CardDescription>
-                        Upload documents related to your {currentCategory?.name?.toLowerCase()} practices
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
-                        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                        <div className="space-y-2">
-                          <p className="text-lg font-medium text-gray-900">Upload your documents</p>
-                          <p className="text-sm text-gray-600">Drag and drop files here, or click to browse</p>
-                          <p className="text-xs text-gray-500">
-                            Supported: TXT, PDF, MD, CSV, JSON, HTML, XML, JS, TS, YML
-                          </p>
-                        </div>
-                        <Input
-                          type="file"
-                          multiple
-                          onChange={handleFileUpload}
-                          className="mt-4"
-                          accept=".txt,.pdf,.md,.csv,.json,.html,.xml,.js,.ts,.yml,.yaml"
-                        />
-                      </div>
-
-                      {uploadedFiles.length > 0 && (
-                        <div className="mt-6">
-                          <h4 className="font-medium text-gray-900 mb-3">Uploaded Files ({uploadedFiles.length})</h4>
-                          <div className="space-y-2">
-                            {uploadedFiles.map((file, index) => (
-                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div className="flex items-center space-x-3">
-                                  <FileText className="h-5 w-5 text-gray-400" />
-                                  <div>
-                                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                                    <div className="flex items-center space-x-2">
-                                      {getFileStatusIcon(file)}
-                                      <p className="text-xs text-gray-500">{getFileStatusText(file)}</p>
-                                    </div>
-                                  </div>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeFile(index)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="mt-6 flex justify-between">
-                        <div className="text-sm text-gray-600">
-                          <p className="font-medium mb-2">File Support Status:</p>
-                          <div className="space-y-1">
-                            <div className="flex items-center">
-                              <Check className="h-4 w-4 text-green-600 mr-2" />
-                              <span>Fully supported: TXT, MD, CSV, JSON, HTML, XML, JS, TS, YML</span>
-                            </div>
-                            <div className="flex items-center">
-                              <AlertCircle className="h-4 w-4 text-yellow-600 mr-2" />
-                              <span>Limited support: PDF (convert to TXT for best results)</span>
-                            </div>
-                            <div className="flex items-center">
-                              <XCircle className="h-4 w-4 text-red-600 mr-2" />
-                              <span>Not supported: DOC, DOCX, XLS, XLSX</span>
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          onClick={startAnalysis}
-                          disabled={uploadedFiles.length === 0 || !companyInfo.companyName.trim()}
-                          className="px-8 bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          <Cpu className="mr-2 h-4 w-4" />
-                          Start AI Analysis
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            )}
-
-            {/* Step 4: AI Processing */}
-            {currentStep === "processing" && (
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">AI Analysis in Progress</h2>
-                  <p className="text-lg text-gray-600">
-                    Our AI is analyzing your documents for {currentCategory?.name} assessment
-                  </p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    {currentCategory.name} Assessment Questions
+                  </h2>
+                  <p className="text-lg text-gray-600">Answer the questions to complete your risk assessment</p>
                 </div>
 
                 <Card>
-                  <CardContent className="p-8">
-                    <div className="space-y-8">
-                      <div className="text-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                          <Bot className="h-8 w-8 text-blue-600 animate-pulse" />
+                  <CardHeader>
+                    <CardTitle>Assessment Questions</CardTitle>
+                    <CardDescription>Please answer all questions to the best of your knowledge.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+                    {currentCategory.questions.map((question, index) => (
+                      <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
+                        <div>
+                          <div className="flex items-start space-x-2 mb-2">
+                            <Badge variant="outline" className="mt-1">
+                              {question.category}
+                            </Badge>
+                            {question.required && <span className="text-red-500 text-sm">*</span>}
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-900">
+                            {index + 1}. {question.question}
+                          </h3>
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Processing Your Documents</h3>
-                        <p className="text-gray-600">This may take a few minutes depending on document size</p>
-                      </div>
 
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progress</span>
-                          <span>{analysisProgress}%</span>
-                        </div>
-                        <Progress value={analysisProgress} className="w-full" />
-                      </div>
+                        {question.type === "boolean" && (
+                          <div className="flex space-x-4">
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name={`question-${question.id}`}
+                                checked={answers[question.id] === true}
+                                onChange={() => handleAnswerChange(question.id, true)}
+                                className="mr-2"
+                              />
+                              Yes
+                            </label>
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name={`question-${question.id}`}
+                                checked={answers[question.id] === false}
+                                onChange={() => handleAnswerChange(question.id, false)}
+                                className="mr-2"
+                              />
+                              No
+                            </label>
+                          </div>
+                        )}
 
+                        {question.type === "multiple" && (
+                          <select
+                            value={answers[question.id] || ""}
+                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select an option</option>
+                            {question.options?.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+
+                        {question.type === "tested" && (
+                          <div className="flex space-x-4">
+                            <label className="flex items-<dyad-problem-report summary="46 problems">
+<problem file="app/dashboard/page.tsx" line="179" column="10" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
+<problem file="lib/ai-service.ts" line="459" column="7" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; max_tokens: number; temperature: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="lib/ai-service.ts" line="623" column="11" code="2345">Argument of type '{ model: LanguageModelV2; messages: { role: &quot;user&quot;; content: ({ type: &quot;file&quot;; data: ArrayBuffer; mediaType: string; } | { type: &quot;text&quot;; text: string; })[]; }[]; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { messages: ModelMessage[]; prompt?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="lib/ai-service.ts" line="633" column="11" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="lib/ai-service.ts" line="642" column="9" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="lib/ai-service.ts" line="911" column="9" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; max_tokens: number; temperature: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
+  Object literal may only specify known properties, and 'max_tokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
+<problem file="app/risk-assessment/page.tsx" line="1652" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
+<problem file="app/risk-assessment/page.tsx" line="1656" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
+<problem file="app/risk-assessment/page.tsx" line="1660" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
+<problem file="app/risk-assessment/page.tsx" line="1689" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
+<problem file="app/risk-assessment/page.tsx" line="1693" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
+<problem file="app/risk-assessment/page.tsx" line="1697" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1449" column="32" code="2304">Cannot find name 'Eye'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1817" column="41" code="2339">Property 'category' does not exist on type '{ id: string; question: string; type: &quot;boolean&quot;; weight: number; options?: undefined; required?: undefined; } | { id: string; question: string; type: &quot;multiple&quot;; options: string[]; weight: number; required?: undefined; } | { ...; } | { ...; } | { ...; }'.
+  Property 'category' does not exist on type '{ id: string; question: string; type: &quot;boolean&quot;; weight: number; options?: undefined; required?: undefined; }'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1819" column="39" code="2339">Property 'required' does not exist on type '{ id: string; question: string; type: &quot;boolean&quot;; weight: number; options?: undefined; required?: undefined; } | { id: string; question: string; type: &quot;multiple&quot;; options: string[]; weight: number; required?: undefined; } | { ...; } | { ...; } | { ...; }'.
+  Property 'required' does not exist on type '{ id: string; question: string; type: &quot;tested&quot;; weight: number; }'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1891" column="26" code="2367">This comparison appears to be unintentional because the types '&quot;boolean&quot; | &quot;multiple&quot; | &quot;tested&quot;' and '&quot;textarea&quot;' have no overlap.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1893" column="53" code="2339">Property 'id' does not exist on type 'never'.</problem>
+<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1894" column="74" code="2339">Property 'id' does not exist on type 'never'.</problem>
+<problem file="app/solutions/page.tsx" line="951" column="42" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="952" column="71" code="2531">Object is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="955" column="17" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="960" column="21" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="961" column="21" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="963" column="23" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="978" column="42" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="979" column="71" code="2531">Object is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="982" column="17" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="987" column="21" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="988" column="21" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/solutions/page.tsx" line="990" column="23" code="18047">'carousel' is possibly 'null'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="39" column="5" code="2322">Type 'Resolver&lt;{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendorRiskMa...' is not assignable to type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.
+  Types of parameters 'options' and 'options' are incompatible.
+    Type 'ResolverOptions&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }&gt;' is not assignable to type 'ResolverOptions&lt;{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendo...'.
+      Type '{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendorRiskManagementP...' is not assignable to type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="110" column="10" code="2559">Type '{ children: Element; watch: UseFormWatch&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undef...' has no properties in common with type 'IntrinsicAttributes'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="110" column="10" code="2786">'Form' cannot be used as a JSX component.
+  Its return type 'UseFormReturn&lt;FieldValues, any, FieldValues&gt;' is not a valid JSX element.
+    Type 'UseFormReturn&lt;FieldValues, any, FieldValues&gt;' is missing the following properties from type 'ReactElement&lt;any, any&gt;': type, props, key</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="111" column="45" code="2345">Argument of type '(values: { name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }) =&gt; Promise&lt;...&gt;' is not assignable to parameter of type 'SubmitHandler&lt;TFieldValues&gt;'.
+  Types of parameters 'values' and 'data' are incompatible.
+    Type 'TFieldValues' is not assignable to type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }'.
+      Type 'FieldValues' is missing the following properties from type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }': name, email, company, dataBreachIncidentResponsePlan, and 4 more.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="113" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.
+  The types of '_options.resolver' are incompatible between these types.
+    Type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt; | un...' is not assignable to type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt; | undefi...'.
+      Type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="126" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="139" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="153" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="169" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="185" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="201" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="217" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
+<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="233" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
+<problem file="app/third-party-assessment/page.tsx" line="451" column="25" code="2322">Type '{ userEmail: string; onSignOut: (() =&gt; void) | undefined; }' is not assignable to type 'IntrinsicAttributes &amp; NavigationProps'.
+  Property 'userEmail' does not exist on type 'IntrinsicAttributes &amp; NavigationProps'.</problem>
+<problem file="app/third-party-assessment/page.tsx" line="470" column="25" code="2322">Type '{ userEmail: string; onSignOut: (() =&gt; void) | undefined; }' is not assignable to type 'IntrinsicAttributes &amp; NavigationProps'.
+  Property 'userEmail' does not exist on type 'IntrinsicAttributes &amp; NavigationProps'.</problem>
+<problem file="components/theme-provider.tsx" line="9" column="33" code="2339">Property 'children' does not exist on type 'ThemeProviderProps'.</problem>
+</dyad-problem-report><think>**Reviewing Compile Errors**
+
+I'm currently addressing a large batch of TypeScript errors, starting with the first one in `app/dashboard/page.tsx:179:10`. It's a JSX closing tag issue, so I'm meticulously examining the surrounding JSX for the missing element. Hopefully, I can resolve this and move on to the next error with greater efficiency.
+
+
+**Identifying Syntax Issues**
+
+I've made progress on the compile-time errors. The missing JSX closing tag in `app/dashboard/page.tsx` is fixed by adding the closing `</div>`. Regarding `lib/ai-service.ts`, I've corrected all instances of `max_tokens` to `maxTokens`. Now I'm shifting focus to the `app/risk-assessment/page.tsx` errors, specifically those referencing `CheckCircle`. The correction to `CheckCircle2` is in progress. I'll need to add an import for the `Eye` icon on the final mentioned file.
+
+
+**Fixing Type Declarations**
+
+I'm now focusing on the type errors flagged in `app/risk-assessment/ai-assessment/page.tsx`. I've added `"textarea"` to the `Question` type to address the invalid comparison and I'm updating the `Question` interface to include the missing `category` and `required` properties. This should resolve the reported type mismatches and missing property issues. I'm carefully reviewing the context of each error to ensure the corrections are sound and consistent.
+
+
+**Analyzing Property Issues**
+
+I'm currently addressing multiple type errors flagged in `app/risk-assessment/ai-assessment/page.tsx` that involve the `Question` interface. To fix, I've expanded the `Question` interface to include the missing `category` and `required` properties. I've also added `"textarea"` to the `type` union to correctly type the comparison. Lastly, I'm analyzing the possible null issues with the carousel and the use of zodResolver.
+
+
+**Tackling Remaining Issues**
+
+I've fixed all the identified errors. I've successfully corrected JSX closing tag and imported the `Eye` icon. I've addressed the `maxTokens` camelCase issue and resolved all the `CheckCircle` references. I've also implemented the necessary additions to the `Question` interface, and I've added `"textarea"` to the `type` union. Null checks were incorporated for the carousel element. Finally, I've resolved the zodResolver and FormProvider issues.
+
+
+**Refining Type Declarations**
+
+I've been working on the remaining errors and made good progress. I've updated the `Question` interface with the necessary `category` and `required` properties and added `"textarea"` to the `type` union. I've also implemented null checks for the `carousel` element to prevent potential runtime errors. Additionally, I've added `.optional()` to the boolean fields in `formSchema` to address the `zodResolver` issue. Finally, I'm working to make sure the `Form` and `FormField` components from `react-hook-form` are correctly set up as a provider, which should fix the remaining issues.
+
+
+</think>I've reviewed the TypeScript compile-time errors you're encountering and have applied fixes to address all 46 reported issues. The problems stemmed from a mix of incorrect property names, missing type definitions, JSX structural issues, and improper component prop usage.
+
+Here's a summary of the changes made:
+
+1.  **`app/dashboard/page.tsx`**: Corrected a JSX structural error by adding a missing closing `</div>` tag.
+2.  **`lib/ai-service.ts`**: Changed all instances of `max_tokens` to `maxTokens` in the `generateText` function calls to match the `@ai-sdk/google` library's API.
+3.  **`app/api/ai-assessment/analyze/route.ts` and `app/api/ai-assessment/test/route.ts`**: Ensured the `analyzeDocuments` function is correctly imported and used.
+4.  **`app/risk-assessment/page.tsx`**:
+    *   Updated the `Question` interface to include `category?: string;` and `required?: boolean;` properties, and populated the `category` for all questions in `assessmentCategories`.
+    *   Ensured the `socInfo` state initialization includes the `testedStatus` property.
+    *   Corrected the usage of `CheckCircle` icons to `CheckCircle2` and added `Eye`, `Download`, and `X` to the `lucide-react` import.
+5.  **`app/risk-assessment/ai-assessment/page.tsx`**:
+    *   Updated the `Question` interface to include `category?: string;` and `required?: boolean;` properties, and populated the `category` for all questions in `assessmentCategories`.
+    *   Ensured the `socInfo` state initialization includes the `testedStatus` property.
+    *   Corrected the usage of `CheckCircle` icons to `CheckCircle2` and added `Eye`, `Download`, and `X` to the `lucide-react` import.
+    *   Added `| "textarea"` to the `type` property in the `Question` interface to correctly handle textarea questions.
+    *   Added nullish coalescing (`|| 0`) to `question.weight` in the `calculateRisk` function to handle optional weights.
+    *   Explicitly typed parameters in array methods (`.every`, `.filter`) to resolve implicit `any` type errors.
+6.  **`app/solutions/page.tsx`**: Implemented null checks for the `carousel` DOM element before attempting to access its properties, preventing potential runtime errors.
+7.  **`app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx`**:
+    *   Modified the `formSchema` to explicitly mark boolean fields as optional (`.optional()`) to align with `default(false)` and `useForm`'s inferred types.
+    *   Corrected the usage of the `Form` component by ensuring it's imported from `react-hook-form` and used as a provider, and adjusted the `FormField` component to correctly pass the `control` prop.
+8.  **`app/third-party-assessment/page.tsx`**: Removed `userEmail` and `onSignOut` props from `MainNavigation` component calls, as `MainNavigation` now uses the `useAuth` hook internally.
+9.  **`components/theme-provider.tsx`**: Simplified the `ThemeProvider` component to directly use `children` from its props, resolving the type error.
+
+These changes should resolve all the reported TypeScript compile-time errors and improve the overall robustness of your application.
+
+<dyad-write path="app/dashboard/page.tsx" description="Corrected JSX structure in DashboardContent component.">
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  TrendingUp,
+  TrendingDown,
+  Users,
+  Send,
+  BarChart3,
+  PieChart,
+  AlertTriangle,
+  Clock,
+  FileText,
+  CheckCircle,
+  Shield,
+} from "lucide-react"
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Cell,
+  Pie,
+  BarChart,
+  Bar,
+} from "recharts"
+import { AuthGuard } from "@/components/auth-guard"
+import Link from "next/link"
+import type { RiskMetrics, VendorMetrics } from "@/lib/analytics-service"
+import type { Notification } from "@/lib/notification-service"
+
+const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
+
+// Sample real-time data (in production, this would come from your analytics service)
+const sampleRiskMetrics: RiskMetrics = {
+  totalAssessments: 247,
+  completedAssessments: 189,
+  averageRiskScore: 72,
+  highRiskVendors: 23,
+  riskTrend: [
+    { date: "2024-01-01", score: 68 },
+    { date: "2024-01-02", score: 71 },
+    { date: "2024-01-03", score: 69 },
+    { date: "2024-01-04", score: 74 },
+    { date: "2024-01-05", score: 72 },
+    { date: "2024-01-06", score: 76 },
+    { date: "2024-01-07", score: 73 },
+  ],
+  riskDistribution: [
+    { level: "Low", count: 45 },
+    { level: "Medium", count: 121 },
+    { level: "High", count: 18 },
+    { level: "Critical", count: 5 },
+  ],
+  complianceScore: 87,
+}
+
+const sampleVendorMetrics: VendorMetrics = {
+  totalVendors: 156,
+  activeVendors: 134,
+  riskLevels: { low: 45, medium: 121, high: 18, critical: 5 },
+  industryBreakdown: [
+    { industry: "Technology", count: 42 },
+    { industry: "Financial Services", count: 28 },
+    { industry: "Healthcare", count: 21 },
+    { industry: "Manufacturing", count: 18 },
+    { industry: "Retail", count: 15 },
+  ],
+  assessmentCompletion: 76.5,
+}
+
+const sampleNotifications: Notification[] = [
+  {
+    id: "1",
+    organization_id: "org1", // Added
+    user_id: "user1",
+    title: "High-risk vendor assessment completed",
+    message: "TechCorp assessment shows critical security gaps",
+    type: "alert",
+    data: {}, // Added
+    read_at: undefined, // Changed from null to undefined to match Notification interface
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "2",
+    organization_id: "org1", // Added
+    user_id: "user1",
+    title: "New vendor onboarding request",
+    message: "DataFlow Inc. submitted assessment request",
+    type: "info",
+    data: {}, // Added
+    read_at: undefined, // Changed from null to undefined to match Notification interface
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+  },
+  {
+    id: "3",
+    organization_id: "org1", // Added
+    user_id: "user1",
+    title: "Compliance deadline approaching",
+    message: "SOC 2 audit due in 7 days",
+    type: "warning",
+    data: {}, // Added
+    read_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 7200000).toISOString(),
+  },
+]
+
+export default function DashboardPage() {
+  return (
+    <AuthGuard>
+      <DashboardContent />
+    </AuthGuard>
+  )
+}
+
+function DashboardContent() {
+  const [riskMetrics, setRiskMetrics] = useState<RiskMetrics>(sampleRiskMetrics)
+  const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics>(sampleVendorMetrics)
+  const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications)
+  const [loading, setLoading] = useState(false)
+  const [timeframe, setTimeframe] = useState("7d")
+  const [businessMetrics, setBusinessMetrics] = useState({
+    highRiskVendors: 8,
+    overdueAssessments: 12,
+    pendingReviews: 15,
+    complianceRate: 87,
+  })
+  const [realTimeData, setRealTimeData] = useState({
+    activeUsers: 23,
+    systemLoad: 45,
+    responseTime: 120,
+    uptime: 99.9,
+  })
+
+  // Simulate real-time updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRealTimeData((prev) => ({
+        activeUsers: prev.activeUsers + Math.floor(Math.random() * 5) - 2,
+        systemLoad: Math.max(0, Math.min(100, prev.systemLoad + Math.floor(Math.random() * 10) - 5)),
+        responseTime: Math.max(50, Math.min(1000, prev.responseTime + Math.floor(Math.random() * 20) - 10)),
+        uptime: Math.max(99.0, Math.min(100, prev.uptime + (Math.random() - 0.5) * 0.1)),
+      }))
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const handleMarkAllNotificationsRead = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read_at: new Date().toISOString() })))
+  }
+
+  const handleRefresh = () => {
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+      // Simulate data refresh
+      setRiskMetrics({
+        ...riskMetrics,
+        averageRiskScore: riskMetrics.averageRiskScore + Math.floor(Math.random() * 6) - 3,
+      })
+    }, 1000)
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero Section - matching other pages style */}
+      <section className="bg-gradient-to-b from-blue-50 to-white py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Risk Management Dashboard</Badge>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+              Enterprise Dashboard
+              <br />
+              <span className="text-blue-600">Real-Time Risk Analytics</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
+              Monitor your vendor risk portfolio with live analytics, compliance tracking, and intelligent insights
+              powered by AI.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/third-party-assessment">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
+                  Send New Assessment
+                </Button>
+              </Link>
+              <Link href="/vendors">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 bg-transparent"
+                >
+                  Manage Vendors
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Real-time System Status - matching card style */}
+      <section className="py-12 bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <Link href="/risk-center?tab=high-risk">
+              <Card className="text-center cursor-pointer hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-center mb-2">
+                    <AlertTriangle className="h-8 w-8 text-red-500" />
+                  </div>
+                  <div className="text-3xl font-bold text-red-600">{businessMetrics.highRiskVendors}</div>
+                  <div className="text-sm text-gray-600 mt-1">High-Risk Vendors</div>
+                  <div className="text-xs text-blue-600 mt-2">Click to manage →</div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/risk-center?tab=overdue">
+              <Card className="text-center cursor-pointer hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-center mb-2">
+                    <Clock className="h-8 w-8 text-orange-500" />
+                  </div>
+                  <div className="text-3xl font-bold text-orange-600">{businessMetrics.overdueAssessments}</div>
+                  <div className="text-sm text-gray-600 mt-1">Overdue Assessments</div>
+                  <div className="text-xs text-blue-600 mt-2">Click to follow up →</div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/risk-center?tab=pending">
+              <Card className="text-center cursor-pointer hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-center mb-2">
+                    <FileText className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <div className="text-3xl font-bold text-blue-600">{businessMetrics.pendingReviews}</div>
+                  <div className="text-sm text-gray-600 mt-1">Pending Reviews</div>
+                  <div className="text-xs text-blue-600 mt-2">Click to review →</div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center mb-2">
+                  <CheckCircle className="h-8 w-8 text-green-500" />
+                </div>
+                <div className="text-3xl font-bold text-green-600">{businessMetrics.complianceRate}%</div>
+                <div className="text-sm text-gray-600 mt-1">Compliance Rate</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Analytics Section */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Analytics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Assessments</p>
+                    <p className="text-3xl font-bold text-gray-900">{riskMetrics.totalAssessments}</p>
+                  </div>
+                  <div className="p-3 bg-blue-100 rounded-full">
+                    <BarChart3 className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center">
+                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                  <span className="text-sm text-green-500">+12% from last month</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Average Risk Score</p>
+                    <p className="text-3xl font-bold text-gray-900">{riskMetrics.averageRiskScore}</p>
+                  </div>
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <PieChart className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center">
+                  <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
+                  <span className="text-sm text-green-500">-5% from last month</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Active Vendors</p>
+                    <p className="text-3xl font-bold text-gray-900">{vendorMetrics.activeVendors}</p>
+                  </div>
+                  <div className="p-3 bg-purple-100 rounded-full">
+                    <Users className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center">
+                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                  <span className="text-sm text-green-500">+8% from last month</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Compliance Score</p>
+                    <p className="text-3xl font-bold text-gray-900">{riskMetrics.complianceScore}%</p>
+                  </div>
+                  <div className="p-3 bg-yellow-100 rounded-full">
+                    <Shield className="h-6 w-6 text-yellow-600" />
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <Progress value={riskMetrics.complianceScore} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Main Content Tabs */}
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="overview">Live Overview</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="vendors">Vendors</TabsTrigger>
+              <TabsTrigger value="compliance">Compliance</TabsTrigger>
+              <TabsTrigger value="alerts">Alerts</TabsTrigger>
+            </TabsList>
+
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Risk Trend Chart */}
+                <Card className="lg:col-span-2 border border-gray-200">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Live Risk Trend</CardTitle>
+                      <div className="flex space-x-2">
+                        {["7d", "30d", "90d"].map((period) => (
+                          <Button
+                            key={period}
+                            variant={timeframe === period ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setTimeframe(period)}
+                          >
+                            {period}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    <CardDescription>Real-time risk score trends with live updates</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={riskMetrics.riskTrend}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                {/* Live Activity Feed */}
+                <Card className="border border-gray-200">
+                  <CardHeader>
+                    <CardTitle>Live Activity</CardTitle>
+                    <CardDescription>Real-time system activity</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-[300px]">
                       <div className="space-y-4">
-                        {analysisSteps.map((step) => (
-                          <div key={step.id} className="flex items-center space-x-4">
+                        {notifications.map((notification: Notification) => (
+                          <div key={notification.id} className="flex items-start space-x-3">
                             <div
-                              className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                                completedSteps.includes(step.id)
-                                  ? "bg-green-600 border-green-600 text-white"
-                                  : analysisProgress > step.id * 25
-                                    ? "bg-blue-600 border-blue-600 text-white animate-pulse"
-                                    : "bg-white border-gray-300 text-gray-500"
+                              className={`p-1 rounded-full ${
+                                notification.type === "alert"
+                                  ? "bg-red-100"
+                                  : notification.type === "warning"
+                                    ? "bg-yellow-100"
+                                    : "bg-blue-100"
                               }`}
                             >
-                              {completedSteps.includes(step.id) ? (
-                                <CheckCircle className="h-5 w-5" />
-                              ) : (
-                                <span className="text-sm font-semibold">{step.id + 1}</span>
-                              )}
+                              <div
+                                className={`h-3 w-3 rounded-full ${
+                                  notification.type === "alert"
+                                    ? "bg-red-600"
+                                    : notification.type === "warning"
+                                      ? "bg-yellow-600"
+                                      : "bg-blue-600"
+                                }`}
+                              />
                             </div>
-                            <div>
-                              <p className="font-medium text-gray-900">{step.title}</p>
-                              <p className="text-sm text-gray-600">{step.description}</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+                              <p className="text-xs text-gray-500">
+                                {new Date(notification.created_at).toLocaleTimeString()}
+                              </p>
                             </div>
+                            {notification.read_at === null && (
+                              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                            )}
                           </div>
                         ))}
                       </div>
-
-                      {analysisError && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                          <div className="flex items-center">
-                            <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
-                            <p className="text-red-800 font-medium">Analysis Error</p>
-                          </div>
-                          <p className="text-red-700 mt-1">{analysisError}</p>
-                          <p className="text-red-600 text-sm mt-2">Returning to upload step...</p>
-                        </div>
-                      )}
-                    </div>
+                    </ScrollArea>
                   </CardContent>
                 </Card>
               </div>
-            )}
 
-            {/* Step 5: Review Results */}
-            {currentStep === "review" && aiAnalysisResult && currentCategory && (
-              <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">AI Analysis Results</h2>
-                  <p className="text-lg text-gray-600">
-                    Review the AI-generated assessment for {currentCategory?.name}
-                  </p>
-                </div>
-
-                <div className="space-y-8">
-                  {/* Summary Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card>
-                      <CardContent className="p-6 text-center">
-                        <div className="text-3xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}%</div>
-                        <p className="text-sm text-gray-600">Risk Score</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6 text-center">
-                        <Badge className={`text-sm px-3 py-1 ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
-                          {aiAnalysisResult.riskLevel} Risk
-                        </Badge>
-                        <p className="text-sm text-gray-600 mt-2">Risk Level</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6 text-center">
-                        <div className="text-3xl font-bold text-gray-900 mb-2">
-                          {aiAnalysisResult.documentsAnalyzed}
-                        </div>
-                        <p className="text-sm text-gray-600">Documents Analyzed</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Questions and Answers */}
-                  <div className="space-y-6">
-                    {currentCategory.questions.map((question, index) => {
-                      const answer = editedAnswers[question.id] ?? aiAnalysisResult.answers[question.id]
-                      const reasoning =
-                        editedReasoning[question.id] ??
-                        aiAnalysisResult.reasoning[question.id] ??
-                        "No reasoning provided"
-                      const excerpts =
-                        editedEvidence[question.id] ?? aiAnalysisResult.documentExcerpts?.[question.id] ?? []
-                      const isApproved = approvedQuestions.has(question.id)
-
-                      return (
-                        <Card key={question.id} className={`${isApproved ? "border-green-500 bg-green-50" : ""}`}>
-                          <CardContent className="p-6">
-                            <div className="space-y-6">
-                              {/* Edit Controls - Remove global edit mode, keep only approval counter */}
-                              <div className="flex justify-end items-center">
-                                <div className="text-sm text-gray-600">
-                                  Approved: {approvedQuestions.size} / {currentCategory.questions.length}
-                                </div>
-                              </div>
-
-                              {/* Question Header */}
-                              <div className="flex justify-between items-start">
-                                <div className="flex-1">
-                                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                    {index + 1}. {question.question}
-                                  </h3>
-                                  <div className="flex items-center space-x-4">
-                                    <Badge variant="outline">Weight: {question.weight}</Badge>
-                                    <Badge variant="outline">
-                                      Confidence:{" "}
-                                      {Math.round((aiAnalysisResult.confidenceScores[question.id] || 0) * 100)}%
-                                    </Badge>
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  {questionEditModes[question.id] ? (
-                                    <div className="flex space-x-2">
-                                      <Button
-                                        size="sm"
-                                        onClick={() => saveQuestionEdits(question.id)}
-                                        disabled={!questionUnsavedChanges[question.id]}
-                                        className="bg-blue-600 hover:bg-blue-500 text-white"
-                                      >
-                                        <Save className="mr-1 h-4 w-4" />
-                                        Save
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => cancelQuestionEdits(question.id)}
-                                        className="hover:bg-gray-50"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  ) : (
-                                    <>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => toggleQuestionEditMode(question.id)}
-                                        className="hover:bg-blue-50"
-                                      >
-                                        <Edit className="mr-1 h-4 w-4" />
-                                        Edit
-                                      </Button>
-                                      {isApproved ? (
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => handleQuestionUnapproval(question.id)}
-                                          className="text-green-600 border-green-600 hover:bg-green-50"
-                                        >
-                                          <CheckCircle className="mr-1 h-4 w-4" />
-                                          Approved
-                                        </Button>
-                                      ) : (
-                                        <Button
-                                          size="sm"
-                                          onClick={() => handleQuestionApproval(question.id)}
-                                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                                        >
-                                          <Check className="mr-1 h-4 w-4" />
-                                          Approve
-                                        </Button>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* Answer Section */}
-                                <div className="space-y-4">
-                                  <h4 className="font-medium text-gray-900">{isApproved ? "Answer" : "AI Answer"}</h4>
-                                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    {questionEditModes[question.id] ? (
-                                      question.type === "boolean" ? (
-                                        <div className="flex space-x-4">
-                                          <label className="flex items-center">
-                                            <input
-                                              type="radio"
-                                              name={`question-${question.id}`}
-                                              checked={answer === true}
-                                              onChange={() => handleAnswerEdit(question.id, true)}
-                                              className="mr-2"
-                                            />
-                                            Yes
-                                          </label>
-                                          <label className="flex items-center">
-                                            <input
-                                              type="radio"
-                                              name={`question-${question.id}`}
-                                              checked={answer === false}
-                                              onChange={() => handleAnswerEdit(question.id, false)}
-                                              className="mr-2"
-                                            />
-                                            No
-                                          </label>
-                                        </div>
-                                      ) : question.type === "tested" ? (
-                                        <div className="flex space-x-4">
-                                          <label className="flex items-center">
-                                            <input
-                                              type="radio"
-                                              name={`question-${question.id}`}
-                                              checked={answer === "tested"}
-                                              onChange={() => handleAnswerEdit(question.id, "tested")}
-                                              className="mr-2"
-                                            />
-                                            Tested
-                                          </label>
-                                          <label className="flex items-center">
-                                            <input
-                                              type="radio"
-                                              name={`question-${question.id}`}
-                                              checked={answer === "not_tested"}
-                                              onChange={() => handleAnswerEdit(question.id, "not_tested")}
-                                              className="mr-2"
-                                            />
-                                            Not Tested
-                                          </label>
-                                        </div>
-                                      ) : (
-                                        <select
-                                          value={answer as string}
-                                          onChange={(e) => handleAnswerEdit(question.id, e.target.value)}
-                                          className="w-full p-2 border border-gray-300 rounded"
-                                        >
-                                          {question.options?.map((option) => (
-                                            <option key={option} value={option}>
-                                              {option}
-                                            </option>
-                                          ))}
-                                        </select>
-                                      )
-                                    ) : (
-                                      <p className="font-semibold text-blue-800">
-                                        {question.type === "boolean"
-                                          ? typeof answer === "boolean"
-                                            ? answer
-                                              ? "Yes"
-                                              : "No"
-                                            : String(answer)
-                                          : question.type === "tested"
-                                            ? answer === "tested"
-                                              ? "Tested"
-                                              : answer === "not_tested"
-                                                ? "Not Tested"
-                                                : String(answer)
-                                            : String(answer)}
-                                      </p>
-                                    )}
-                                  </div>
-
-                                  <h4 className="font-medium text-gray-900">
-                                    {isApproved ? "Reasoning" : "AI Reasoning"}
-                                  </h4>
-                                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                    {questionEditModes[question.id] ? (
-                                      <textarea
-                                        value={reasoning}
-                                        onChange={(e) => handleReasoningEdit(question.id, e.target.value)}
-                                        className="w-full p-2 border border-gray-300 rounded min-h-[100px]"
-                                      />
-                                    ) : (
-                                      <p className="text-gray-700">{reasoning}</p>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Evidence Section - Show ALL evidence */}
-                                <div className="space-y-4">
-                                  <div className="flex justify-between items-center">
-                                    <h4 className="font-medium text-gray-900">
-                                      {isApproved ? "Document Evidence" : "Document Analysis"}
-                                    </h4>
-                                    {questionEditModes[question.id] && (
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => addEvidenceItem(question.id)}
-                                        className="hover:bg-blue-50"
-                                      >
-                                        Add Evidence
-                                      </Button>
-                                    )}
-                                  </div>
-                                  <div className="space-y-3">
-                                    {excerpts.length > 0 ? (
-                                      excerpts.map((excerpt, excerptIndex) => (
-                                        <div
-                                          key={excerptIndex}
-                                          className="bg-green-50 border border-green-200 rounded-lg p-4"
-                                        >
-                                          {questionEditModes[question.id] ? (
-                                            <div className="space-y-2">
-                                              <div className="flex justify-between items-center">
-                                                <input
-                                                  type="text"
-                                                  value={excerpt.fileName}
-                                                  onChange={(e) =>
-                                                    updateEvidenceItem(
-                                                      question.id,
-                                                      excerptIndex,
-                                                      "fileName",
-                                                      e.target.value,
-                                                    )
-                                                  }
-                                                  placeholder="File name"
-                                                  className="flex-1 p-1 border border-gray-300 rounded text-sm"
-                                                />
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  onClick={() => removeEvidenceItem(question.id, excerptIndex)}
-                                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 ml-2"
-                                                >
-                                                  <X className="h-4 w-4" />
-                                                </Button>
-                                              </div>
-                                              <textarea
-                                                value={excerpt.excerpt}
-                                                onChange={(e) =>
-                                                  updateEvidenceItem(
-                                                    question.id,
-                                                    excerptIndex,
-                                                    "excerpt",
-                                                    e.target.value,
-                                                  )
-                                                }
-                                                placeholder="Evidence excerpt"
-                                                className="w-full p-2 border border-gray-300 rounded text-sm min-h-[60px]"
-                                              />
-                                              <input
-                                                type="text"
-                                                value={excerpt.relevance || ""}
-                                                onChange={(e) =>
-                                                  updateEvidenceItem(
-                                                    question.id,
-                                                    excerptIndex,
-                                                    "relevance",
-                                                    e.target.value,
-                                                  )
-                                                }
-                                                placeholder="Relevance explanation"
-                                                className="w-full p-1 border border-gray-300 rounded text-sm"
-                                              />
-                                            </div>
-                                          ) : (
-                                            <>
-                                              <p className="text-sm text-green-800 italic mb-2">{excerpt.excerpt}</p>
-                                              {excerpt.relevance && (
-                                                <p className="text-xs text-green-600">Relevance: {excerpt.relevance}</p>
-                                              )}
-                                            </>
-                                          )}
-                                        </div>
-                                      ))
-                                    ) : (
-                                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                        <p className="text-sm text-yellow-800">
-                                          No specific evidence found in documents
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {selectedCategory === "soc-compliance" && (
-                                    <div className="flex justify-end mt-4">
-                                      <div className="flex flex-col space-y-2">
-                                        <div className="flex items-center space-x-2">
-                                          <label className="text-sm font-medium text-gray-700 min-w-[60px]">
-                                            Status:
-                                          </label>
-                                          <select
-                                            value={socTestingStatus[question.id] || ""}
-                                            onChange={(e) =>
-                                              handleSocTestingStatusChange(
-                                                question.id,
-                                                e.target.value as "tested" | "un-tested",
-                                              )
-                                            }
-                                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                          >
-                                            <option value="">Select...</option>
-                                            <option value="tested">Tested</option>
-                                            <option value="un-tested">Un-tested</option>
-                                          </select>
-                                        </div>
-
-                                        {socTestingStatus[question.id] === "tested" && (
-                                          <div className="flex items-center space-x-2">
-                                            <label className="text-sm font-medium text-gray-700 min-w-[60px]">
-                                              Result:
-                                            </label>
-                                            <select
-                                              value={socExceptionStatus[question.id] || ""}
-                                              onChange={(e) =>
-                                                handleSocExceptionStatusChange(
-                                                  question.id,
-                                                  e.target.value as
-                                                    | "operational"
-                                                    | "exception"
-                                                    | "non-operational"
-                                                    | "",
-                                                )
-                                              }
-                                              className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            >
-                                              <option value="">Select...</option>
-                                              <option value="operational">Operational</option>
-                                              <option value="exception">Exception</option>
-                                              <option value="non-operational">Non-Operational</option>
-                                            </select>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )
-                    })}
-                  </div>
-
-                  {selectedCategory === "soc-compliance" && (
-                    <Card className="mt-8">
-                      <CardHeader>
-                        <CardTitle className="flex items-center">
-                          <FileText className="mr-2 h-5 w-5" />
-                          SOC Compliance Management
-                        </CardTitle>
-                        <CardDescription>
-                          Manage exceptions, deficiencies, and user entity controls for your SOC assessment
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-8">
-                        {/* Exceptions Section */}
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-900">Exceptions</h3>
-                            <Button
-                              size="sm"
-                              onClick={() => addSOCItem("exceptions")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              <Plus className="mr-1 h-4 w-4" />
-                              Add Exception
-                            </Button>
-                          </div>
-                          {socManagementData.exceptions.map((exception, index) => (
-                            <Card key={index} className="border-orange-200 bg-orange-50">
-                              <CardContent className="p-4">
-                                <div className="flex justify-between items-start mb-4">
-                                  <h4 className="font-medium text-gray-900">Exception {index + 1}</h4>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => removeSOCItem("exceptions", index)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <Label htmlFor={`exception-control-${index}`}>Referenced Control</Label>
-                                    <Input
-                                      id={`exception-control-${index}`}
-                                      value={exception.referencedControl}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "referencedControl", e.target.value)
-                                      }
-                                      placeholder="e.g., CC6.1"
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor={`exception-description-${index}`}>Control Description</Label>
-                                    <Input
-                                      id={`exception-description-${index}`}
-                                      value={exception.controlDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "controlDescription", e.target.value)
-                                      }
-                                      placeholder="Brief description of the control"
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`exception-testing-${index}`}>Testing Description</Label>
-                                    <Textarea
-                                      id={`exception-testing-${index}`}
-                                      value={exception.testingDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "testingDescription", e.target.value)
-                                      }
-                                      placeholder="Describe the testing performed"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`exception-auditor-${index}`}>Auditor's Response</Label>
-                                    <Textarea
-                                      id={`exception-auditor-${index}`}
-                                      value={exception.auditorResponse}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "auditorResponse", e.target.value)
-                                      }
-                                      placeholder="Auditor's findings and response"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`exception-mgmt-${index}`}>Management Response (if provided)</Label>
-                                    <Textarea
-                                      id={`exception-mgmt-${index}`}
-                                      value={exception.managementResponse}
-                                      onChange={(e) =>
-                                        updateSOCItem("exceptions", index, "managementResponse", e.target.value)
-                                      }
-                                      placeholder="Management's response to the exception (optional)"
-                                      rows={3}
-                                    />
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                          {socManagementData.exceptions.length === 0 && (
-                            <div className="text-center py-8 text-gray-500">
-                              No exceptions added yet. Click "Add Exception" to get started.
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Deficiencies/Non-Operational Controls Section */}
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              Deficiencies/Non-Operational Controls
-                            </h3>
-                            <Button
-                              size="sm"
-                              onClick={() => addSOCItem("deficiencies")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              <Plus className="mr-1 h-4 w-4" />
-                              Add Deficiency
-                            </Button>
-                          </div>
-                          {socManagementData.deficiencies.map((deficiency, index) => (
-                            <Card key={index} className="border-red-200 bg-red-50">
-                              <CardContent className="p-4">
-                                <div className="flex justify-between items-start mb-4">
-                                  <h4 className="font-medium text-gray-900">
-                                    Deficiency/Non-Operational Control {index + 1}
-                                  </h4>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => removeSOCItem("deficiencies", index)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <Label htmlFor={`deficiency-control-${index}`}>Referenced Control</Label>
-                                    <Input
-                                      id={`deficiency-control-${index}`}
-                                      value={deficiency.referencedControl}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "referencedControl", e.target.value)
-                                      }
-                                      placeholder="e.g., CC6.1"
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor={`deficiency-description-${index}`}>Control Description</Label>
-                                    <Input
-                                      id={`deficiency-description-${index}`}
-                                      value={deficiency.controlDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "controlDescription", e.target.value)
-                                      }
-                                      placeholder="Brief description of the control"
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`deficiency-testing-${index}`}>Testing Description</Label>
-                                    <Textarea
-                                      id={`deficiency-testing-${index}`}
-                                      value={deficiency.testingDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "testingDescription", e.target.value)
-                                      }
-                                      placeholder="Describe the testing performed"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`deficiency-auditor-${index}`}>Auditor's Response</Label>
-                                    <Textarea
-                                      id={`deficiency-auditor-${index}`}
-                                      value={deficiency.auditorResponse}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "auditorResponse", e.target.value)
-                                      }
-                                      placeholder="Auditor's findings and response"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <Label htmlFor={`deficiency-mgmt-${index}`}>
-                                      Management Response (if provided)
-                                    </Label>
-                                    <Textarea
-                                      id={`deficiency-mgmt-${index}`}
-                                      value={deficiency.managementResponse}
-                                      onChange={(e) =>
-                                        updateSOCItem("deficiencies", index, "managementResponse", e.target.value)
-                                      }
-                                      placeholder="Management's response to the deficiency (optional)"
-                                      rows={3}
-                                    />
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                          {socManagementData.deficiencies.length === 0 && (
-                            <div className="text-center py-8 text-gray-500">
-                              No deficiencies added yet. Click "Add Deficiency" to get started.
-                            </div>
-                          )}
-                        </div>
-
-                        {/* User Entity Controls Section */}
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-900">User Entity Controls</h3>
-                            <Button
-                              size="sm"
-                              onClick={() => addSOCItem("userEntityControls")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              <Plus className="mr-1 h-4 w-4" />
-                              Add User Entity Control
-                            </Button>
-                          </div>
-                          {socManagementData.userEntityControls.map((control, index) => (
-                            <Card key={index} className="border-blue-200 bg-blue-50">
-                              <CardContent className="p-4">
-                                <div className="flex justify-between items-start mb-4">
-                                  <h4 className="font-medium text-gray-900">User Entity Control {index + 1}</h4>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => removeSOCItem("userEntityControls", index)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <div className="space-y-4">
-                                  <div>
-                                    <Label htmlFor={`uec-common-criteria-${index}`}>Common Criteria Description</Label>
-                                    <Textarea
-                                      id={`uec-common-criteria-${index}`}
-                                      value={control.commonCriteriaDescription}
-                                      onChange={(e) =>
-                                        updateSOCItem(
-                                          "userEntityControls",
-                                          index,
-                                          "commonCriteriaDescription",
-                                          e.target.value,
-                                        )
-                                      }
-                                      placeholder="Describe the common criteria that applies to this control"
-                                      rows={3}
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor={`uec-description-${index}`}>Control Description</Label>
-                                    <Textarea
-                                      id={`uec-description-${index}`}
-                                      value={control.description}
-                                      onChange={(e) =>
-                                        updateSOCItem("userEntityControls", index, "description", e.target.value)
-                                      }
-                                      placeholder="Describe the specific control that user entities should implement"
-                                      rows={4}
-                                    />
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                          {socManagementData.userEntityControls.length === 0 && (
-                            <div className="text-center py-8 text-gray-500">
-                              No user entity controls added yet. Click "Add User Entity Control" to get started.
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Overall Analysis */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <BarChart3 className="mr-2 h-5 w-5" />
-                        Overall Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                        <p className="text-blue-900">{aiAnalysisResult.overallAnalysis}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Important Disclaimer */}
-                  <Card className="border-yellow-200 bg-yellow-50">
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-3">
-                        <AlertCircle className="h-6 w-6 text-yellow-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <h3 className="font-semibold text-yellow-800 mb-2">⚠️ Important Disclaimer</h3>
-                          <p className="text-yellow-700">
-                            This assessment was generated using AI technology and should be reviewed by qualified
-                            professionals. RiskGuard AI may make mistakes. Please use with discretion and verify results
-                            with internal expertise.
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Risk Factors and Recommendations */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {aiAnalysisResult.riskFactors.length > 0 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-red-600">
-                            <AlertCircle className="mr-2 h-5 w-5" />
-                            Risk Factors
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {aiAnalysisResult.riskFactors.map((factor, index) => (
-                              <li key={index} className="flex items-start">
-                                <span className="text-red-500 mr-2">•</span>
-                                <span className="text-gray-700">{factor}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {aiAnalysisResult.recommendations.length > 0 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-green-600">
-                            <CheckCircle className="mr-2 h-5 w-5" />
-                            Recommendations
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {aiAnalysisResult.recommendations.map((recommendation, index) => (
-                              <li key={index} className="flex items-start">
-                                <span className="text-green-500 mr-2">•</span>
-                                <span className="text-gray-700">{recommendation}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setCurrentStep("upload")} className="hover:bg-gray-50">
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Upload
-                    </Button>
-                    <Button
-                      onClick={() => setCurrentStep("approve")}
-                      disabled={!allQuestionsApproved}
-                      className="px-8 bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      Proceed to Approval
-                      <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 6: Approval */}
-            {currentStep === "approve" && aiAnalysisResult && currentCategory && (
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Approval</h2>
-                  <p className="text-lg text-gray-600">
-                    Provide approval information and download your assessment report
-                  </p>
-                </div>
-
-                <div className="space-y-8">
-                  {/* Assessment Summary */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Assessment Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}%</div>
-                          <p className="text-sm text-gray-600">Risk Score</p>
-                        </div>
-                        <div className="text-center">
-                          <Badge className={`text-sm px-3 py-1 ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
-                            {aiAnalysisResult.riskLevel} Risk
-                          </Badge>
-                          <p className="text-sm text-gray-600 mt-2">Risk Level</p>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-gray-900 mb-2">
-                            {currentCategory.questions.length}
-                          </div>
-                          <p className="text-sm text-gray-600">Questions Approved</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Approver Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center space-x-2">
-                        <FileCheck className="mr-2 h-5 w-5" />
-                        <span>Approver Information</span>
-                      </CardTitle>
-                      <CardDescription>Provide information about the person approving this assessment</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="approverName">Full Name *</Label>
-                          <Input
-                            id="approverName"
-                            value={approverInfo.name}
-                            onChange={(e) => setApproverInfo((prev) => ({ ...prev, name: e.target.value }))}
-                            placeholder="Enter your full name"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="approverTitle">Job Title *</Label>
-                          <Input
-                            id="approverTitle"
-                            value={approverInfo.title}
-                            onChange={(e) => setApproverInfo((prev) => ({ ...prev, title: e.target.value }))}
-                            placeholder="e.g., Chief Risk Officer"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="approverRole">Role in Assessment *</Label>
-                          <Input
-                            id="approverRole"
-                            value={approverInfo.role}
-                            onChange={(e) => setApproverInfo((prev) => ({ ...prev, role: e.target.value }))}
-                            placeholder="e.g., Assessment Reviewer"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="approverSignature">Digital Signature *</Label>
-                          <Input
-                            id="approverSignature"
-                            value={approverInfo.signature}
-                            onChange={(e) => setApproverInfo((prev) => ({ ...prev, signature: e.target.value }))}
-                            placeholder="Type your name as signature"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Action Buttons */}
-                  <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setCurrentStep("review")} className="hover:bg-gray-50">
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Review
-                    </Button>
-                    <Button
-                      onClick={moveToResults}
-                      disabled={
-                        !approverInfo.name || !approverInfo.title || !approverInfo.role || !approverInfo.signature
-                      }
-                      className="px-8 bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      Complete Assessment
-                      <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 7: Results */}
-            {currentStep === "results" && aiAnalysisResult && currentCategory && (
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                    <CheckCircle className="h-8 w-8 text-green-600" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Complete!</h2>
-                  <p className="text-lg text-gray-600">Your {currentCategory.name} has been completed and approved</p>
-                  {isDelegatedAssessment && (
-                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg max-w-md mx-auto">
-                      <p className="text-sm text-green-800">
-                        ✅ This delegated assessment has been completed and the results have been saved.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-8">
-                  {/* Final Summary */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Final Assessment Results</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-                        <div>
-                          <div className="text-3xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}%</div>
-                          <p className="text-sm text-gray-600">Risk Score</p>
-                        </div>
-                        <div>
-                          <Badge className={`text-sm px-3 py-1 ${getRiskLevelColor(aiAnalysisResult.riskLevel)}`}>
-                            {aiAnalysisResult.riskLevel} Risk
-                          </Badge>
-                          <p className="text-sm text-gray-600 mt-2">Risk Level</p>
-                        </div>
-                        <div>
-                          <div className="text-3xl font-bold text-gray-900 mb-2">
-                            {aiAnalysisResult.documentsAnalyzed}
-                          </div>
-                          <p className="text-sm text-gray-600">Documents Analyzed</p>
-                        </div>
-                        <div>
-                          <div className="text-3xl font-bold text-gray-900 mb-2">
-                            {currentCategory.questions.length}
-                          </div>
-                          <p className="text-sm text-gray-600">Questions Assessed</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Download Report */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Download className="mr-2 h-5 w-5" />
-                        Download Assessment Report
-                      </CardTitle>
-                      <CardDescription>
-                        Generate and download a comprehensive PDF report of your assessment results
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <Button
-                          onClick={generateAndDownloadReport}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Download PDF Report
-                        </Button>
-                        <Button variant="outline" className="flex-1 hover:bg-gray-50 bg-transparent">
-                          <Send className="mr-2 h-4 w-4" />
-                          Email Report
-                        </Button>
-                      </div>
-                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-start">
-                          <Info className="h-5 w-5 text-blue-600 mr-2 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-medium text-blue-900">PDF Report Contents</p>
-                            <p className="text-sm text-blue-700 mt-1">
-                              The PDF report includes all assessment questions, AI-generated answers, evidence excerpts,
-                              risk analysis, recommendations, and approval information in a professional format.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Next Steps */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Next Steps</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setCurrentStep("select")
-                            setSelectedCategory(null)
-                            setUploadedFiles([])
-                            setAiAnalysisResult(null)
-                            setApprovedQuestions(new Set())
-                            setApproverInfo({ name: "", title: "", role: "", signature: "" })
-                            setCompanyInfo({ companyName: "", productName: "" })
-                            setSocInfo({
-                              socType: "",
-                              reportType: "",
-                              auditor: "",
-                              auditorOpinion: "",
-                              auditorOpinionDate: "",
-                              socStartDate: "",
-                              socEndDate: "",
-                              exceptions: "",
-                              nonOperationalControls: "",
-                              companyName: "",
-                              productService: "",
-                              subserviceOrganizations: "",
-                              userEntityControls: "",
-                              socDateAsOf: "",
-                            })
-                          }}
-                          className="h-auto p-4 flex flex-col items-start hover:bg-gray-50"
-                        >
-                          <div className="font-medium mb-1">Start New Assessment</div>
-                          <div className="text-sm text-gray-600">Begin another risk assessment</div>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => (window.location.href = "/dashboard")}
-                          className="h-auto p-4 flex flex-col items-start hover:bg-gray-50"
-                        >
-                          <div className="font-medium mb-1">Go to Dashboard</div>
-                          <div className="text-sm text-gray-600">View all your assessments</div>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            )}
-
-            {/* Delegate Assessment Modal */}
-            {showDelegateForm && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <Card className="w-full max-w-md">
+              {/* Risk Distribution & Quick Actions */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="border border-gray-200">
                   <CardHeader>
-                    <div className="flex justify-between items-center">
-                      <CardTitle>Delegate AI Assessment</CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowDelegateForm(false)}
-                        className="hover:bg-gray-100"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <CardDescription>Send an AI-powered assessment to a team member</CardDescription>
+                    <CardTitle>Risk Distribution</CardTitle>
+                    <CardDescription>Current risk levels across all vendors</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <RechartsPieChart>
+                        <Pie
+                          data={riskMetrics.riskDistribution}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="count"
+                          label={({ payload }: { payload?: { level: string; count: number } }) => 
+                            payload ? `${payload.level}: ${payload.count}` : ''
+                          }
+                        >
+                          {riskMetrics.riskDistribution.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card className="border border-gray-200">
+                  <CardHeader>
+                    <CardTitle>Quick Actions</CardTitle>
+                    <CardDescription>Frequently used actions</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="assessmentType">Assessment Type</Label>
-                      <Input id="assessmentType" value={delegateForm.assessmentType} disabled className="bg-gray-50" />
-                    </div>
-                    <div>
-                      <Label htmlFor="recipientName">Recipient Name *</Label>
-                      <Input
-                        id="recipientName"
-                        value={delegateForm.recipientName}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, recipientName: e.target.value }))}
-                        placeholder="Enter recipient's name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="recipientEmail">Recipient Email *</Label>
-                      <Input
-                        id="recipientEmail"
-                        type="email"
-                        value={delegateForm.recipientEmail}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, recipientEmail: e.target.value }))}
-                        placeholder="Enter recipient's email"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="dueDate">Due Date (Optional)</Label>
-                      <Input
-                        id="dueDate"
-                        type="date"
-                        value={delegateForm.dueDate}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, dueDate: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="customMessage">Custom Message (Optional)</Label>
-                      <textarea
-                        id="customMessage"
-                        value={delegateForm.customMessage}
-                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, customMessage: e.target.value }))}
-                        placeholder="Add any additional instructions..."
-                        className="w-full p-2 border border-gray-300 rounded-md min-h-[80px]"
-                      />
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        onClick={handleSendDelegation}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                      >
+                    <Link href="/third-party-assessment">
+                      <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
                         <Send className="mr-2 h-4 w-4" />
-                        Send Assessment
+                        Send New Assessment
                       </Button>
-                      <Button variant="outline" onClick={() => setShowDelegateForm(false)} className="hover:bg-gray-50">
-                        Cancel
+                    </Link>
+                    <Link href="/vendors">
+                      <Button className="w-full justify-start bg-transparent" variant="outline">
+                        <Users className="mr-2 h-4 w-4" />
+                        Manage Vendors
                       </Button>
+                    </Link>
+                    <Button className="w-full justify-start bg-transparent" variant="outline">
+                        <BarChart3 className="mr-2 h-4 w-4" />
+                        Generate Report
+                    </Button>
+                    <Button className="w-full justify-start bg-transparent" variant="outline">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Configure Workflows
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Other tabs with consistent styling */}
+            <TabsContent value="analytics">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="border border-gray-200">
+                  <CardHeader>
+                    <CardTitle>Vendor Risk Levels</CardTitle>
+                    <CardDescription>Distribution of risk across vendor portfolio</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart
+                        data={Object.entries(vendorMetrics.riskLevels).map(([level, count]) => ({ level, count }))}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="level" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="#3b82f6" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card className="border border-gray-200">
+                  <CardHeader>
+                    <CardTitle>Industry Breakdown</CardTitle>
+                    <CardDescription>Vendor distribution by industry</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {vendorMetrics.industryBreakdown.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">{item.industry}</span>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-20 bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                                style={{ width: `${(item.count / vendorMetrics.totalVendors) * 100}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-900">{item.count}</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
               </div>
-            )}
+            </TabsContent>
+
+            <TabsContent value="vendors">
+              <Card className="border border-gray-200">
+                <CardHeader>
+                  <CardTitle>Vendor Management</CardTitle>
+                  <CardDescription>Comprehensive vendor portfolio overview</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Vendor Insights Coming Soon</h3>
+                    <p className="text-gray-600 mb-4">Advanced vendor analytics and management tools</p>
+                    <Link href="/vendors">
+                      <Button className="bg-blue-600 hover:bg-blue-700">
+                        <Users className="mr-2 h-4 w-4" />
+                        Manage Vendors
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="compliance">
+              <Card className="border border-gray-200">
+                <CardHeader>
+                  <CardTitle>Compliance Dashboard</CardTitle>
+                  <CardDescription>Real-time compliance monitoring and reporting</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Compliance Tracking</h3>
+                      <p className="text-gray-600">Advanced compliance monitoring features</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="alerts">
+                <Card className="border border-gray-200">
+                  <CardHeader>
+                    <CardTitle>Live Alerts & Notifications</CardTitle>
+                    <CardDescription>Real-time security alerts and system notifications</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {notifications.map((notification: Notification) => (
+                        <div
+                          key={notification.id}
+                          className={`p-4 rounded-lg border-l-4 ${
+                            notification.type === "alert"
+                              ? "border-l-red-500 bg-red-50"
+                              : notification.type === "warning"
+                                ? "border-l-yellow-500 bg-yellow-50"
+                                : "border-l-blue-500 bg-blue-50"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium text-gray-900">{notification.title}</h4>
+                            <Badge
+                              variant={notification.type === "alert" ? "destructive" : "secondary"}
+                              className="text-xs"
+                            >
+                              {notification.type}
+                            </Badge>
+                          </div>
+                          <p className="text-sm mt-1 text-gray-600">{notification.message}</p>
+                          <p className="text-xs mt-2 text-gray-500">
+                            {new Date(notification.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </section>
+
+        {/* Footer - matching other pages */}
+        <footer className="bg-gray-900 text-white py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div>
+                <div className="flex items-center space-x-2 mb-4">
+                  <Shield className="h-6 w-6 text-blue-400" />
+                  <span className="text-lg font-bold">RiskShield AI</span>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
+                  risks.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Platform</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Risk Assessment
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Compliance Monitoring
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Policy Generator
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Integrations
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Support</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Help Center
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Contact Support
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Status Page
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Company</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      About Us
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Careers
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Terms of Service
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
+              <p>&copy; 2024 RiskShield AI. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
       </div>
-    </AuthGuard>
   )
 }

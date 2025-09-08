@@ -37,7 +37,7 @@ export interface DocumentAnalysisResult {
 interface Question {
   id: string
   question: string
-  type: "boolean" | "multiple" | "tested"
+  type: "boolean" | "multiple" | "tested" | "textarea"
   options?: string[]
   weight: number
   category?: string; // Added category
@@ -415,6 +415,10 @@ export async function analyzeDocuments(
         answers[question.id] = "not_tested"
         confidenceScores[question.id] = 0.95
         reasoning[question.id] = "No supported documents available for analysis. Defaulting to 'Not Tested' for safety."
+      } else if (question.type === "textarea") {
+        answers[question.id] = "No supported documents available for analysis."
+        confidenceScores[question.id] = 0.95
+        reasoning[question.id] = "No supported documents available for analysis. Defaulting to empty for safety."
       }
     })
 
@@ -422,7 +426,7 @@ export async function analyzeDocuments(
       answers,
       confidenceScores,
       reasoning,
-      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFiles.map((f) => f.name).join(", ")}`,
+      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFiles.map((file: File) => file.name).join(", ")}`,
       riskFactors: [
         "No supported document content available for analysis",
         "Unable to assess actual security posture from uploaded files",
@@ -440,7 +444,7 @@ export async function analyzeDocuments(
       documentsAnalyzed: files.length,
       aiProvider: "Conservative Analysis (No supported files found)",
       documentExcerpts: {},
-      directUploadResults: files.map((file) => ({
+      directUploadResults: files.map((file: File) => ({
         fileName: file.name,
         success: false,
         fileSize: file.size,
@@ -456,7 +460,7 @@ export async function analyzeDocuments(
     const testResult = await generateText({
       model: google("gemini-1.5-flash"),
       prompt: "Reply with 'OK' if you can read this.",
-      max_tokens: 10, 
+      maxTokens: 10, 
       temperature: 0.1,
     })
 
@@ -544,26 +548,26 @@ CRITICAL INSTRUCTIONS:
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
 
 DOCUMENT FILES PROVIDED:
-${supportedFiles.map((file, index) => `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)})`).join("\n")}
+${supportedFiles.map((file: File, index: number) => `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)})`).join("\n")}
 
 ${documentContent}
 
 ASSESSMENT QUESTIONS:
-${questions.map((q, idx) => `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""})`).join("\n")}
+${questions.map((q: Question, idx: number) => `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""})`).join("\n")}
 
 Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., \`\`\`json) or conversational text outside the JSON. Ensure all property names are double-quoted.
 {
   "answers": {
-    ${questions.map((q) => `"${q.id}": ${q.type === "boolean" ? '"Yes" or "No"' : '"your_answer"'}`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": ${q.type === "boolean" ? '"Yes" or "No"' : '"your_answer"'}`).join(",\n    ")}
   },
   "confidence": {
-    ${questions.map((q) => `"${q.id}": 0.8`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": 0.8`).join(",\n    ")}
   },
   "reasoning": {
-    ${questions.map((q) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic, including document name and section, or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic, including document name and section, or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   }
 }`
 
@@ -582,7 +586,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       console.log(`📄 Sending ${pdfFiles.length} PDF file(s) directly to Google AI...`)
 
       const pdfAttachments = await Promise.all(
-        pdfFiles.map(async (file) => {
+        pdfFiles.map(async (file: File) => {
           try {
             const bufferData = await fileToBuffer(file)
             console.log(`✅ Converted ${file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
@@ -620,7 +624,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             },
           ],
           temperature: 0.1,
-          max_tokens: 4000, 
+          maxTokens: 4000, 
         })
         console.log(`✅ Successfully processed ${validPdfAttachments.length} PDF file(s) with Google AI`)
       } else {
@@ -630,7 +634,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           model: google("gemini-1.5-flash"),
           prompt: basePrompt,
           temperature: 0.1,
-          max_tokens: 4000, 
+          maxTokens: 4000, 
         })
       }
     } else {
@@ -639,7 +643,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         model: google("gemini-1.5-flash"),
         prompt: basePrompt,
         temperature: 0.1,
-        max_tokens: 4000, 
+        maxTokens: 4000, 
       })
     }
 
@@ -663,7 +667,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       console.log(`✅ Successfully parsed AI response JSON`)
 
       // Process each question with enhanced validation
-      questions.forEach((question) => {
+      questions.forEach((question: Question) => {
         const questionId = question.id
         const aiAnswer = aiResponse.answers?.[questionId]
         const aiEvidence = aiResponse.evidence?.[questionId]
@@ -701,7 +705,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
               sourceFileName = documentNameMatch[1].trim()
             } else {
               // Try to match against uploaded file names
-              const matchingFile = supportedFiles.find((file) =>
+              const matchingFile = supportedFiles.find((file: File) =>
                 aiEvidence.toLowerCase().includes(file.name.toLowerCase().replace(/\.[^.]+$/, "")),
               )
               if (matchingFile) {
@@ -716,7 +720,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*$/i, "")
 
             // Remove any remaining document name references within quotes
-            supportedFiles.forEach((file) => {
+            supportedFiles.forEach((file: File) => {
               const fileName = file.name.replace(/\.[^.]+$/, "") // Remove extension
               const fileNamePattern = new RegExp(`\\b${fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi")
               cleanExcerpt = cleanExcerpt.replace(fileNamePattern, "").trim()
@@ -770,6 +774,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
               answers[question.id] = question.options[0] // Most conservative option
             } else if (question.type === "tested") {
               answers[question.id] = "not_tested"
+            } else if (question.type === "textarea") {
+              answers[question.id] = "No directly relevant evidence found."
             }
 
             confidenceScores[questionId] = 0.9 // High confidence in conservative answer
@@ -786,6 +792,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             answers[question.id] = question.options[0]
           } else if (question.type === "tested") {
             answers[question.id] = "not_tested"
+          } else if (question.type === "textarea") {
+            answers[question.id] = "No directly relevant evidence found."
           }
 
           confidenceScores[questionId] = 0.9
@@ -801,7 +809,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   } catch (error) {
     console.error("❌ Google AI processing failed:", error)
     // Fallback to conservative answers
-    questions.forEach((question) => {
+    questions.forEach((question: Question) => {
       answers[question.id] = question.type === "boolean" ? false : question.options?.[0] || "Never"
       confidenceScores[question.id] = 0.1
       reasoning[question.id] = `AI analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
@@ -813,7 +821,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   let totalScore = 0
   let maxScore = 0
 
-  questions.forEach((question) => {
+  questions.forEach((question: Question) => {
     const answer = answers[question.id]
     
     if (question.type === "tested") {
@@ -830,6 +838,15 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       if (optionIndex !== -1) {
         const scoreMultiplier = (question.options.length - 1 - optionIndex) / (question.options.length - 1)
         totalScore += question.weight * scoreMultiplier * 4
+      }
+    } else if (question.type === "textarea") {
+      // Textarea questions don't directly contribute to score, but indicate completeness
+      // For now, we'll just ensure they are answered to contribute to completeness, not risk score
+      if (answer && (answer as string).length > 0 && !(answer as string).includes("No directly relevant evidence found")) {
+        // If there's an answer, give a small boost or mark as complete
+        // This part is subjective and can be refined based on desired scoring
+        totalScore += (question.weight || 1) * 0.5; // Small boost for having an answer
+        maxScore += (question.weight || 1) * 0.5; // Max possible for textarea if answered
       }
     }
   })
@@ -885,7 +902,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     documentsAnalyzed: files.length,
     aiProvider: "Google AI (Gemini 1.5 Flash) with Direct Document Processing",
     documentExcerpts,
-    directUploadResults: files.map((file) => {
+    directUploadResults: files.map((file: File) => {
       const result = processingResults.find((r) => r.fileName === file.name)
       return {
         fileName: file.name,
@@ -908,7 +925,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
       const result = await generateText({
         model: google("gemini-1.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
-        max_tokens: 10, 
+        maxTokens: 10, 
         temperature: 0.1,
       })
       results.google = result.text.toLowerCase().includes("ok")
