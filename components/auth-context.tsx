@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProfile = async (sessionFromListener?: Session | null) => {
     console.log("AuthContext: refreshProfile called.", { sessionFromListener: !!sessionFromListener });
-    setLoading(true); // Start loading when refreshing profile
+    setLoading(true); // Always start loading
 
     // Check for demo session first
     const demoSession = localStorage.getItem("demo_session")
@@ -101,8 +101,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (userError || !fetchedUser) {
           console.log("AuthContext: No Supabase user found or error:", userError);
-          clearAuthState(); // Clear state if no user
-          return;
+          clearAuthState(); // This sets loading to false
+          return; // Exit early if no user
         }
         currentUser = fetchedUser;
         console.log("AuthContext: Supabase user fetched:", currentUser.email, currentUser.id);
@@ -110,67 +110,75 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(currentUser);
 
+      // Initialize profile, organization, role to null before fetching
+      let fetchedProfile = null;
+      let fetchedOrganization = null;
+      let fetchedRole = null;
+
       // Get user profile from Supabase
       console.log("AuthContext: Fetching user profile...")
-      const { data: profile, error: profileError } = await supabaseClient
+      const { data: profileData, error: profileError } = await supabaseClient
         .from("user_profiles")
         .select("*")
         .eq("user_id", currentUser.id) // Use currentUser.id
         .single()
 
-      if (profileError || !profile) {
+      if (profileError || !profileData) {
         console.log("AuthContext: No user profile found or error:", profileError)
-        // If user is authenticated but no profile, it means pending approval
+        // User is authenticated but not approved (no profile)
+        // Set profile/org/role to null, but don't return early.
+        // Let the finally block handle setLoading(false).
         setProfile(null);
         setOrganization(null);
         setRole(null);
-        setIsDemo(false);
-        setLoading(false); // Still set loading to false
-        return;
-      }
-      console.log("AuthContext: User profile found:", profile)
-      setProfile(profile)
-
-      // Get organization
-      console.log("AuthContext: Fetching organization...")
-      const { data: organization, error: orgError } = await supabaseClient
-        .from("organizations")
-        .select("*")
-        .eq("id", profile.organization_id)
-        .single()
-
-      if (orgError || !organization) {
-        console.log("AuthContext: No organization found or error:", orgError)
-        setOrganization(null)
       } else {
-        console.log("AuthContext: Organization found:", organization)
-        setOrganization(organization)
-      }
+        console.log("AuthContext: User profile found:", profileData)
+        fetchedProfile = profileData;
+        setProfile(profileData);
 
-      // Get user role
-      console.log("AuthContext: Fetching user role...")
-      const { data: roleData, error: roleError } = await supabaseClient
-        .from("user_roles")
-        .select("*")
-        .eq("user_id", currentUser.id) // Use currentUser.id
-        .eq("organization_id", profile.organization_id)
-        .single()
+        // Get organization (only if profile exists)
+        console.log("AuthContext: Fetching organization...")
+        const { data: organizationData, error: orgError } = await supabaseClient
+          .from("organizations")
+          .select("*")
+          .eq("id", profileData.organization_id)
+          .single()
 
-      if (roleError || !roleData) {
-        console.log("AuthContext: No user role found or error:", roleError)
-        setRole(null)
-      } else {
-        console.log("AuthContext: User role found:", roleData)
-        setRole(roleData)
+        if (orgError || !organizationData) {
+          console.log("AuthContext: No organization found or error:", orgError)
+          setOrganization(null)
+        } else {
+          console.log("AuthContext: Organization found:", organizationData)
+          fetchedOrganization = organizationData;
+          setOrganization(organizationData)
+        }
+
+        // Get user role (only if profile exists)
+        console.log("AuthContext: Fetching user role...")
+        const { data: roleData, error: roleError } = await supabaseClient
+          .from("user_roles")
+          .select("*")
+          .eq("user_id", currentUser.id) // Use currentUser.id
+          .eq("organization_id", profileData.organization_id)
+          .single()
+
+        if (roleError || !roleData) {
+          console.log("AuthContext: No user role found or error:", roleError)
+          setRole(null)
+        } else {
+          console.log("AuthContext: User role found:", roleData)
+          fetchedRole = roleData;
+          setRole(roleData)
+        }
       }
       
       setIsDemo(false)
     } catch (error) {
       console.error("AuthContext: Error in refreshProfile:", error)
-      clearAuthState(); // Clear state on any unexpected error during refresh
+      clearAuthState(); // This sets loading to false
     } finally {
       console.log("AuthContext: refreshProfile finished. Setting loading to false.")
-      setLoading(false);
+      setLoading(false); // Always ensure loading is set to false here
     }
   }
 
