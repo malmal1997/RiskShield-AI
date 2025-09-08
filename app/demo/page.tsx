@@ -16,7 +16,6 @@ import {
   RotateCcw,
   TrendingUp,
 } from "lucide-react"
-// import { MainNavigation } from "@/components/main-navigation" // Removed import
 
 const demoSteps = [
   {
@@ -159,58 +158,56 @@ export default function InteractiveDemo() {
           <CardTitle>Cybersecurity Risk Assessment</CardTitle>
           <CardDescription>Answer questions about your current security posture</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Do you have a formal incident response plan?
+        <CardContent className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Do you have a formal incident response plan?
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="incident" value="yes" className="text-blue-600" defaultChecked />
+                <span>Yes, documented and regularly tested</span>
               </label>
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2">
-                  <input type="radio" name="incident" value="yes" className="text-blue-600" defaultChecked />
-                  <span>Yes, documented and regularly tested</span>
-                </label>
-                <label className="flex items-center space-x-2">
-                  <input type="radio" name="incident" value="partial" className="text-blue-600" />
-                  <span>Yes, but not regularly updated</span>
-                </label>
-                <label className="flex items-center space-x-2">
-                  <input type="radio" name="incident" value="no" className="text-blue-600" />
-                  <span>No formal plan exists</span>
-                </label>
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="incident" value="partial" className="text-blue-600" />
+                <span>Yes, but not regularly updated</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="incident" value="no" className="text-blue-600" />
+                <span>No formal plan exists</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              How often do you conduct security awareness training?
+            </label>
+            <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option>Monthly</option>
+              <option>Quarterly</option>
+              <option>Annually</option>
+              <option>As needed</option>
+              <option>Never</option>
+            </select>
+          </div>
+
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div>
+                <p className="font-medium text-blue-900">AI Recommendation</p>
+                <p className="text-sm text-blue-700 mt-1">
+                  Based on your responses, consider implementing multi-factor authentication for all administrative
+                  accounts to enhance security posture.
+                </p>
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                How often do you conduct security awareness training?
-              </label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Monthly</option>
-                <option>Quarterly</option>
-                <option>Annually</option>
-                <option>As needed</option>
-                <option>Never</option>
-              </select>
-            </div>
-
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <div className="flex items-start space-x-3">
-                <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <p className="font-medium text-blue-900">AI Recommendation</p>
-                  <p className="text-sm text-blue-700 mt-1">
-                    Based on your responses, consider implementing multi-factor authentication for all administrative
-                    accounts to enhance security posture.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
-              <p className="text-sm text-amber-800 text-center">
-                ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
-              </p>
-            </div>
+          </div>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+            <p className="text-sm text-amber-800 text-center">
+              ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+            </p>
           </div>
         </CardContent>
       </Card>

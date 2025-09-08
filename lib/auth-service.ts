@@ -1,6 +1,44 @@
 import { supabaseClient } from "./supabase-client"
 import type { User } from "@supabase/supabase-js"
-import type { Organization, UserProfile, UserRole } from "./supabase" // Import types from supabase.ts
+
+export interface Organization {
+  id: string
+  name: string
+  slug: string
+  domain?: string
+  logo_url?: string
+  settings: Record<string, any>
+  subscription_plan: string
+  subscription_status: string
+  trial_ends_at?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface UserProfile {
+  id: string
+  user_id: string
+  organization_id: string
+  first_name?: string
+  last_name?: string
+  avatar_url?: string
+  phone?: string
+  timezone: string
+  language: string
+  preferences: Record<string, any>
+  last_active_at?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface UserRole {
+  id: string
+  organization_id: string
+  user_id: string
+  role: "admin" | "manager" | "analyst" | "viewer"
+  permissions: Record<string, any>
+  created_at: string
+}
 
 // Get current user with profile and organization
 export async function getCurrentUserWithProfile(): Promise<{
@@ -10,67 +48,34 @@ export async function getCurrentUserWithProfile(): Promise<{
   role: UserRole | null
 }> {
   try {
-    console.log("AuthService: Attempting to fetch current user with profile...");
-
     const {
       data: { user },
       error: userError,
     } = await supabaseClient.auth.getUser()
 
-    if (userError) {
-      console.error("AuthService: Supabase getUser error:", userError.message);
-      return { user: null, profile: null, organization: null, role: null };
+    if (userError || !user) {
+      return { user: null, profile: null, organization: null, role: null }
     }
-
-    if (!user) {
-      console.log("AuthService: No authenticated user found.");
-      return { user: null, profile: null, organization: null, role: null };
-    }
-
-    console.log("AuthService: User found:", user.email, "ID:", user.id);
 
     // Get user profile
-    console.log("AuthService: Fetching user profile for user ID:", user.id);
     const { data: profile, error: profileError } = await supabaseClient
       .from("user_profiles")
       .select("*")
       .eq("user_id", user.id)
       .single()
 
-    if (profileError) {
-      console.error("AuthService: Supabase profile error:", profileError.message);
-      return { user, profile: null, organization: null, role: null };
+    if (profileError || !profile) {
+      return { user, profile: null, organization: null, role: null }
     }
-
-    if (!profile) {
-      console.log("AuthService: No user profile found for user ID:", user.id);
-      return { user, profile: null, organization: null, role: null };
-    }
-
-    console.log("AuthService: User profile found:", profile);
 
     // Get organization
-    console.log("AuthService: Fetching organization for ID:", profile.organization_id);
     const { data: organization, error: orgError } = await supabaseClient
       .from("organizations")
       .select("*")
       .eq("id", profile.organization_id)
       .single()
 
-    if (orgError) {
-      console.error("AuthService: Supabase organization error:", orgError.message);
-      return { user, profile, organization: null, role: null };
-    }
-
-    if (!organization) {
-      console.log("AuthService: No organization found for ID:", profile.organization_id);
-      return { user, profile, organization: null, role: null };
-    }
-
-    console.log("AuthService: Organization found:", organization.name);
-
     // Get user role
-    console.log("AuthService: Fetching user role for user ID:", user.id, "and organization ID:", profile.organization_id);
     const { data: role, error: roleError } = await supabaseClient
       .from("user_roles")
       .select("*")
@@ -78,27 +83,15 @@ export async function getCurrentUserWithProfile(): Promise<{
       .eq("organization_id", profile.organization_id)
       .single()
 
-    if (roleError) {
-      console.error("AuthService: Supabase role error:", roleError.message);
-      return { user, profile, organization, role: null };
-    }
-
-    if (!role) {
-      console.log("AuthService: No user role found for user ID:", user.id);
-      return { user, profile, organization, role: null };
-    }
-
-    console.log("AuthService: User role found:", role.role);
-
     return {
       user,
       profile,
-      organization,
-      role,
-    };
+      organization: orgError ? null : organization,
+      role: roleError ? null : role,
+    }
   } catch (error) {
-    console.error("AuthService: General error in getCurrentUserWithProfile:", error);
-    return { user: null, profile: null, organization: null, role: null };
+    console.error("Error getting user with profile:", error)
+    return { user: null, profile: null, organization: null, role: null }
   }
 }
 

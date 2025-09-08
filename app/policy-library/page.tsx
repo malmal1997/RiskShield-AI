@@ -239,7 +239,7 @@ export default function PolicyLibrary() {
                 status, review dates, and maintain compliance documentation.
               </p>
               <div className="mt-8">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white" asChild>
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
                   <a href="/policy-generator">
                     <Plus className="mr-2 h-4 w-4" />
                     Create New Policy
@@ -263,25 +263,25 @@ export default function PolicyLibrary() {
               <Card className="text-center">
                 <CardContent className="p-6">
                   <div className="text-3xl font-bold text-green-600">{stats.approved}</div>
-                  <div className="text-sm text-gray-600 mt-1">Completed</div>
+                  <div className="text-sm text-gray-600 mt-1">Approved</div>
                 </CardContent>
               </Card>
               <Card className="text-center">
                 <CardContent className="p-6">
-                  <div className="text-3xl font-bold text-blue-600">{stats.drafts}</div>
+                  <div className="text-3xl font-bold text-gray-600">{stats.drafts}</div>
                   <div className="text-sm text-gray-600 mt-1">Drafts</div>
                 </CardContent>
               </Card>
               <Card className="text-center">
                 <CardContent className="p-6">
                   <div className="text-3xl font-bold text-yellow-600">{stats.pendingReview}</div>
-                  <div className="text-sm text-gray-600 mt-1">Pending</div>
+                  <div className="text-sm text-gray-600 mt-1">Pending Review</div>
                 </CardContent>
               </Card>
               <Card className="text-center">
                 <CardContent className="p-6">
                   <div className="text-3xl font-bold text-red-600">{stats.expired}</div>
-                  <div className="text-sm text-gray-600 mt-1">Overdue</div>
+                  <div className="text-sm text-gray-600 mt-1">Expired</div>
                 </CardContent>
               </Card>
             </div>
