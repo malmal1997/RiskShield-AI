@@ -39,8 +39,8 @@ import {
   Clock,
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
-// import { analyzeDocuments } from "@/lib/ai-service" // Removed direct import
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service" // For delegation email
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Import Select components
 
 // Complete assessment categories for AI assessment
 const assessmentCategories = [
@@ -1351,12 +1351,17 @@ interface AnalysisResult {
   }>
 }
 
+interface UploadedFileWithLabel {
+  file: File;
+  label: 'Primary' | '4th Party';
+}
+
 export default function AIAssessmentPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select-category" | "upload-documents" | "soc-info" | "review-answers" | "results"
   >("select-category")
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFileWithLabel[]>([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null)
   const [answers, setAnswers] = useState<Record<string, any>>({})
@@ -1374,7 +1379,7 @@ export default function AIAssessmentPage() {
     socDateAsOf: "",
     testedStatus: "", // Added testedStatus
     exceptions: "",
-    nonOperationalControls: "",
+        nonOperationalControls: "",
     companyName: "",
     productService: "",
     subserviceOrganizations: "",
@@ -1400,13 +1405,25 @@ export default function AIAssessmentPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setUploadedFiles(Array.from(e.target.files))
+      const newFiles = Array.from(e.target.files).map(file => ({
+        file,
+        label: 'Primary' as 'Primary' | '4th Party' // Default label
+      }));
+      setUploadedFiles(prev => [...prev, ...newFiles]);
     }
   }
 
   const handleRemoveFile = (indexToRemove: number) => {
     setUploadedFiles((prevFiles) => prevFiles.filter((_, index) => index !== indexToRemove))
   }
+
+  const handleFileLabelChange = (index: number, label: 'Primary' | '4th Party') => {
+    setUploadedFiles(prevFiles => 
+      prevFiles.map((item, i) => 
+        i === index ? { ...item, label } : item
+      )
+    );
+  };
 
   const handleAnalyzeDocuments = async () => {
     if (!currentCategory || uploadedFiles.length === 0) {
@@ -1421,7 +1438,10 @@ export default function AIAssessmentPage() {
 
     try {
       const formData = new FormData();
-      uploadedFiles.forEach(file => formData.append('files', file));
+      uploadedFiles.forEach((item, index) => {
+        formData.append(`files[${index}]`, item.file);
+        formData.append(`labels[${index}]`, item.label);
+      });
       formData.append('questions', JSON.stringify(questionsForCategory));
       formData.append('assessmentType', currentCategory.name);
 
@@ -1880,21 +1900,35 @@ export default function AIAssessmentPage() {
                             {uploadedFiles.length > 0 && (
                               <div className="mt-4 space-y-2">
                                 <h5 className="font-medium text-blue-900">Uploaded Files ({uploadedFiles.length}):</h5>
-                                {uploadedFiles.map((file: File, index: number) => (
+                                {uploadedFiles.map((item, index: number) => (
                                   <div
                                     key={index}
                                     className="flex items-center justify-between p-3 bg-white border border-blue-200 rounded"
                                   >
                                     <div className="flex items-center space-x-2">
                                       <FileText className="h-4 w-4 text-blue-600" />
-                                      <span className="text-sm text-gray-700">{file.name}</span>
+                                      <span className="text-sm text-gray-700">{item.file.name}</span>
                                       <span className="text-xs text-gray-500">
-                                        ({(file.size / 1024 / 1024).toFixed(1)} MB)
+                                        ({(item.file.size / 1024 / 1024).toFixed(1)} MB)
                                       </span>
                                     </div>
-                                    <Button variant="outline" size="sm" onClick={() => handleRemoveFile(index)}>
-                                      Remove
-                                    </Button>
+                                    <div className="flex items-center space-x-2">
+                                      <Select
+                                        value={item.label}
+                                        onValueChange={(value: 'Primary' | '4th Party') => handleFileLabelChange(index, value)}
+                                      >
+                                        <SelectTrigger className="w-[120px] h-8 text-xs">
+                                          <SelectValue placeholder="Select label" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="Primary">Primary</SelectItem>
+                                          <SelectItem value="4th Party">4th Party</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <Button variant="outline" size="sm" onClick={() => handleRemoveFile(index)}>
+                                        Remove
+                                      </Button>
+                                    </div>
                                   </div>
                                 ))}
                               </div>
@@ -2040,7 +2074,8 @@ export default function AIAssessmentPage() {
                               <div className="mt-3 text-xs text-blue-700 italic">
                                 <Info className="inline h-3 w-3 mr-1" />
                                 Evidence: "{analysisResults.documentExcerpts[question.id][0].excerpt}" (from{" "}
-                                {analysisResults.documentExcerpts[question.id][0].fileName})
+                                {analysisResults.documentExcerpts[question.id][0].fileName} -{" "}
+                                {analysisResults.documentExcerpts[question.id][0].label})
                               </div>
                             )}
                         </div>
@@ -2082,7 +2117,7 @@ export default function AIAssessmentPage() {
                             >
                               <option value="">Select an option</option>
                               {question.options?.map((option) => (
-                                <option key={option} value={option}>
+                                  <option key={option} value={option}>
                                   {option}
                                 </option>
                               ))}

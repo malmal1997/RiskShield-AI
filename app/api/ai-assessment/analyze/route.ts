@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData()
     const files = formData.getAll("files") as File[]
+    const labelsJson = formData.get("labels") as string; // Get labels JSON string
     const questionsJson = formData.get("questions") as string
     const assessmentType = formData.get("assessmentType") as string
 
@@ -34,6 +35,21 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       return NextResponse.json({ error: "Invalid questions format" }, { status: 400 })
     }
+
+    let labels: ('Primary' | '4th Party')[] = [];
+    if (labelsJson) {
+      try {
+        labels = JSON.parse(labelsJson);
+      } catch (error) {
+        console.warn("Invalid labels format, proceeding without labels:", error);
+      }
+    }
+
+    // Combine files and labels into an array of objects
+    const filesWithLabels = files.map((file, index) => ({
+      file,
+      label: labels[index] || 'Primary' as 'Primary' | '4th Party', // Default to Primary if label is missing
+    }));
 
     console.log(`Processing ${files.length} files for ${assessmentType} assessment`)
 
@@ -53,7 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Perform analysis
-    const result = await analyzeDocuments(files, questions, assessmentType || "Unknown")
+    const result = await analyzeDocuments(filesWithLabels, questions, assessmentType || "Unknown")
 
     console.log("Analysis completed successfully")
     return NextResponse.json(result)

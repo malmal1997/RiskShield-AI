@@ -23,6 +23,7 @@ export interface DocumentAnalysisResult {
       quote?: string
       pageNumber?: number
       lineNumber?: number
+      label?: 'Primary' | '4th Party'; // Added label to excerpt
     }>
   >
   directUploadResults?: Array<{
@@ -31,6 +32,7 @@ export interface DocumentAnalysisResult {
     fileSize: number
     fileType: string
     processingMethod: string
+    label?: 'Primary' | '4th Party'; // Added label to direct upload results
   }>
 }
 
@@ -41,6 +43,11 @@ interface Question {
   options?: string[]
   weight: number
   category?: string; // Added category
+}
+
+interface FileWithLabel {
+  file: File;
+  label: 'Primary' | '4th Party';
 }
 
 // Convert file to buffer for Google AI API
@@ -376,7 +383,7 @@ function checkSemanticRelevance(
 
 // Direct Google AI analysis with file upload support
 export async function analyzeDocuments(
-  files: File[],
+  filesWithLabels: FileWithLabel[],
   questions: Question[],
   assessmentType: string,
 ): Promise<DocumentAnalysisResult> {
@@ -388,14 +395,14 @@ export async function analyzeDocuments(
   }
 
   // Filter and process supported files
-  const supportedFiles = files.filter((file) => isSupportedFileType(file))
-  const unsupportedFiles = files.filter((file) => !isSupportedFileType(file))
+  const supportedFilesWithLabels = filesWithLabels.filter(({ file }) => isSupportedFileType(file))
+  const unsupportedFilesWithLabels = filesWithLabels.filter(({ file }) => !isSupportedFileType(file))
 
   console.log(`📊 File Analysis:`)
-  console.log(`✅ Supported files: ${supportedFiles.length}`)
-  console.log(`❌ Unsupported files: ${unsupportedFiles.length}`)
+  console.log(`✅ Supported files: ${supportedFilesWithLabels.length}`)
+  console.log(`❌ Unsupported files: ${unsupportedFilesWithLabels.length}`)
 
-  if (supportedFiles.length === 0) {
+  if (supportedFilesWithLabels.length === 0) {
     console.log("❌ No supported files found for analysis")
 
     const answers: Record<string, boolean | string> = {}
@@ -426,11 +433,11 @@ export async function analyzeDocuments(
       answers,
       confidenceScores,
       reasoning,
-      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFiles.map((file: File) => file.name).join(", ")}`,
+      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFilesWithLabels.map((item: FileWithLabel) => item.file.name).join(", ")}`,
       riskFactors: [
         "No supported document content available for analysis",
         "Unable to assess actual security posture from uploaded files",
-        `${unsupportedFiles.length} files in unsupported formats`,
+        `${unsupportedFilesWithLabels.length} files in unsupported formats`,
       ],
       recommendations: [
         "Upload documents in supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML",
@@ -441,15 +448,16 @@ export async function analyzeDocuments(
       riskScore: 0,
       riskLevel: "High",
       analysisDate: new Date().toISOString(),
-      documentsAnalyzed: files.length,
+      documentsAnalyzed: filesWithLabels.length,
       aiProvider: "Conservative Analysis (No supported files found)",
       documentExcerpts: {},
-      directUploadResults: files.map((file: File) => ({
-        fileName: file.name,
+      directUploadResults: filesWithLabels.map((item: FileWithLabel) => ({
+        fileName: item.file.name,
         success: false,
-        fileSize: file.size,
-        fileType: file.type || "unknown",
+        fileSize: item.file.size,
+        fileType: item.file.type || "unknown",
         processingMethod: "no-supported-files",
+        label: item.label,
       })),
     }
   }
@@ -475,28 +483,28 @@ export async function analyzeDocuments(
 
   // Process files - separate PDFs from text files
   console.log("📁 Processing files for Google AI...")
-  const pdfFiles: File[] = []
-  const textFiles: Array<{ file: File; text: string }> = []
-  const processingResults: Array<{ fileName: string; success: boolean; method: string }> = []
+  const pdfFiles: FileWithLabel[] = []
+  const textFiles: Array<{ file: File; label: 'Primary' | '4th Party'; text: string }> = []
+  const processingResults: Array<{ fileName: string; success: boolean; method: string; label: 'Primary' | '4th Party' }> = []
 
-  for (const file of supportedFiles) {
-    const fileType = file.type.toLowerCase()
-    const fileName = file.name.toLowerCase()
+  for (const item of supportedFilesWithLabels) {
+    const fileType = item.file.type.toLowerCase()
+    const fileName = item.file.name.toLowerCase()
 
     if (fileType.includes("application/pdf") || fileName.endsWith(".pdf")) {
-      pdfFiles.push(file)
-      processingResults.push({ fileName: file.name, success: true, method: "pdf-upload" })
-      console.log(`📄 PDF file prepared for upload: ${file.name}`)
+      pdfFiles.push(item)
+      processingResults.push({ fileName: item.file.name, success: true, method: "pdf-upload", label: item.label })
+      console.log(`📄 PDF file prepared for upload: ${item.file.name} (Label: ${item.label})`)
     } else {
       // Extract text from non-PDF files
-      const extraction = await extractTextFromFile(file)
+      const extraction = await extractTextFromFile(item.file)
       if (extraction.success && extraction.text.length > 0) {
-        textFiles.push({ file, text: extraction.text })
-        processingResults.push({ fileName: file.name, success: true, method: extraction.method })
-        console.log(`📝 Text extracted from ${file.name}: ${extraction.text.length} characters`)
+        textFiles.push({ file: item.file, label: item.label, text: extraction.text })
+        processingResults.push({ fileName: item.file.name, success: true, method: extraction.method, label: item.label })
+        console.log(`📝 Text extracted from ${item.file.name} (Label: ${item.label}): ${extraction.text.length} characters`)
       } else {
-        processingResults.push({ fileName: file.name, success: false, method: extraction.method })
-        console.log(`❌ Failed to extract text from ${file.name}`)
+        processingResults.push({ fileName: item.file.name, success: false, method: extraction.method, label: item.label })
+        console.log(`❌ Failed to extract text from ${item.file.name} (Label: ${item.label})`)
       }
     }
   }
@@ -507,26 +515,27 @@ export async function analyzeDocuments(
   // Add text file content
   if (textFiles.length > 0) {
     documentContent += "TEXT DOCUMENTS:\n"
-    textFiles.forEach(({ file, text }) => {
-      documentContent += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
+    textFiles.forEach(({ file, label, text }) => {
+      documentContent += `\n=== DOCUMENT: ${file.name} (Label: ${label}) ===\n${text}\n`
     })
   }
 
   // Add PDF file references
   if (pdfFiles.length > 0) {
     documentContent += "\nPDF DOCUMENTS:\n"
-    pdfFiles.forEach((file) => {
-      documentContent += `\n=== PDF DOCUMENT: ${file.name} ===\n[This PDF file has been uploaded and will be analyzed directly]\n`
+    pdfFiles.forEach((item) => {
+      documentContent += `\n=== PDF DOCUMENT: ${item.file.name} (Label: ${item.label}) ===\n[This PDF file has been uploaded and will be analyzed directly]\n`
     })
   }
 
-  const basePrompt = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with ${supportedFiles.length} document(s) to analyze.
+  const basePrompt = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with ${supportedFilesWithLabels.length} document(s) to analyze.
 
 CRITICAL INSTRUCTIONS:
 - Analyze ALL provided documents (both text and PDF files) using your built-in document processing capabilities
 - Answer questions based ONLY on information that is DIRECTLY and SPECIFICALLY found in the documents
 - For PDF files, use your native PDF reading capabilities to extract and analyze the content
 - THOROUGHLY scan ALL sections, pages, and content areas of each document
+- When citing evidence, prioritize documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then prioritize documents labeled "4th Party".
 - Look for ALL cybersecurity-related content including but not limited to:
   * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen tests, pentests, security testing, vulnerability assessment, ethical hacking, red team, security audit, intrusion testing, security evaluation, vulnerability testing
   * PENETRATION TESTING: penetration tests, pen tests, pentests, ethical hacking, red team exercises, intrusion testing, security audits
@@ -548,7 +557,7 @@ CRITICAL INSTRUCTIONS:
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
 
 DOCUMENT FILES PROVIDED:
-${supportedFiles.map((file: File, index: number) => `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)})`).join("\n")}
+${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
 
 ${documentContent}
 
@@ -567,7 +576,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     ${questions.map((q: Question) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic, including document name and section, or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic, including document name and its label (e.g., 'DocumentName.pdf (Label: Primary)'), or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   }
 }`
 
@@ -586,17 +595,18 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       console.log(`📄 Sending ${pdfFiles.length} PDF file(s) directly to Google AI...`)
 
       const pdfAttachments = await Promise.all(
-        pdfFiles.map(async (file: File) => {
+        pdfFiles.map(async (item: FileWithLabel) => {
           try {
-            const bufferData = await fileToBuffer(file)
-            console.log(`✅ Converted ${file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
+            const bufferData = await fileToBuffer(item.file)
+            console.log(`✅ Converted ${item.file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
             return {
-              name: file.name,
+              name: item.file.name,
               data: bufferData,
-              mediaType: getGoogleAIMediaType(file),
+              mediaType: getGoogleAIMediaType(item.file),
+              label: item.label, // Include label here
             }
           } catch (error) {
-            console.error(`❌ Failed to convert ${file.name} to buffer:`, error)
+            console.error(`❌ Failed to convert ${item.file.name} to buffer:`, error)
             return null
           }
         }),
@@ -696,41 +706,45 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence)
             reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
 
-            // Extract document name from evidence
-            let sourceFileName = supportedFiles.length > 0 ? supportedFiles[0].name : "Document"
+            // Extract document name and label from evidence
+            let sourceFileName = supportedFilesWithLabels.length > 0 ? supportedFilesWithLabels[0].file.name : "Document"
+            let sourceFileLabel: 'Primary' | '4th Party' = supportedFilesWithLabels.length > 0 ? supportedFilesWithLabels[0].label : 'Primary';
+
             const documentNameMatch = aiEvidence.match(
-              /(?:from|in|document|file)[\s:]*([^,.\n]+\.(pdf|txt|md|csv|json|html|xml))/i,
+              /(?:from|in|document|file)[\s:]*([^,.\n]+\.(pdf|txt|md|csv|json|html|xml))\s+\(Label:\s*(Primary|4th Party)\)/i,
             )
             if (documentNameMatch) {
               sourceFileName = documentNameMatch[1].trim()
+              sourceFileLabel = documentNameMatch[3].trim() as 'Primary' | '4th Party';
             } else {
-              // Try to match against uploaded file names
-              const matchingFile = supportedFiles.find((file: File) =>
-                aiEvidence.toLowerCase().includes(file.name.toLowerCase().replace(/\.[^.]+$/, "")),
+              // Try to match against uploaded file names and labels
+              const matchingFile = supportedFilesWithLabels.find((item: FileWithLabel) =>
+                aiEvidence.toLowerCase().includes(item.file.name.toLowerCase().replace(/\.[^.]+$/, "")),
               )
               if (matchingFile) {
-                sourceFileName = matchingFile.name
+                sourceFileName = matchingFile.file.name
+                sourceFileLabel = matchingFile.label
               }
             }
 
-            let cleanExcerpt = aiEvidence
+            let cleanExcerpt = aiEvidence;
 
-            // Remove document name patterns from the beginning or end of quotes
-            cleanExcerpt = cleanExcerpt.replace(/^["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*:?\s*/i, "")
-            cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)["\s]*$/i, "")
-
+            // Remove document name and label patterns from the beginning or end of quotes
+            cleanExcerpt = cleanExcerpt.replace(/^["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)\s+\(Label:\s*(Primary|4th Party)\)["\s]*:?\s*/i, "");
+            cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)\s+\(Label:\s*(Primary|4th Party)\)["\s]*$/i, "");
+            
             // Remove any remaining document name references within quotes
-            supportedFiles.forEach((file: File) => {
-              const fileName = file.name.replace(/\.[^.]+$/, "") // Remove extension
+            supportedFilesWithLabels.forEach((item: FileWithLabel) => {
+              const fileName = item.file.name.replace(/\.[^.]+$/, "") // Remove extension
               const fileNamePattern = new RegExp(`\\b${fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi")
               cleanExcerpt = cleanExcerpt.replace(fileNamePattern, "").trim()
 
-              // Also remove the full filename with extension
-              const fullFileNamePattern = new RegExp(
-                `\\b${file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+              // Also remove the full filename with extension and label
+              const fullFileNameWithLabelPattern = new RegExp(
+                `\\b${item.file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+\\(Label:\\s*${item.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\)\\b`,
                 "gi",
               )
-              cleanExcerpt = cleanExcerpt.replace(fullFileNamePattern, "").trim()
+              cleanExcerpt = cleanExcerpt.replace(fullFileNameWithLabelPattern, "").trim()
             })
 
             // Remove common document reference patterns
@@ -759,8 +773,9 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             documentExcerpts[questionId] = [
               {
                 fileName: sourceFileName,
+                label: sourceFileLabel, // Include label here
                 excerpt: cleanExcerpt.substring(0, 500), // Use cleaned excerpt instead of raw aiEvidence
-                relevance: `Evidence found within ${sourceFileName}`,
+                relevance: `Evidence found within ${sourceFileName} (Label: ${sourceFileLabel})`,
                 pageOrSection: "Document Content",
               },
             ]
@@ -871,8 +886,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   if (failedProcessing > 0) {
     analysisNote += ` ${failedProcessing} file(s) failed to process.`
   }
-  if (unsupportedFiles.length > 0) {
-    analysisNote += ` ${unsupportedFiles.length} file(s) in unsupported formats were skipped.`
+  if (unsupportedFilesWithLabels.length > 0) {
+    analysisNote += ` ${unsupportedFilesWithLabels.length} file(s) in unsupported formats were skipped.`
   }
 
   console.log(`✅ Google AI analysis completed. Risk score: ${riskScore}, Risk level: ${riskLevel}`)
@@ -887,29 +902,31 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       "Conservative approach taken where evidence was unclear or missing",
       "Semantic validation applied to all evidence",
       ...(failedProcessing > 0 ? [`${failedProcessing} files failed to process`] : []),
-      ...(unsupportedFiles.length > 0 ? [`${unsupportedFiles.length} files in unsupported formats`] : []),
+      ...(unsupportedFilesWithLabels.length > 0 ? [`${unsupportedFilesWithLabels.length} files in unsupported formats`] : []),
     ],
     recommendations: [
       "Review assessment results for accuracy and completeness",
       "Implement missing controls based on validated findings",
       "Ensure document evidence directly supports all conclusions",
       "Consider uploading additional documentation for comprehensive analysis",
-      ...(unsupportedFiles.length > 0 ? ["Convert unsupported files to PDF, TXT, or other supported formats"] : []),
+      "Prioritize uploading 'Primary' documents for best results, followed by '4th Party' documents.",
+      ...(unsupportedFilesWithLabels.length > 0 ? ["Convert unsupported files to PDF, TXT, or other supported formats"] : []),
     ],
     riskScore,
     riskLevel,
     analysisDate: new Date().toISOString(),
-    documentsAnalyzed: files.length,
+    documentsAnalyzed: filesWithLabels.length,
     aiProvider: "Google AI (Gemini 1.5 Flash) with Direct Document Processing",
     documentExcerpts,
-    directUploadResults: files.map((file: File) => {
-      const result = processingResults.find((r) => r.fileName === file.name)
+    directUploadResults: filesWithLabels.map((item: FileWithLabel) => {
+      const result = processingResults.find((r) => r.fileName === item.file.name)
       return {
-        fileName: file.name,
+        fileName: item.file.name,
         success: result?.success || false,
-        fileSize: file.size,
-        fileType: file.type || "unknown",
+        fileSize: item.file.size,
+        fileType: item.file.type || "unknown",
         processingMethod: result?.method || "unknown",
+        label: item.label,
       }
     }),
   }
