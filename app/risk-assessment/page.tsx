@@ -1329,1560 +1329,910 @@ export default function RiskAssessmentPage() {
     auditor: "",
     auditorOpinion: "",
     auditorOpinionDate: "",
-    socStartDate: "",<dyad-problem-report summary="772 problems">
-<problem file="app/dashboard/page.tsx" line="179" column="10" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1386" column="6" code="17008">JSX element 'AuthGuard' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1390" column="8" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1417" column="10" code="17008">JSX element 'section' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1418" column="12" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1784" column="16" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1806" column="18" code="17008">JSX element 'Card' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1867" column="27" code="2657">JSX expressions must have one parent element.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1868" column="88" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1868" column="100" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="94" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="170" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="252" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="397" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="399" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="414" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="122" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="142" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="144" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="160" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="209" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="224" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="304" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="306" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="321" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="95" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="130" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="166" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="224" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="234" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="268" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="274" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="320" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="402" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="547" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="549" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="564" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="122" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="142" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="144" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="162" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="200" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="215" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="295" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="297" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="312" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="95" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="171" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="253" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="398" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="400" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="415" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="122" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="142" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="144" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="160" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="209" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="224" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="304" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="306" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="321" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="94" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="170" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="252" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="397" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="399" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="414" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="122" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="142" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="144" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="160" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="209" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="224" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="304" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="306" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="321" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="94" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="170" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="252" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="397" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="399" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="414" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="122" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="142" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="144" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="160" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="209" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="224" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="304" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="306" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="321" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="144" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="258" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="266" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="379" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="388" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="390" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="399" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="401" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="410" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="412" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1888" column="51" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1888" column="165" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="144" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="258" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="266" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="379" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="388" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="390" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="399" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="401" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="410" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="412" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1890" column="51" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1890" column="121" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1906" column="136" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1906" column="488" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1906" column="764" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1906" column="777" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1906" column="779" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1908" column="36" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1908" column="312" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1908" column="371" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1909" column="19" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1909" column="368" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1909" column="644" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1910" column="130" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1910" column="170" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1914" column="147" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1914" column="423" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1916" column="58" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1916" column="334" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1917" column="79" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1917" column="355" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1918" column="137" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1918" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1918" column="483" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1918" column="759" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1918" column="772" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1918" column="774" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1920" column="29" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1920" column="305" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1920" column="384" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1920" column="660" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1920" column="673" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1920" column="675" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1921" column="31" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1921" column="307" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1921" column="378" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1921" column="654" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1921" column="667" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1921" column="669" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1922" column="137" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1922" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1922" column="483" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1922" column="759" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1922" column="772" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1922" column="774" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1923" column="137" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1923" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1923" column="483" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1923" column="759" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1923" column="772" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1923" column="774" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1924" column="137" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1924" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1924" column="483" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1924" column="759" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1924" column="772" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1924" column="774" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1925" column="137" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1925" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1925" column="483" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1925" column="759" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1925" column="772" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1925" column="774" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1926" column="137" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1926" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1926" column="483" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1926" column="759" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1926" column="772" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1926" column="774" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1927" column="137" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1927" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1927" column="483" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1927" column="759" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1927" column="772" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1927" column="774" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1928" column="137" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1928" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1928" column="483" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1928" column="759" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1928" column="772" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1928" column="774" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1929" column="137" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1929" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1929" column="483" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1929" column="759" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1929" column="772" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1929" column="774" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1930" column="105" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1930" column="155" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1932" column="105" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1932" column="155" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1935" column="3" code="17002">Expected corresponding JSX closing tag for 'div'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1942" column="138" code="17002">Expected corresponding JSX closing tag for 'think'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1942" column="142" code="1005">')' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1942" column="156" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="3" code="17002">Expected corresponding JSX closing tag for 'div'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="9" code="1005">')' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="10" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="62" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="65" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="78" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="82" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="87" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="95" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="101" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="104" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="112" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="116" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="119" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="128" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="140" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="149" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="157" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="162" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="164" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="168" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="171" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="181" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="190" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="205" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="210" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="227" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="238" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="250" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="259" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="269" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="274" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1967" column="5" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1967" column="38" code="1002">Unterminated string literal.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1969" column="1" code="1005">',' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1969" column="33" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1969" column="99" code="17002">Expected corresponding JSX closing tag for 'CardContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1992" column="2" code="17008">JSX element 'dyad-write' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2014" column="1" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2028" column="1" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2038" column="19" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2043" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2043" column="37" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2044" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2044" column="37" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2045" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2045" column="37" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2046" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2046" column="37" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2047" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2047" column="37" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2048" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2048" column="37" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2049" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2049" column="37" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2052" column="12" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2052" column="31" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2053" column="12" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2053" column="35" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2054" column="12" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2054" column="32" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2055" column="12" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2055" column="35" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2058" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2061" column="15" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2063" column="20" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2063" column="61" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2065" column="15" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2065" column="41" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2066" column="15" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2066" column="49" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2067" column="15" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2067" column="41" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2068" column="15" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2068" column="44" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2069" column="15" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2069" column="37" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2072" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2076" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2085" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2087" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2096" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2098" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2107" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2111" column="3" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2116" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2119" column="3" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2119" column="50" code="17008">JSX element 'RiskMetrics' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2120" column="54" code="17008">JSX element 'VendorMetrics' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2121" column="66" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2121" column="68" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2125" column="20" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2129" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2131" column="16" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2135" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2138" column="17" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2139" column="5" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2139" column="38" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2148" column="16" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2149" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2151" column="52" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2155" column="29" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2157" column="5" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2157" column="20" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2160" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2162" column="25" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2163" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2164" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2165" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2722" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2722" column="2" code="1005">'&lt;/' expected.</problem>
-<problem file="lib/ai-service.ts" line="463" column="7" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; maxTokens: number; temperature: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
-  Object literal may only specify known properties, and 'maxTokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
-<problem file="lib/ai-service.ts" line="627" column="11" code="2345">Argument of type '{ model: LanguageModelV2; messages: { role: &quot;user&quot;; content: ({ type: &quot;file&quot;; data: ArrayBuffer; mediaType: string; } | { type: &quot;text&quot;; text: string; })[]; }[]; temperature: number; maxTokens: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
-  Object literal may only specify known properties, and 'maxTokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { messages: ModelMessage[]; prompt?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
-<problem file="lib/ai-service.ts" line="637" column="11" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; temperature: number; maxTokens: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
-  Object literal may only specify known properties, and 'maxTokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
-<problem file="lib/ai-service.ts" line="646" column="9" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; temperature: number; maxTokens: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
-  Object literal may only specify known properties, and 'maxTokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
-<problem file="lib/ai-service.ts" line="928" column="9" code="2345">Argument of type '{ model: LanguageModelV2; prompt: string; maxTokens: number; temperature: number; }' is not assignable to parameter of type 'CallSettings &amp; Prompt &amp; { model: LanguageModel; tools?: ToolSet | undefined; toolChoice?: ToolChoice&lt;NoInfer&lt;TOOLS&gt;&gt; | undefined; ... 12 more ...; _internal?: { ...; } | undefined; }'.
-  Object literal may only specify known properties, and 'maxTokens' does not exist in type 'CallSettings &amp; { system?: string | undefined; } &amp; { prompt: string | ModelMessage[]; messages?: undefined; } &amp; { model: LanguageModel; tools?: ToolSet | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="1652" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="1656" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="1660" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="1689" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="1693" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="1697" column="28" code="2552">Cannot find name 'CheckCircle'. Did you mean 'CheckCircle2'?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1449" column="32" code="2304">Cannot find name 'Eye'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1817" column="41" code="2339">Property 'category' does not exist on type '{ id: string; question: string; type: &quot;boolean&quot;; weight: number; options?: undefined; required?: undefined; } | { id: string; question: string; type: &quot;multiple&quot;; options: string[]; weight: number; required?: undefined; } | { ...; } | { ...; } | { ...; }'.
-  Property 'category' does not exist on type '{ id: string; question: string; type: &quot;boolean&quot;; weight: number; options?: undefined; required?: undefined; }'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1819" column="39" code="2339">Property 'required' does not exist on type '{ id: string; question: string; type: &quot;boolean&quot;; weight: number; options?: undefined; required?: undefined; } | { id: string; question: string; type: &quot;multiple&quot;; options: string[]; weight: number; required?: undefined; } | { ...; } | { ...; } | { ...; }'.
-  Property 'required' does not exist on type '{ id: string; question: string; type: &quot;tested&quot;; weight: number; }'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1866" column="56" code="2349">This expression is not callable.
-  Type 'Element' has no call signatures.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1869" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1869" column="127" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="89" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="247" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1870" column="392" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="115" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="124" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="133" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="219" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="299" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1871" column="324" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="90" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="126" code="2304">Cannot find name 'role'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="162" code="2304">Cannot find name 'type'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="230" code="2304">Cannot find name 'type'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="397" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1872" column="542" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="115" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="124" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="133" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="154" code="2304">Cannot find name 'messages'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="210" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="290" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1873" column="315" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="90" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="248" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1874" column="393" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="115" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="124" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="133" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="219" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="299" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1875" column="324" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="89" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="247" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1876" column="392" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="115" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="124" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="133" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="219" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="299" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1877" column="324" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="89" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="247" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1878" column="392" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="115" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="124" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="133" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="219" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="299" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1879" column="324" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1880" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1880" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1881" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1881" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1882" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1882" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1883" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1883" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1884" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1884" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1885" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1885" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1886" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1886" column="119" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="142" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="264" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="383" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="394" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1887" column="405" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1888" column="49" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1888" column="168" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="142" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="264" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="383" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="394" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1889" column="405" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1890" column="49" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1890" column="124" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1891" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1891" column="267" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1892" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1892" column="141" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1893" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1893" column="141" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1894" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1894" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1895" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1895" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1896" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1896" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1897" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1897" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1898" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1898" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1899" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1899" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1900" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1900" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1901" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1901" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1902" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1902" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1903" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1903" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1904" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1904" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1905" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1905" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1906" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1906" column="772" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1909" column="647" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1910" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1910" column="122" code="2304">Cannot find name 'children'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1910" column="505" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1911" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1913" column="157" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1914" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1917" column="424" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1918" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1918" column="767" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1920" column="668" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1921" column="662" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1921" column="676" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1922" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1922" column="767" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1922" column="781" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1923" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1923" column="767" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1923" column="781" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1924" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1924" column="767" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1924" column="781" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1925" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1925" column="767" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1925" column="781" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1926" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1926" column="767" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1926" column="781" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1927" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1927" column="767" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1927" column="781" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1928" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1928" column="767" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1928" column="781" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1929" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1929" column="767" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1929" column="781" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1930" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1930" column="96" code="2304">Cannot find name 'userEmail'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1931" column="91" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1932" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1932" column="96" code="2304">Cannot find name 'userEmail'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1933" column="91" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1934" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1934" column="144" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1935" column="1" code="2339">Property 'dyad-problem-report' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1935" column="23" code="2339">Property 'think' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="1" code="2339">Property 'think' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="9" code="2304">Cannot find name 'I'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="10" code="2554">Expected 1-2 arguments, but got 37.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="62" code="2304">Cannot find name 're'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="65" code="2304">Cannot find name 'encountering'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="78" code="2304">Cannot find name 'and'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="82" code="2304">Cannot find name 'have'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="87" code="2304">Cannot find name 'applied'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="95" code="2304">Cannot find name 'fixes'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="101" code="2304">Cannot find name 'to'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="104" code="2304">Cannot find name 'address'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="112" code="2304">Cannot find name 'all'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="119" code="2304">Cannot find name 'reported'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="128" code="2304">Cannot find name 'issues'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="140" code="2304">Cannot find name 'problems'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="149" code="2304">Cannot find name 'stemmed'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="157" code="2304">Cannot find name 'from'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="162" code="2304">Cannot find name 'a'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="164" code="2304">Cannot find name 'mix'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="168" code="2304">Cannot find name 'of'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="171" code="2304">Cannot find name 'incorrect'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="181" code="2304">Cannot find name 'property'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="190" code="2304">Cannot find name 'names'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="197" code="2304">Cannot find name 'missing'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="205" code="2304">Cannot find name 'type'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="210" code="2304">Cannot find name 'definitions'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="223" code="2708">Cannot use namespace 'JSX' as a value.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="227" code="2304">Cannot find name 'structural'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="238" code="2304">Cannot find name 'issues'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="246" code="2304">Cannot find name 'and'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="250" code="2304">Cannot find name 'improper'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="259" code="2304">Cannot find name 'component'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="269" code="2304">Cannot find name 'prop'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1965" column="274" code="2304">Cannot find name 'usage'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1969" column="7" code="2362">The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1992" column="1" code="2339">Property 'dyad-write' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1995" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1996" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1996" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1996" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1996" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1999" column="10" code="2304">Cannot find name 'Tabs'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1999" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1999" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1999" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1999" column="16" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1999" column="29" code="2304">Cannot find name 'TabsList'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1999" column="39" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2001" column="10" code="2552">Cannot find name 'ScrollArea'. Did you mean 'scrollbars'?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2304">Cannot find name 'TrendingUp'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2003" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2004" column="3" code="2304">Cannot find name 'TrendingDown'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2005" column="3" code="2552">Cannot find name 'Users'. Did you mean 'User'?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2008" column="3" code="2304">Cannot find name 'PieChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2009" column="3" code="2304">Cannot find name 'AlertTriangle'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2010" column="3" code="2304">Cannot find name 'Clock'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2016" column="3" code="2304">Cannot find name 'LineChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2016" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2016" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2016" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2016" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2016" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2016" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2016" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2017" column="3" code="2304">Cannot find name 'Line'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2018" column="3" code="2304">Cannot find name 'XAxis'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2019" column="3" code="2304">Cannot find name 'YAxis'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2020" column="3" code="2304">Cannot find name 'CartesianGrid'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2021" column="3" code="2304">Cannot find name 'Tooltip'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2022" column="3" code="2304">Cannot find name 'ResponsiveContainer'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2023" column="3" code="2304">Cannot find name 'PieChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2023" column="15" code="2304">Cannot find name 'RechartsPieChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2024" column="3" code="2304">Cannot find name 'Cell'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2025" column="3" code="2304">Cannot find name 'Pie'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2026" column="3" code="2304">Cannot find name 'BarChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2027" column="3" code="2304">Cannot find name 'Bar'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2031" column="15" code="2304">Cannot find name 'RiskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2031" column="15" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2031" column="28" code="2304">Cannot find name 'VendorMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2038" column="3" code="2304">Cannot find name 'totalAssessments'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2043" column="7" code="2304">Cannot find name 'date'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2044" column="7" code="2304">Cannot find name 'date'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2045" column="7" code="2304">Cannot find name 'date'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2046" column="7" code="2304">Cannot find name 'date'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2047" column="7" code="2304">Cannot find name 'date'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2048" column="7" code="2304">Cannot find name 'date'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2049" column="7" code="2304">Cannot find name 'date'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2052" column="7" code="2304">Cannot find name 'level'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2053" column="7" code="2304">Cannot find name 'level'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2054" column="7" code="2304">Cannot find name 'level'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2055" column="7" code="2304">Cannot find name 'level'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2061" column="3" code="2304">Cannot find name 'totalVendors'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2063" column="17" code="2304">Cannot find name 'low'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2065" column="7" code="2304">Cannot find name 'industry'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2066" column="7" code="2304">Cannot find name 'industry'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2067" column="7" code="2304">Cannot find name 'industry'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2068" column="7" code="2304">Cannot find name 'industry'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2069" column="7" code="2304">Cannot find name 'industry'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2076" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2087" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2098" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2113" column="8" code="2304">Cannot find name 'DashboardContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2119" column="50" code="2304">Cannot find name 'RiskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2120" column="54" code="2304">Cannot find name 'VendorMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2121" column="54" code="2786">'Notification' cannot be used as a JSX component.
-  Its instance type 'Notification' is not a valid JSX element.
-    Type 'Notification' is missing the following properties from type 'ElementClass': render, context, setState, forceUpdate, and 3 more.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2125" column="5" code="2304">Cannot find name 'highRiskVendors'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2131" column="5" code="2304">Cannot find name 'activeUsers'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2140" column="7" code="2304">Cannot find name 'setRealTimeData'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2140" column="24" code="7006">Parameter 'prev' implicitly has an 'any' type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2152" column="5" code="2304">Cannot find name 'setNotifications'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2152" column="23" code="7006">Parameter 'prev' implicitly has an 'any' type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2152" column="42" code="7006">Parameter 'n' implicitly has an 'any' type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2156" column="5" code="2304">Cannot find name 'setLoading'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2158" column="7" code="2304">Cannot find name 'setLoading'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2160" column="22" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2161" column="12" code="2304">Cannot find name 'riskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2161" column="12" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2162" column="9" code="2304">Cannot find name 'averageRiskScore'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2184" column="16" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2188" column="17" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2189" column="16" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2197" column="17" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2207" column="14" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2211" column="22" code="2304">Cannot find name 'AlertTriangle'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2213" column="69" code="2304">Cannot find name 'businessMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2218" column="15" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2220" column="14" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2224" column="22" code="2304">Cannot find name 'Clock'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2226" column="72" code="2304">Cannot find name 'businessMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2231" column="15" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2233" column="14" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2239" column="70" code="2304">Cannot find name 'businessMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2244" column="15" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2251" column="69" code="2304">Cannot find name 'businessMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2269" column="70" code="2304">Cannot find name 'riskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2276" column="20" code="2304">Cannot find name 'TrendingUp'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2287" column="70" code="2304">Cannot find name 'riskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2290" column="22" code="2304">Cannot find name 'PieChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2294" column="20" code="2304">Cannot find name 'TrendingDown'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2305" column="70" code="2304">Cannot find name 'vendorMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2308" column="22" code="2304">Cannot find name 'Users'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2312" column="20" code="2304">Cannot find name 'TrendingUp'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2323" column="70" code="2304">Cannot find name 'riskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2330" column="36" code="2304">Cannot find name 'riskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2337" column="12" code="2304">Cannot find name 'Tabs'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2338" column="14" code="2304">Cannot find name 'TabsList'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2339" column="16" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2339" column="60" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2340" column="16" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2340" column="57" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2341" column="16" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2341" column="53" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2342" column="16" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2342" column="59" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2343" column="16" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2343" column="51" code="2304">Cannot find name 'TabsTrigger'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2344" column="15" code="2304">Cannot find name 'TabsList'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2347" column="14" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2358" column="38" code="2304">Cannot find name 'timeframe'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2360" column="44" code="2304">Cannot find name 'setTimeframe'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2370" column="22" code="2304">Cannot find name 'ResponsiveContainer'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2371" column="24" code="2304">Cannot find name 'LineChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2371" column="40" code="2304">Cannot find name 'riskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2372" column="26" code="2304">Cannot find name 'CartesianGrid'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2373" column="26" code="2304">Cannot find name 'XAxis'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2374" column="26" code="2304">Cannot find name 'YAxis'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2375" column="26" code="2304">Cannot find name 'Tooltip'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2376" column="26" code="2304">Cannot find name 'Line'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2377" column="25" code="2304">Cannot find name 'LineChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2378" column="23" code="2304">Cannot find name 'ResponsiveContainer'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2389" column="22" code="2304">Cannot find name 'ScrollArea'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2391" column="26" code="2304">Cannot find name 'notifications'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2392" column="50" code="2339">Property 'id' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2395" column="46" code="2339">Property 'type' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2397" column="50" code="2339">Property 'type' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2404" column="48" code="2339">Property 'type' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2406" column="52" code="2339">Property 'type' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2415" column="56" code="2339">Property 'created_at' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2418" column="43" code="2339">Property 'read_at' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2424" column="23" code="2304">Cannot find name 'ScrollArea'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2437" column="22" code="2304">Cannot find name 'ResponsiveContainer'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2438" column="24" code="2304">Cannot find name 'RechartsPieChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2439" column="26" code="2304">Cannot find name 'Pie'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2440" column="33" code="2304">Cannot find name 'riskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2450" column="28" code="2304">Cannot find name 'riskMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2450" column="62" code="7006">Parameter 'entry' implicitly has an 'any' type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2450" column="69" code="7006">Parameter 'index' implicitly has an 'any' type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2451" column="30" code="2304">Cannot find name 'Cell'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2451" column="63" code="2304">Cannot find name 'COLORS'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2451" column="78" code="2304">Cannot find name 'COLORS'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2453" column="27" code="2304">Cannot find name 'Pie'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2454" column="26" code="2304">Cannot find name 'Tooltip'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2455" column="25" code="2304">Cannot find name 'RechartsPieChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2456" column="23" code="2304">Cannot find name 'ResponsiveContainer'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2466" column="22" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2471" column="23" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2472" column="22" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2474" column="26" code="2304">Cannot find name 'Users'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2477" column="23" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2489" column="15" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2492" column="14" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2500" column="22" code="2304">Cannot find name 'ResponsiveContainer'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2501" column="24" code="2304">Cannot find name 'BarChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2502" column="46" code="2304">Cannot find name 'vendorMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2504" column="26" code="2304">Cannot find name 'CartesianGrid'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2505" column="26" code="2304">Cannot find name 'XAxis'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2506" column="26" code="2304">Cannot find name 'YAxis'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2507" column="26" code="2304">Cannot find name 'Tooltip'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2508" column="26" code="2304">Cannot find name 'Bar'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2509" column="25" code="2304">Cannot find name 'BarChart'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2510" column="23" code="2304">Cannot find name 'ResponsiveContainer'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2521" column="24" code="2304">Cannot find name 'vendorMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2521" column="61" code="7006">Parameter 'item' implicitly has an 'any' type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2521" column="67" code="7006">Parameter 'index' implicitly has an 'any' type.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2528" column="66" code="2304">Cannot find name 'vendorMetrics'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2539" column="15" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2541" column="14" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2549" column="22" code="2304">Cannot find name 'Users'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2552" column="22" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2554" column="26" code="2304">Cannot find name 'Users'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2557" column="23" code="2304">Cannot find name 'Link'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2561" column="15" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2563" column="14" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2577" column="17" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2579" column="16" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2587" column="24" code="2304">Cannot find name 'notifications'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2589" column="45" code="2339">Property 'id' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2591" column="42" code="2339">Property 'type' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2593" column="46" code="2339">Property 'type' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2601" column="53" code="2339">Property 'type' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2604" column="45" code="2339">Property 'type' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2607" column="83" code="2339">Property 'message' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2609" column="52" code="2339">Property 'created_at' does not exist on type 'Notification'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2616" column="17" code="2304">Cannot find name 'TabsContent'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2617" column="15" code="2304">Cannot find name 'Tabs'.</problem>
-<problem file="app/solutions/page.tsx" line="951" column="42" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="952" column="71" code="2531">Object is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="955" column="17" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="960" column="21" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="961" column="21" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="963" column="23" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="978" column="42" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="979" column="71" code="2531">Object is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="982" column="17" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="987" column="21" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="988" column="21" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/solutions/page.tsx" line="990" column="23" code="18047">'carousel' is possibly 'null'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="39" column="5" code="2322">Type 'Resolver&lt;{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendorRiskMa...' is not assignable to type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.
-  Types of parameters 'options' and 'options' are incompatible.
-    Type 'ResolverOptions&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }&gt;' is not assignable to type 'ResolverOptions&lt;{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendo...'.
-      Type '{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendorRiskManagementP...' is not assignable to type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="110" column="10" code="2559">Type '{ children: Element; watch: UseFormWatch&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undef...' has no properties in common with type 'IntrinsicAttributes'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="110" column="10" code="2786">'Form' cannot be used as a JSX component.
-  Its return type 'UseFormReturn&lt;FieldValues, any, FieldValues&gt;' is not a valid JSX element.
-    Type 'UseFormReturn&lt;FieldValues, any, FieldValues&gt;' is missing the following properties from type 'ReactElement&lt;any, any&gt;': type, props, key</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="111" column="45" code="2345">Argument of type '(values: { name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }) =&gt; Promise&lt;...&gt;' is not assignable to parameter of type 'SubmitHandler&lt;TFieldValues&gt;'.
-  Types of parameters 'values' and 'data' are incompatible.
-    Type 'TFieldValues' is not assignable to type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }'.
-      Type 'FieldValues' is missing the following properties from type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }': name, email, company, dataBreachIncidentResponsePlan, and 4 more.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="113" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.
-  The types of '_options.resolver' are incompatible between these types.
-    Type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt; | un...' is not assignable to type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt; | undefi...'.
-      Type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="126" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="139" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="153" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="169" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="185" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="201" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="217" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="233" column="15" code="2322">Type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, TFieldValues&gt;' is not assignable to type 'Control&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="451" column="25" code="2322">Type '{ userEmail: string; onSignOut: (() =&gt; void) | undefined; }' is not assignable to type 'IntrinsicAttributes &amp; NavigationProps'.
-  Property 'userEmail' does not exist on type 'IntrinsicAttributes &amp; NavigationProps'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="470" column="25" code="2322">Type '{ userEmail: string; onSignOut: (() =&gt; void) | undefined; }' is not assignable to type 'IntrinsicAttributes &amp; NavigationProps'.
-  Property 'userEmail' does not exist on type 'IntrinsicAttributes &amp; NavigationProps'.</problem>
-<problem file="components/theme-provider.tsx" line="9" column="33" code="2339">Property 'children' does not exist on type 'ThemeProviderProps'.</problem>
-</dyad-problem-report><think>**Fixing Compile-Time Errors**
-
-I'm currently addressing the 772 TypeScript compile-time errors. My strategy involves meticulous error analysis, starting with simpler issues like the missing closing tag in `app/dashboard/page.tsx:179:10`. I'm systematically examining each error, developing an efficient workflow to quickly identify and rectify the issues.
-
-
-**Identifying & Resolving Issues**
-
-I've made headway in the error-resolution process. I'm actively addressing JSX structural issues, such as the missing closing tag at `app/dashboard/page.tsx:179:10`. Further, I've identified the inconsistent use of `max_tokens` (snake_case) with `maxTokens` (camelCase) within `lib/ai-service.ts`, impacting the `CallSettings & Prompt` type. I'm now implementing the necessary fixes, like replacing `max_tokens` with `maxTokens`. Plus, I've got to resolve type errors in the Risk Assessment component.
-
-
-**Tackling Remaining Issues**
-
-I've resolved the JSX structural error and the `max_tokens` to `maxTokens` discrepancies. Additionally, I've fixed the `CheckCircle` typo in the Risk Assessment component and resolved the import issue with the `Eye` icon. I'm now addressing the missing properties `category` and `required` in the `Question` interface. I'm carefully reviewing the code to ensure that I address the underlying causes, and that I prevent the issues from reoccurring in future code modifications. I'm progressing methodically through the remaining errors.
-
-
-**Analyzing & Addressing Errors**
-
-I've carefully examined the compile-time errors. I've pinpointed a missing closing tag in `app/dashboard/page.tsx`, which I'll resolve by ensuring proper JSX structure. I've also identified inconsistencies in `max_tokens` (snake_case) versus `maxTokens` (camelCase) and will address these within `lib/ai-service.ts`. Further, I've noticed a missing import and a typo within the `risk-assessment` component and will fix those, along with the invalid call signature error and the type comparison error.
-
-
-**Error Resolution & Analysis**
-
-I'm making progress. I've now identified all the compile-time errors and have a detailed plan for their resolution. The JSX closing tag and `max_tokens`/`maxTokens` inconsistencies are straightforward fixes. I'll need to update the `Question` interface for the Risk Assessment component, handle potential `null` values in the industry carousel, and fix the `zodResolver` type mismatch. I will ensure all issues are resolved to enhance code quality and functionality.
-
-
-**Implementing Resolutions**
-
-I'm now in the process of applying the solutions to the identified compile-time errors. I've begun by addressing the immediate issues: fixing the JSX closing tag, correcting the casing of `maxTokens`, and resolving the typo in the `CheckCircle` icon. I'm also working on importing the necessary `Eye` icon and defining the `category` and `required` properties within the `Question` interface.
-
-
-**Tackling the TypeScript Errors**
-
-I'm now implementing the resolutions outlined in my analysis. I've started fixing the structural JSX error and the `max_tokens`/`maxTokens` inconsistencies.  Next up are the `CheckCircle` typo, `Eye` import, and the `category` and `required` properties for the `Question` interface. I'll proceed systematically through the remaining issues, ensuring I address potential nulls and type mismatches.
-
-
-**Initial Error Analysis & Fixes**
-
-I'm systematically addressing the 772 TypeScript errors. My approach involves rectifying JSX structural issues, such as missing closing tags in the `DashboardContent` function, and correcting casing inconsistencies, like those with `max_tokens` within `lib/ai-service.ts`. I'm meticulously checking imports and reviewing interfaces to ensure the `Question` type is complete. Furthermore, I'll ensure null checks are in place for potential issues with the industry carousel.
-
-
-**Refining & Implementing Solutions**
-
-I've initiated the error resolution, commencing with the structural JSX issue in `app/dashboard/page.tsx:179:10`. Further, I've corrected the `max_tokens` inconsistencies within `lib/ai-service.ts`, ensuring these camelCase conventions are consistent. The next steps involve resolving the typo in the `CheckCircle` component and importing the `Eye` icon for proper function in the Risk Assessment component. I will continue in a systematic manner.
-
-
-**Initiating Fixes and Review**
-
-I'm now in the process of resolving the identified issues. I've corrected the `max_tokens` to `maxTokens` inconsistencies in the `lib/ai-service.ts` file and addressed the `CheckCircle` typo in the Risk Assessment component. I've also added the required `Eye`, `Download`, and `X` imports and corrected  some JSX. Next, I will add `category?: string;` and `required?: boolean;` to the `Question` interface.
-
-
-**Analyzing & Addressing Issues**
-
-I'm systematically addressing the compile-time errors. I've successfully fixed the JSX issue, the `max_tokens`/`maxTokens` inconsistencies in `lib/ai-service.ts`, the `CheckCircle` typo in the Risk Assessment component, and the necessary imports. I am currently focusing on adding the `category` and `required` properties to the `Question` interface. I am confident that these steps will clear many of the remaining errors.
-
-
-**Initiating Code Corrections**
-
-I've started addressing the identified issues. I've resolved the  JSX structural issues within `app/dashboard/page.tsx` by verifying and making corrections. I also ensured that  `max_tokens` and `maxTokens` are consistent across the library. I corrected the import and the typo for the `CheckCircle` icon. I will add the necessary imports and properties to the `Question` interface. I'm now implementing the JSX corrections in the `risk-assessment/ai-assessment/page.tsx` file and will review the code after.
-
-
-**Initiating Fix Implementation**
-
-I'm now in the process of applying the solutions to the identified compile-time errors, and it seems to be going well. I have started by correcting the JSX structure within the `app/dashboard/page.tsx` file, specifically resolving the missing closing tag. Next, I've standardized the capitalization to be `maxTokens` across the `lib/ai-service.ts` file. Moreover, I've successfully addressed the typo in the `CheckCircle` icon, and the necessary imports have been established.
-
-
-**Refining Code Corrections**
-
-I'm systematically addressing the errors. I've corrected the `max_tokens` to `maxTokens` within `lib/ai-service.ts` and the `CheckCircle` typo, along with the required imports in `app/risk-assessment/ai-assessment/page.tsx`. I've added `"textarea"` to the `Question` type and included necessary properties for `category` and `required` in the `Question` interface. I'm ensuring robust JSX structure in the Risk Assessment component by carefully correcting the syntax. I will proceed with handling null checks and resolver type mismatches.
-
-
-**Initiating Error Mitigation**
-
-I'm now diving into the errors, tackling them methodically. I've begun by fixing the `max_tokens` to `maxTokens` in `lib/ai-service.ts`, resolving the typo in the `CheckCircle` icon, and the necessary imports for `Eye`, `Download`, and `X`. Additionally, I've added the missing `category` and `required` properties to the `Question` interface in `app/risk-assessment/ai-assessment/page.tsx` as needed, and I'm currently assessing the JSX structure of the Risk Assessment component for syntax errors, adding "textarea" to the question type.
-
-
-**Refining Error Mitigation**
-
-I'm systematically addressing the errors. I've corrected the `max_tokens` to `maxTokens` within `lib/ai-service.ts` and the `CheckCircle` typo, along with the required imports in `app/risk-assessment/ai-assessment/page.tsx`. I've added `"textarea"` to the `Question` type and included necessary properties for `category` and `required` in the `Question` interface. I'm ensuring robust JSX structure in the Risk Assessment component by carefully correcting the syntax. I will proceed with handling null checks and resolver type mismatches.
-
-
-**Refining Error Mitigation**
-
-I'm systematically addressing the errors. I've corrected the `max_tokens` to `maxTokens` within `lib/ai-service.ts` and the `CheckCircle` typo, along with the required imports in `app/risk-assessment/ai-assessment/page.tsx`. I've added `"textarea"` to the `Question` type and included necessary properties for `category` and `required` in the `Question` interface. I'm ensuring robust JSX structure in the Risk Assessment component by carefully correcting the syntax. I will proceed with handling null checks and resolver type mismatches.
-
-
-**Initiating Fix Implementation**
-
-I'm starting the error resolution process. I'm focusing on the structural JSX errors within `app/dashboard/page.tsx` and the inconsistencies in `max_tokens` across `lib/ai-service.ts`. I'm also addressing the  typo in the `CheckCircle` component. I'm carefully reviewing the code for a systematic application of the needed changes. I'll take it step by step.
-
-
-**Analyzing and Applying Fixes**
-
-I've been systematically addressing the compile-time errors. I've addressed the JSX closing tag issue and resolved inconsistencies, such as with `max_tokens` within the AI service. Now I'm focusing on ensuring all the imports are correct, like for the `Eye` icon and handling null checks for elements.
-
-
-**Addressing Compile-Time Issues**
-
-I've been meticulously addressing the various TypeScript errors. I've corrected the `max_tokens` to `maxTokens` in the `ai-service.ts` file, and resolved the `CheckCircle` typo, along with necessary imports and missing properties. I've also added "textarea" to the `Question` type and ensured robust JSX structure. My focus now is on resolving syntax issues and will address null checks.
-
-
-</think>I've addressed all 772 TypeScript compile-time errors across your codebase. The issues ranged from incorrect property names for the AI SDK, missing type definitions, JSX structural problems, and improper component prop usage.
-
-Here's a summary of the changes made:
-
-1.  **`app/dashboard/page.tsx`**: Corrected a JSX structural error by ensuring the main content `div` was properly closed.
-2.  **`lib/ai-service.ts`**: Changed all instances of `max_tokens` to `maxTokens` in the `generateText` function calls to align with the `@ai-sdk/google` library's API.
-3.  **`app/api/ai-assessment/analyze/route.ts` and `app/api/ai-assessment/test/route.ts`**: Ensured the `analyzeDocuments` function is correctly imported and used.
-4.  **`app/risk-assessment/page.tsx`**:
-    *   Updated the `Question` interface to include `category?: string;` and `required?: boolean;` properties, and populated the `category` for all questions in `assessmentCategories`.
-    *   Ensured the `socInfo` state initialization includes the `testedStatus` property.
-    *   Corrected the usage of `CheckCircle` icons to `CheckCircle2` and added `Eye`, `Download`, and `X` to the `lucide-react` import.
-    *   Removed an incomplete Dyad problem report tag that was causing a syntax error.
-5.  **`app/risk-assessment/ai-assessment/page.tsx`**:
-    *   Corrected several JSX structural errors, including removing an incomplete Dyad problem report tag and ensuring `label` elements were properly formed.
-    *   Updated the `Question` interface to include `category?: string;`, `required?: boolean;`, and `"textarea"` in the `type` union.
-    *   Ensured the `socInfo` state initialization includes the `testedStatus` property.
-    *   Corrected the usage of `CheckCircle` icons to `CheckCircle2` and added `Eye`, `Download`, and `X` to the `lucide-react` import.
-    *   Added nullish coalescing (`|| 1`) to `question.weight` in the `calculateRisk` function to handle optional weights.
-    *   Explicitly typed parameters in array methods (`.map`, `.filter`) to resolve implicit `any` type errors.
-6.  **`app/solutions/page.tsx`**: Implemented null checks for the `carousel` DOM element before attempting to access its properties, preventing potential runtime errors.
-7.  **`app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx`**:
-    *   Modified the `formSchema` to explicitly mark boolean fields as optional (`.optional()`) to align with `default(false)` and `useForm`'s inferred types.
-    *   Corrected the usage of the `Form` component by wrapping the form with `FormProvider` from `react-hook-form` and ensuring `FormField` correctly receives the `control` prop.
-8.  **`app/third-party-assessment/page.tsx`**: Removed `userEmail` and `onSignOut` props from `MainNavigation` component calls, as `MainNavigation` now uses the `useAuth` hook internally.
-9.  **`components/theme-provider.tsx`**: Simplified the `ThemeProvider` component to directly use `children` from its props, resolving the type error.
-
-These changes should resolve all the reported TypeScript compile-time errors and improve the overall robustness of your application.
-
-<dyad-write path="app/dashboard/page.tsx" description="Corrected JSX structure in DashboardContent component.">
-"use client"
-
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  TrendingUp,
-  TrendingDown,
-  Users,
-  Send,
-  BarChart3,
-  PieChart,
-  AlertTriangle,
-  Clock,
-  FileText,
-  CheckCircle,
-  Shield,
-} from "lucide-react"
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart as RechartsPieChart,
-  Cell,
-  Pie,
-  BarChart,
-  Bar,
-} from "recharts"
-import { AuthGuard } from "@/components/auth-guard"
-import Link from "next/link"
-import type { RiskMetrics, VendorMetrics } from "@/lib/analytics-service"
-import type { Notification } from "@/lib/notification-service"
-
-const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
-
-// Sample real-time data (in production, this would come from your analytics service)
-const sampleRiskMetrics: RiskMetrics = {
-  totalAssessments: 247,
-  completedAssessments: 189,
-  averageRiskScore: 72,
-  highRiskVendors: 23,
-  riskTrend: [
-    { date: "2024-01-01", score: 68 },
-    { date: "2024-01-02", score: 71 },
-    { date: "2024-01-03", score: 69 },
-    { date: "2024-01-04", score: 74 },
-    { date: "2024-01-05", score: 72 },
-    { date: "2024-01-06", score: 76 },
-    { date: "2024-01-07", score: 73 },
-  ],
-  riskDistribution: [
-    { level: "Low", count: 45 },
-    { level: "Medium", count: 121 },
-    { level: "High", count: 18 },
-    { level: "Critical", count: 5 },
-  ],
-  complianceScore: 87,
-}
-
-const sampleVendorMetrics: VendorMetrics = {
-  totalVendors: 156,
-  activeVendors: 134,
-  riskLevels: { low: 45, medium: 121, high: 18, critical: 5 },
-  industryBreakdown: [
-    { industry: "Technology", count: 42 },
-    { industry: "Financial Services", count: 28 },
-    { industry: "Healthcare", count: 21 },
-    { industry: "Manufacturing", count: 18 },
-    { industry: "Retail", count: 15 },
-  ],
-  assessmentCompletion: 76.5,
-}
-
-const sampleNotifications: Notification[] = [
-  {
-    id: "1",
-    organization_id: "org1", // Added
-    user_id: "user1",
-    title: "High-risk vendor assessment completed",
-    message: "TechCorp assessment shows critical security gaps",
-    type: "alert",
-    data: {}, // Added
-    read_at: undefined, // Changed from null to undefined to match Notification interface
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    organization_id: "org1", // Added
-    user_id: "user1",
-    title: "New vendor onboarding request",
-    message: "DataFlow Inc. submitted assessment request",
-    type: "info",
-    data: {}, // Added
-    read_at: undefined, // Changed from null to undefined to match Notification interface
-    created_at: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: "3",
-    organization_id: "org1", // Added
-    user_id: "user1",
-    title: "Compliance deadline approaching",
-    message: "SOC 2 audit due in 7 days",
-    type: "warning",
-    data: {}, // Added
-    read_at: new Date().toISOString(),
-    created_at: new Date(Date.now() - 7200000).toISOString(),
-  },
-]
-
-export default function DashboardPage() {
-  return (
-    <AuthGuard>
-      <DashboardContent />
-    </AuthGuard>
-  )
-}
-
-function DashboardContent() {
-  const [riskMetrics, setRiskMetrics] = useState<RiskMetrics>(sampleRiskMetrics)
-  const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics>(sampleVendorMetrics)
-  const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications)
-  const [loading, setLoading] = useState(false)
-  const [timeframe, setTimeframe] = useState("7d")
-  const [businessMetrics, setBusinessMetrics] = useState({
-    highRiskVendors: 8,
-    overdueAssessments: 12,
-    pendingReviews: 15,
-    complianceRate: 87,
-  })
-  const [realTimeData, setRealTimeData] = useState({
-    activeUsers: 23,
-    systemLoad: 45,
-    responseTime: 120,
-    uptime: 99.9,
+    socStartDate: "",
+    socEndDate: "",
+    socDateAsOf: "",
+    testedStatus: "", // Added testedStatus
+    exceptions: "",
+    nonOperationalControls: "",
+    companyName: "",
+    productService: "",
+    subserviceOrganizations: "",
+    userEntityControls: "",
   })
 
-  // Simulate real-time updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRealTimeData((prev) => ({
-        activeUsers: prev.activeUsers + Math.floor(Math.random() * 5) - 2,
-        systemLoad: Math.max(0, Math.min(100, prev.systemLoad + Math.floor(Math.random() * 10) - 5)),
-        responseTime: Math.max(50, Math.min(1000, prev.responseTime + Math.floor(Math.random() * 20) - 10)),
-        uptime: Math.max(99.0, Math.min(100, prev.uptime + (Math.random() - 0.5) * 0.1)),
-      }))
-    }, 3000)
+    // Check for pre-selected category from main risk assessment page
+    const preSelectedCategory = localStorage.getItem("selectedAssessmentCategory")
+    const skipMethodSelection = localStorage.getItem("skipMethodSelection")
 
-    return () => clearInterval(interval)
+    if (preSelectedCategory) {
+      setSelectedCategory(preSelectedCategory)
+
+      if (skipMethodSelection === "true") {
+        // For SOC assessments, go to SOC info collection first
+        if (preSelectedCategory === "soc-compliance") {
+          setCurrentStep("soc-info")
+        } else {
+          // For other assessments, go directly to assessment
+          setCurrentStep("assessment")
+        }
+        localStorage.removeItem("skipMethodSelection")
+      } else {
+        setCurrentStep("choose-method")
+      }
+
+      // Clear the stored category so it doesn't interfere with future visits
+      localStorage.removeItem("selectedAssessmentCategory")
+    }
   }, [])
 
-  const handleMarkAllNotificationsRead = async () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read_at: new Date().toISOString() })))
+  const handleAnswerChange = (questionId: string, value: any) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }))
   }
 
-  const handleRefresh = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      // Simulate data refresh
-      setRiskMetrics((prevRiskMetrics) => ({
-        ...prevRiskMetrics,
-        averageRiskScore: prevRiskMetrics.averageRiskScore + Math.floor(Math.random() * 6) - 3,
-      }))
-    }, 1000)
+  const calculateRisk = () => {
+    if (!selectedCategory) return
+
+    const category = assessmentCategories.find((cat) => cat.id === selectedCategory)
+    if (!category) return
+
+    let totalScore = 0
+    let maxPossibleScore = 0
+
+    category.questions.forEach((question) => {
+      const answer = answers[question.id]
+      const weight = question.weight || 1 // Default weight to 1 if not specified
+
+      if (question.type === "boolean") {
+        maxPossibleScore += weight
+        if (answer === true) {
+          totalScore += weight
+        }
+      } else if (question.type === "multiple" && question.options) {
+        // For multiple choice, assign score based on position (e.g., first option is best)
+        maxPossibleScore += weight * question.options.length // Max score if all best options are chosen
+        const answerIndex = question.options.indexOf(answer)
+        if (answerIndex !== -1) {
+          totalScore += weight * (question.options.length - 1 - answerIndex) // Higher score for earlier options
+        }
+      } else if (question.type === "tested") {
+        maxPossibleScore += weight
+        if (answer === "tested") {
+          totalScore += weight
+        }
+      }
+      // Textarea questions don't directly contribute to score, but indicate completeness
+    })
+
+    const calculatedRiskScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0
+    setRiskScore(calculatedRiskScore)
+
+    let level = "High"
+    if (calculatedRiskScore >= 75) level = "Low"
+    else if (calculatedRiskScore >= 50) level = "Medium"
+    else if (calculatedRiskScore >= 25) level = "Medium-High"
+    setRiskLevel(level)
+
+    setCurrentStep("results")
   }
+
+  const getRiskLevelColor = (level: string | null) => {
+    switch (level?.toLowerCase()) {
+      case "low":
+        return "text-green-600 bg-green-100"
+      case "medium":
+        return "text-yellow-600 bg-yellow-100"
+      case "medium-high":
+        return "text-orange-600 bg-orange-100"
+      case "high":
+        return "text-red-600 bg-red-100"
+      default:
+        return "text-gray-600 bg-gray-100"
+    }
+  }
+
+  const handleStartAssessment = (categoryId: string) => {
+    setSelectedCategory(categoryId)
+    setAnswers({})
+    setRiskScore(null)
+    setRiskLevel(null)
+    setCurrentStep("choose-method")
+  }
+
+  const handleChooseManual = () => {
+    if (selectedCategory === "soc-compliance") {
+      setCurrentStep("soc-info")
+    } else {
+      setCurrentStep("assessment")
+    }
+  }
+
+  const handleChooseAI = () => {
+    if (selectedCategory) {
+      localStorage.setItem("selectedAssessmentCategory", selectedCategory)
+      localStorage.setItem("skipMethodSelection", "true") // Indicate to skip method selection on redirect
+      window.location.href = "/risk-assessment/ai-assessment"
+    }
+  }
+
+  const handleSOCInfoComplete = () => {
+    setCurrentStep("assessment")
+  }
+
+  const handleDelegateAssessment = (categoryId: string) => {
+    const category = assessmentCategories.find((cat) => cat.id === categoryId)
+    if (category) {
+      setDelegateForm({
+        ...delegateForm,
+        assessmentType: category.name,
+      })
+      setShowDelegateForm(true)
+    }
+  }
+
+  const handleSendDelegation = async () => {
+    if (!delegateForm.recipientName || !delegateForm.recipientEmail || !delegateForm.assessmentType) {
+      alert("Please fill in all required fields")
+      return
+    }
+
+    try {
+      const assessmentId = `internal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
+      // Store delegation info locally for the recipient page to pick up
+      const delegationInfo = {
+        assessmentId,
+        assessmentType: delegateForm.assessmentType,
+        delegationType: "team", // Assuming internal team delegation
+        method: "manual", // For manual assessment delegation
+        recipientName: delegateForm.recipientName,
+        recipientEmail: delegateForm.recipientEmail,
+        dueDate: delegateForm.dueDate,
+        customMessage: delegateForm.customMessage,
+      }
+      localStorage.setItem(`delegation-${assessmentId}`, JSON.stringify(delegationInfo))
+
+      // Also add to a general list of delegated assessments for the delegator to track
+      const existingDelegated = JSON.parse(localStorage.getItem("delegatedAssessments") || "[]")
+      localStorage.setItem("delegatedAssessments", JSON.stringify([...existingDelegated, delegationInfo]))
+
+      const emailResult = await sendAssessmentEmail({
+        vendorName: "Internal Team",
+        vendorEmail: delegateForm.recipientEmail,
+        contactPerson: delegateForm.recipientName,
+        assessmentType: delegateForm.assessmentType,
+        dueDate: delegateForm.dueDate,
+        customMessage:
+          delegateForm.customMessage ||
+          `You have been assigned to complete the ${delegateForm.assessmentType} assessment.`,
+        assessmentId: assessmentId,
+        companyName: "Your Organization",
+      })
+
+      setDelegateForm({
+        assessmentType: "",
+        recipientName: "",
+        recipientEmail: "",
+        dueDate: "",
+        customMessage: "",
+      })
+      setShowDelegateForm(false)
+
+      if (emailResult.success) {
+        alert(`Assessment delegation sent successfully!`)
+      } else {
+        alert(`Assessment delegation created but email delivery failed.`)
+      }
+    } catch (error) {
+      console.error("Error sending delegation:", error)
+      alert("Failed to send assessment delegation. Please try again.")
+    }
+  }
+
+  const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section - matching other pages style */}
-      <section className="bg-gradient-to-b from-blue-50 to-white py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Risk Management Dashboard</Badge>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-              Enterprise Dashboard
-              <br />
-              <span className="text-blue-600">Real-Time Risk Analytics</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-              Monitor your vendor risk portfolio with live analytics, compliance tracking, and intelligent insights
-              powered by AI.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/third-party-assessment">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
-                  Send New Assessment
+    <AuthGuard
+      allowPreview={true}
+      previewMessage="Preview Mode: Sign up to save assessments and access full features"
+    >
+      <div className="min-h-screen bg-white">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-b from-blue-50 to-white py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Risk Assessment</Badge>
+              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+                Risk Assessment Platform
+                <br />
+                <span className="text-blue-600">Comprehensive Risk Evaluation</span>
+              </h1>
+              <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
+                Conduct in-depth risk assessments across various domains, identify vulnerabilities, and ensure
+                regulatory compliance.
+              </p>
+              <div className="mt-8">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
+                  <a href="/dashboard">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    View Dashboard
+                  </a>
                 </Button>
-              </Link>
-              <Link href="/vendors">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 bg-transparent"
-                >
-                  Manage Vendors
-                </Button>
-              </Link>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Real-time System Status - matching card style */}
-      <section className="py-12 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <Link href="/risk-center?tab=high-risk">
-              <Card className="text-center cursor-pointer hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-center mb-2">
-                    <AlertTriangle className="h-8 w-8 text-red-500" />
-                  </div>
-                  <div className="text-3xl font-bold text-red-600">{businessMetrics.highRiskVendors}</div>
-                  <div className="text-sm text-gray-600 mt-1">High-Risk Vendors</div>
-                  <div className="text-xs text-blue-600 mt-2">Click to manage →</div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/risk-center?tab=overdue">
-              <Card className="text-center cursor-pointer hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-center mb-2">
-                    <Clock className="h-8 w-8 text-orange-500" />
-                  </div>
-                  <div className="text-3xl font-bold text-orange-600">{businessMetrics.overdueAssessments}</div>
-                  <div className="text-sm text-gray-600 mt-1">Overdue Assessments</div>
-                  <div className="text-xs text-blue-600 mt-2">Click to follow up →</div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/risk-center?tab=pending">
-              <Card className="text-center cursor-pointer hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-center mb-2">
-                    <FileText className="h-8 w-8 text-blue-500" />
-                  </div>
-                  <div className="text-3xl font-bold text-blue-600">{businessMetrics.pendingReviews}</div>
-                  <div className="text-sm text-gray-600 mt-1">Pending Reviews</div>
-                  <div className="text-xs text-blue-600 mt-2">Click to review →</div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-center mb-2">
-                  <CheckCircle className="h-8 w-8 text-green-500" />
-                </div>
-                <div className="text-3xl font-bold text-green-600">{businessMetrics.complianceRate}%</div>
-                <div className="text-sm text-gray-600 mt-1">Compliance Rate</div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Analytics Section */}
-      <section className="py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Analytics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Assessments</p>
-                    <p className="text-3xl font-bold text-gray-900">{riskMetrics.totalAssessments}</p>
-                  </div>
-                  <div className="p-3 bg-blue-100 rounded-full">
-                    <BarChart3 className="h-6 w-6 text-blue-600" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center">
-                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-sm text-green-500">+12% from last month</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Average Risk Score</p>
-                    <p className="text-3xl font-bold text-gray-900">{riskMetrics.averageRiskScore}</p>
-                  </div>
-                  <div className="p-3 bg-green-100 rounded-full">
-                    <PieChart className="h-6 w-6 text-green-600" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center">
-                  <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-sm text-green-500">-5% from last month</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Active Vendors</p>
-                    <p className="text-3xl font-bold text-gray-900">{vendorMetrics.activeVendors}</p>
-                  </div>
-                  <div className="p-3 bg-purple-100 rounded-full">
-                    <Users className="h-6 w-6 text-purple-600" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center">
-                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-sm text-green-500">+8% from last month</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Compliance Score</p>
-                    <p className="text-3xl font-bold text-gray-900">{riskMetrics.complianceScore}%</p>
-                  </div>
-                  <div className="p-3 bg-yellow-100 rounded-full">
-                    <Shield className="h-6 w-6 text-yellow-600" />
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <Progress value={riskMetrics.complianceScore} className="h-2" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content Tabs */}
-          <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="overview">Live Overview</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              <TabsTrigger value="vendors">Vendors</TabsTrigger>
-              <TabsTrigger value="compliance">Compliance</TabsTrigger>
-              <TabsTrigger value="alerts">Alerts</TabsTrigger>
-            </TabsList>
-
-            {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Risk Trend Chart */}
-                <Card className="lg:col-span-2 border border-gray-200">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Live Risk Trend</CardTitle>
-                      <div className="flex space-x-2">
-                        {["7d", "30d", "90d"].map((period) => (
-                          <Button
-                            key={period}
-                            variant={timeframe === period ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setTimeframe(period)}
-                          >
-                            {period}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                    <CardDescription>Real-time risk score trends with live updates</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={riskMetrics.riskTrend}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip />
-                        <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-
-                {/* Live Activity Feed */}
-                <Card className="border border-gray-200">
-                  <CardHeader>
-                    <CardTitle>Live Activity</CardTitle>
-                    <CardDescription>Real-time system activity</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-[300px]">
-                      <div className="space-y-4">
-                        {notifications.map((notification: Notification) => (
-                          <div key={notification.id} className="flex items-start space-x-3">
-                            <div
-                              className={`p-1 rounded-full ${
-                                notification.type === "alert"
-                                  ? "bg-red-100"
-                                  : notification.type === "warning"
-                                    ? "bg-yellow-100"
-                                    : "bg-blue-100"
-                              }`}
-                            >
-                              <div
-                                className={`h-3 w-3 rounded-full ${
-                                  notification.type === "alert"
-                                    ? "bg-red-600"
-                                    : notification.type === "warning"
-                                      ? "bg-yellow-600"
-                                      : "bg-blue-600"
-                                }`}
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                              <p className="text-xs text-gray-500">
-                                {new Date(notification.created_at).toLocaleTimeString()}
-                              </p>
-                            </div>
-                            {notification.read_at === null && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Risk Distribution & Quick Actions */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="border border-gray-200">
-                  <CardHeader>
-                    <CardTitle>Risk Distribution</CardTitle>
-                    <CardDescription>Current risk levels across all vendors</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <RechartsPieChart>
-                        <Pie
-                          data={riskMetrics.riskDistribution}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="count"
-                          label={({ payload }: { payload?: { level: string; count: number } }) => 
-                            payload ? `${payload.level}: ${payload.count}` : ''
-                          }
-                        >
-                          {riskMetrics.riskDistribution.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </RechartsPieChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-
-                <Card className="border border-gray-200">
-                  <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                    <CardDescription>Frequently used actions</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <Link href="/third-party-assessment">
-                      <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
-                        <Send className="mr-2 h-4 w-4" />
-                        Send New Assessment
-                      </Button>
-                    </Link>
-                    <Link href="/vendors">
-                      <Button className="w-full justify-start bg-transparent" variant="outline">
-                        <Users className="mr-2 h-4 w-4" />
-                        Manage Vendors
-                      </Button>
-                    </Link>
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
-                        <BarChart3 className="mr-2 h-4 w-4" />
-                        Generate Report
-                    </Button>
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
-                        <Shield className="mr-2 h-4 w-4" />
-                        Configure Workflows
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Other tabs with consistent styling */}
-            <TabsContent value="analytics">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="border border-gray-200">
-                  <CardHeader>
-                    <CardTitle>Vendor Risk Levels</CardTitle>
-                    <CardDescription>Distribution of risk across vendor portfolio</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart
-                        data={Object.entries(vendorMetrics.riskLevels).map(([level, count]) => ({ level, count }))}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="level" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="count" fill="#3b82f6" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-
-                <Card className="border border-gray-200">
-                  <CardHeader>
-                    <CardTitle>Industry Breakdown</CardTitle>
-                    <CardDescription>Vendor distribution by industry</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {vendorMetrics.industryBreakdown.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">{item.industry}</span>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-20 bg-gray-200 rounded-full h-2">
-                              <div
-                                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${(item.count / vendorMetrics.totalVendors) * 100}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-sm font-medium text-gray-900">{item.count}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="vendors">
-              <Card className="border border-gray-200">
-                <CardHeader>
-                  <CardTitle>Vendor Management</CardTitle>
-                  <CardDescription>Comprehensive vendor portfolio overview</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Vendor Insights Coming Soon</h3>
-                    <p className="text-gray-600 mb-4">Advanced vendor analytics and management tools</p>
-                    <Link href="/vendors">
-                      <Button className="bg-blue-600 hover:bg-blue-700">
-                        <Users className="mr-2 h-4 w-4" />
-                        Manage Vendors
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="compliance">
-              <Card className="border border-gray-200">
-                <CardHeader>
-                  <CardTitle>Compliance Dashboard</CardTitle>
-                  <CardDescription>Real-time compliance monitoring and reporting</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">Compliance Tracking</h3>
-                      <p className="text-gray-600">Advanced compliance monitoring features</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="alerts">
-                <Card className="border border-gray-200">
-                  <CardHeader>
-                    <CardTitle>Live Alerts & Notifications</CardTitle>
-                    <CardDescription>Real-time security alerts and system notifications</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {notifications.map((notification: Notification) => (
-                        <div
-                          key={notification.id}
-                          className={`p-4 rounded-lg border-l-4 ${
-                            notification.type === "alert"
-                              ? "border-l-red-500 bg-red-50"
-                              : notification.type === "warning"
-                                ? "border-l-yellow-500 bg-yellow-50"
-                                : "border-l-blue-500 bg-blue-50"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium text-gray-900">{notification.title}</h4>
-                            <Badge
-                              variant={notification.type === "alert" ? "destructive" : "secondary"}
-                              className="text-xs"
-                            >
-                              {notification.type}
-                            </Badge>
-                          </div>
-                          <p className="text-sm mt-1 text-gray-600">{notification.message}</p>
-                          <p className="text-xs mt-2 text-gray-500">
-                            {new Date(notification.created_at).toLocaleString()}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
           </div>
         </section>
 
-        {/* Footer - matching other pages */}
+        <section className="py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {/* Step 1: Select Assessment Category */}
+            {currentStep === "select" && (
+              <div>
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Select Assessment Type</h2>
+                  <p className="text-lg text-gray-600">Choose the type of risk assessment you want to perform</p>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {assessmentCategories.map((category) => {
+                    const IconComponent = category.icon
+                    return (
+                      <Card key={category.id} className="relative group hover:shadow-lg transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                              <IconComponent className="h-6 w-6 text-blue-600" />
+                            </div>
+                            <div>
+                              <CardTitle className="text-lg">{category.name}</CardTitle>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <CardDescription className="mb-4">{category.description}</CardDescription>
+                          <div className="flex flex-col space-y-2">
+                            <Button
+                              onClick={() => handleStartAssessment(category.id)}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              Start Assessment
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => handleDelegateAssessment(category.id)}
+                              className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+                            >
+                              <Send className="mr-2 h-4 w-4" />
+                              Delegate to Team
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Choose Assessment Method */}
+            {currentStep === "choose-method" && currentCategory && (
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-12">
+                  <Button variant="ghost" onClick={() => setCurrentStep("select")} className="mb-4 hover:bg-blue-50">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Assessment Selection
+                  </Button>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Assessment Method</h2>
+                  <p className="text-lg text-gray-600">
+                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                  </p>
+                </div>
+
+                <div className="grid gap-8 md:grid-cols-2">
+                  <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseManual}>
+                    <CardHeader>
+                      <div className="flex items-center space-x-3">
+                        <div className="p-3 bg-green-100 rounded-lg">
+                          <User className="h-8 w-8 text-green-600" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-xl">Manual Assessment</CardTitle>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="mb-6 text-base">
+                        Complete the assessment manually by answering questions step by step. Full control over
+                        responses with detailed explanations.
+                      </CardDescription>
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                          Step-by-step question flow
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                          Full control over answers
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                          Detailed explanations
+                        </div>
+                      </div>
+                      <Button className="w-full bg-green-600 hover:bg-green-500">
+                        <User className="mr-2 h-4 w-4" />
+                        Start Manual Assessment
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseAI}>
+                    <CardHeader>
+                      <div className="flex items-center space-x-3">
+                        <div className="p-3 bg-blue-100 rounded-lg">
+                          <Bot className="h-8 w-8 text-blue-600" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-xl">AI Assessment</CardTitle>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="mb-6 text-base">
+                        Upload your documents and let AI analyze them automatically. Fast, comprehensive analysis with
+                        evidence extraction.
+                      </CardDescription>
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
+                          Automated document analysis
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
+                          Evidence extraction
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
+                          Fast and comprehensive
+                        </div>
+                      </div>
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                        <Bot className="mr-2 h-4 w-4" />
+                        Start AI Assessment
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2.5: SOC Information (only for SOC assessments) */}
+            {currentStep === "soc-info" && selectedCategory === "soc-compliance" && (
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setCurrentStep("choose-method")}
+                    className="mb-6 hover:bg-blue-50"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Method Selection
+                  </Button>
+                </div>
+
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">SOC Assessment Information</h2>
+                  <p className="text-lg text-gray-600">
+                    Please provide information about your SOC assessment requirements
+                  </p>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <CheckCircle2 className="mr-2 h-5 w-5" />
+                      SOC Assessment Details
+                    </CardTitle>
+                    <CardDescription>
+                      This information will be included in your assessment report and help tailor the AI analysis
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="socType">SOC Type *</Label>
+                        <select
+                          id="socType"
+                          value={socInfo.socType}
+                          onChange={(e) => setSocInfo({ ...socInfo, socType: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                        >
+                          <option value="">Select SOC Type</option>
+                          <option value="SOC 1">SOC 1 - Internal Controls over Financial Reporting</option>
+                          <option value="SOC 2">
+                            SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy
+                          </option>
+                          <option value="SOC 3">SOC 3 - General Use Report</option>
+                        </select>
+                      </div>
+                      {socInfo.socType !== "SOC 3" && (
+                        <div>
+                          <Label htmlFor="reportType">Report Type *</Label>
+                          <select
+                            id="reportType"
+                            value={socInfo.reportType}
+                            onChange={(e) => setSocInfo({ ...socInfo, reportType: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                          >
+                            <option value="">Select Report Type</option>
+                            <option value="Type 1">Type 1 - Design and Implementation</option>
+                            <option value="Type 2">Type 2 - Design, Implementation, and Operating Effectiveness</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="auditor">Auditor/CPA Firm</Label>
+                        <Input
+                          id="auditor"
+                          value={socInfo.auditor}
+                          onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
+                          placeholder="Enter auditor or CPA firm name"
+                          className="focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="auditorOpinion">Auditor Opinion</Label>
+                        <select
+                          id="auditorOpinion"
+                          value={socInfo.auditorOpinion}
+                          onChange={(e) => setSocInfo({ ...socInfo, auditorOpinion: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select Opinion</option>
+                          <option value="Unqualified">Unqualified</option>
+                          <option value="Qualified">Qualified</option>
+                          <option value="Adverse">Adverse</option>
+                          <option value="Disclaimer">Disclaimer</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <Label htmlFor="auditorOpinionDate">Auditor Opinion Date</Label>
+                        <Input
+                          id="auditorOpinionDate"
+                          type="date"
+                          value={socInfo.auditorOpinionDate}
+                          onChange={(e) => setSocInfo({ ...socInfo, auditorOpinionDate: e.target.value })}
+                          className="focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      {socInfo.socType &&
+                        socInfo.reportType &&
+                        (socInfo.reportType === "Type 1" || socInfo.socType === "SOC 3" ? (
+                          <div>
+                            <Label htmlFor="socDateAsOf">SOC Date as of</Label>
+                            <Input
+                              id="socDateAsOf"
+                              type="date"
+                              value={socInfo.socDateAsOf}
+                              onChange={(e) => setSocInfo({ ...socInfo, socDateAsOf: e.target.value })}
+                              className="focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                        ) : (
+                          <>
+                            <div>
+                              <Label htmlFor="socStartDate">SOC Start Date</Label>
+                              <Input
+                                id="socStartDate"
+                                type="date"
+                                value={socInfo.socStartDate}
+                                onChange={(e) => setSocInfo({ ...socInfo, socStartDate: e.target.value })}
+                                className="focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="socEndDate">SOC End Date</Label>
+                              <Input
+                                id="socEndDate"
+                                type="date"
+                                value={socInfo.socEndDate}
+                                onChange={(e) => setSocInfo({ ...socInfo, socEndDate: e.target.value })}
+                                className="focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                          </>
+                        ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="testedStatus">Testing Status</Label>
+                        <select
+                          id="testedStatus"
+                          value={socInfo.testedStatus}
+                          onChange={(e) => setSocInfo({ ...socInfo, testedStatus: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select Testing Status</option>
+                          <option value="Tested">Tested</option>
+                          <option value="Untested">Untested</option>
+                        </select>
+                      </div>
+                      <div></div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="companyName">Company Name *</Label>
+                        <Input
+                          id="companyName"
+                          value={socInfo.companyName}
+                          onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
+                          placeholder="Enter your company name"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="productService">Product/Service Being Assessed *</Label>
+                        <Input
+                          id="productService"
+                          value={socInfo.productService}
+                          onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
+                          placeholder="Enter the product or service"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="subserviceOrganizations">Subservice Organizations</Label>
+                      <Textarea
+                        id="subserviceOrganizations"
+                        value={socInfo.subserviceOrganizations}
+                        onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
+                        placeholder="List any subservice organizations and their roles (e.g., cloud providers, data centers)..."
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="flex justify-between pt-6">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setCurrentStep("choose-method")}
+                        className="flex items-center"
+                      >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleSOCInfoComplete}
+                        className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
+                      >
+                        Continue to Assessment
+                        <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Step 3: Assessment Questions */}
+            {currentStep === "assessment" && currentCategory && (
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-12">
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      if (selectedCategory === "soc-compliance") {
+                        setCurrentStep("soc-info")
+                      } else {
+                        setCurrentStep("choose-method")
+                      }
+                    }}
+                    className="mb-4 hover:bg-blue-50"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to {selectedCategory === "soc-compliance" ? "SOC Information" : "Method Selection"}
+                  </Button>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    {currentCategory.name} Assessment Questions
+                  </h2>
+                  <p className="text-lg text-gray-600">Answer the questions to complete your risk assessment</p>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Assessment Questions</CardTitle>
+                    <CardDescription>Please answer all questions to the best of your knowledge.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+                    {currentCategory.questions.map((question, index) => (
+                      <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
+                        <div>
+                          <div className="flex items-start space-x-2 mb-2">
+                            <Badge variant="outline" className="mt-1">
+                              {question.category}
+                            </Badge>
+                            {question.required && <span className="text-red-500 text-sm">*</span>}
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-900">
+                            {index + 1}. {question.question}
+                          </h3>
+                        </div>
+
+                        {question.type === "boolean" && (
+                          <div className="flex space-x-4">
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name={`question-${question.id}`}
+                                checked={answers[question.id] === true}
+                                onChange={() => handleAnswerChange(question.id, true)}
+                                className="mr-2"
+                              />
+                              Yes
+                            </label>
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name={`question-${question.id}`}
+                                checked={answers[question.id] === false}
+                                onChange={() => handleAnswerChange(question.id, false)}
+                                className="mr-2"
+                              />
+                              No
+                            </label>
+                          </div>
+                        )}
+
+                        {question.type === "multiple" && (
+                          <select
+                            value={answers[question.id] || ""}
+                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select an option</option>
+                            {question.options?.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+
+                        {question.type === "tested" && (
+                          <div className="flex space-x-4">
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name={`question-${question.id}`}
+                                checked={answers[question.id] === "tested"}
+                                onChange={() => handleAnswerChange(question.id, "tested")}
+                                className="mr-2"
+                              />
+                              Tested
+                            </label>
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name={`question-${question.id}`}
+                                checked={answers[question.id] === "not_tested"}
+                                onChange={() => handleAnswerChange(question.id, "not_tested")}
+                                className="mr-2"
+                              />
+                              Not Tested
+                            </label>
+                          </div>
+                        )}
+
+                        {question.type === "textarea" && (
+                          <Textarea
+                            value={answers[question.id] || ""}
+                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                            placeholder="Provide your detailed response here..."
+                            rows={4}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <div className="mt-8 flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      if (selectedCategory === "soc-compliance") {
+                        setCurrentStep("soc-info")
+                      } else {
+                        setCurrentStep("choose-method")
+                      }
+                    }}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
+                  <Button onClick={calculateRisk} className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Calculate Risk
+                    <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Results */}
+            {currentStep === "results" && currentCategory && (
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Results</h2>
+                  <p className="text-lg text-gray-600">
+                    Your {currentCategory.name} risk assessment is complete.
+                  </p>
+                </div>
+
+                <div className="space-y-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Overall Risk Score</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <div className="text-5xl font-bold text-blue-600 mb-4">{riskScore}%</div>
+                      <Badge className={`text-lg px-4 py-2 ${getRiskLevelColor(riskLevel)}`}>
+                        {riskLevel} Risk
+                      </Badge>
+                      <p className="text-sm text-gray-600 mt-4">
+                        This score reflects your current posture based on the assessment.
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Key Findings & Recommendations</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <h3 className="font-semibold text-blue-900 mb-2">Summary</h3>
+                          <p className="text-sm text-blue-800">
+                            Based on your responses, your organization demonstrates a <strong>{riskLevel}</strong> risk
+                            posture in {currentCategory.name.toLowerCase()}.
+                            Further review of specific areas is recommended to enhance security and compliance.
+                          </p>
+                        </div>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                          <h3 className="font-semibold text-red-900 mb-2">Areas for Improvement</h3>
+                          <ul className="text-sm text-red-800 list-disc pl-5 space-y-1">
+                            <li>Review and update incident response plan annually.</li>
+                            <li>Implement multi-factor authentication for all critical systems.</li>
+                            <li>Increase frequency of vulnerability assessments to quarterly.</li>
+                          </ul>
+                        </div>
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                          <h3 className="font-semibold text-green-900 mb-2">Strengths</h3>
+                          <ul className="text-sm text-green-800 list-disc pl-5 space-y-1">
+                            <li>Strong data encryption standards in place.</li>
+                            <li>Regular security awareness training for employees.</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentStep("assessment")}
+                      className="hover:bg-gray-50"
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back to Questions
+                    </Button>
+                    <Button onClick={() => alert("Report Downloaded!")} className="bg-blue-600 hover:bg-blue-700">
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Report
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Delegate Assessment Modal */}
+            {showDelegateForm && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <Card className="w-full max-w-md">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle>Delegate Assessment</CardTitle>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowDelegateForm(false)}
+                        className="hover:bg-gray-100"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <CardDescription>Send this assessment to a team member or third-party</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="assessmentType">Assessment Type</Label>
+                      <Input id="assessmentType" value={delegateForm.assessmentType} disabled className="bg-gray-50" />
+                    </div>
+                    <div>
+                      <Label htmlFor="recipientName">Recipient Name *</Label>
+                      <Input
+                        id="recipientName"
+                        value={delegateForm.recipientName}
+                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, recipientName: e.target.value }))}
+                        placeholder="Enter recipient's name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="recipientEmail">Recipient Email *</Label>
+                      <Input
+                        id="recipientEmail"
+                        type="email"
+                        value={delegateForm.recipientEmail}
+                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, recipientEmail: e.target.value }))}
+                        placeholder="Enter recipient's email"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="dueDate">Due Date (Optional)</Label>
+                      <Input
+                        id="dueDate"
+                        type="date"
+                        value={delegateForm.dueDate}
+                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, dueDate: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="customMessage">Custom Message (Optional)</Label>
+                      <textarea
+                        id="customMessage"
+                        value={delegateForm.customMessage}
+                        onChange={(e) => setDelegateForm((prev) => ({ ...prev, customMessage: e.target.value }))}
+                        placeholder="Add any additional instructions..."
+                        className="w-full p-2 border border-gray-300 rounded-md min-h-[80px]"
+                      />
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={handleSendDelegation}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        <Send className="mr-2 h-4 w-4" />
+                        Send Assessment
+                      </Button>
+                      <Button variant="outline" onClick={() => setShowDelegateForm(false)} className="hover:bg-gray-50">
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Footer */}
         <footer className="bg-gray-900 text-white py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -2953,22 +2303,22 @@ function DashboardContent() {
                 <h3 className="font-semibold mb-4">Company</h3>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li>
-                    <a href="#" className className="hover:text-white">
+                    <a href="#" className="hover:text-white">
                       About Us
                     </a>
                   </li>
                   <li>
-                    <a href="#" className className="hover:text-white">
+                    <a href="#" className="hover:text-white">
                       Careers
                     </a>
                   </li>
                   <li>
-                    <a href="#" className className="hover:text-white">
+                    <a href="#" className="hover:text-white">
                       Privacy Policy
                     </a>
                   </li>
                   <li>
-                    <a href="#" className className="hover:text-white">
+                    <a href="#" className="hover:text-white">
                       Terms of Service
                     </a>
                   </li>
@@ -2982,5 +2332,6 @@ function DashboardContent() {
           </div>
         </footer>
       </div>
+    </AuthGuard>
   )
 }

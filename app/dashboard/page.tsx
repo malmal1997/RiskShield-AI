@@ -165,10 +165,10 @@ function DashboardContent() {
     setTimeout(() => {
       setLoading(false)
       // Simulate data refresh
-      setRiskMetrics({
-        ...riskMetrics,
-        averageRiskScore: riskMetrics.averageRiskScore + Math.floor(Math.random() * 6) - 3,
-      })
+      setRiskMetrics((prevRiskMetrics) => ({
+        ...prevRiskMetrics,
+        averageRiskScore: prevRiskMetrics.averageRiskScore + Math.floor(Math.random() * 6) - 3,
+      }))
     }, 1000)
   }
 
@@ -205,7 +205,8 @@ function DashboardContent() {
               </Link>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
       {/* Real-time System Status - matching card style */}
       <section className="py-12 bg-gray-50">
