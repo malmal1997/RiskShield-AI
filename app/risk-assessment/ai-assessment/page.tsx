@@ -1340,6 +1340,7 @@ interface AnalysisResult {
       quote?: string
       pageNumber?: number
       lineNumber?: number
+      label?: 'Primary' | '4th Party';
     }>
   >
   directUploadResults?: Array<{
@@ -1438,10 +1439,10 @@ export default function AIAssessmentPage() {
 
     try {
       const formData = new FormData();
-      uploadedFiles.forEach((item) => { // Changed to append without index for files
+      uploadedFiles.forEach((item) => {
         formData.append('files', item.file);
       });
-      formData.append('labels', JSON.stringify(uploadedFiles.map(item => item.label))); // Send all labels as a single JSON string
+      formData.append('labels', JSON.stringify(uploadedFiles.map(item => item.label)));
       formData.append('questions', JSON.stringify(questionsForCategory));
       formData.append('assessmentType', currentCategory.name);
 
@@ -1482,6 +1483,128 @@ export default function AIAssessmentPage() {
     // For this demo, we'll just transition to the results page.
     setCurrentStep("results")
   }
+
+  const handleDownloadReport = () => {
+    if (!analysisResults || !currentCategory || riskScore === null || riskLevel === null) {
+      alert("No report data available to download.");
+      return;
+    }
+
+    const reportTitle = `${currentCategory.name} AI Assessment Report`;
+    const fileName = `${reportTitle.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.html`;
+
+    let htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${reportTitle}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 40px; background-color: #f9f9f9; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        h1 { color: #1e40af; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e0e7ff; padding-bottom: 10px; }
+        h2 { color: #1e40af; margin-top: 30px; margin-bottom: 15px; }
+        h3 { color: #3b82f6; margin-top: 20px; margin-bottom: 10px; }
+        p { margin-bottom: 10px; }
+        ul { list-style-type: disc; margin-left: 20px; margin-bottom: 10px; }
+        li { margin-bottom: 5px; }
+        .summary-box { background: #e0f2fe; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 20px; }
+        .risk-score { font-size: 2.5em; font-weight: bold; color: #1e40af; text-align: center; margin-bottom: 10px; }
+        .risk-level { font-size: 1.2em; font-weight: bold; text-align: center; padding: 5px 15px; border-radius: 20px; display: inline-block; margin: 0 auto 20px; }
+        .risk-level.low { background-color: #d1fae5; color: #065f46; }
+        .risk-level.medium { background-color: #fef3c7; color: #92400e; }
+        .risk-level.medium-high { background-color: #fee2e2; color: #991b1b; }
+        .risk-level.high { background-color: #fecaca; color: #b91c1c; }
+        .section-content { margin-bottom: 20px; border: 1px solid #eee; padding: 15px; border-radius: 5px; }
+        .question-title { font-weight: bold; margin-top: 15px; margin-bottom: 5px; color: #4a4a4a; }
+        .answer-text { margin-left: 10px; margin-bottom: 10px; }
+        .evidence-text { font-size: 0.85em; color: #555; margin-left: 10px; border-left: 2px solid #ccc; padding-left: 10px; margin-top: 5px; }
+        .disclaimer { background: #fffbe6; border-left: 4px solid #f59e0b; padding: 15px; margin-top: 30px; font-size: 0.85em; color: #92400e; }
+        .file-list { list-style-type: none; padding: 0; }
+        .file-list li { background-color: #f0f8ff; border: 1px solid #dbeafe; padding: 8px; margin-bottom: 5px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>${reportTitle}</h1>
+        <div class="summary-box">
+            <p><strong>Assessment Type:</strong> ${currentCategory.name}</p>
+            <p><strong>Analysis Date:</strong> ${new Date(analysisResults.analysisDate).toLocaleString()}</p>
+            <p><strong>AI Provider:</strong> ${analysisResults.aiProvider}</p>
+            <p><strong>Documents Analyzed:</strong> ${analysisResults.documentsAnalyzed}</p>
+        </div>
+
+        <h2>Overall Risk Score</h2>
+        <div class="risk-score">${riskScore}%</div>
+        <div class="risk-level ${riskLevel.toLowerCase().replace('-', '')}">${riskLevel} Risk</div>
+
+        <h2>AI Analysis Summary</h2>
+        <div class="section-content">
+            <h3>Overall Analysis</h3>
+            <p>${analysisResults.overallAnalysis}</p>
+            <h3>Identified Risk Factors</h3>
+            <ul>
+                ${analysisResults.riskFactors.map(factor => `<li>${factor}</li>`).join('')}
+            </ul>
+            <h3>Recommendations</h3>
+            <ul>
+                ${analysisResults.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+        </div>
+
+        <h2>Uploaded Documents</h2>
+        <div class="section-content">
+            <ul class="file-list">
+                ${uploadedFiles.map(item => `<li>${item.file.name} (Label: ${item.label}) - ${(item.file.size / 1024 / 1024).toFixed(2)} MB</li>`).join('')}
+            </ul>
+        </div>
+
+        <h2>Detailed Responses</h2>
+        <div class="section-content">
+            ${questionsForCategory.map(question => `
+                <div style="margin-bottom: 20px;">
+                    <p class="question-title">${question.question}</p>
+                    <p class="answer-text"><strong>Answer:</strong> ${
+                        typeof answers[question.id] === "boolean"
+                            ? (answers[question.id] ? "Yes" : "No")
+                            : Array.isArray(answers[question.id])
+                                ? (answers[question.id] as string[]).join(", ")
+                                : answers[question.id] || "N/A"
+                    }</p>
+                    <p class="answer-text"><strong>AI Confidence:</strong> ${
+                        analysisResults.confidenceScores?.[question.id] !== undefined
+                            ? `${Math.round(analysisResults.confidenceScores[question.id] * 100)}%`
+                            : "N/A"
+                    }</p>
+                    ${analysisResults.documentExcerpts?.[question.id] && analysisResults.documentExcerpts[question.id].length > 0 ? `
+                        <div class="evidence-text">
+                            <strong>Evidence:</strong> "${analysisResults.documentExcerpts[question.id][0].excerpt}" (from ${analysisResults.documentExcerpts[question.id][0].fileName} - ${analysisResults.documentExcerpts[question.id][0].label})
+                        </div>
+                    ` : `<div class="evidence-text">No direct evidence cited.</div>`}
+                </div>
+            `).join('')}
+        </div>
+
+        <div class="disclaimer">
+            <h3>Disclaimer:</h3>
+            <p>This report is generated by RiskGuard AI based on the provided documents and AI analysis. It is intended for informational purposes only and should be reviewed and validated by human experts. RiskGuard AI is not responsible for any legal or compliance implications arising from the use of this report.</p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const getRiskLevelColor = (level: string | null) => {
     switch (level?.toLowerCase()) {
@@ -2249,7 +2372,7 @@ export default function AIAssessmentPage() {
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Back to Review
                     </Button>
-                    <Button onClick={() => alert("Report Downloaded!")} className="bg-blue-600 hover:bg-blue-700">
+                    <Button onClick={handleDownloadReport} className="bg-blue-600 hover:bg-blue-700">
                       <Download className="mr-2 h-4 w-4" />
                       Download Full Report
                     </Button>
