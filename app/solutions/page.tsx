@@ -947,23 +947,25 @@ export default function SolutionsPage() {
               className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-10"
               onClick={() => {
                 const carousel = document.getElementById("industry-carousel")
-                const cardWidth = 100 / (window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 2 : 1)
-                const currentTransform = carousel.style.transform
-                const currentX = currentTransform ? Number.parseFloat(currentTransform.match(/-?\d+\.?\d*/)[0]) : -100
+                if (carousel) {
+                  const cardWidth = 100 / (window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 2 : 1)
+                  const currentTransform = carousel.style.transform
+                  const currentX = currentTransform ? Number.parseFloat(currentTransform.match(/-?\d+\.?\d*/)?.[0] || "0") : -100
 
-                const newX = currentX + cardWidth
-                carousel.style.transform = `translateX(${newX}%)`
+                  const newX = currentX + cardWidth
+                  carousel.style.transform = `translateX(${newX}%)`
 
-                // Reset for infinite loop
-                setTimeout(() => {
-                  if (newX >= 0) {
-                    carousel.style.transition = "none"
-                    carousel.style.transform = `translateX(-${cardWidth * 5}%)`
-                    setTimeout(() => {
-                      carousel.style.transition = "transform 500ms ease-in-out"
-                    }, 50)
-                  }
-                }, 500)
+                  // Reset for infinite loop
+                  setTimeout(() => {
+                    if (newX >= 0) {
+                      carousel.style.transition = "none"
+                      carousel.style.transform = `translateX(-${cardWidth * 5}%)`
+                      setTimeout(() => {
+                        carousel.style.transition = "transform 500ms ease-in-out"
+                      }, 50)
+                    }
+                  }, 500)
+                }
               }}
             >
               <ArrowLeft className="h-5 w-5 text-gray-600" />
@@ -974,23 +976,25 @@ export default function SolutionsPage() {
               className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-10"
               onClick={() => {
                 const carousel = document.getElementById("industry-carousel")
-                const cardWidth = 100 / (window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 2 : 1)
-                const currentTransform = carousel.style.transform
-                const currentX = currentTransform ? Number.parseFloat(currentTransform.match(/-?\d+\.?\d*/)[0]) : -100
+                if (carousel) {
+                  const cardWidth = 100 / (window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 2 : 1)
+                  const currentTransform = carousel.style.transform
+                  const currentX = currentTransform ? Number.parseFloat(currentTransform.match(/-?\d+\.?\d*/)?.[0] || "0") : -100
 
-                const newX = currentX - cardWidth
-                carousel.style.transform = `translateX(${newX}%)`
+                  const newX = currentX - cardWidth
+                  carousel.style.transform = `translateX(${newX}%)`
 
-                // Reset for infinite loop
-                setTimeout(() => {
-                  if (newX <= -cardWidth * 10) {
-                    carousel.style.transition = "none"
-                    carousel.style.transform = `translateX(-${cardWidth * 5}%)`
-                    setTimeout(() => {
-                      carousel.style.transition = "transform 500ms ease-in-out"
-                    }, 50)
-                  }
-                }, 500)
+                  // Reset for infinite loop
+                  setTimeout(() => {
+                    if (newX <= -cardWidth * 10) {
+                      carousel.style.transition = "none"
+                      carousel.style.transform = `translateX(-${cardWidth * 5}%)`
+                      setTimeout(() => {
+                        carousel.style.transition = "transform 500ms ease-in-out"
+                      }, 50)
+                    }
+                  }, 500)
+                }
               }}
             >
               <ArrowRight className="h-5 w-5 text-gray-600" />
@@ -1149,7 +1153,7 @@ export default function SolutionsPage() {
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 RiskShield AI. All rights reserved.</p>
+            <p>&copy; 2024 RiskGuard AI. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -16,6 +16,7 @@ import {
   RotateCcw,
   TrendingUp,
 } from "lucide-react"
+// import { MainNavigation } from "@/components/main-navigation" // Removed import
 
 const demoSteps = [
   {
@@ -280,10 +281,9 @@ export default function InteractiveDemo() {
               </p>
             </div>
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
-              <p className="text-sm text-amber-800 text-center">
-                ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
-              </p>
-            </div>
+            <p className="text-sm text-amber-800 text-center">
+              ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+            </p>
           </div>
         </CardContent>
       </Card>

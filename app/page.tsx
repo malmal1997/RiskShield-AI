@@ -333,7 +333,7 @@ export default function RiskGuardLanding() {
       <section className="bg-blue-600 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Strengthen Your Risk Management?</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Risk Management?</h2>
             <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
               Join hundreds of organizations using RiskGuard AI to maintain compliance and mitigate risks with
               confidence.
@@ -458,7 +458,7 @@ export default function RiskGuardLanding() {
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 RiskShield AI. All rights reserved.</p>
+            <p>&copy; 2024 RiskGuard AI. All rights reserved.</p>
           </div>
         </div>
       </footer>
