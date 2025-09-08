@@ -1,0 +1,1 @@
+localStorage.setItem("demo_session", JSON.stringify({ user: { id: "demo-user-id", email: "demo@riskguard.ai", name: "Demo User" }, organization: { id: "demo-org-id", name: "RiskGuard Demo Organization", plan: "enterprise" }, role: "admin", loginTime: new Date().toISOString() }));
