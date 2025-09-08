@@ -383,8 +383,8 @@ export async function analyzeDocuments(
   console.log("🤖 Starting direct Google AI analysis with file upload support...")
 
   // Check if Google AI API key is available
-  if (!process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY) {
-    throw new Error("Google AI API key not found. Please add NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY environment variable.")
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    throw new Error("Google AI API key not found. Please add GOOGLE_GENERATIVE_AI_API_KEY environment variable.")
   }
 
   // Filter and process supported files
@@ -920,7 +920,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
   const results: Record<string, boolean> = {}
 
   // Test Google AI
-  if (process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
     try {
       const result = await generateText({
         model: google("gemini-1.5-flash"),

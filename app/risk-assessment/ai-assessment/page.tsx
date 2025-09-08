@@ -39,7 +39,7 @@ import {
   Clock,
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
-import { analyzeDocuments } from "@/lib/ai-service" // Import AI service
+// import { analyzeDocuments } from "@/lib/ai-service" // Removed direct import
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service" // For delegation email
 
 // Complete assessment categories for AI assessment
@@ -1420,7 +1420,22 @@ export default function AIAssessmentPage() {
     setAnswers({})
 
     try {
-      const result = await analyzeDocuments(uploadedFiles, questionsForCategory, currentCategory.name)
+      const formData = new FormData();
+      uploadedFiles.forEach(file => formData.append('files', file));
+      formData.append('questions', JSON.stringify(questionsForCategory));
+      formData.append('assessmentType', currentCategory.name);
+
+      const response = await fetch("/api/ai-assessment/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "AI analysis failed");
+      }
+
+      const result: AnalysisResult = await response.json();
       setAnalysisResults(result)
       setAnswers(result.answers) // Pre-fill answers with AI suggestions
       setRiskScore(result.riskScore)
