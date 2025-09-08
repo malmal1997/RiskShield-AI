@@ -1438,10 +1438,10 @@ export default function AIAssessmentPage() {
 
     try {
       const formData = new FormData();
-      uploadedFiles.forEach((item, index) => {
-        formData.append(`files[${index}]`, item.file);
-        formData.append(`labels[${index}]`, item.label);
+      uploadedFiles.forEach((item) => { // Changed to append without index for files
+        formData.append('files', item.file);
       });
+      formData.append('labels', JSON.stringify(uploadedFiles.map(item => item.label))); // Send all labels as a single JSON string
       formData.append('questions', JSON.stringify(questionsForCategory));
       formData.append('assessmentType', currentCategory.name);
 
