@@ -22,8 +22,11 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status', '/demo-features'];
 
   useEffect(() => {
+    console.log(`AuthGuard useEffect: loading=${loading}, user=${user?.email}, isDemo=${isDemo}, pathname=${pathname}`);
+
     // If still loading auth state, do nothing yet.
     if (loading) {
+      console.log("AuthGuard: Still loading, returning early.");
       return;
     }
 
@@ -44,14 +47,12 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       return; // Prevent further execution
     }
 
-    // Scenario 3: User is NOT authenticated but is on a PUBLIC page or ALLOWED PREVIEW
-    // In this case, no redirect is needed, just render children.
-    // Scenario 4: User IS authenticated and is on a PROTECTED page
-    // In this case, no redirect is needed, just render children.
+    console.log(`AuthGuard: No redirect needed. isAuthenticated=${isAuthenticated}, isPublicPath=${isPublicPath}, allowPreview=${allowPreview}`);
 
   }, [loading, user, isDemo, allowPreview, pathname, router, publicPaths]);
 
   const handleDemoLogin = () => {
+    console.log("AuthGuard: handleDemoLogin called.");
     localStorage.setItem(
       "demo_session",
       JSON.stringify({
@@ -75,6 +76,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
   // Render loading spinner if auth is still resolving
   if (loading) {
+    console.log("AuthGuard: Rendering loading spinner.");
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -91,6 +93,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
   if (!isAuthenticated && allowPreview && !isPublicPath) {
     // This is the preview mode for protected pages
+    console.log("AuthGuard: Rendering preview banner for protected page.");
     return (
       <div className="min-h-screen bg-white">
         {/* Preview Banner */}
@@ -124,5 +127,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   }
 
   // If authenticated, or on a public path, or if allowPreview is true and we're not on a public path (handled above)
+  console.log("AuthGuard: Rendering children.");
   return <>{children}</>;
 }
