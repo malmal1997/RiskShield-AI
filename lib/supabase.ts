@@ -33,15 +33,11 @@ export interface Assessment {
   custom_message?: string
   created_at: string
   updated_at: string
-  user_id: string; // Added user_id
-  organization_id: string; // Added organization_id
 }
 
 export interface AssessmentResponse {
   id: number
   assessment_id: string
-  user_id: string; // Added user_id
-  organization_id: string; // Added organization_id
   vendor_info: {
     companyName: string
     contactName: string

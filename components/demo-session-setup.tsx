@@ -2,16 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useState, useEffect } from "react" // Import useState and useEffect
 
 export function DemoSessionSetup() {
-  const [hasDemoSession, setHasDemoSession] = useState(false) // Initialize client-side state
-
-  useEffect(() => {
-    // Check localStorage only after the component has mounted on the client
-    setHasDemoSession(localStorage.getItem("demo_session") !== null)
-  }, [])
-
   const createDemoSession = () => {
     const demoSession = {
       user: {
@@ -24,17 +16,8 @@ export function DemoSessionSetup() {
         name: "Demo Organization",
         plan: "enterprise",
       },
-      role: {
-        role: "admin",
-        permissions: { all: true },
-      },
+      role: "admin",
       loginTime: new Date().toISOString(),
-      profile: {
-        first_name: "Demo",
-        last_name: "User",
-        organization_id: "demo-org-123",
-        avatar_url: "/placeholder.svg?height=32&width=32",
-      }
     }
 
     localStorage.setItem("demo_session", JSON.stringify(demoSession))
@@ -46,21 +29,19 @@ export function DemoSessionSetup() {
     window.location.reload()
   }
 
+  const hasDemoSession = typeof window !== "undefined" && localStorage.getItem("demo_session")
+
   return (
     <Card className="max-w-md mx-auto mt-8">
       <CardHeader>
         <CardTitle>Demo Session</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {hasDemoSession ? (
-          <p className="text-sm text-gray-600">
-            You have an active demo session. You can clear it to test without authentication.
-          </p>
-        ) : (
-          <p className="text-sm text-gray-600">
-            Create a demo session to test the application without setting up full authentication.
-          </p>
-        )}
+        <p className="text-sm text-gray-600">
+          {hasDemoSession
+            ? "You have an active demo session. You can clear it to test without authentication."
+            : "Create a demo session to test the application without setting up full authentication."}
+        </p>
 
         {hasDemoSession ? (
           <Button onClick={clearDemoSession} variant="outline" className="w-full">

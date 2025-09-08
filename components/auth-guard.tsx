@@ -14,7 +14,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, allowPreview = false, previewMessage }: AuthGuardProps) {
-  const { user, profile, organization, loading, isDemo } = useAuth() // Added profile and organization
+  const { user, loading, isDemo } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -27,11 +27,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       return;
     }
 
-    // A user is considered fully authenticated if:
-    // 1. It's a demo session, OR
-    // 2. A Supabase user object exists AND their profile AND organization data are loaded.
-    const isAuthenticated = isDemo || (!!user && !!profile && !!organization);
-
+    const isAuthenticated = !!user || isDemo;
     const isPublicPath = publicPaths.includes(pathname);
 
     // Scenario 1: User is NOT authenticated and tries to access a PROTECTED page
@@ -53,7 +49,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     // Scenario 4: User IS authenticated and is on a PROTECTED page
     // In this case, no redirect is needed, just render children.
 
-  }, [loading, user, profile, organization, isDemo, allowPreview, pathname, router, publicPaths]); // Added profile and organization to dependencies
+  }, [loading, user, isDemo, allowPreview, pathname, router, publicPaths]);
 
   const handleDemoLogin = () => {
     localStorage.setItem(
@@ -71,12 +67,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         },
         role: "admin",
         loginTime: new Date().toISOString(),
-        profile: { // Added profile to demo session for consistency
-          first_name: "Demo",
-          last_name: "User",
-          organization_id: "demo-org-id",
-          avatar_url: "/placeholder.svg?height=32&width=32",
-        }
       }),
     );
     // Force full page reload to ensure AuthContext re-evaluates and navigation updates
@@ -96,7 +86,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   }
 
   // After loading, if not authenticated and not a public path, and not allowed preview, show preview banner or redirect
-  const isAuthenticated = isDemo || (!!user && !!profile && !!organization); // Updated check here too
+  const isAuthenticated = !!user || isDemo;
   const isPublicPath = publicPaths.includes(pathname);
 
   if (!isAuthenticated && allowPreview && !isPublicPath) {

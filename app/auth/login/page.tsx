@@ -12,7 +12,6 @@ import { Shield, Eye, EyeOff, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth-context"
-import { DemoSessionSetup } from "@/components/demo-session-setup" // Import DemoSessionSetup
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -29,7 +28,6 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // The signIn function in AuthContext now handles clearing the demo session
       const { error } = await signIn(email, password)
 
       if (error) {
@@ -128,15 +126,12 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Add Demo Session Setup here */}
-        <DemoSessionSetup />
-
         <div className="mt-8 text-center">
           <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
             ← Back to Home
           </Link>
         </div>
       </div>
-    </div >
+    </div>
   )
 }

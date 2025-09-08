@@ -28,7 +28,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
-import { getCurrentUserWithProfile } from "@/lib/auth-service" // Import for server-side user context
 
 // Assessment categories and questions
 const assessmentCategories = [
@@ -39,316 +38,36 @@ const assessmentCategories = [
     icon: Shield,
     questions: [
       {
-        id: "cyber_1",
-        question: "Does your organization have a formal information security policy?",
-        type: "multiple",
-        options: ["Yes, comprehensive policy", "Yes, basic policy", "In development", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_2",
-        question: "How do you manage user access to systems and data?",
-        type: "multiple",
-        options: [
-          "Multi-factor authentication",
-          "Role-based access control",
-          "Regular access reviews",
-          "Privileged access management",
-          "Single sign-on (SSO)",
-        ],
-        weight: 10,
-      },
-      {
-        id: "cyber_3",
-        question: "Describe your incident response procedures:",
+        id: "cs1",
+        question: "Does your organization have a formal cybersecurity policy?",
         type: "boolean",
         weight: 10,
       },
       {
-        id: "cyber_4",
-        question: "What encryption standards do you use for data at rest and in transit?",
-        type: "multiple",
-        options: ["AES-256 and TLS 1.3", "AES-128 and TLS 1.2", "Basic encryption", "No encryption"],
-        weight: 10,
-      },
-      {
-        id: "cyber_5",
-        question: "How often do you conduct security awareness training?",
-        type: "multiple",
-        options: ["Monthly", "Quarterly", "Annually", "As needed", "Never"],
-        weight: 10,
-      },
-      {
-        id: "cyber_6",
-        question: "Describe your vulnerability assessment and patch management process:",
-        type: "boolean",
-        weight: 10,
-      },
-      {
-        id: "cyber_7",
-        question: "Do you have a written Information Security Policy (ISP)?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_8",
-        question: "How often do you review and update your Information Security Policy?",
-        type: "multiple",
-        options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
-        weight: 10,
-      },
-      {
-        id: "cyber_9",
-        question: "Do you have a designated person responsible for Information Security Policy?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_10",
-        question: "Do you have data privacy compliance monitoring procedures in place?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_11",
-        question: "Do you have physical perimeter and boundary security controls?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_12",
-        question: "Do you have controls to protect against environmental extremes?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_13",
-        question: "Do you conduct independent audits/assessments of your Information Security Policy?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_14",
-        question: "Do you have an IT asset management program?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_15",
-        question: "Do you have restrictions on storage devices?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_16",
-        question: "Do you have anti-malware/endpoint protection solutions deployed?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_17",
-        question: "Do you implement network segmentation?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_18",
-        question: "Do you have real-time network monitoring and alerting?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_19",
-        question: "How frequently do you conduct vulnerability scanning?",
+        id: "cs2",
+        question: "How often do you conduct cybersecurity training for employees?",
         type: "multiple",
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 10,
+        weight: 8,
       },
       {
-        id: "cyber_20",
-        question: "How frequently do you conduct penetration testing?",
-        type: "multiple",
-        options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
-        weight: 10,
-      },
-      {
-        id: "cyber_21",
-        question: "Which regulatory compliance/industry standards does your company follow?",
-        type: "multiple",
-        options: ["ISO 27001", "SOC 2", "HIPAA", "PCI DSS", "NIST", "None"],
-        weight: 10,
-      },
-      {
-        id: "cyber_22",
-        question: "Do you have a formal access control policy?",
+        id: "cs3",
+        question: "Do you have multi-factor authentication implemented for all critical systems?",
         type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
+        weight: 9,
       },
       {
-        id: "cyber_23",
-        question: "Do you have physical access controls for wireless infrastructure?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_24",
-        question: "Do you have defined password parameters and requirements?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_25",
-        question: "Do you implement least privilege access principles?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_26",
-        question: "How frequently do you conduct access reviews?",
+        id: "cs4",
+        question: "How frequently do you perform vulnerability assessments?",
         type: "multiple",
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 10,
+        weight: 8,
       },
       {
-        id: "cyber_27",
-        question: "Do you require device authentication for network access?",
+        id: "cs5",
+        question: "Do you have an incident response plan in place?",
         type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_28",
-        question: "Do you have secure remote logical access controls?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_29",
-        question: "Do you have a third-party oversight program?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_30",
-        question: "Do you assess third-party security controls?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_31",
-        question: "Do you verify third-party compliance controls?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_32",
-        question: "Do you conduct background screening for employees with access to sensitive data?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_33",
-        question: "Do you provide information security training to employees?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_34",
-        question: "Do you provide privacy training to employees?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_35",
-        question: "Do you provide role-specific compliance training?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_36",
-        question: "Do you have policy compliance and disciplinary measures?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_37",
-        question: "Do you have formal onboarding and offboarding controls?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_38",
-        question: "Do you have a data management program?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_39",
-        question: "Do you have a published privacy policy?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_40",
-        question: "Do you have consumer data retention policies?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_41",
-        question: "Do you have controls to ensure PII is safeguarded?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_42",
-        question: "Do you have data breach protocols?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_43",
-        question: "Do you support consumer rights to dispute, copy, complain, delete, and opt out?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
-      },
-      {
-        id: "cyber_44",
-        question: "Do you collect NPI, PII, or PHI data?",
-        type: "boolean",
-        options: ["Yes", "No"],
-        weight: 10,
+        weight: 9,
       },
     ],
   },
@@ -2206,6 +1925,15 @@ ${emailResult.message}`)
           font-size: 0.875rem;
       }
       
+      .footer {
+          background: #f8fafc;
+          border-top: 1px solid #e5e7eb;
+          padding: 20px;
+          text-align: center;
+          color: #6b7280;
+          font-size: 0.875rem;
+      }
+      
       .soc-info {
           background: #eff6ff;
           border: 1px solid #3b82f6;
@@ -2323,2857 +2051,968 @@ ${emailResult.message}`)
                   ? `
               <div style="margin-top: 15px;">
                   <strong>Subservice Organizations:</strong><br>
-                  <div style="background: white; padding: 10px; border<dyad-problem-report summary="2565 problems">
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2519" column="28" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2541" column="24" code="1005">';' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2723" column="20" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2724" column="19" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2725" column="16" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="3296" column="15" code="17015">Expected corresponding closing tag for JSX fragment.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="3296" column="18" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="3299" column="9" code="17002">Expected corresponding JSX closing tag for 'AuthGuard'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="3300" column="5" code="1005">')' expected.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="3301" column="3" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="2507" column="28" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="2529" column="24" code="1005">';' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="2711" column="20" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="2712" column="19" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="2713" column="16" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3284" column="15" code="17015">Expected corresponding closing tag for JSX fragment.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3284" column="18" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3287" column="9" code="17002">Expected corresponding JSX closing tag for 'AuthGuard'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3288" column="5" code="1005">')' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3289" column="3" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="28" column="6" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="624" column="8" code="17008">JSX element 'section' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="625" column="10" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="633" column="12" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="635" column="14" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="636" column="16" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="783" column="18" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="784" column="20" code="17008">JSX element 'Card' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="785" column="22" code="17008">JSX element 'CardHeader' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="786" column="24" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="788" column="65" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="814" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="816" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="821" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="823" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="825" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="829" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="830" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="831" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="833" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="837" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="842" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="844" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="846" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="850" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="852" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="857" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="859" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="861" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="865" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="867" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="872" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="874" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="876" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="880" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="882" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="887" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="889" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="891" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="895" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="897" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="900" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="902" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="905" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="907" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="909" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="911" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="915" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="917" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="918" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="922" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="924" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="925" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="926" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="928" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="930" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="932" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="934" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="936" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="938" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="940" column="83" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="944" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="946" column="84" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1070" column="82" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="94" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="169" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="251" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="396" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="398" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="121" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="141" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="143" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="159" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="208" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="223" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="303" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="305" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="320" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="95" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="130" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="166" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="224" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="234" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="268" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="274" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="319" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="401" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="546" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="548" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="563" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="121" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="141" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="143" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="161" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="199" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="214" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="294" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="296" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="311" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="95" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="170" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="252" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="397" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="399" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="414" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="121" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="141" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="143" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="159" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="208" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="223" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="303" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="305" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="320" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="94" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="169" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="251" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="396" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="398" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="121" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="141" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="143" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="159" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="208" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="223" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="303" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="305" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="320" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="94" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="169" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="251" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="396" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="398" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="413" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="121" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="141" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="143" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="159" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="208" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="223" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="303" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="305" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="320" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="82" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="220" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="240" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="346" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="361" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="82" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="220" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="240" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="346" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="361" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1104" column="84" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1104" column="194" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1120" column="128" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1120" column="131" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1120" column="312" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="143" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="234" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="242" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="334" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="342" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="432" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="458" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="460" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1699" column="50" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1699" column="120" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1723" column="136" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1723" column="488" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1723" column="764" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1723" column="777" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1723" column="779" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1725" column="36" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1725" column="312" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1725" column="371" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1726" column="19" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1726" column="368" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1726" column="644" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1727" column="147" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1727" column="423" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1729" column="58" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1729" column="334" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1730" column="79" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1730" column="355" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1740" column="109" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1740" column="390" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1741" column="13" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1741" column="294" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1742" column="15" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1742" column="296" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1744" column="98" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1744" column="352" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1744" column="354" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1744" column="357" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1749" column="105" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1749" column="155" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1751" column="105" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1751" column="155" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1827" column="2" code="17008">JSX element 'dyad-write' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1834" column="20" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1834" column="33" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1841" column="23" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1842" column="24" code="17008">JSX element 'HTMLParagraphElement' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1843" column="1" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1843" column="17" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1843" column="26" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1843" column="35" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1844" column="3" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1854" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1858" column="38" code="1145">'{' or JSX element expected.</problem>
-<problem file="app/solutions/page.tsx" line="1858" column="49" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1859" column="27" code="17008">JSX element 'TFieldValues' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1859" column="53" code="17008">JSX element 'TFieldValues' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1860" column="1" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1862" column="32" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1862" column="39" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1862" column="43" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1863" column="3" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1864" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1866" column="45" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1866" column="47" code="1005">'...' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1866" column="49" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1866" column="58" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1866" column="71" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1871" column="17" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1872" column="24" code="17008">JSX element 'HTMLDivElement' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1873" column="1" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1873" column="17" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1873" column="26" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1873" column="35" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1874" column="3" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1881" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1885" column="47" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1886" column="55" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1886" column="60" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1887" column="1" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1887" column="17" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1887" column="26" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1887" column="35" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1888" column="3" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1898" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1902" column="23" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1903" column="24" code="17008">JSX element 'HTMLParagraphElement' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1904" column="1" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1904" column="27" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1904" column="36" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1904" column="45" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1905" column="3" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1909" column="5" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1910" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1922" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1926" column="32" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1927" column="34" code="17008">JSX element 'typeof' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1928" column="1" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1928" column="24" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1929" column="3" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1942" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1946" column="38" code="1145">'{' or JSX element expected.</problem>
-<problem file="app/solutions/page.tsx" line="1946" column="49" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1947" column="27" code="17008">JSX element 'TFieldValues' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1947" column="53" code="17008">JSX element 'TFieldValues' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1948" column="1" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1948" column="43" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1948" column="56" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1948" column="63" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1948" column="64" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1950" column="33" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1950" column="38" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1951" column="16" code="17008">JSX element 'TFieldValues' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1951" column="90" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1951" column="95" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1952" column="55" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1952" column="63" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1955" column="7" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1955" column="19" code="17008">JSX element 'FieldValues' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1959" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1962" column="5" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1963" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1965" column="26" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="1966" column="3" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1976" column="5" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="1976" column="58" code="17008">JSX element 'FormField' has no corresponding closing tag.</problem>
-<problem file="app/solutions/page.tsx" line="1977" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1979" column="13" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1979" column="26" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1985" column="22" code="1005">'}' expected.</problem>
-<problem file="app/solutions/page.tsx" line="1988" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1989" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/solutions/page.tsx" line="1991" column="68" code="1003">Identifier expected.</problem>
-<problem file="app/solutions/page.tsx" line="1991" column="79" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/solutions/page.tsx" line="2004" column="1" code="1109">Expression expected.</problem>
-<problem file="app/solutions/page.tsx" line="2004" column="2" code="1005">'&lt;/' expected.</problem>
-<problem file="lib/usage-tracking.ts" line="87" column="13" code="2769">No overload matches this call.
-  Overload 1 of 2, '(values: never, options?: { onConflict?: string | undefined; ignoreDuplicates?: boolean | undefined; count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; } | undefined): PostgrestFilterBuilder&lt;{ ...; }, ... 5 more ..., &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ session_id: string; user_agent: string | undefined; referrer: string | undefined; utm_source: string | undefined; utm_medium: string | undefined; utm_campaign: string | undefined; last_activity: string; }' is not assignable to parameter of type 'never'.
-  Overload 2 of 2, '(values: never[], options?: { onConflict?: string | undefined; ignoreDuplicates?: boolean | undefined; count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder&lt;...&gt;', gave the following error.
-    Argument of type '{ session_id: string; user_agent: string | undefined; referrer: string | undefined; utm_source: string | undefined; utm_medium: string | undefined; utm_campaign: string | undefined; last_activity: string; }' is not assignable to parameter of type 'never[]'.
-      Object literal may only specify known properties, and 'session_id' does not exist in type 'never[]'.</problem>
-<problem file="lib/usage-tracking.ts" line="125" column="54" code="2769">No overload matches this call.
-  Overload 1 of 2, '(values: never, options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;page_views&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type 'PageViewData' is not assignable to parameter of type 'never'.
-  Overload 2 of 2, '(values: never[], options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;page_views&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type 'PageViewData' is not assignable to parameter of type 'never[]'.
-      Type 'PageViewData' is missing the following properties from type 'never[]': length, pop, push, concat, and 31 more.</problem>
-<problem file="lib/usage-tracking.ts" line="145" column="64" code="2769">No overload matches this call.
-  Overload 1 of 2, '(values: never, options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;feature_interactions&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type 'FeatureInteractionData' is not assignable to parameter of type 'never'.
-  Overload 2 of 2, '(values: never[], options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;feature_interactions&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type 'FeatureInteractionData' is not assignable to parameter of type 'never[]'.
-      Type 'FeatureInteractionData' is missing the following properties from type 'never[]': length, pop, push, concat, and 31 more.</problem>
-<problem file="lib/usage-tracking.ts" line="161" column="57" code="2769">No overload matches this call.
-  Overload 1 of 2, '(values: never, options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;preview_leads&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type 'LeadData' is not assignable to parameter of type 'never'.
-  Overload 2 of 2, '(values: never[], options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;preview_leads&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type 'LeadData' is not assignable to parameter of type 'never[]'.
-      Type 'LeadData' is missing the following properties from type 'never[]': length, pop, push, concat, and 31 more.</problem>
-<problem file="lib/usage-tracking.ts" line="173" column="17" code="2345">Argument of type '{ converted_user_id: string; converted_at: string; }' is not assignable to parameter of type 'never'.</problem>
-<problem file="lib/usage-tracking.ts" line="189" column="17" code="2345">Argument of type '{ time_on_page: number; }' is not assignable to parameter of type 'never'.</problem>
-<problem file="lib/usage-tracking.ts" line="206" column="17" code="2345">Argument of type '{ last_activity: string; total_time_spent: number; }' is not assignable to parameter of type 'never'.</problem>
-<problem file="lib/auth-service.ts" line="75" column="25" code="2339">Property 'organization_id' does not exist on type 'never'.</problem>
-<problem file="lib/auth-service.ts" line="83" column="38" code="2339">Property 'organization_id' does not exist on type 'never'.</problem>
-<problem file="lib/auth-service.ts" line="119" column="59" code="2769">No overload matches this call.
-  Overload 1 of 2, '(values: never, options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;organizations&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ name: string; slug: string; subscription_plan: string; trial_ends_at: string; }' is not assignable to parameter of type 'never'.
-  Overload 2 of 2, '(values: never[], options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;organizations&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ name: string; slug: string; subscription_plan: string; trial_ends_at: string; }' is not assignable to parameter of type 'never[]'.
-      Object literal may only specify known properties, and 'name' does not exist in type 'never[]'.</problem>
-<problem file="lib/auth-service.ts" line="135" column="43" code="2769">No overload matches this call.
-  Overload 1 of 2, '(values: never, options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;user_profiles&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ user_id: string; organization_id: any; first_name: string; last_name: string; timezone: string; language: string; }' is not assignable to parameter of type 'never'.
-  Overload 2 of 2, '(values: never[], options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;user_profiles&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ user_id: string; organization_id: any; first_name: string; last_name: string; timezone: string; language: string; }' is not assignable to parameter of type 'never[]'.
-      Object literal may only specify known properties, and 'user_id' does not exist in type 'never[]'.</problem>
-<problem file="lib/auth-service.ts" line="137" column="37" code="2339">Property 'id' does not exist on type 'never'.</problem>
-<problem file="lib/auth-service.ts" line="149" column="40" code="2769">No overload matches this call.
-  Overload 1 of 2, '(values: never, options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;user_roles&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ organization_id: any; user_id: string; role: string; permissions: { all: boolean; }; }' is not assignable to parameter of type 'never'.
-  Overload 2 of 2, '(values: never[], options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;user_roles&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ organization_id: any; user_id: string; role: string; permissions: { all: boolean; }; }' is not assignable to parameter of type 'never[]'.
-      Object literal may only specify known properties, and 'organization_id' does not exist in type 'never[]'.</problem>
-<problem file="lib/auth-service.ts" line="150" column="37" code="2339">Property 'id' does not exist on type 'never'.</problem>
-<problem file="lib/auth-service.ts" line="179" column="15" code="2345">Argument of type '{ updated_at: string; id?: string | undefined; user_id?: string | undefined; organization_id?: string | undefined; first_name?: string | undefined; last_name?: string | undefined; avatar_url?: string | undefined; ... 5 more ...; created_at?: string | undefined; }' is not assignable to parameter of type 'never'.</problem>
-<problem file="lib/auth-service.ts" line="215" column="11" code="2769">No overload matches this call.
-  Overload 1 of 2, '(values: never, options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;audit_logs&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ created_at: string; action: string; entity_type?: string | undefined; entity_id?: string | undefined; old_values?: Record&lt;string, any&gt; | undefined; new_values?: Record&lt;string, any&gt; | undefined; organization_id: string; user_id: string; }' is not assignable to parameter of type 'never'.
-  Overload 2 of 2, '(values: never[], options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;audit_logs&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ created_at: string; action: string; entity_type?: string | undefined; entity_id?: string | undefined; old_values?: Record&lt;string, any&gt; | undefined; new_values?: Record&lt;string, any&gt; | undefined; organization_id: string; user_id: string; }' is not assignable to parameter of type 'never[]'.
-      Object literal may only specify known properties, and 'created_at' does not exist in type 'never[]'.</problem>
-<problem file="lib/analytics-service.ts" line="71" column="63" code="2339">Property 'status' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="72" column="53" code="2339">Property 'risk_score' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="72" column="78" code="2339">Property 'risk_score' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="78" column="59" code="2339">Property 'risk_level' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="79" column="62" code="2339">Property 'risk_level' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="80" column="60" code="2339">Property 'risk_level' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="81" column="64" code="2339">Property 'risk_level' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="116" column="52" code="2339">Property 'status' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="120" column="37" code="2339">Property 'risk_level' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="121" column="40" code="2339">Property 'risk_level' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="122" column="38" code="2339">Property 'risk_level' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="123" column="42" code="2339">Property 'risk_level' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="129" column="18" code="2339">Property 'industry' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="130" column="32" code="2339">Property 'industry' does not exist on type 'never'.</problem>
-<problem file="lib/analytics-service.ts" line="130" column="66" code="2339">Property 'industry' does not exist on type 'never'.</problem>
-<problem file="lib/assessment-service.ts" line="244" column="71" code="2345">Argument of type 'any' is not assignable to parameter of type 'never'.</problem>
-<problem file="lib/notification-service.ts" line="28" column="29" code="2769">No overload matches this call.
-  Overload 1 of 2, '(values: never, options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;notifications&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ data: Record&lt;string, any&gt;; user_id: string; type: string; title: string; message: string; organization_id: string; }' is not assignable to parameter of type 'never'.
-  Overload 2 of 2, '(values: never[], options?: { count?: &quot;exact&quot; | &quot;planned&quot; | &quot;estimated&quot; | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder&lt;{ PostgrestVersion: string; }, never, never, null, &quot;notifications&quot;, never, &quot;POST&quot;&gt;', gave the following error.
-    Argument of type '{ data: Record&lt;string, any&gt;; user_id: string; type: string; title: string; message: string; organization_id: string; }' is not assignable to parameter of type 'never[]'.
-      Object literal may only specify known properties, and 'data' does not exist in type 'never[]'.</problem>
-<problem file="lib/notification-service.ts" line="67" column="15" code="2345">Argument of type '{ read_at: string; }' is not assignable to parameter of type 'never'.</problem>
-<problem file="lib/notification-service.ts" line="85" column="15" code="2345">Argument of type '{ read_at: string; }' is not assignable to parameter of type 'never'.</problem>
-<problem file="components/auth-context.tsx" line="128" column="73" code="2339">Property 'organization_id' does not exist on type 'never'.</problem>
-<problem file="components/auth-context.tsx" line="132" column="27" code="2339">Property 'organization_id' does not exist on type 'never'.</problem>
-<problem file="components/auth-context.tsx" line="142" column="75" code="2339">Property 'organization_id' does not exist on type 'never'.</problem>
-<problem file="components/auth-context.tsx" line="147" column="68" code="2339">Property 'name' does not exist on type 'never'.</problem>
-<problem file="components/auth-context.tsx" line="150" column="108" code="2339">Property 'organization_id' does not exist on type 'never'.</problem>
-<problem file="components/auth-context.tsx" line="155" column="40" code="2339">Property 'organization_id' does not exist on type 'never'.</problem>
-<problem file="components/auth-context.tsx" line="170" column="61" code="2339">Property 'role' does not exist on type 'never'.</problem>
-<problem file="app/analytics/page.tsx" line="95" column="28" code="2532">Object is possibly 'undefined'.</problem>
-<problem file="app/analytics/page.tsx" line="95" column="66" code="2339">Property 'total_time_spent' does not exist on type 'never'.</problem>
-<problem file="app/analytics/page.tsx" line="96" column="53" code="2339">Property 'converted_user_id' does not exist on type 'never'.</problem>
-<problem file="app/analytics/page.tsx" line="141" column="13" code="2345">Argument of type '([, a]: [string, number], [, b]: [string, number]) =&gt; number' is not assignable to parameter of type '(a: [string, unknown], b: [string, unknown]) =&gt; number'.
-  Types of parameters '__0' and 'a' are incompatible.
-    Type '[string, unknown]' is not assignable to type '[string, number]'.
-      Type at position 1 in source is not compatible with type at position 1 in target.
-        Type 'unknown' is not assignable to type 'number'.</problem>
-<problem file="app/analytics/page.tsx" line="157" column="13" code="2345">Argument of type '([, a]: [string, number], [, b]: [string, number]) =&gt; number' is not assignable to parameter of type '(a: [string, unknown], b: [string, unknown]) =&gt; number'.
-  Types of parameters '__0' and 'a' are incompatible.
-    Type '[string, unknown]' is not assignable to type '[string, number]'.</problem>
-<problem file="app/analytics/page.tsx" line="388" column="50" code="2322">Type 'unknown' is not assignable to type 'ReactNode'.</problem>
-<problem file="app/analytics/page.tsx" line="435" column="48" code="2322">Type 'unknown' is not assignable to type 'ReactNode'.</problem>
-<problem file="app/dashboard/page.tsx" line="89" column="5" code="2322">Type 'null' is not assignable to type 'string | undefined'.</problem>
-<problem file="app/dashboard/page.tsx" line="98" column="5" code="2322">Type 'null' is not assignable to type 'string | undefined'.</problem>
-<problem file="app/dashboard/page.tsx" line="101" column="3" code="2739">Type '{ id: string; user_id: string; title: string; message: string; type: string; read_at: string; created_at: string; }' is missing the following properties from type 'Notification': organization_id, data</problem>
-<problem file="app/policy-generator/page.tsx" line="907" column="26" code="2304">Cannot find name 'Label'.</problem>
-<problem file="app/policy-generator/page.tsx" line="910" column="27" code="2304">Cannot find name 'Label'.</problem>
-<problem file="app/policy-generator/page.tsx" line="911" column="26" code="2552">Cannot find name 'Input'. Did you mean 'oninput'?</problem>
-<problem file="app/policy-generator/page.tsx" line="915" column="38" code="7006">Parameter 'e' implicitly has an 'any' type.</problem>
-<problem file="app/policy-generator/page.tsx" line="922" column="26" code="2304">Cannot find name 'Label'.</problem>
-<problem file="app/policy-generator/page.tsx" line="925" column="27" code="2304">Cannot find name 'Label'.</problem>
-<problem file="app/policy-generator/page.tsx" line="951" column="26" code="2304">Cannot find name 'Label'.</problem>
-<problem file="app/policy-generator/page.tsx" line="954" column="27" code="2304">Cannot find name 'Label'.</problem>
-<problem file="app/policy-generator/page.tsx" line="956" column="28" code="2304">Cannot find name 'Input'.</problem>
-<problem file="app/policy-generator/page.tsx" line="960" column="40" code="7006">Parameter 'e' implicitly has an 'any' type.</problem>
-<problem file="app/policy-generator/page.tsx" line="973" column="26" code="2304">Cannot find name 'Label'.</problem>
-<problem file="app/policy-generator/page.tsx" line="976" column="27" code="2304">Cannot find name 'Label'.</problem>
-<problem file="app/policy-generator/page.tsx" line="977" column="26" code="2304">Cannot find name 'Input'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="1664" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="1666" column="25" code="18048">'question.weight' is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="1671" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="1672" column="23" code="2532">Object is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="1674" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="1677" column="23" code="18048">'question.weight' is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="2716" column="16" code="2367">This comparison appears to be unintentional because the types '&quot;select&quot;' and '&quot;choose-method&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/page.tsx" line="2818" column="16" code="2367">This comparison appears to be unintentional because the types '&quot;select&quot;' and '&quot;manual-assessment&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3075" column="16" code="2367">This comparison appears to be unintentional because the types '&quot;select&quot;' and '&quot;manual-assessment&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1683" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1684" column="23" code="2532">Object is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1686" column="21" code="18048">'question.weight' is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="1689" column="23" code="18048">'question.weight' is possibly 'undefined'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2555" column="28" code="2304">Cannot find name 'Eye'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2567" column="38" code="2552">Cannot find name 'Clock'. Did you mean 'Lock'?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2631" column="38" code="2552">Cannot find name 'Users'. Did you mean 'User'?</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2715" column="34" code="2304">Cannot find name 'Eye'.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2728" column="16" code="2367">This comparison appears to be unintentional because the types '&quot;select&quot;' and '&quot;choose-method&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="2830" column="16" code="2367">This comparison appears to be unintentional because the types '&quot;select&quot;' and '&quot;manual-assessment&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="3087" column="16" code="2367">This comparison appears to be unintentional because the types '&quot;select&quot;' and '&quot;manual-assessment&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/ai-assessment/page.tsx" line="3151" column="34" code="2552">Cannot find name 'Users'. Did you mean 'User'?</problem>
-<problem file="app/solutions/page.tsx" line="788" column="65" code="2339">Property 'dyad-problem-report' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="789" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="789" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="790" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="790" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="791" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="791" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="792" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="792" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="793" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="793" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="794" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="794" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="795" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="795" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="796" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="796" column="151" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="797" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="797" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="798" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="798" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="799" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="799" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="800" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="800" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="801" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="801" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="802" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="802" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="803" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="803" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="804" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="804" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="805" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="805" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="806" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="806" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="807" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="807" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="808" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="808" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="809" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="809" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="810" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="810" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="811" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="811" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="812" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="812" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="813" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="813" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="814" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="814" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="815" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="815" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="816" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="816" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="817" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="817" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="818" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="818" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="819" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="819" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="820" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="820" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="821" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="821" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="822" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="822" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="823" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="823" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="824" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="824" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="825" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="825" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="826" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="826" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="827" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="827" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="828" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="828" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="829" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="829" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="830" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="830" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="831" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="831" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="832" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="832" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="833" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="833" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="834" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="834" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="835" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="835" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="836" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="836" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="837" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="837" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="838" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="838" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="839" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="839" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="840" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="840" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="841" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="841" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="842" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="842" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="843" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="843" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="844" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="844" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="845" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="845" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="846" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="846" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="847" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="847" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="848" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="848" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="849" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="849" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="850" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="850" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="851" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="851" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="852" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="852" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="853" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="853" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="854" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="854" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="855" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="855" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="856" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="856" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="857" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="857" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="858" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="858" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="859" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="859" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="860" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="860" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="861" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="861" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="862" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="862" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="863" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="863" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="864" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="864" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="865" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="865" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="866" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="866" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="867" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="867" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="868" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="868" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="869" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="869" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="870" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="870" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="871" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="871" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="872" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="872" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="873" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="873" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="874" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="874" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="875" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="875" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="876" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="876" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="877" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="877" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="878" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="878" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="879" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="879" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="880" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="880" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="881" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="881" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="882" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="882" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="883" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="883" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="884" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="884" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="885" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="885" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="886" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="886" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="887" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="887" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="888" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="888" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="889" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="889" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="890" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="890" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="891" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="891" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="892" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="892" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="893" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="893" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="894" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="894" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="895" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="895" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="896" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="896" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="897" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="897" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="898" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="898" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="899" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="899" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="900" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="900" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="901" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="901" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="902" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="902" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="903" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="903" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="904" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="904" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="905" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="905" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="906" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="906" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="907" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="907" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="908" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="908" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="909" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="909" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="910" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="910" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="911" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="911" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="912" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="912" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="913" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="913" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="914" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="914" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="915" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="915" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="916" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="916" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="917" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="917" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="918" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="918" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="919" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="919" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="920" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="920" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="921" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="921" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="922" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="922" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="923" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="923" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="924" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="924" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="925" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="925" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="926" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="926" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="927" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="927" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="928" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="928" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="929" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="929" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="930" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="930" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="931" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="931" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="932" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="932" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="933" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="933" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="934" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="934" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="935" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="935" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="936" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="936" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="937" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="937" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="938" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="938" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="939" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="939" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="940" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="940" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="941" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="941" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="942" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="942" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="943" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="943" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="944" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="944" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="945" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="945" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="946" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="946" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="947" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="947" column="140" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="948" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="948" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="949" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="949" column="94" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="950" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="950" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="951" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="951" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="952" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="952" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="953" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="953" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="954" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="954" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="955" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="955" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="956" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="956" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="957" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="957" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="958" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="958" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="959" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="959" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="960" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="960" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="961" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="961" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="962" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="962" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="963" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="963" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="964" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="964" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="965" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="965" column="114" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="966" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="966" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="967" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="967" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="968" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="968" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="969" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="969" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="970" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="970" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="971" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="971" column="165" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="972" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="972" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="973" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="973" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="974" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="974" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="975" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="975" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="976" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="976" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="977" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="977" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="978" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="978" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="979" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="979" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="980" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="980" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="981" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="981" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="982" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="982" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="983" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="983" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="984" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="984" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="985" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="985" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="986" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="986" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="987" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="987" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="988" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="988" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="989" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="989" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="990" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="990" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="991" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="991" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="992" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="992" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="993" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="993" column="165" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="994" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="994" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="995" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="995" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="996" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="996" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="997" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="997" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="998" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="998" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="999" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="999" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1000" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1000" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1001" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1001" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1002" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1002" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1003" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1003" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1004" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1004" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1005" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1005" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1006" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1006" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1007" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1007" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1008" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1008" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1009" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1009" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1010" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1010" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1011" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1011" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1012" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1012" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1013" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1013" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1014" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1014" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1015" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1015" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1016" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1016" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1017" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1017" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1018" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1018" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1019" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1019" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1020" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1020" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1021" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1021" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1022" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1022" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1023" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1023" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1024" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1024" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1025" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1025" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1026" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1026" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1027" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1027" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1028" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1028" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1029" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1029" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1030" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1030" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1031" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1031" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1032" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1032" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1033" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1033" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1034" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1034" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1035" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1035" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1036" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1036" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1037" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1037" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1038" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1038" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1039" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1039" column="96" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1040" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1040" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1041" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1041" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1042" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1042" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1043" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1043" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1044" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1044" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1045" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1045" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1046" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1046" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1047" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1047" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1048" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1048" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1049" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1049" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1050" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1050" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1051" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1051" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1052" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1052" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1053" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1053" column="114" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1054" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1054" column="114" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1055" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1055" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1056" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1056" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1057" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1057" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1058" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1058" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1059" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1059" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1060" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1060" column="137" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1061" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1061" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1062" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1062" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1063" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1063" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1064" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1064" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1065" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1065" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1066" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1066" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1067" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1067" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1068" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1068" column="95" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1069" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1069" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1070" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1070" column="94" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="89" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="246" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1071" column="391" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="114" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="123" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="132" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="218" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="298" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1072" column="323" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="90" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="126" code="2304">Cannot find name 'role'.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="162" code="2304">Cannot find name 'type'.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="230" code="2304">Cannot find name 'type'.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="396" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1073" column="541" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="114" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="123" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="132" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="153" code="2304">Cannot find name 'messages'.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="209" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="289" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1074" column="314" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="90" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="247" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1075" column="392" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="114" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="123" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="132" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="218" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="298" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1076" column="323" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="89" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="246" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1077" column="391" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="114" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="123" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="132" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="218" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="298" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1078" column="323" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="89" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="246" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1079" column="391" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="114" code="2304">Cannot find name 'system'.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="123" code="2693">'string' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="132" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="218" code="2304">Cannot find name 'model'.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="298" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1080" column="323" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1081" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1081" column="113" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1082" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1082" column="113" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="76" code="2304">Cannot find name 'method'.</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="214" code="2304">Cannot find name 'pages'.</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="222" code="2693">'number' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/solutions/page.tsx" line="1083" column="231" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/solutions/page.tsx" line="1086" column="60" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1087" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1087" column="114" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1088" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1088" column="114" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="76" code="2304">Cannot find name 'method'.</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="214" code="2304">Cannot find name 'pages'.</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="222" code="2693">'number' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/solutions/page.tsx" line="1089" column="231" code="18050">The value 'undefined' cannot be used here.</problem>
-<problem file="app/solutions/page.tsx" line="1091" column="68" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1092" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1092" column="118" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1093" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1093" column="119" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1094" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1094" column="120" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1095" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1095" column="121" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1096" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1096" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1097" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1097" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1098" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1098" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1099" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1099" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1100" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1100" column="128" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1101" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1101" column="128" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1102" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1102" column="132" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1103" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1103" column="132" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1104" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1104" column="82" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1104" column="280" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1105" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1105" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1106" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1106" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1107" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1107" column="131" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1108" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1108" column="125" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1109" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1109" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1110" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1110" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1111" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1111" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1112" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1112" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1113" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1113" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1114" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1114" column="125" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1115" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1115" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1116" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1116" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1117" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1117" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1118" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1118" column="161" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1119" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1119" column="186" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1120" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1120" column="129" code="2304">Cannot find name 'lt'.</problem>
-<problem file="app/solutions/page.tsx" line="1120" column="328" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1121" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1121" column="187" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1122" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1122" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1123" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1123" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1124" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1124" column="127" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1125" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1125" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1126" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1126" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1127" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1127" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1128" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1128" column="120" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1129" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1129" column="134" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1130" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1130" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1131" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1131" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1132" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1132" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1133" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1133" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1134" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1134" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1135" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1135" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1136" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1136" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1137" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1137" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1138" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1138" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1139" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1139" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1140" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1140" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1141" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1141" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1142" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1142" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1143" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1143" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1144" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1144" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1145" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1145" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1146" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1146" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1147" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1147" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1148" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1148" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1149" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1149" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1150" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1150" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1151" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1151" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1152" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1152" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1153" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1153" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1154" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1154" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1155" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1155" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1156" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1156" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1157" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1157" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1158" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1158" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1159" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1159" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1160" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1160" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1161" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1161" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1162" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1162" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1163" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1163" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1164" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1164" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1165" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1165" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1166" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1166" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1167" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1167" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1168" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1168" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1169" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1169" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1170" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1170" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1171" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1171" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1172" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1172" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1173" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1173" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1174" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1174" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1175" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1175" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1176" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1176" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1177" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1177" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1178" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1178" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1179" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1179" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1180" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1180" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1181" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1181" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1182" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1182" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1183" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1183" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1184" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1184" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1185" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1185" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1186" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1186" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1187" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1187" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1188" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1188" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1189" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1189" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1190" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1190" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1191" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1191" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1192" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1192" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1193" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1193" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1194" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1194" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1195" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1195" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1196" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1196" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1197" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1197" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1198" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1198" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1199" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1199" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1200" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1200" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1201" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1201" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1202" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1202" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1203" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1203" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1204" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1204" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1205" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1205" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1206" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1206" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1207" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1207" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1208" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1208" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1209" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1209" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1210" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1210" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1211" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1211" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1212" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1212" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1213" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1213" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1214" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1214" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1215" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1215" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1216" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1216" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1217" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1217" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1218" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1218" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1219" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1219" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1220" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1220" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1221" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1221" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1222" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1222" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1223" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1223" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1224" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1224" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1225" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1225" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1226" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1226" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1227" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1227" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1228" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1228" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1229" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1229" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1230" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1230" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1231" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1231" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1232" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1232" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1233" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1233" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1234" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1234" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1235" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1235" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1236" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1236" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1237" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1237" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1238" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1238" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1239" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1239" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1240" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1240" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1241" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1241" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1242" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1242" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1243" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1243" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1244" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1244" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1245" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1245" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1246" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1246" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1247" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1247" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1248" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1248" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1249" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1249" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1250" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1250" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1251" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1251" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1252" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1252" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1253" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1253" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1254" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1254" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1255" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1255" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1256" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1256" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1257" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1257" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1258" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1258" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1259" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1259" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1260" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1260" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1261" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1261" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1262" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1262" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1263" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1263" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1264" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1264" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1265" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1265" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1266" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1266" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1267" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1267" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1268" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1268" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1269" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1269" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1270" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1270" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1271" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1271" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1272" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1272" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1273" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1273" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1274" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1274" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1275" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1275" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1276" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1276" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1277" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1277" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1278" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1278" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1279" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1279" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1280" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1280" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1281" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1281" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1282" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1282" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1283" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1283" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1284" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1284" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1285" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1285" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1286" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1286" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1287" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1287" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1288" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1288" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1289" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1289" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1290" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1290" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1291" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1291" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1292" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1292" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1293" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1293" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1294" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1294" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1295" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1295" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1296" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1296" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1297" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1297" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1298" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1298" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1299" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1299" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1300" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1300" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1301" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1301" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1302" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1302" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1303" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1303" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1304" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1304" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1305" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1305" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1306" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1306" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1307" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1307" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1308" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1308" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1309" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1309" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1310" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1310" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1311" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1311" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1312" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1312" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1313" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1313" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1314" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1314" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1315" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1315" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1316" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1316" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1317" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1317" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1318" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1318" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1319" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1319" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1320" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1320" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1321" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1321" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1322" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1322" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1323" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1323" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1324" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1324" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1325" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1325" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1326" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1326" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1327" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1327" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1328" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1328" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1329" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1329" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1330" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1330" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1331" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1331" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1332" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1332" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1333" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1333" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1334" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1334" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1335" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1335" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1336" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1336" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1337" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1337" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1338" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1338" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1339" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1339" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1340" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1340" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1341" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1341" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1342" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1342" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1343" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1343" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1344" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1344" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1345" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1345" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1346" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1346" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1347" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1347" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1348" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1348" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1349" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1349" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1350" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1350" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1351" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1351" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1352" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1352" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1353" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1353" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1354" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1354" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1355" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1355" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1356" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1356" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1357" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1357" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1358" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1358" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1359" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1359" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1360" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1360" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1361" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1361" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1362" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1362" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1363" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1363" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1364" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1364" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1365" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1365" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1366" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1366" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1367" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1367" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1368" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1368" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1369" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1369" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1370" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1370" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1371" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1371" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1372" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1372" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1373" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1373" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1374" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1374" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1375" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1375" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1376" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1376" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1377" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1377" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1378" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1378" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1379" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1379" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1380" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1380" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1381" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1381" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1382" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1382" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1383" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1383" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1384" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1384" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1385" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1385" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1386" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1386" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1387" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1387" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1388" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1388" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1389" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1389" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1390" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1390" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1391" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1391" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1392" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1392" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1393" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1393" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1394" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1394" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1395" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1395" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1396" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1396" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1397" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1397" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1398" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1398" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1399" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1399" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1400" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1400" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1401" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1401" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1402" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1402" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1403" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1403" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1404" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1404" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1405" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1405" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1406" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1406" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1407" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1407" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1408" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1408" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1409" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1409" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1410" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1410" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1411" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1411" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1412" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1412" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1413" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1413" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1414" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1414" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1415" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1415" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1416" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1416" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1417" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1417" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1418" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1418" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1419" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1419" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1420" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1420" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1421" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1421" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1422" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1422" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1423" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1423" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1424" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1424" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1425" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1425" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1426" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1426" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1427" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1427" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1428" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1428" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1429" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1429" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1430" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1430" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1431" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1431" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1432" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1432" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1433" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1433" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1434" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1434" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1435" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1435" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1436" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1436" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1437" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1437" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1438" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1438" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1439" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1439" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1440" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1440" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1441" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1441" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1442" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1442" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1443" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1443" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1444" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1444" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1445" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1445" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1446" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1446" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1447" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1447" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1448" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1448" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1449" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1449" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1450" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1450" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1451" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1451" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1452" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1452" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1453" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1453" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1454" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1454" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1455" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1455" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1456" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1456" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1457" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1457" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1458" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1458" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1459" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1459" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1460" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1460" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1461" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1461" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1462" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1462" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1463" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1463" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1464" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1464" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1465" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1465" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1466" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1466" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1467" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1467" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1468" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1468" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1469" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1469" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1470" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1470" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1471" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1471" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1472" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1472" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1473" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1473" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1474" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1474" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1475" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1475" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1476" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1476" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1477" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1477" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1478" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1478" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1479" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1479" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1480" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1480" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1481" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1481" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1482" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1482" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1483" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1483" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1484" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1484" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1485" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1485" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1486" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1486" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1487" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1487" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1488" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1488" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1489" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1489" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1490" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1490" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1491" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1491" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1492" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1492" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1493" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1493" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1494" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1494" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1495" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1495" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1496" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1496" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1497" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1497" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1498" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1498" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1499" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1499" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1500" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1500" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1501" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1501" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1502" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1502" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1503" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1503" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1504" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1504" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1505" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1505" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1506" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1506" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1507" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1507" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1508" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1508" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1509" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1509" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1510" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1510" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1511" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1511" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1512" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1512" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1513" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1513" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1514" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1514" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1515" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1515" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1516" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1516" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1517" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1517" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1518" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1518" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1519" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1519" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1520" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1520" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1521" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1521" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1522" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1522" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1523" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1523" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1524" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1524" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1525" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1525" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1526" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1526" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1527" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1527" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1528" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1528" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1529" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1529" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1530" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1530" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1531" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1531" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1532" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1532" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1533" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1533" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1534" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1534" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1535" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1535" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1536" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1536" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1537" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1537" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1538" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1538" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1539" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1539" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1540" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1540" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1541" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1541" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1542" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1542" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1543" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1543" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1544" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1544" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1545" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1545" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1546" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1546" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1547" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1547" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1548" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1548" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1549" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1549" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1550" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1550" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1551" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1551" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1552" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1552" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1553" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1553" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1554" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1554" column="146" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1555" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1555" column="145" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1556" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1556" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1557" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1557" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1558" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1558" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1559" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1559" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1560" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1560" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1561" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1561" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1562" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1562" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1563" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1563" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1564" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1564" column="112" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1565" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1565" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1566" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1566" column="144" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1567" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1567" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1568" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1568" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1569" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1569" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1570" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1570" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1571" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1571" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1572" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1572" column="144" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1573" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1573" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1574" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1574" column="113" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1575" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1575" column="145" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1576" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1576" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1577" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1577" column="121" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1578" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1578" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1579" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1579" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1580" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1580" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1581" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1581" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1582" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1582" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1583" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1583" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1584" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1584" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1585" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1585" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1586" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1586" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1587" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1587" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1588" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1588" column="144" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1589" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1589" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1590" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1590" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1591" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1591" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1592" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1592" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1593" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1593" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1594" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1594" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1595" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1595" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1596" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1596" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1597" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1597" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1598" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1598" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1599" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1599" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1600" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1600" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1601" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1601" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1602" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1602" column="159" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1603" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1603" column="113" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1604" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1604" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1605" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1605" column="120" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1606" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1606" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1607" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1607" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1608" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1608" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1609" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1609" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1610" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1610" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1611" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1611" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1612" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1612" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1613" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1613" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1614" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1614" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1615" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1615" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1616" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1616" column="168" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1617" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1617" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1618" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1618" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1619" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1619" column="235" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1620" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1620" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1621" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1621" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1622" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1622" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1623" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1623" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1624" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1624" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1625" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1625" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1626" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1626" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1627" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1627" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1628" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1628" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1629" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1629" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1630" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1630" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1631" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1631" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1632" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1632" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1633" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1633" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1634" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1634" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1635" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1635" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1636" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1636" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1637" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1637" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1638" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1638" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1639" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1639" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1640" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1640" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1641" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1641" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1642" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1642" column="112" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1643" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1643" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1644" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1644" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1645" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1645" column="107" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1646" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1646" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1647" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1647" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1648" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1648" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1649" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1649" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1650" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1650" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1651" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1651" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1652" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1652" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1653" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1653" column="104" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1654" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1654" column="103" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1655" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1655" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1656" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1656" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1657" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1657" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1658" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1658" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1659" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1659" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1660" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1660" column="113" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1661" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1661" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1662" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1662" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1663" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1663" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1664" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1664" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1665" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1665" column="111" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1666" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1666" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1667" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1667" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1668" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1668" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1669" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1669" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1670" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1670" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1671" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1671" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1672" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1672" column="113" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1673" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1673" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1674" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1674" column="139" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1675" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1675" column="127" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1676" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1676" column="139" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1677" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1677" column="139" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1678" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1678" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1679" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1679" column="119" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1680" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1680" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1681" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1681" column="150" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1682" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1682" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1683" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1683" column="119" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1684" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1684" column="227" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1685" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1685" column="231" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1686" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1686" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1687" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1687" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1688" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1688" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1689" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1689" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1690" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1690" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1691" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1691" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1692" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1692" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1693" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1693" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1694" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1694" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1695" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1695" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1696" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1696" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1697" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1697" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="141" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="240" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="340" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1698" column="453" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1699" column="48" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1699" column="123" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1700" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1700" column="144" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1701" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1701" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1702" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1702" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1703" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1703" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1704" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1704" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1705" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1705" column="231" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1706" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1706" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1707" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1707" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1708" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1708" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1709" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1709" column="150" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1710" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1710" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1711" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1711" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1712" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1712" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1713" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1713" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1714" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1714" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1715" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1715" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1716" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1716" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1717" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1717" column="101" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1718" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1718" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1719" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1719" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1720" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1720" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1721" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1721" column="106" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1722" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1722" column="193" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1723" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1723" column="772" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1726" column="647" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1727" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1730" column="424" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1731" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1731" column="167" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1732" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1732" column="167" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1733" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1733" column="167" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1734" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1734" column="167" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1735" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1735" column="167" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1736" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1736" column="167" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1737" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1737" column="167" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1738" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1738" column="167" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1739" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1739" column="167" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1740" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1740" column="107" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1741" column="11" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1742" column="13" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1742" column="425" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1743" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1743" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1744" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1744" column="96" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1744" column="347" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1745" column="105" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1746" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1746" column="174" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1747" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1747" column="176" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1748" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1748" column="182" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1749" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1749" column="96" code="2304">Cannot find name 'userEmail'.</problem>
-<problem file="app/solutions/page.tsx" line="1750" column="91" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1751" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1751" column="96" code="2304">Cannot find name 'userEmail'.</problem>
-<problem file="app/solutions/page.tsx" line="1752" column="91" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1753" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1753" column="174" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1754" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1754" column="176" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1755" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1755" column="182" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1756" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1756" column="172" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1757" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1757" column="172" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1758" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1758" column="172" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1759" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1759" column="172" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1760" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1760" column="145" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1761" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1761" column="170" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1762" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1762" column="170" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1763" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1763" column="168" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1764" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1764" column="168" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1765" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1765" column="180" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1766" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1766" column="180" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1767" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1767" column="172" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1768" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1768" column="172" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1769" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1769" column="141" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1770" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1770" column="118" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1771" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1771" column="118" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1772" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1772" column="137" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1773" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1773" column="137" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1774" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1774" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1775" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1775" column="144" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1776" column="1" code="2339">Property 'dyad-problem-report' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1776" column="23" code="2339">Property 'think' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1806" column="1" code="2339">Property 'think' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1827" column="1" code="2339">Property 'dyad-write' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1832" column="10" code="2304">Cannot find name 'Slot'.</problem>
-<problem file="app/solutions/page.tsx" line="1833" column="10" code="2304">Cannot find name 'Controller'.</problem>
-<problem file="app/solutions/page.tsx" line="1833" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1833" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1833" column="22" code="2304">Cannot find name 'FormProvider'.</problem>
-<problem file="app/solutions/page.tsx" line="1833" column="36" code="2304">Cannot find name 'useFormContext'.</problem>
-<problem file="app/solutions/page.tsx" line="1834" column="10" code="2304">Cannot find name 'cva'.</problem>
-<problem file="app/solutions/page.tsx" line="1834" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1834" column="15" code="2304">Cannot find name 'type'.</problem>
-<problem file="app/solutions/page.tsx" line="1836" column="10" code="2304">Cannot find name 'cn'.</problem>
-<problem file="app/solutions/page.tsx" line="1841" column="3" code="2786">'HTMLParagraphElement' cannot be used as a JSX component.
-  Its instance type 'HTMLParagraphElement' is not a valid JSX element.
-    Type 'HTMLParagraphElement' is missing the following properties from type 'ElementClass': render, context, setState, forceUpdate, and 3 more.</problem>
-<problem file="app/solutions/page.tsx" line="1842" column="24" code="2786">'HTMLParagraphElement' cannot be used as a JSX component.
-  Its instance type 'HTMLParagraphElement' is not a valid JSX element.</problem>
-<problem file="app/solutions/page.tsx" line="1843" column="6" code="2304">Cannot find name 'className'.</problem>
-<problem file="app/solutions/page.tsx" line="1843" column="6" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1844" column="11" code="2304">Cannot find name 'formDescriptionId'.</problem>
-<problem file="app/solutions/page.tsx" line="1848" column="12" code="2304">Cannot find name 'ref'.</problem>
-<problem file="app/solutions/page.tsx" line="1849" column="11" code="2304">Cannot find name 'formDescriptionId'.</problem>
-<problem file="app/solutions/page.tsx" line="1850" column="18" code="2304">Cannot find name 'cn'.</problem>
-<problem file="app/solutions/page.tsx" line="1850" column="54" code="2304">Cannot find name 'className'.</problem>
-<problem file="app/solutions/page.tsx" line="1851" column="11" code="2304">Cannot find name 'props'.</problem>
-<problem file="app/solutions/page.tsx" line="1858" column="3" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1859" column="27" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1859" column="53" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1860" column="3" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1861" column="6" code="2304">Cannot find name 'props'.</problem>
-<problem file="app/solutions/page.tsx" line="1862" column="20" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1863" column="11" code="2304">Cannot find name 'Controller'.</problem>
-<problem file="app/solutions/page.tsx" line="1863" column="26" code="2304">Cannot find name 'props'.</problem>
-<problem file="app/solutions/page.tsx" line="1866" column="47" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1871" column="3" code="2786">'HTMLDivElement' cannot be used as a JSX component.
-  Its instance type 'HTMLDivElement' is not a valid JSX element.
-    Type 'HTMLDivElement' is missing the following properties from type 'ElementClass': render, context, setState, forceUpdate, and 3 more.</problem>
-<problem file="app/solutions/page.tsx" line="1872" column="24" code="2786">'HTMLDivElement' cannot be used as a JSX component.
-  Its instance type 'HTMLDivElement' is not a valid JSX element.</problem>
-<problem file="app/solutions/page.tsx" line="1873" column="6" code="2304">Cannot find name 'className'.</problem>
-<problem file="app/solutions/page.tsx" line="1873" column="6" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1877" column="6" code="2304">Cannot find name 'FormItemContext'.</problem>
-<problem file="app/solutions/page.tsx" line="1877" column="40" code="18004">No value exists in scope for the shorthand property 'id'. Either declare one or provide an initializer.</problem>
-<problem file="app/solutions/page.tsx" line="1878" column="17" code="2304">Cannot find name 'ref'.</problem>
-<problem file="app/solutions/page.tsx" line="1878" column="33" code="2304">Cannot find name 'cn'.</problem>
-<problem file="app/solutions/page.tsx" line="1878" column="49" code="2304">Cannot find name 'className'.</problem>
-<problem file="app/solutions/page.tsx" line="1878" column="65" code="2304">Cannot find name 'props'.</problem>
-<problem file="app/solutions/page.tsx" line="1879" column="7" code="2304">Cannot find name 'FormItemContext'.</problem>
-<problem file="app/solutions/page.tsx" line="1885" column="3" code="2686">'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.</problem>
-<problem file="app/solutions/page.tsx" line="1885" column="9" code="2339">Property 'ElementRef' does not exist on type 'typeof import(&quot;C:/Users/HP/dyad-apps/RiskShield-AI-main/1/node_modules/.pnpm/@types+react@18.0.0/node_modules/@types/react/index.d.ts&quot;)'.</problem>
-<problem file="app/solutions/page.tsx" line="1885" column="27" code="2304">Cannot find name 'LabelPrimitive'.</problem>
-<problem file="app/solutions/page.tsx" line="1886" column="33" code="2339">Property 'typeof' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1887" column="6" code="2304">Cannot find name 'className'.</problem>
-<problem file="app/solutions/page.tsx" line="1887" column="6" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1888" column="11" code="2304">Cannot find name 'error'.</problem>
-<problem file="app/solutions/page.tsx" line="1888" column="11" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1888" column="18" code="2304">Cannot find name 'formItemId'.</problem>
-<problem file="app/solutions/page.tsx" line="1891" column="6" code="2304">Cannot find name 'LabelPrimitive'.</problem>
-<problem file="app/solutions/page.tsx" line="1892" column="12" code="2304">Cannot find name 'ref'.</problem>
-<problem file="app/solutions/page.tsx" line="1893" column="18" code="2304">Cannot find name 'cn'.</problem>
-<problem file="app/solutions/page.tsx" line="1893" column="21" code="2304">Cannot find name 'error'.</problem>
-<problem file="app/solutions/page.tsx" line="1893" column="50" code="2304">Cannot find name 'className'.</problem>
-<problem file="app/solutions/page.tsx" line="1894" column="16" code="2304">Cannot find name 'formItemId'.</problem>
-<problem file="app/solutions/page.tsx" line="1895" column="11" code="2304">Cannot find name 'props'.</problem>
-<problem file="app/solutions/page.tsx" line="1902" column="3" code="2786">'HTMLParagraphElement' cannot be used as a JSX component.
-  Its instance type 'HTMLParagraphElement' is not a valid JSX element.</problem>
-<problem file="app/solutions/page.tsx" line="1903" column="24" code="2786">'HTMLParagraphElement' cannot be used as a JSX component.
-  Its instance type 'HTMLParagraphElement' is not a valid JSX element.</problem>
-<problem file="app/solutions/page.tsx" line="1904" column="6" code="2304">Cannot find name 'className'.</problem>
-<problem file="app/solutions/page.tsx" line="1904" column="6" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1904" column="6" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1904" column="17" code="2304">Cannot find name 'children'.</problem>
-<problem file="app/solutions/page.tsx" line="1905" column="11" code="2304">Cannot find name 'error'.</problem>
-<problem file="app/solutions/page.tsx" line="1905" column="11" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1905" column="18" code="2304">Cannot find name 'formMessageId'.</problem>
-<problem file="app/solutions/page.tsx" line="1914" column="12" code="2304">Cannot find name 'ref'.</problem>
-<problem file="app/solutions/page.tsx" line="1915" column="11" code="2304">Cannot find name 'formMessageId'.</problem>
-<problem file="app/solutions/page.tsx" line="1916" column="18" code="2304">Cannot find name 'cn'.</problem>
-<problem file="app/solutions/page.tsx" line="1916" column="61" code="2304">Cannot find name 'className'.</problem>
-<problem file="app/solutions/page.tsx" line="1917" column="11" code="2304">Cannot find name 'props'.</problem>
-<problem file="app/solutions/page.tsx" line="1919" column="8" code="2304">Cannot find name 'body'.</problem>
-<problem file="app/solutions/page.tsx" line="1926" column="3" code="2686">'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.</problem>
-<problem file="app/solutions/page.tsx" line="1926" column="9" code="2339">Property 'ElementRef' does not exist on type 'typeof import(&quot;C:/Users/HP/dyad-apps/RiskShield-AI-main/1/node_modules/.pnpm/@types+react@18.0.0/node_modules/@types/react/index.d.ts&quot;)'.</problem>
-<problem file="app/solutions/page.tsx" line="1926" column="27" code="2304">Cannot find name 'Slot'.</problem>
-<problem file="app/solutions/page.tsx" line="1927" column="33" code="2339">Property 'typeof' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1928" column="4" code="2609">JSX spread child must be an array type.</problem>
-<problem file="app/solutions/page.tsx" line="1928" column="9" code="2304">Cannot find name 'props'.</problem>
-<problem file="app/solutions/page.tsx" line="1929" column="11" code="2304">Cannot find name 'error'.</problem>
-<problem file="app/solutions/page.tsx" line="1929" column="11" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1929" column="11" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1929" column="11" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1929" column="18" code="2304">Cannot find name 'formItemId'.</problem>
-<problem file="app/solutions/page.tsx" line="1929" column="30" code="2304">Cannot find name 'formDescriptionId'.</problem>
-<problem file="app/solutions/page.tsx" line="1929" column="49" code="2304">Cannot find name 'formMessageId'.</problem>
-<problem file="app/solutions/page.tsx" line="1932" column="6" code="2304">Cannot find name 'Slot'.</problem>
-<problem file="app/solutions/page.tsx" line="1933" column="12" code="2304">Cannot find name 'ref'.</problem>
-<problem file="app/solutions/page.tsx" line="1934" column="11" code="2304">Cannot find name 'formItemId'.</problem>
-<problem file="app/solutions/page.tsx" line="1936" column="10" code="2304">Cannot find name 'error'.</problem>
-<problem file="app/solutions/page.tsx" line="1936" column="21" code="2304">Cannot find name 'formDescriptionId'.</problem>
-<problem file="app/solutions/page.tsx" line="1936" column="46" code="2304">Cannot find name 'formDescriptionId'.</problem>
-<problem file="app/solutions/page.tsx" line="1936" column="67" code="2304">Cannot find name 'formMessageId'.</problem>
-<problem file="app/solutions/page.tsx" line="1938" column="23" code="2304">Cannot find name 'error'.</problem>
-<problem file="app/solutions/page.tsx" line="1939" column="11" code="2304">Cannot find name 'props'.</problem>
-<problem file="app/solutions/page.tsx" line="1946" column="3" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1947" column="27" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1947" column="53" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1948" column="25" code="2339">Property 'typeof' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1948" column="44" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1950" column="26" code="2339">Property 'string' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/solutions/page.tsx" line="1951" column="16" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1951" column="78" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1952" column="23" code="2304">Cannot find name 'TFieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1955" column="19" code="2304">Cannot find name 'FieldValues'.</problem>
-<problem file="app/solutions/page.tsx" line="1962" column="3" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1968" column="11" code="2304">Cannot find name 'getFieldState'.</problem>
-<problem file="app/solutions/page.tsx" line="1968" column="11" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1968" column="26" code="2304">Cannot find name 'formState'.</problem>
-<problem file="app/solutions/page.tsx" line="1976" column="58" code="2304">Cannot find name 'FormField'.</problem>
-<problem file="app/solutions/page.tsx" line="1979" column="11" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1982" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/solutions/page.tsx" line="1982" column="5" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1982" column="5" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1982" column="5" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1984" column="5" code="2304">Cannot find name 'formItemId'.</problem>
-<problem file="app/solutions/page.tsx" line="1985" column="5" code="2304">Cannot find name 'formDescriptionId'.</problem>
-<problem file="app/solutions/page.tsx" line="1985" column="27" code="2304">Cannot find name 'formItemId'.</problem>
-<problem file="app/solutions/page.tsx" line="1986" column="23" code="2304">Cannot find name 'formItemId'.</problem>
-<problem file="app/solutions/page.tsx" line="1991" column="46" code="2304">Cannot find name 'FormFieldContextValue'.</problem>
-<problem file="app/solutions/page.tsx" line="1996" column="3" code="2304">Cannot find name 'useFormField'.</problem>
-<problem file="app/solutions/page.tsx" line="1996" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1996" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1996" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1996" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1996" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1996" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1996" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1996" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/solutions/page.tsx" line="1997" column="3" code="2304">Cannot find name 'Form'.</problem>
-<problem file="app/solutions/page.tsx" line="1998" column="3" code="2304">Cannot find name 'FormItem'.</problem>
-<problem file="app/solutions/page.tsx" line="1999" column="3" code="2304">Cannot find name 'FormLabel'.</problem>
-<problem file="app/solutions/page.tsx" line="2000" column="3" code="2304">Cannot find name 'FormControl'.</problem>
-<problem file="app/solutions/page.tsx" line="2001" column="3" code="2304">Cannot find name 'FormDescription'.</problem>
-<problem file="app/solutions/page.tsx" line="2002" column="3" code="2304">Cannot find name 'FormMessage'.</problem>
-<problem file="app/solutions/page.tsx" line="2003" column="3" code="2304">Cannot find name 'FormField'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="7" column="80" code="2307">Cannot find module '@/components/ui/form' or its corresponding type declarations.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="39" column="5" code="2322">Type 'Resolver&lt;{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendorRiskMa...' is not assignable to type 'Resolver&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }, any, { ...; }&gt;'.
-  Types of parameters 'options' and 'options' are incompatible.
-    Type 'ResolverOptions&lt;{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }&gt;' is not assignable to type 'ResolverOptions&lt;{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendo...'.
-      Type '{ name: string; email: string; company: string; assessmentData?: string | undefined; dataBreachIncidentResponsePlan?: boolean | undefined; encryptionInTransitAndAtRest?: boolean | undefined; regularSecurityAssessments?: boolean | undefined; accessControlsAndAuthentication?: boolean | undefined; vendorRiskManagementP...' is not assignable to type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }'.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="111" column="45" code="2345">Argument of type '(values: { name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }) =&gt; Promise&lt;...&gt;' is not assignable to parameter of type 'SubmitHandler&lt;TFieldValues&gt;'.
-  Types of parameters 'values' and 'data' are incompatible.
-    Type 'TFieldValues' is not assignable to type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }'.
-      Type 'FieldValues' is missing the following properties from type '{ name: string; email: string; company: string; dataBreachIncidentResponsePlan: boolean; encryptionInTransitAndAtRest: boolean; regularSecurityAssessments: boolean; accessControlsAndAuthentication: boolean; vendorRiskManagementProgram: boolean; assessmentData?: string | undefined; }': name, email, company, dataBreachIncidentResponsePlan, and 4 more.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="115" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="128" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="141" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="155" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="171" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="187" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="203" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="219" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
-<problem file="app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx" line="235" column="26" code="7031">Binding element 'field' implicitly has an 'any' type.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="90" column="22" code="2345">Argument of type '{ id: string; vendorName: string; vendorEmail: string; contactPerson: string | undefined; assessmentType: string; status: &quot;pending&quot; | &quot;in_progress&quot; | &quot;completed&quot; | &quot;overdue&quot;; sentDate: string; ... 10 more ...; organization_id: string; }[]' is not assignable to parameter of type 'SetStateAction&lt;Assessment[]&gt;'.
-  Type '{ id: string; vendorName: string; vendorEmail: string; contactPerson: string | undefined; assessmentType: string; status: &quot;pending&quot; | &quot;in_progress&quot; | &quot;completed&quot; | &quot;overdue&quot;; sentDate: string; ... 10 more ...; organization_id: string; }[]' is not assignable to type 'Assessment[]'.
-    Type '{ id: string; vendorName: string; vendorEmail: string; contactPerson: string | undefined; assessmentType: string; status: &quot;pending&quot; | &quot;in_progress&quot; | &quot;completed&quot; | &quot;overdue&quot;; sentDate: string; ... 10 more ...; organization_id: string; }' is missing the following properties from type 'Assessment': vendor_name, vendor_email, assessment_type, sent_date, and 3 more.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="121" column="11" code="2322">Type 'null' is not assignable to type 'number | undefined'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="149" column="11" code="2322">Type '{ id: string; vendor_name: string; vendor_email: string; contact_person: string; assessment_type: string; status: &quot;completed&quot;; sent_date: string; completed_date: string; due_date: string; risk_score: number; ... 8 more ...; assessmentAnswers: { ...; }; }' is not assignable to type 'Assessment'.
-  Object literal may only specify known properties, and 'responses' does not exist in type 'Assessment'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="201" column="67" code="2339">Property 'id' does not exist on type 'never'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="219" column="39" code="2339">Property 'id' does not exist on type 'never'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="257" column="48" code="2339">Property 'id' does not exist on type 'never'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="272" column="48" code="2339">Property 'id' does not exist on type 'never'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="292" column="69" code="2339">Property 'id' does not exist on type 'never'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="297" column="48" code="2339">Property 'id' does not exist on type 'never'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="419" column="25" code="2322">Type '{ userEmail: string; onSignOut: (() =&gt; void) | undefined; }' is not assignable to type 'IntrinsicAttributes &amp; NavigationProps'.
-  Property 'userEmail' does not exist on type 'IntrinsicAttributes &amp; NavigationProps'.</problem>
-<problem file="app/third-party-assessment/page.tsx" line="438" column="25" code="2322">Type '{ userEmail: string; onSignOut: (() =&gt; void) | undefined; }' is not assignable to type 'IntrinsicAttributes &amp; NavigationProps'.
-  Property 'userEmail' does not exist on type 'IntrinsicAttributes &amp; NavigationProps'.</problem>
-<problem file="app/vendor-assessment/[id]/page.tsx" line="769" column="18" code="18046">'error' is of type 'unknown'.</problem>
-<problem file="app/vendor-assessment/[id]/page.tsx" line="770" column="16" code="18046">'error' is of type 'unknown'.</problem>
-<problem file="app/vendor-assessment/[id]/page.tsx" line="1333" column="47" code="7006">Parameter 'option' implicitly has an 'any' type.</problem>
-<problem file="app/vendor-assessment/[id]/page.tsx" line="1344" column="47" code="7006">Parameter 'option' implicitly has an 'any' type.</problem>
-<problem file="components/theme-provider.tsx" line="9" column="33" code="2339">Property 'children' does not exist on type 'ThemeProviderProps'.</problem>
-</dyad-problem-report><think>**Examining Compile Errors**
+                  <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #bfdbfe; margin-top: 5px;">
+                      ${riskResults.socInfo.subserviceOrganizations}
+                  </div>
+              </div>
+              `
+                  : ""
+              }
+          </div>
+          `
+              : ""
+          }
+          
+          <!-- Assessment Questions -->
+          <div class="section">
+              <h2>Assessment Questions & Responses</h2>
+              ${currentCategory.questions
+                .map((question, index) => {
+                  const answer = answers[question.id]
+                  const additionalInfo = answers[`${question.id}_additional`]
 
-I'm currently focused on the extensive list of 2565 TypeScript compile-time errors. My plan is to methodically address each file, beginning with `app/risk-assessment/ai-assessment/page.tsx` and the other identified files. I will identify and fix each error to get this project compiling again.
+                  return `
+                  <div class="question-card">
+                      <div class="question-header">
+                          <div class="question-title">${index + 1}. ${question.question}</div>
+                          <div class="question-meta">
+                              <span class="badge badge-outline">Weight: ${question.weight}</span>
+                              <span class="badge badge-outline">Type: ${question.type === "boolean" ? "Yes/No" : question.type === "tested" ? "Tested/Not Tested" : "Multiple Choice"}</span>
+                          </div>
+                      </div>
+                      
+                      <div class="answer-section">
+                          <div class="section-title">Your Answer</div>
+                          <div class="user-answer">
+                              <div class="answer-text">
+                                  ${
+                                    question.type === "boolean"
+                                      ? answer
+                                        ? "Yes"
+                                        : "No"
+                                      : question.type === "tested"
+                                        ? (
+                                            answer === "tested"
+                                              ? "Tested"
+                                              : answer === "not_tested"
+                                                ? "Not Tested"
+                                                : "Not answered"
+                                          )
+                                        : answer || "Not answered"
+                                  }
+                              </div>
+                          </div>
+                          
+                          ${
+                            additionalInfo
+                              ? `
+                              <div class="section-title">Additional Information</div>
+                              <div class="additional-info">
+                                  <div class="additional-info-text">${additionalInfo}</div>
+                              </div>
+                          `
+                              : ""
+                          }
+                      </div>
+                  </div>
+              `
+                })
+                .join("")}
+          </div>
+          
+          <!-- Recommendations -->
+          <div class="section">
+              <h2>Recommendations</h2>
+              <ul class="recommendations-list">
+                  ${riskResults.recommendations
+                    .map(
+                      (recommendation) => `
+                      <li>
+                          <span class="list-icon">✅</span>
+                          <span>${recommendation}</span>
+                      </li>
+                  `,
+                    )
+                    .join("")}
+              </ul>
+          </div>
+          
+          <!-- Disclaimer -->
+          <div class="disclaimer">
+              <h3>⚠️ Important Disclaimer</h3>
+              <p>This assessment should be reviewed by qualified professionals and used as part of a comprehensive risk management program.</p>
+          </div>
+      </div>
+      
+      <div class="footer">
+          <div>Report generated by RiskGuard AI - Risk Assessment Platform</div>
+          <div>Assessment ID: ${Date.now()} • Generation Date: ${new Date().toISOString()}</div>
+      </div>
+  </div>
+</body>
+</html>
+  `.trim()
 
-
-**Tackling JSX Issues**
-
-I've been meticulously addressing the JSX syntax errors, carefully examining each file. I started with `app/risk-assessment/ai-assessment/page.tsx` and `app/risk-assessment/page.tsx`, fixing tag mismatches and syntax issues. Now, I'm focusing on `app/solutions/page.tsx`, resolving similar errors there and removing the incorrectly interpreted `dyad-problem-report` output. I've made steady progress, and am moving forward.
-
-
-**Refining Supabase Types**
-
-I'm now focusing on fixing the Supabase-related type errors. I've begun defining the necessary types for the `usage_tracking`, `profiles`, and `organizations` tables. The schema from `007-create-usage-tracking.sql` and the implied structures will inform these definitions. I'll integrate these types into the Supabase client in `lib/supabase.ts` to resolve the type mismatches and property access errors in `lib/usage-tracking.ts`, `lib/auth-service.ts`, and `lib/analytics-service.ts`.
-
-
-**Analyzing Database Schemas**
-
-I'm now diving into the Supabase database schema to define the required types for accurate client interaction. I've begun to infer the structures of the `usage_tracking`, `profiles`, and `organizations` tables. Based on the provided `007-create-usage-tracking.sql` script, I will create the appropriate interfaces to resolve the type errors. My primary focus is to define and integrate these table definitions into `lib/supabase.ts`. This effort will directly resolve the type mismatches and property access issues observed in `lib/usage-tracking.ts`, `lib/auth-service.ts`, and `lib/analytics-service.ts`.
-
-
-**Defining Supabase Tables**
-
-I'm now fully immersed in resolving the type errors, specifically those linked to Supabase interactions. I'm focusing on defining clear and accurate interfaces for `usage_tracking`, `profiles`, and `organizations` tables. These definitions will be guided by the schema in `007-create-usage-tracking.sql`, ensuring proper type safety. I'm prioritizing the integration of these refined types within `lib/supabase.ts`. This effort aims to eliminate the type mismatches and property access errors plaguing `lib/usage-tracking.ts`, `lib/auth-service.ts`, and `lib/analytics-service.ts`.
-
-
-**Analyzing Code Errors**
-
-I've made significant progress addressing the remaining errors. I've corrected issues related to both Supabase and UI components, updating interfaces for `Assessment`, fixing `AuthContext` type inference, and addressing form schema mismatches. The `ThemeProvider` component has been refined to correctly handle `children`. I've also addressed the final JSX error in `components/theme-provider.tsx`. I've now turned my focus to error handling within assessment-related components, correcting `unknown` type errors and adding type guards for the errors from Supabase queries. I am actively working on type hints.
-
-
-**Defining Table Types**
-
-I've started by defining the essential Supabase table types, specifically focusing on `preview_sessions`, `page_views`, `feature_interactions`, and `preview_leads`. These types, inferred from the database schema and queries, will be crucial in resolving the `never` and `unknown` type errors I've identified across the codebase. I will then work through the remaining files and type errors.
-
-
-</think>Okay, I understand the critical nature of these authentication and data saving issues. I'll go through the codebase systematically, focusing on the authentication flow, data association, and all reported TypeScript errors. I'll also perform mock testing to ensure the core functionalities are working as expected.
-
-Here's my plan to address the issues:
-
-1.  **Define Supabase Table Types:** I'll start by defining the necessary TypeScript interfaces for your Supabase tables (`preview_sessions`, `page_views`, `feature_interactions`, `preview_leads`, `organizations`, `user_profiles`, `user_roles`, `notifications`, `assessments`, `assessment_responses`) in `lib/supabase.ts` and `lib/auth-service.ts`. This is crucial for resolving many `never` and `unknown` type errors.
-2.  **Create Missing UI Components:** I'll create `components/ui/form.tsx` and `components/ui/sheet.tsx` as they are used but not defined.
-3.  **Remove Redundant `MainNavigation` Imports:** The `MainNavigation` component is already in `RootLayout`, so I'll remove its imports from individual pages and adjust `app/layout.tsx` to handle its props correctly.
-4.  **Fix JSX Syntax Errors:** I'll correct all reported JSX syntax errors (missing closing tags, unexpected tokens) in `app/risk-assessment/ai-assessment/page.tsx`, `app/risk-assessment/page.tsx`, and `app/solutions/page.tsx`. I will also remove the `dyad-problem-report` blocks.
-5.  **Adjust `ai-sdk/google` Calls:** I'll remove the `maxTokens` property from `generateText` calls in `lib/ai-service.ts`.
-6.  **Improve PDF Parsing Types:** I'll refine `PDFExtractionResult` and add type assertions in `lib/pdf-parser.ts` for `text` and metadata properties.
-7.  **Correct Analytics Sorting:** I'll explicitly type `sort` function arguments in `app/analytics/page.tsx`.
-8.  **Update `Notification` Interface and Mock Data:** I'll adjust the `Notification` interface and mock data in `app/dashboard/page.tsx` to match expected properties.
-9.  **Add Missing UI Component Imports:** I'll add `Label` and `Input` imports to `app/policy-generator/page.tsx`.
-10. **Refine Form Schema and Handlers:** I'll update `formSchema` in `app/third-party-assessment/ThirdPartyAssessmentClientPage.tsx` for boolean fields and explicitly type `field` props.
-11. **Standardize `Assessment` Interface:** I'll update the `Assessment` interface in `lib/supabase.ts` to match the transformed data structure used in `app/third-party-assessment/page.tsx`.
-12. **Handle `unknown` Error Types:** I'll add type guards for `unknown` error objects in `app/vendor-assessment/[id]/page.tsx`.
-13. **Type `map` Function Parameters:** I'll explicitly type parameters like `recommendation` and `option` in `map` functions.
-14. **Add Null Checks for Carousel:** I'll add null checks for the `carousel` element in `app/solutions/page.tsx`.
-15. **Fix `ThemeProviderProps`:** I'll adjust the `ThemeProvider` component in `components/theme-provider.tsx` to correctly handle the `children` prop.
-16. **Enhance AuthContext Error Handling:** I'll add more detailed error logging to `refreshProfile` in `components/auth-context.tsx` and ensure `setLoading(false)` is always called.
-17. **Review Assessment Service User Context:** I'll verify that `getCurrentUser` and assessment functions in `lib/assessment-service.ts` correctly use the authenticated user's ID and add more logging.
-
-I will proceed with these changes now.
-
-<dyad-write path="lib/supabase.ts" description="Defining TypeScript interfaces for Supabase tables to improve type safety across the application.">
-import { createClient } from "@supabase/supabase-js"
-
-// Safely get environment variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-// Initialize client directly, assuming environment variables are set
-const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false, // Typically false for server-side/API routes
-    autoRefreshToken: false,
-  },
-})
-
-console.log("✅ Supabase client initialized successfully")
-
-export { supabase }
-
-// Types for our database tables
-export interface Assessment {
-  id: string
-  vendor_name: string
-  vendor_email: string
-  contact_person?: string | null
-  assessment_type: string
-  status: "pending" | "in_progress" | "completed" | "overdue"
-  sent_date: string
-  completed_date?: string | null
-  due_date?: string | null
-  risk_score?: number | null
-  risk_level: string
-  company_size?: string | null
-  custom_message?: string | null
-  created_at: string
-  updated_at: string
-  user_id: string
-  organization_id: string
-  // Added properties for transformed data in third-party-assessment page
-  responses?: any | null;
-  completedVendorInfo?: any | null;
-  assessmentAnswers?: Record<string, any> | null;
-}
-
-export interface AssessmentResponse {
-  id: number
-  assessment_id: string
-  user_id: string
-  organization_id: string
-  vendor_info: {
-    companyName: string
-    contactName: string
-    email: string
-    phone?: string
-    website?: string
-    employeeCount?: string
-    industry?: string
-    description?: string
+    const blob = new Blob([htmlReport], { type: "text/html;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `${riskResults.category.replace(/\s+/g, "_")}_Risk_Assessment_Report_${new Date().toISOString().split("T")[0]}.html`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   }
-  answers: Record<string, any>
-  submitted_at: string
-}
 
-export interface PreviewSession {
-  session_id: string;
-  user_agent?: string;
-  referrer?: string;
-  utm_source?: string;
-  utm_medium?: string;
-  utm_campaign?: string;
-  last_activity: string;
-  total_time_spent?: number;
-  converted_user_id?: string;
-  converted_at?: string;
-  created_at: string;
-}
+  return (
+    <AuthGuard
+      allowPreview={true}
+      previewMessage="Preview Mode: Sign up to save assessments and access full AI features"
+    >
+      <div className="min-h-screen bg-white">
+        {/* Header - Removed */}
 
-export interface PageView {
-  id: number;
-  session_id: string;
-  page_path: string;
-  page_title?: string;
-  time_on_page?: number;
-  created_at: string;
-}
+        {/* Hero Section */}
+        <section className="bg-gradient-to-b from-blue-50 to-white py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">
+                {isDelegatedAssessment ? "Delegated Assessment" : "Risk Assessment"}
+              </Badge>
+              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+                {isDelegatedAssessment ? "Complete Your" : "Internal Risk"}
+                <br />
+                <span className="text-blue-600">{isDelegatedAssessment ? "Assigned Assessment" : "Assessment"}</span>
+              </h1>
+              <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
+                {isDelegatedAssessment
+                  ? `Complete the ${delegatedAssessmentInfo?.assessmentType} assessment that was assigned to you.`
+                  : "Comprehensive internal risk assessment tools for your organization."}
+              </p>
+              {isDelegatedAssessment && delegatedAssessmentInfo && (
+                <div className="mt-6 max-w-md mx-auto bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="text-sm text-blue-800">
+                    <p>
+                      <strong>Assessment Type:</strong> {delegatedAssessmentInfo.assessmentType}
+                    </p>
+                    <p>
+                      <strong>Delegation Type:</strong>{" "}
+                      {delegatedAssessmentInfo.delegationType === "team" ? "Team Member" : "Third-Party"}
+                    </p>
+                    <p>
+                      <strong>Method:</strong> {delegatedAssessmentInfo.method === "ai" ? "AI-Powered" : "Manual"}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
 
-export interface FeatureInteraction {
-  id: number;
-  session_id: string;
-  feature_name: string;
-  action_type: string;
-  feature_data?: any;
-  created_at: string;
-}
+        {/* Main Content */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+          {/* Step 1: Select Assessment Category */}
+          {currentStep === "select" && (
+            <>
+              {/* Assessment Categories */}
+              <div className="mb-12">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Assessments</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {assessmentCategories.map((category) => {
+                    const Icon = category.icon
+                    return (
+                      <Card key={category.id} className="border border-gray-200 hover:shadow-lg transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                              <Icon className="h-6 w-6 text-blue-600" />
+                            </div>
+                            <CardTitle className="text-lg">{category.name}</CardTitle>
+                          </div>
+                          <CardDescription>{category.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="text-sm text-gray-600">
+                              <strong>{category.questions.length}</strong> questions
+                            </div>
+                            <div className="space-y-2">
+                              <Button
+                                onClick={() => handleStartAssessment(category.id)}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                              >
+                                Start Assessment
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => handleDelegateAssessment(category.id)}
+                                className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+                              >
+                                <Send className="mr-2 h-4 w-4" />
+                                Delegate Assessment
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+              </div>
 
-export interface PreviewLead {
-  id: number;
-  session_id: string;
-  email?: string;
-  name?: string;
-  company?: string;
-  phone?: string;
-  interest_level: "high" | "medium" | "low";
-  lead_source: string;
-  notes?: string;
-  followed_up?: boolean;
-  created_at: string;
-}
+              {/* Saved Assessments */}
+              {savedAssessments.length > 0 && (
+                <div className="mb-12">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Saved Assessments</h2>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowSavedAssessments(!showSavedAssessments)}
+                      className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                    >
+                      <Eye className="mr-2 h-4 w-4" />
+                      {showSavedAssessments ? "Hide" : "Show"} Saved ({savedAssessments.length})
+                    </Button>
+                  </div>
 
-export interface Organization {
-  id: string
-  name: string
-  slug: string
-  domain?: string
-  logo_url?: string
-  settings: Record<string, any>
-  subscription_plan: string
-  subscription_status: string
-  trial_ends_at?: string
-  created_at: string
-  updated_at: string
-}
+                  {showSavedAssessments && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {savedAssessments.map((saved) => (
+                        <Card key={saved.id} className="border border-yellow-200 bg-yellow-50">
+                          <CardHeader>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <Clock className="h-5 w-5 text-yellow-600" />
+                                <CardTitle className="text-lg text-yellow-900">{saved.categoryName}</CardTitle>
+                              </div>
+                              <Badge className="bg-yellow-200 text-yellow-800">Draft</Badge>
+                            </div>
+                            <CardDescription className="text-yellow-700">
+                              Progress: {saved.currentQuestion + 1} of{" "}
+                              {assessmentCategories.find((cat) => cat.id === saved.category)?.questions.length}{" "}
+                              questions
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              <Progress
+                                value={
+                                  ((saved.currentQuestion + 1) /
+                                    (assessmentCategories.find((cat) => cat.id === saved.category)?.questions.length ||
+                                      1)) *
+                                  100
+                                }
+                                className="h-2"
+                              />
+                              <div className="text-sm text-yellow-700">
+                                Last saved: {new Date(saved.timestamp).toLocaleString()}
+                              </div>
+                              <div className="flex space-x-2">
+                                <Button
+                                  onClick={() => loadSavedAssessment(saved)}
+                                  size="sm"
+                                  className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white"
+                                >
+                                  Continue
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => deleteSavedAssessment(saved.category)}
+                                  className="border-red-200 text-red-600 hover:bg-red-50"
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
-export interface UserProfile {
-  id: string
-  user_id: string
-  organization_id: string
-  first_name?: string
-  last_name?: string
-  avatar_url?: string
-  phone?: string
-  timezone: string
-  language: string
-  preferences: Record<string, any>
-  last_active_at?: string
-  created_at: string
-  updated_at: string
-}
+              {/* Delegated Assessments */}
+              {delegatedAssessments.length > 0 && (
+                <div className="mb-12">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Delegated Assessments</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {delegatedAssessments.map((delegation) => (
+                      <Card key={delegation.id} className="border border-purple-200 bg-purple-50">
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              {delegation.delegationType === "third-party" ? (
+                                <Building2 className="h-5 w-5 text-purple-600" />
+                              ) : (
+                                <Users className="h-5 w-5 text-purple-600" />
+                              )}
+                              <CardTitle className="text-lg text-purple-900">{delegation.assessmentType}</CardTitle>
+                            </div>
+                            <div className="flex flex-col items-end space-y-1">
+                              <Badge className="bg-purple-200 text-purple-800">
+                                {delegation.status === "pending" ? "Pending" : "Completed"}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {delegation.method === "ai" ? "AI" : "Manual"}
+                              </Badge>
+                            </div>
+                          </div>
+                          <CardDescription className="text-purple-700">
+                            {delegation.delegationType === "third-party" ? "Third-Party" : "Team Member"}:{" "}
+                            {delegation.recipientName}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2 text-sm text-purple-700">
+                            <div>Email: {delegation.recipientEmail}</div>
+                            {delegation.companyName && <div>Company: {delegation.companyName}</div>}
+                            {delegation.dueDate && <div>Due: {new Date(delegation.dueDate).toLocaleDateString()}</div>}
+                            <div>Sent: {new Date(delegation.sentDate).toLocaleDateString()}</div>
+                            {delegation.emailResult && (
+                              <div className="text-xs">
+                                Email Status:{" "}
+                                <span className={delegation.emailResult.success ? "text-green-600" : "text-red-600"}>
+                                  {delegation.emailResult.success ? "Delivered" : "Failed"}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-export interface UserRole {
-  id: string
-  organization_id: string
-  user_id: string
-  role: "admin" | "manager" | "analyst" | "viewer"
-  permissions: Record<string, any>
-  created_at: string
-}
+              {/* Recent Assessments */}
+              <div className="mb-12">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Assessments</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {mockAssessments.map((assessment) => (
+                    <Card key={assessment.id} className="border border-gray-200">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">{assessment.name}</CardTitle>
+                          <Badge className={`${getStatusColor(assessment.status)}`}>
+                            {assessment.status === "completed" ? "Completed" : "In Progress"}
+                          </Badge>
+                        </div>
+                        <CardDescription>
+                          {assessmentCategories.find((cat) => cat.id === assessment.category)?.name}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {assessment.status === "completed" && (
+                            <>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Risk Score:</span>
+                                <span className="font-semibold">{assessment.riskScore}%</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Risk Level:</span>
+                                <Badge className={`${getRiskLevelColor(assessment.riskLevel)}`}>
+                                  {assessment.riskLevel}
+                                </Badge>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Completed:</span>
+                                <span className="text-sm">{assessment.completedDate}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Recommendations:</span>
+                                <span className="text-sm">
+                                  {assessment.implementedRecommendations}/{assessment.recommendations} implemented
+                                </span>
+                              </div>
+                            </>
+                          )}
+                          <Button variant="outline" className="w-full bg-transparent">
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
-export interface Notification {
-  id: string
-  organization_id: string
-  user_id: string
-  type: string
-  title: string
-  message: string
-  data: Record<string, any>
-  read_at?: string
-  created_at: string
+          {/* Step 2: Choose Assessment Method */}
+          {currentStep === "choose-method" && currentCategory && (
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-8">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setCurrentStep("select")
+                    setSelectedCategory(null)
+                  }}
+                  className="mb-6"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Assessment Selection
+                </Button>
+              </div>
+
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Assessment Method</h2>
+                <p className="text-lg text-gray-600">
+                  Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                </p>
+              </div>
+
+              <div className="grid gap-8 md:grid-cols-2">
+                <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseManual}>
+                  <CardHeader>
+                    <div className="flex items-center space-x-3">
+                      <div className="p-3 bg-green-100 rounded-lg">
+                        <User className="h-8 w-8 text-green-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl">Manual Assessment</CardTitle>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="mb-6 text-base">
+                      Complete the assessment manually by answering questions step by step. Full control over responses
+                      with detailed explanations.
+                    </CardDescription>
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                        Step-by-step question flow
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                        Full control over answers
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                        Detailed explanations
+                      </div>
+                    </div>
+                    <Button className="w-full bg-green-600 hover:bg-green-700">
+                      <User className="mr-2 h-4 w-4" />
+                      Start Manual Assessment
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={handleChooseAI}>
+                  <CardHeader>
+                    <div className="flex items-center space-x-3">
+                      <div className="p-3 bg-blue-100 rounded-lg">
+                        <Bot className="h-8 w-8 text-blue-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl">AI Assessment</CardTitle>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="mb-6 text-base">
+                      Upload your documents and let AI analyze them automatically. Fast, comprehensive analysis with
+                      evidence extraction.
+                    </CardDescription>
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                        Automated document analysis
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                        Evidence extraction
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                        Fast and comprehensive
+                      </div>
+                    </div>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                      <Bot className="mr-2 h-4 w-4" />
+                      Start AI Assessment
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Manual Assessment in Progress */}
+          {currentStep === "manual-assessment" && !assessmentCompleted && (
+            <>
+              {/* SOC Information Collection - Show before questions if SOC assessment and not filled */}
+              {selectedCategory === "soc-compliance" && !socInfo.socType && (
+                <div className="max-w-3xl mx-auto mt-8">
+                  <Card className="border border-gray-200">
+                    <CardHeader>
+                      <CardTitle>SOC Assessment Information</CardTitle>
+                      <CardDescription>
+                        Please provide information about your SOC assessment requirements before proceeding
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="socType">SOC Type *</Label>
+                            <select
+                              id="socType"
+                              className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                              value={socInfo.socType}
+                              onChange={(e) => setSocInfo({ ...socInfo, socType: e.target.value })}
+                            >
+                              <option value="">Select SOC Type</option>
+                              <option value="SOC 1 - Internal Controls over Financial Reporting">
+                                SOC 1 - Internal Controls over Financial Reporting
+                              </option>
+                              <option value="SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy">
+                                SOC 2 - Security, Availability, Processing Integrity, Confidentiality, Privacy
+                              </option>
+                              <option value="SOC 3 - General Use Report">SOC 3 - General Use Report</option>
+                            </select>
+                          </div>
+                          <div>
+                            <Label htmlFor="reportType">Report Type *</Label>
+                            <select
+                              id="reportType"
+                              className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                              value={socInfo.reportType}
+                              onChange={(e) => setSocInfo({ ...socInfo, reportType: e.target.value })}
+                            >
+                              <option value="">Select Report Type</option>
+                              <option value="Type 1 - Design and Implementation">
+                                Type 1 - Design and Implementation
+                              </option>
+                              <option value="Type 2 - Design, Implementation, and Operating Effectiveness">
+                                Type 2 - Design, Implementation, and Operating Effectiveness
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="auditor">Auditor/CPA Firm</Label>
+                            <Input
+                              type="text"
+                              id="auditor"
+                              value={socInfo.auditor}
+                              onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="auditorOpinion">Expected Auditor Opinion</Label>
+                            <select
+                              id="auditorOpinion"
+                              className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                              value={socInfo.auditorOpinion}
+                              onChange={(e) => setSocInfo({ ...socInfo, auditorOpinion: e.target.value })}
+                            >
+                              <option value="">Select Expected Opinion</option>
+                              <option value="Unqualified (Clean Opinion)">Unqualified (Clean Opinion)</option>
+                              <option value="Qualified">Qualified</option>
+                              <option value="Adverse">Adverse</option>
+                              <option value="Disclaimer">Disclaimer</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="testedStatus">Testing Status</Label>
+                            <select
+                              id="testedStatus"
+                              className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:text-muted-foreground file:h-10 file:w-40"
+                              value={socInfo.testedStatus}
+                              onChange={(e) => setSocInfo({ ...socInfo, testedStatus: e.target.value })}
+                            >
+                              <option value="">Select Testing Status</option>
+                              <option value="Tested">Tested</option>
+                              <option value="Untested">Untested</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="companyName">Company Name *</Label>
+                          <Input
+                            type="text"
+                            id="companyName"
+                            value={socInfo.companyName}
+                            onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="productService">Product/Service Being Assessed *</Label>
+                          <Input
+                            type="text"
+                            id="productService"
+                            value={socInfo.productService}
+                            onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
+                          />
+                        </div>
+
+                        <div>
+                          <Label>Trust Service Criteria Included in Report *</Label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                            {["Security", "Availability", "Processing Integrity", "Confidentiality", "Privacy"].map(
+                              (criteria) => (
+                                <label key={criteria} className="flex items-center space-x-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={socInfo.trustServiceCriteria.includes(criteria)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSocInfo({
+                                          ...socInfo,
+                                          trustServiceCriteria: [...socInfo.trustServiceCriteria, criteria],
+                                        })
+                                      } else {
+                                        setSocInfo({
+                                          ...socInfo,
+                                          trustServiceCriteria: socInfo.trustServiceCriteria.filter(
+                                            (c) => c !== criteria,
+                                          ),
+                                        })
+                                      }
+                                    }}
+                                    className="rounded border-gray-300"
+                                  />
+                                  <span className="text-sm">{criteria}</span>
+                                </label>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <Label htmlFor="subserviceOrganizations">Subservice Organizations</Label>
+                        <Textarea
+                          id="subserviceOrganizations"
+                          value={socInfo.subserviceOrganizations}
+                          onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="mt-6">
+                        <Button onClick={() => setCurrentStep("manual-assessment")}>Continue to Questions</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Regular Assessment Questions - Show if not SOC or SOC info is filled */}
+              {(selectedCategory !== "soc-compliance" || socInfo.socType) && (
+                <div className="max-w-3xl mx-auto mt-8">
+                  <Card className="border border-gray-200">
+                    <CardHeader>
+                      <CardTitle>{currentCategory?.name} Assessment</CardTitle>
+                      <CardDescription>
+                        Question {currentQuestion + 1} of {currentCategory?.questions.length}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Progress value={Math.round(progress)} />
+                      <div className="mt-4">
+                        <Label htmlFor="question">
+                          {currentQuestion + 1}. {currentQuestionData.question}
+                        </Label>
+                        <div className="mt-2">
+                          {currentQuestionData.type === "boolean" ? (
+                            <div className="flex space-x-4">
+                              <Button
+                                variant={answers[currentQuestionData.id] === true ? "default" : "outline"}
+                                onClick={() => handleAnswer(currentQuestionData.id, true)}
+                              >
+                                Yes
+                              </Button>
+                              <Button
+                                variant={answers[currentQuestionData.id] === false ? "default" : "outline"}
+                                onClick={() => handleAnswer(currentQuestionData.id, false)}
+                              >
+                                No
+                              </Button>
+                            </div>
+                          ) : currentQuestionData.type === "tested" ? (
+                            <div className="flex space-x-4">
+                              <Button
+                                variant={answers[currentQuestionData.id] === "tested" ? "default" : "outline"}
+                                onClick={() => handleAnswer(currentQuestionData.id, "tested")}
+                              >
+                                Tested
+                              </Button>
+                              <Button
+                                variant={answers[currentQuestionData.id] === "not_tested" ? "default" : "outline"}
+                                onClick={() => handleAnswer(currentQuestionData.id, "not_tested")}
+                              >
+                                Not Tested
+                              </Button>
+                              <p className="text-sm text-gray-500 mt-1">
+                                <strong>Tested</strong> means the control has been implemented and its effectiveness has
+                                been verified through testing.
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="grid gap-2">
+                              {currentQuestionData.options?.map((option) => (
+                                <Button
+                                  key={option}
+                                  variant={answers[currentQuestionData.id] === option ? "default" : "outline"}
+                                  onClick={() => handleAnswer(currentQuestionData.id, option)}
+                                >
+                                  {option}
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="mt-4">
+                            <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+                            <Textarea
+                              id="additionalInfo"
+                              value={answers[`${currentQuestionData.id}_additional`] || ""}
+                              onChange={(e) => handleAnswer(`${currentQuestionData.id}_additional`, e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex justify-between">
+                        <Button variant="outline" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
+                          Previous
+                        </Button>
+                        <Button onClick={handleNextQuestion}>
+                          {currentQuestion === (currentCategory?.questions.length || 0) - 1 ? "Complete" : "Next"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Assessment Completed */}
+          {currentStep === "manual-assessment" && assessmentCompleted && (
+            <div className="max-w-3xl mx-auto mt-12">
+              <Card className="border border-green-200 bg-green-50">
+                <CardHeader>
+                  <CardTitle>
+                    <CheckCircle2 className="mr-2 h-6 w-6 inline-block align-middle" />
+                    Assessment Complete!
+                  </CardTitle>
+                  <CardDescription>Your {riskResults?.category} has been completed.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-green-700">{riskResults?.recommendations.length}</div>
+                      <div className="text-sm text-gray-600">Recommendations</div>
+                    </div>
+                  </div>
+
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommendations</h3>
+                    <ul className="list-disc pl-5">
+                      {riskResults?.recommendations.map((recommendation, index) => (
+                        <li key={index} className="text-gray-700">
+                          {recommendation}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <Button onClick={downloadRegularReport} className="mr-4">
+                      Download Report
+                    </Button>
+                    <Button variant="outline" onClick={() => setCurrentStep("select")}>
+                      Start New Assessment
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Delegate Assessment Modal */}
+          {showDelegateForm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <CardHeader>
+                  <CardTitle>Delegate Assessment</CardTitle>
+                  <CardDescription>
+                    {delegateStep === "choose-type" && "Choose who will complete this assessment"}
+                    {delegateStep === "choose-method" && "Choose the assessment method"}
+                    {delegateStep === "form" && "Enter delegation details"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {delegateStep === "choose-type" && (
+                    <div className="space-y-4">
+                      <div className="grid gap-4">
+                        <Button
+                          variant="outline"
+                          className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                          onClick={() => handleDelegateTypeSelection("team")}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Users className="h-5 w-5 text-blue-600" />
+                            <span className="font-semibold">Team Member</span>
+                          </div>
+                          <span className="text-sm text-gray-600">Delegate to someone within your organization</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                          onClick={() => handleDelegateTypeSelection("third-party")}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Building2 className="h-5 w-5 text-purple-600" />
+                            <span className="font-semibold">Third-Party</span>
+                          </div>
+                          <span className="text-sm text-gray-600">Delegate to an external vendor or partner</span>
+                        </Button>
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {delegateStep === "choose-method" && (
+                    <div className="space-y-4">
+                      <div className="grid gap-4">
+                        <Button
+                          variant="outline"
+                          className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                          onClick={() => handleDelegateMethodSelection("manual")}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <User className="h-5 w-5 text-green-600" />
+                            <span className="font-semibold">Manual Assessment</span>
+                          </div>
+                          <span className="text-sm text-gray-600">Traditional question-by-question assessment</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="p-6 h-auto flex flex-col items-start space-y-2 bg-transparent"
+                          onClick={() => handleDelegateMethodSelection("ai")}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Bot className="h-5 w-5 text-blue-600" />
+                            <span className="font-semibold">AI Assessment</span>
+                          </div>
+                          <span className="text-sm text-gray-600">AI-powered document analysis and assessment</span>
+                        </Button>
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button variant="outline" onClick={() => setDelegateStep("choose-type")}>
+                          Back
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {delegateStep === "form" && (
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="recipientName">Recipient Name *</Label>
+                        <Input
+                          id="recipientName"
+                          value={delegateForm.recipientName}
+                          onChange={(e) => setDelegateForm({ ...delegateForm, recipientName: e.target.value })}
+                          placeholder="Enter recipient's full name"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="recipientEmail">Recipient Email *</Label>
+                        <Input
+                          id="recipientEmail"
+                          type="email"
+                          value={delegateForm.recipientEmail}
+                          onChange={(e) => setDelegateForm({ ...delegateForm, recipientEmail: e.target.value })}
+                          placeholder="Enter recipient's email address"
+                        />
+                      </div>
+                      {delegationType === "third-party" && (
+                        <div>
+                          <Label htmlFor="companyName">Company Name *</Label>
+                          <Input
+                            id="companyName"
+                            value={delegateForm.companyName}
+                            onChange={(e) => setDelegateForm({ ...delegateForm, companyName: e.target.value })}
+                            placeholder="Enter company name"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <Label htmlFor="dueDate">Due Date</Label>
+                        <Input
+                          id="dueDate"
+                          type="date"
+                          value={delegateForm.dueDate}
+                          onChange={(e) => setDelegateForm({ ...delegateForm, dueDate: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="customMessage">Custom Message</Label>
+                        <Textarea
+                          id="customMessage"
+                          value={delegateForm.customMessage}
+                          onChange={(e) => setDelegateForm({ ...delegateForm, customMessage: e.target.value })}
+                          placeholder="Add any additional instructions or context..."
+                          rows={3}
+                        />
+                      </div>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 className="font-semibold text-blue-900 mb-2">Assessment Details</h4>
+                        <div className="text-sm text-blue-800 space-y-1">
+                          <p>
+                            <strong>Type:</strong> {delegateForm.assessmentType}
+                          </p>
+                          <p>
+                            <strong>Method:</strong> {delegateMethod === "ai" ? "AI-Powered" : "Manual"}
+                          </p>
+                          <p>
+                            <strong>Delegation:</strong> {delegationType === "team" ? "Team Member" : "Third-Party"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button variant="outline" onClick={() => setDelegateStep("choose-method")}>
+                          Back
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowDelegateForm(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleSendDelegation}>
+                          <Send className="mr-2 h-4 w-4" />
+                          Send Delegation
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      </div>
+    </AuthGuard>
+  )
 }

@@ -4,7 +4,6 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { supabaseClient } from "@/lib/supabase-client"
 import type { User } from "@supabase/supabase-js"
-import { useRouter } from "next/navigation" // Import useRouter
 
 interface DemoUser {
   id: string
@@ -18,19 +17,11 @@ interface DemoOrganization {
   plan: string
 }
 
-interface DemoProfile {
-  first_name: string;
-  last_name: string;
-  organization_id: string;
-  avatar_url: string;
-}
-
 interface DemoSession {
   user: DemoUser
   organization: DemoOrganization
-  role: { role: string; permissions: { all: true } } // Updated to object
+  role: string
   loginTime: string
-  profile: DemoProfile;
 }
 
 interface AuthContextType {
@@ -56,11 +47,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [isDemo, setIsDemo] = useState(false)
-  const router = useRouter() // Initialize useRouter
 
   const refreshProfile = async () => {
-    setLoading(true); // Ensure loading is true at the start of refresh
-
     // Check for demo session first
     const demoSession = localStorage.getItem("demo_session")
     if (demoSession) {
@@ -68,86 +56,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const session: DemoSession = JSON.parse(demoSession)
         setUser(session.user)
         setOrganization(session.organization)
-        setRole(session.role) // Directly use the object
-        setProfile(session.profile)
+        setRole({ role: session.role, permissions: { all: true } })
+        setProfile({
+          first_name: "Demo",
+          last_name: "User",
+          organization_id: session.organization.id,
+          avatar_url: "/placeholder.svg?height=32&width=32",
+        })
         setIsDemo(true)
         setLoading(false)
-        console.log("AuthContext: Demo session loaded successfully.")
         return
       } catch (error) {
-        console.error("AuthContext: Error parsing demo session:", error)
+        console.error("Error parsing demo session:", error)
         localStorage.removeItem("demo_session")
       }
     }
 
     // Regular Supabase auth flow continues...
     try {
-      console.log("AuthContext: Attempting to fetch Supabase user...")
       const {
         data: { user },
         error: userError,
       } = await supabaseClient.auth.getUser()
 
-      if (userError) {
-        console.error("AuthContext: Supabase getUser error:", userError.message);
-        setUser(null); setProfile(null); setOrganization(null); setRole(null); setIsDemo(false);
-        return;
+      if (userError || !user) {
+        setUser(null)
+        setProfile(null)
+        setOrganization(null)
+        setRole(null)
+        setIsDemo(false)
+        return
       }
-
-      if (!user) {
-        console.log("AuthContext: No authenticated Supabase user found.");
-        setUser(null); setProfile(null); setOrganization(null); setRole(null); setIsDemo(false);
-        return;
-      }
-
-      console.log("AuthContext: Supabase user found:", user.email, "ID:", user.id)
 
       // Get user profile from Supabase
-      console.log("AuthContext: Fetching user profile...")
       const { data: profile, error: profileError } = await supabaseClient
         .from("user_profiles")
         .select("*")
         .eq("user_id", user.id)
         .single()
 
-      if (profileError) {
-        console.error("AuthContext: Supabase profile error:", profileError.message);
-        setUser(user); setProfile(null); setOrganization(null); setRole(null); setIsDemo(false);
-        return;
+      if (profileError || !profile) {
+        setUser(user)
+        setProfile(null)
+        setOrganization(null)
+        setRole(null)
+        setIsDemo(false)
+        return
       }
-
-      if (!profile) {
-        console.log("AuthContext: No user profile found for user ID:", user.id);
-        setUser(user); setProfile(null); setOrganization(null); setRole(null); setIsDemo(false);
-        return;
-      }
-
-      console.log("AuthContext: User profile found:", profile)
 
       // Get organization
-      console.log("AuthContext: Fetching organization for ID:", profile.organization_id)
       const { data: organization, error: orgError } = await supabaseClient
         .from("organizations")
         .select("*")
         .eq("id", profile.organization_id)
         .single()
 
-      if (orgError) {
-        console.error("AuthContext: Supabase organization error:", orgError.message);
-        setUser(user); setProfile(profile); setOrganization(null); setRole(null); setIsDemo(false);
-        return;
-      }
-
-      if (!organization) {
-        console.log("AuthContext: No organization found for ID:", profile.organization_id);
-        setUser(user); setProfile(profile); setOrganization(null); setRole(null); setIsDemo(false);
-        return;
-      }
-
-      console.log("AuthContext: Organization found:", organization.name)
-
       // Get user role
-      console.log("AuthContext: Fetching user role for user ID:", user.id, "and organization ID:", profile.organization_id)
       const { data: roleData, error: roleError } = await supabaseClient
         .from("user_roles")
         .select("*")
@@ -155,35 +119,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq("organization_id", profile.organization_id)
         .single()
 
-      if (roleError) {
-        console.error("AuthContext: Supabase role error:", roleError.message);
-        setUser(user); setProfile(profile); setOrganization(organization); setRole(null); setIsDemo(false);
-        return;
-      }
-
-      if (!roleData) {
-        console.log("AuthContext: No user role found for user ID:", user.id);
-        setUser(user); setProfile(profile); setOrganization(organization); setRole(null); setIsDemo(false);
-        return;
-      }
-
-      console.log("AuthContext: User role found:", roleData.role)
-
       setUser(user)
       setProfile(profile)
-      setOrganization(organization)
-      setRole(roleData)
+      setOrganization(orgError ? null : organization)
+      setRole(roleError ? null : roleData)
       setIsDemo(false)
-      console.log("AuthContext: All user data loaded successfully.")
     } catch (error) {
-      console.error("AuthContext: General error during refreshProfile:", error)
+      console.error("Error getting user with profile:", error)
       setUser(null)
       setProfile(null)
       setOrganization(null)
       setRole(null)
       setIsDemo(false)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -192,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const getInitialSession = async () => {
       await refreshProfile() // This handles both real and demo sessions
+      setLoading(false)
     }
 
     getInitialSession()
@@ -201,10 +149,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        console.log("AuthContext: Auth state changed:", event);
         // Always refresh profile on auth state change, let refreshProfile handle demo logic
         // This ensures the context is always up-to-date with Supabase's state
         await refreshProfile()
+        setLoading(false)
       })
 
       subscription = authSubscription
@@ -225,10 +173,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    // Clear demo session before attempting a real login
-    localStorage.removeItem("demo_session")
-    setIsDemo(false)
-
     const { error } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
@@ -257,9 +201,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(null)
     setOrganization(null)
     setRole(null)
-
-    // Explicitly redirect to login page
-    router.push("/auth/login")
   }
 
   const hasPermission = (permission: string): boolean => {

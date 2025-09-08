@@ -1,29 +1,39 @@
 import { supabase, type Assessment } from "./supabase"
 import { supabaseClient } from "./supabase-client"
-import { getCurrentUserWithProfile } from "./auth-service" // Import from auth-service for comprehensive user data
 
 // Get current user with comprehensive error handling
-// This function is intended for server-side use or within API routes
-// For client-side components, use the `useAuth` hook
-export async function getCurrentUserServer() {
+export async function getCurrentUser() {
   try {
-    console.log("🔍 [Server] Getting current user...")
+    console.log("🔍 Getting current user...")
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-
-    if (userError || !user) {
-      console.log("ℹ️ [Server] No authenticated user found:", userError?.message);
-      return null;
+    // First check if we're in a browser environment
+    if (typeof window === "undefined") {
+      console.log("⚠️ Server-side rendering, no user available")
+      return null
     }
 
-    console.log("✅ [Server] Supabase user found:", user.email);
-    return user;
+    // Try to get the current session
+    console.log("🔐 Checking Supabase session...")
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession()
+
+    if (sessionError) {
+      console.error("❌ Session error:", sessionError.message)
+      return null
+    }
+
+    if (!sessionData?.session?.user) {
+      console.log("ℹ️ No active Supabase session")
+      return null
+    }
+
+    console.log("✅ Supabase user found:", sessionData.session.user.email)
+    return sessionData.session.user
   } catch (error) {
-    console.error("💥 [Server] Error in getCurrentUserServer:", error);
-    return null;
+    console.error("💥 Error in getCurrentUser:", error)
+    // Don't throw the error, just return null
+    return null
   }
 }
-
 
 // Test database connection
 export async function testConnection() {
@@ -92,14 +102,15 @@ export async function getAssessments(): Promise<Assessment[]> {
   try {
     console.log("📋 Getting assessments...")
 
-    const { user, profile } = await getCurrentUserWithProfile(); // Use the comprehensive user data
+    const user = await getCurrentUser()
+    console.log("👤 Current user:", user ? user.email : "None")
 
-    if (!user || !profile) {
-      console.log("📝 No authenticated user or profile, returning empty array")
+    if (!user) {
+      console.log("📝 No authenticated user, returning empty array")
       return []
     }
 
-    console.log("🔍 Fetching assessments from Supabase for user:", user.id, "and organization:", profile.organization_id)
+    console.log("🔍 Fetching assessments from Supabase...")
     const { data, error } = await supabaseClient
       .from("assessments")
       .select(
@@ -114,7 +125,6 @@ export async function getAssessments(): Promise<Assessment[]> {
       `,
       )
       .eq("user_id", user.id)
-      .eq("organization_id", profile.organization_id) // Filter by organization_id
       .order("created_at", { ascending: false })
 
     if (error) {
@@ -123,7 +133,7 @@ export async function getAssessments(): Promise<Assessment[]> {
     }
 
     if (!data || data.length === 0) {
-      console.log("📝 No assessments found in database for this user/organization")
+      console.log("📝 No assessments found in database")
       return []
     }
 
@@ -172,9 +182,9 @@ export async function createAssessment(assessmentData: {
       throw new Error("Missing required assessment data")
     }
 
-    const { user, profile } = await getCurrentUserWithProfile(); // Use the comprehensive user data
-    if (!user || !profile) {
-      throw new Error("User not authenticated or profile missing. Cannot create assessment.")
+    const user = await getCurrentUser()
+    if (!user) {
+      throw new Error("User not authenticated. Cannot create assessment.")
     }
 
     const assessmentId = `assessment-${Date.now()}`
@@ -183,7 +193,6 @@ export async function createAssessment(assessmentData: {
     const insertData: any = {
       id: assessmentId,
       user_id: user.id,
-      organization_id: profile.organization_id, // Associate with organization
       vendor_name: assessmentData.vendorName,
       vendor_email: assessmentData.vendorEmail,
       contact_person: assessmentData.contactPerson || null,
@@ -219,9 +228,9 @@ export async function createAssessment(assessmentData: {
 // Update assessment status (only for the owner)
 export async function updateAssessmentStatus(id: string, status: string, riskScore?: number, riskLevel?: string) {
   try {
-    const { user, profile } = await getCurrentUserWithProfile();
-    if (!user || !profile) {
-      throw new Error("User not authenticated or profile missing. Cannot update assessment.")
+    const user = await getCurrentUser()
+    if (!user) {
+      throw new Error("User not authenticated. Cannot update assessment.")
     }
 
     const updateData: any = {
@@ -241,7 +250,7 @@ export async function updateAssessmentStatus(id: string, status: string, riskSco
       updateData.risk_level = riskLevel
     }
 
-    const { error } = await supabaseClient.from("assessments").update(updateData).eq("id", id).eq("user_id", user.id).eq("organization_id", profile.organization_id)
+    const { error } = await supabaseClient.from("assessments").update(updateData).eq("id", id).eq("user_id", user.id)
 
     if (error) {
       console.error("Error updating assessment:", error)
@@ -271,10 +280,10 @@ export async function submitAssessmentResponse(
     const riskLevel = getRiskLevel(riskScore)
     console.log("📈 Calculated risk score:", riskScore, "level:", riskLevel)
 
-    // Get the assessment to find the owner and organization
+    // Get the assessment to find the owner
     const { data: assessment, error: assessmentError } = await supabase
       .from("assessments")
-      .select("user_id, organization_id")
+      .select("user_id")
       .eq("id", assessmentId)
       .single()
 
@@ -288,7 +297,6 @@ export async function submitAssessmentResponse(
       {
         assessment_id: assessmentId,
         user_id: assessment.user_id, // Link to the assessment owner
-        organization_id: assessment.organization_id, // Link to the organization
         vendor_info: vendorInfo,
         answers: answers,
         submitted_at: new Date().toISOString(),
@@ -329,12 +337,12 @@ export async function submitAssessmentResponse(
 // Delete assessment (only for the owner)
 export async function deleteAssessment(id: string) {
   try {
-    const { user, profile } = await getCurrentUserWithProfile();
-    if (!user || !profile) {
-      throw new Error("User not authenticated or profile missing. Cannot delete assessment.")
+    const user = await getCurrentUser()
+    if (!user) {
+      throw new Error("User not authenticated. Cannot delete assessment.")
     }
 
-    const { error } = await supabaseClient.from("assessments").delete().eq("id", id).eq("user_id", user.id).eq("organization_id", profile.organization_id)
+    const { error } = await supabaseClient.from("assessments").delete().eq("id", id).eq("user_id", user.id)
 
     if (error) {
       console.error("Error deleting assessment:", error)
