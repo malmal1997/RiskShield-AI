@@ -58,11 +58,10 @@ export default function LoginPage() {
       setError("Your account is pending approval. Please wait for an administrator to approve your registration.");
       // Optionally, sign out the user if they are not approved to prevent them from staying logged in
       // signOut(); 
-    } else if (!loading && user && profile && role) {
-      // User is fully authenticated and approved, redirect to dashboard
-      router.replace('/dashboard');
-    }
-  }, [loading, user, profile, role, setShowPendingApproval, setError, router, signOut]);
+    } 
+    // Removed the else if (!loading && user && profile && role) { router.replace('/dashboard'); }
+    // This redirection is now handled by AuthGuard.
+  }, [loading, user, profile, role, setShowPendingApproval, setError, signOut]);
 
   const handleDemoLogin = () => {
     localStorage.setItem("demo_session", JSON.stringify({ user: { id: "demo-user-id", email: "demo@riskguard.ai", name: "Demo User" }, organization: { id: "demo-org-id", name: "RiskGuard Demo Organization", plan: "enterprise" }, role: "admin", loginTime: new Date().toISOString() }));
