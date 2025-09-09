@@ -4,7 +4,7 @@ import type React from "react"
 import { useAuth } from "./auth-context"
 import { Button } from "@/components/ui/button"
 import { Shield, Play, Clock } from "lucide-react"
-import { useEffect, useState } from "react" // Import useState
+import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -22,13 +22,17 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const router = useRouter()
   const pathname = usePathname()
 
-  const [redirecting, setRedirecting] = useState(false); // New state to indicate a redirect is in progress
+  const [redirecting, setRedirecting] = useState(false);
+  const [showPendingApprovalMessage, setShowPendingApprovalMessage] = useState(false); // New state
 
   useEffect(() => {
     console.log(`AuthGuard useEffect: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}, pathname=${pathname}`);
 
+    // Reset pending approval message visibility on each effect run
+    setShowPendingApprovalMessage(false);
+
     if (loading) {
-      setRedirecting(false); // Ensure not redirecting if still loading auth state
+      setRedirecting(false);
       return;
     }
 
@@ -47,8 +51,9 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     // Scenario 2: User IS authenticated (Supabase user, not demo) but NOT APPROVED (no profile/role)
     // and tries to access any page other than login/register/forgot.
     if (user && !isDemo && !isApproved && !isPublicPath && pathname !== '/auth/login' && pathname !== '/auth/register') {
-      console.log(`AuthGuard: User ${user.email} is authenticated but not approved. Will render pending message.`);
-      setRedirecting(false); // Not redirecting, but showing a specific message
+      console.log(`AuthGuard: User ${user.email} is authenticated but not approved. Setting showPendingApprovalMessage to true.`);
+      setShowPendingApprovalMessage(true); // Set state to show message
+      setRedirecting(false);
       return;
     }
 
@@ -60,7 +65,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       return;
     }
 
-    // If no redirect or special message, ensure redirecting is false
     setRedirecting(false);
 
   }, [loading, user, isDemo, profile, role, allowPreview, pathname, router, signOut]);
@@ -84,11 +88,9 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         loginTime: new Date().toISOString(),
       }),
     );
-    // Force full page reload to ensure AuthContext re-evaluates and navigation updates
     window.location.href = "/dashboard"; 
   };
 
-  // Render loading spinner if auth is still resolving or if a redirect is in progress
   if (loading || redirecting) {
     console.log("AuthGuard: Rendering loading spinner due to loading or redirecting state.");
     return (
@@ -107,8 +109,8 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const isApproved = !!profile && !!role;
   const isPublicPath = publicPaths.includes(pathname);
 
-  // New render condition for authenticated but unapproved users on protected paths
-  if (user && !isDemo && !isApproved && !isPublicPath && pathname !== '/auth/login' && pathname !== '/auth/register') {
+  // Render condition for authenticated but unapproved users on protected paths
+  if (showPendingApprovalMessage && user && !isDemo && !isApproved && !isPublicPath) {
     console.log("AuthGuard: Rendering 'Pending Approval' message for authenticated but unapproved user.");
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -125,7 +127,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
                   <Button className="w-full" onClick={signOut}>
                     Sign Out
                   </Button>
-                  <a href="/auth/login"> {/* Use <a> tag for full page reload to login page */}
+                  <a href="/auth/login">
                     <Button variant="outline" className="w-full mt-2">
                       Go to Login Page
                     </Button>
@@ -139,43 +141,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     );
   }
 
-  // If not authenticated and not a public path, and not allowed preview, show preview banner or redirect
-  if (!isAuthenticated && allowPreview && !isPublicPath) {
-    // This is the preview mode for protected pages
-    console.log("AuthGuard: Rendering preview banner for protected page.");
-    return (
-      <div className="min-h-screen bg-white">
-        {/* Preview Banner */}
-        <div className="bg-blue-600 text-white py-3 px-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5" />
-              <span className="font-medium">
-                {previewMessage || "You're viewing a preview. Sign up for full access to all features."}
-              </span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleDemoLogin}
-                className="bg-white text-blue-600 hover:bg-gray-100"
-              >
-                <Play className="h-4 w-4 mr-1" />
-                Try Demo
-              </Button>
-              <a href="/auth/register" className="text-white hover:text-blue-100 text-sm font-medium">
-                Sign Up Free
-              </a>
-            </div>
-          </div>
-        </div>
-        {children}
-      </div>
-    );
-  }
-
-  // If authenticated, or on a public path, or if allowPreview is true and we're not on a public path (handled above)
   console.log("AuthGuard: Final decision - rendering children.");
   return <>{children}</>;
 }
