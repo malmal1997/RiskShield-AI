@@ -49,20 +49,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isDemo, setIsDemo] = useState(false)
 
   const clearAuthState = () => {
+    console.log("AuthContext: Clearing all auth state.");
     setUser(null);
     setProfile(null);
     setOrganization(null);
     setRole(null);
     setIsDemo(false);
-    setLoading(false);
-    console.log("AuthContext: Cleared all auth state.");
+    setLoading(false); // Ensure loading is false after clearing
   };
 
   const refreshProfile = async (sessionFromListener?: Session | null) => {
     console.log("AuthContext: refreshProfile called.", { sessionFromListener: !!sessionFromListener });
-    setLoading(true); // Always start loading
+    setLoading(true); // Always set loading true at the start of refresh
 
-    // Check for demo session first
+    // 1. Check for demo session first
     let demoSession = null;
     if (typeof window !== 'undefined') { // Guard localStorage access
       demoSession = localStorage.getItem("demo_session");
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (demoSession) {
       try {
         const session: DemoSession = JSON.parse(demoSession)
-        console.log("AuthContext: Demo session found.", session)
+        console.log("AuthContext: Demo session found. Setting demo state.", session)
         setUser(session.user)
         setOrganization(session.organization)
         setRole({ role: session.role, permissions: { all: true } })
@@ -82,17 +82,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatar_url: "/placeholder.svg?height=32&width=32",
         })
         setIsDemo(true)
-        setLoading(false)
+        setLoading(false) // Finished loading for demo user
         return
       } catch (error) {
-        console.error("AuthContext: Error parsing demo session:", error)
+        console.error("AuthContext: Error parsing demo session, removing it:", error)
         if (typeof window !== 'undefined') { // Guard localStorage access
           localStorage.removeItem("demo_session")
         }
+        // Continue to Supabase auth if demo session was invalid
       }
     }
 
-    // Regular Supabase auth flow continues...
+    // 2. Regular Supabase auth flow
     try {
       let currentUser: User | null = null;
 
@@ -100,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentUser = sessionFromListener.user;
         console.log("AuthContext: Using user from session listener:", currentUser.email, currentUser.id);
       } else {
-        console.log("AuthContext: Attempting to get Supabase user from client...");
+        console.log("AuthContext: Attempting to get Supabase user from client (no listener session).");
         const {
           data: { user: fetchedUser },
           error: userError,
@@ -108,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (userError || !fetchedUser) {
           console.log("AuthContext: No Supabase user found or error:", userError);
-          clearAuthState(); // This sets loading to false
+          clearAuthState(); // Clear state and set loading to false
           return; // Exit early if no user
         }
         currentUser = fetchedUser;
@@ -148,10 +149,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setRole(null);
       }
       
-      setIsDemo(false)
+      setIsDemo(false) // Ensure isDemo is false for real users
     } catch (error) {
       console.error("AuthContext: Unhandled error in refreshProfile:", error)
-      clearAuthState(); // This sets loading to false
+      clearAuthState(); // Clear state and set loading to false
     } finally {
       console.log("AuthContext: refreshProfile finished. Setting loading to false.")
       setLoading(false); // Always ensure loading is set to false here
@@ -175,20 +176,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        console.log("AuthContext: Auth state changed. Event:", event, "Session:", session)
+        console.log("AuthContext: Auth state changed. Event:", event, "Session:", session ? "present" : "null");
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
           await refreshProfile(session);
         } else if (event === 'SIGNED_OUT') {
           clearAuthState(); // Explicitly clear state on sign out
         } else {
-          await refreshProfile(); // For other events, just refresh normally
+          // For other events like PASSWORD_RECOVERY, TOKEN_REFRESHED, etc., just refresh
+          await refreshProfile(session); 
         }
       })
 
       subscription = authSubscription
     } catch (error) {
       console.error("AuthContext: Error setting up auth listener:", error)
-      setLoading(false)
+      setLoading(false) // Ensure loading is false if listener setup fails
     }
 
     return () => {
@@ -214,8 +216,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("AuthContext: signIn error:", error)
       setLoading(false); // Set loading false on sign-in error
     } else {
-      console.log("AuthContext: signIn successful (awaiting onAuthStateChange to update state).")
-      // onAuthStateChange will handle setting loading to false after profile refresh
+      console.log("AuthContext: signIn successful (onAuthStateChange will handle state update).")
+      // onAuthStateChange will trigger refreshProfile, which will set loading to false
     }
     return { error }
   }
@@ -233,8 +235,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("AuthContext: signOut error:", error);
       setLoading(false); // Set loading false on sign-out error
     } else {
-      console.log("AuthContext: signOut successful (awaiting onAuthStateChange to clear state).")
-      // onAuthStateChange will handle clearing state and setting loading to false
+      console.log("AuthContext: signOut successful (onAuthStateChange will clear state).")
+      // onAuthStateChange will trigger clearAuthState, which will set loading to false
     }
   }
 
@@ -257,11 +259,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     hasPermission,
   }
 
-  console.log("AuthContext: Rendering AuthProvider with state:", {
-    user: user?.email,
-    profile: profile?.first_name,
-    organization: organization?.name,
-    role: role?.role,
+  console.log("AuthContext: Rendering AuthProvider with current state:", {
+    user: user?.email || "N/A",
+    profile: profile ? "Loaded" : "N/A",
+    organization: organization ? "Loaded" : "N/A",
+    role: role?.role || "N/A",
     loading,
     isDemo,
   })
