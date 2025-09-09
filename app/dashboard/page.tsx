@@ -19,7 +19,7 @@ import {
   FileText,
   CheckCircle,
   Shield,
-  RefreshCw, // Added RefreshCw icon
+  RefreshCw,
 } from "lucide-react"
 import {
   LineChart,
@@ -39,7 +39,7 @@ import { AuthGuard } from "@/components/auth-guard"
 import Link from "next/link"
 import { getRiskAnalytics, getVendorAnalytics, type RiskMetrics, type VendorMetrics } from "@/lib/analytics-service"
 import { getUserNotifications, markAllNotificationsAsRead, type Notification } from "@/lib/notification-service"
-import { useAuth } from "@/components/auth-context" // Import useAuth
+import { useAuth } from "@/components/auth-context"
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
 
@@ -52,86 +52,48 @@ export default function DashboardPage() {
 }
 
 function DashboardContent() {
-  // State variables to hold fetched data
   const [riskMetrics, setRiskMetrics] = useState<RiskMetrics | null>(null)
   const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics | null>(null)
   const [notifications, setNotifications] = useState<Notification[] | null>(null)
-  const [loading, setLoading] = useState(true) // Initial loading state
-  const [timeframe, setTimeframe] = useState("7d") // Existing timeframe state
+  const [loading, setLoading] = useState(true)
+  const [timeframe, setTimeframe] = useState("7d")
 
-  // Access auth context
   const { user, organization, loading: authLoading } = useAuth()
 
-  // Function to fetch all dashboard data
   const fetchDashboardData = async () => {
     if (authLoading || !user || !organization) {
-      // Don't fetch if auth is still loading or user/org not available
-      setLoading(true) // Keep loading true if auth is not ready
+      setLoading(true)
       return
     }
 
     setLoading(true)
     try {
-      // Fetch risk metrics
       const fetchedRiskMetrics = await getRiskAnalytics(timeframe)
       setRiskMetrics(fetchedRiskMetrics)
 
-      // Fetch vendor metrics
       const fetchedVendorMetrics = await getVendorAnalytics()
       setVendorMetrics(fetchedVendorMetrics)
 
-      // Fetch notifications
       const fetchedNotifications = await getUserNotifications()
       setNotifications(fetchedNotifications)
-
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
-      // Optionally set error state to display a message to the user
-      setRiskMetrics(null);
-      setVendorMetrics(null);
-      setNotifications(null);
+      setRiskMetrics(null)
+      setVendorMetrics(null)
+      setNotifications(null)
     } finally {
       setLoading(false)
     }
   }
 
-  // useEffect to trigger data fetching
   useEffect(() => {
     fetchDashboardData()
-  }, [timeframe, user, organization, authLoading]) // Re-fetch when timeframe or auth context changes
-
-  // Simulate real-time updates for business metrics (these are still mock for now)
-  const [businessMetrics, setBusinessMetrics] = useState({
-    highRiskVendors: 8,
-    overdueAssessments: 12,
-    pendingReviews: 15,
-    complianceRate: 87,
-  })
-  const [realTimeData, setRealTimeData] = useState({
-    activeUsers: 23,
-    systemLoad: 45,
-    responseTime: 120,
-    uptime: 99.9,
-  })
-
-  // Simulate real-time updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRealTimeData((prev) => ({
-        activeUsers: prev.activeUsers + Math.floor(Math.random() * 5) - 2,
-        systemLoad: Math.max(0, Math.min(100, prev.systemLoad + Math.floor(Math.random() * 10) - 5)),
-        responseTime: Math.max(50, Math.min(1000, prev.responseTime + Math.floor(Math.random() * 20) - 10)),
-        uptime: Math.max(99.0, Math.min(100, prev.uptime + (Math.random() - 0.5) * 0.1)),
-      }))
-    }, 3000)
-
-    return () => clearInterval(interval)
-  }, [])
+  }, [timeframe, user, organization, authLoading])
 
   const handleMarkAllNotificationsRead = async () => {
-    if (!user) return;
-    await markAllNotificationsAsRead();
-    setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || null);
+    if (!user) return
+    await markAllNotificationsAsRead()
+    setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || null)
   }
 
   if (loading || !riskMetrics || !vendorMetrics || !notifications) {
@@ -147,7 +109,6 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section - matching other pages style */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -181,7 +142,6 @@ function DashboardContent() {
         </div>
       </section>
 
-      {/* Real-time System Status - matching card style */}
       <section className="py-12 bg-gray-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -204,7 +164,7 @@ function DashboardContent() {
                   <div className="flex items-center justify-center mb-2">
                     <Clock className="h-8 w-8 text-orange-500" />
                   </div>
-                  <div className="text-3xl font-bold text-orange-600">{/* Placeholder for overdue assessments */}12</div>
+                  <div className="text-3xl font-bold text-orange-600">N/A</div>
                   <div className="text-sm text-gray-600 mt-1">Overdue Assessments</div>
                   <div className="text-xs text-blue-600 mt-2">Click to follow up →</div>
                 </CardContent>
@@ -217,7 +177,7 @@ function DashboardContent() {
                   <div className="flex items-center justify-center mb-2">
                     <FileText className="h-8 w-8 text-blue-500" />
                   </div>
-                  <div className="text-3xl font-bold text-blue-600">{/* Placeholder for pending reviews */}15</div>
+                  <div className="text-3xl font-bold text-blue-600">N/A</div>
                   <div className="text-sm text-gray-600 mt-1">Pending Reviews</div>
                   <div className="text-xs text-blue-600 mt-2">Click to review →</div>
                 </CardContent>
@@ -237,10 +197,8 @@ function DashboardContent() {
         </div>
       </section>
 
-      {/* Main Analytics Section */}
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Analytics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
@@ -314,7 +272,6 @@ function DashboardContent() {
             </Card>
           </div>
 
-          {/* Main Content Tabs */}
           <Tabs defaultValue="overview" className="space-y-6">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Live Overview</TabsTrigger>
@@ -324,10 +281,8 @@ function DashboardContent() {
               <TabsTrigger value="alerts">Alerts</TabsTrigger>
             </TabsList>
 
-            {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Risk Trend Chart */}
                 <Card className="lg:col-span-2 border border-gray-200">
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -360,7 +315,6 @@ function DashboardContent() {
                   </CardContent>
                 </Card>
 
-                {/* Live Activity Feed */}
                 <Card className="border border-gray-200">
                   <CardHeader>
                     <CardTitle>Live Activity</CardTitle>
@@ -410,7 +364,6 @@ function DashboardContent() {
                 </Card>
               </div>
 
-              {/* Risk Distribution & Quick Actions */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card className="border border-gray-200">
                   <CardHeader>
@@ -476,7 +429,6 @@ function DashboardContent() {
               </div>
             </TabsContent>
 
-            {/* Other tabs with consistent styling */}
             <TabsContent value="analytics">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card className="border border-gray-200">
@@ -606,7 +558,6 @@ function DashboardContent() {
           </div>
         </section>
 
-        {/* Footer - matching other pages */}
         <footer className="bg-gray-900 text-white py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
