@@ -1,7 +1,6 @@
 "use server";
 
 import { supabaseAdmin } from "@/src/integrations/supabase/admin";
-import type { User } from "@supabase/supabase-js";
 import type { PendingRegistration } from "@/lib/auth-service"; // Import the interface
 
 // Function to approve a pending registration (Admin action)
@@ -23,7 +22,16 @@ export async function approveRegistration(registrationId: string, adminUserId: s
     }
 
     // 2. Create the organization
-    const orgSlug = pendingReg.institution_name.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    let orgSlug = pendingReg.institution_name.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    // Ensure slug is not empty and append a unique part of the registrationId
+    if (!orgSlug) {
+      orgSlug = "organization";
+    }
+    // Append a short, unique identifier from the registrationId to ensure uniqueness
+    // Using the last 8 characters of the UUID should be sufficient for uniqueness in slugs
+    const uniqueSuffix = registrationId.substring(registrationId.length - 8);
+    orgSlug = `${orgSlug}-${uniqueSuffix}`;
+
     const { data: organization, error: orgError } = await supabaseAdmin
       .from("organizations")
       .insert({
