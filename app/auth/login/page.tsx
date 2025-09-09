@@ -72,7 +72,31 @@ export default function LoginPage() {
 
   if (showPendingApproval) {
     return (
-      <div>Pending Approval...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
+                <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
+                <p className="text-gray-600">
+                  Your account ({user?.email}) is currently pending review by our administrators. You will receive an email notification once your account has been approved.
+                </p>
+                <div className="pt-4">
+                  <Button className="w-full" onClick={signOut}>
+                    Sign Out
+                  </Button>
+                  <a href="/auth/login">
+                    <Button variant="outline" className="w-full mt-2">
+                      Go to Login Page
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     )
   }
 
