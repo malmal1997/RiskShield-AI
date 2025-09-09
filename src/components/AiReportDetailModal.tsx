@@ -41,7 +41,7 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[1200px] max-h-[90vh] flex flex-col">
+      <DialogContent className="max-h-[90vh] flex flex-col"> {/* Removed sm:max-w-[1200px] */}
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Bot className="h-6 w-6 text-blue-600" />
@@ -52,7 +52,7 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-6 -mr-6"> {/* Added pr-6 and -mr-6 to offset scrollbar */}
+        <ScrollArea className="flex-1"> {/* Removed pr-6 -mr-6 */}
           <div className="py-4 space-y-6">
             {/* Report Summary */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
