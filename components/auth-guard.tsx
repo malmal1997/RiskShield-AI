@@ -23,13 +23,12 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const pathname = usePathname()
 
   const [redirecting, setRedirecting] = useState(false);
-  const [showPendingApprovalMessage, setShowPendingApprovalMessage] = useState(false); // New state
+  const [showPendingApprovalMessage, setShowPendingApprovalMessage] = useState(false);
 
   useEffect(() => {
     console.log(`AuthGuard useEffect: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}, pathname=${pathname}`);
 
-    // Reset pending approval message visibility on each effect run
-    setShowPendingApprovalMessage(false);
+    setShowPendingApprovalMessage(false); // Reset on each effect run
 
     if (loading) {
       setRedirecting(false);
@@ -91,10 +90,11 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     window.location.href = "/dashboard"; 
   };
 
-  // Render logic based on state
+  let contentToRender = null;
+
   if (loading || redirecting) {
     console.log("AuthGuard: Rendering loading spinner due to loading or redirecting state.");
-    return (
+    contentToRender = (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -104,12 +104,9 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         </div>
       </div>
     );
-  }
-
-  // Render condition for authenticated but unapproved users on protected paths
-  if (showPendingApprovalMessage && user && !isDemo && !profile && !role) {
+  } else if (showPendingApprovalMessage && user && !isDemo && !profile && !role) {
     console.log("AuthGuard: Rendering 'Pending Approval' message for authenticated but unapproved user.");
-    return (
+    contentToRender = (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card>
@@ -136,8 +133,10 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         </div>
       </div>
     );
+  } else {
+    console.log("AuthGuard: Final decision - rendering children.");
+    contentToRender = <>{children}</>;
   }
 
-  console.log("AuthGuard: Final decision - rendering children.");
-  return <>{children}</>;
+  return contentToRender;
 }
