@@ -91,6 +91,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     window.location.href = "/dashboard"; 
   };
 
+  // Render logic based on state
   if (loading || redirecting) {
     console.log("AuthGuard: Rendering loading spinner due to loading or redirecting state.");
     return (
@@ -105,12 +106,8 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     );
   }
 
-  const isAuthenticated = !!user || isDemo;
-  const isApproved = !!profile && !!role;
-  const isPublicPath = publicPaths.includes(pathname);
-
   // Render condition for authenticated but unapproved users on protected paths
-  if (showPendingApprovalMessage && user && !isDemo && !isApproved && !isPublicPath) {
+  if (showPendingApprovalMessage && user && !isDemo && !profile && !role) {
     console.log("AuthGuard: Rendering 'Pending Approval' message for authenticated but unapproved user.");
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
