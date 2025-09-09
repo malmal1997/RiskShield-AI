@@ -1501,28 +1501,31 @@ export default function AIAssessmentPage() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${reportTitle}</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 40px; background-color: #f9f9f9; }
-        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        h1 { color: #1e40af; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e0e7ff; padding-bottom: 10px; }
-        h2 { color: #1e40af; margin-top: 30px; margin-bottom: 15px; }
-        h3 { color: #3b82f6; margin-top: 20px; margin-bottom: 10px; }
-        p { margin-bottom: 10px; }
-        ul { list-style-type: disc; margin-left: 20px; margin-bottom: 10px; }
-        li { margin-bottom: 5px; }
-        .summary-box { background: #e0f2fe; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 20px; }
-        .risk-score { font-size: 2.5em; font-weight: bold; color: #1e40af; text-align: center; margin-bottom: 10px; }
-        .risk-level { font-size: 1.2em; font-weight: bold; text-align: center; padding: 5px 15px; border-radius: 20px; display: inline-block; margin: 0 auto 20px; }
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+        .container { max-width: 960px; margin: 30px auto; background: #ffffff; padding: 40px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        h1 { color: #1e40af; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #bfdbfe; padding-bottom: 15px; font-size: 2.5em; font-weight: 700; }
+        h2 { color: #1e40af; margin-top: 40px; margin-bottom: 20px; font-size: 1.8em; font-weight: 600; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        h3 { color: #3b82f6; margin-top: 25px; margin-bottom: 10px; font-size: 1.4em; font-weight: 600; }
+        p { margin-bottom: 12px; font-size: 1em; }
+        ul { list-style-type: disc; margin-left: 25px; margin-bottom: 12px; }
+        li { margin-bottom: 6px; font-size: 0.95em; }
+        .summary-box { background: #eff6ff; border-left: 5px solid #3b82f6; padding: 20px; margin-bottom: 30px; border-radius: 8px; }
+        .summary-box p { margin: 0; font-size: 1em; color: #1e40af; }
+        .summary-box strong { color: #1e40af; }
+        .risk-score { font-size: 3.5em; font-weight: 700; color: #1e40af; text-align: center; margin-bottom: 15px; }
+        .risk-level { font-size: 1.3em; font-weight: 700; text-align: center; padding: 8px 20px; border-radius: 25px; display: table; margin: 0 auto 30px; text-transform: uppercase; letter-spacing: 0.05em; }
         .risk-level.low { background-color: #d1fae5; color: #065f46; }
         .risk-level.medium { background-color: #fef3c7; color: #92400e; }
         .risk-level.medium-high { background-color: #fee2e2; color: #991b1b; }
         .risk-level.high { background-color: #fecaca; color: #b91c1c; }
-        .section-content { margin-bottom: 20px; border: 1px solid #eee; padding: 15px; border-radius: 5px; }
-        .question-title { font-weight: bold; margin-top: 15px; margin-bottom: 5px; color: #4a4a4a; }
-        .answer-text { margin-left: 10px; margin-bottom: 10px; }
-        .evidence-text { font-size: 0.85em; color: #555; margin-left: 10px; border-left: 2px solid #ccc; padding-left: 10px; margin-top: 5px; }
-        .disclaimer { background: #fffbe6; border-left: 4px solid #f59e0b; padding: 15px; margin-top: 30px; font-size: 0.85em; color: #92400e; }
-        .file-list { list-style-type: none; padding: 0; }
-        .file-list li { background-color: #f0f8ff; border: 1px solid #dbeafe; padding: 8px; margin-bottom: 5px; border-radius: 4px; }
+        .section-content { margin-bottom: 30px; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; background-color: #fdfdfe; }
+        .question-title { font-weight: 600; margin-top: 20px; margin-bottom: 8px; color: #2d3748; font-size: 1.1em; }
+        .answer-text { margin-left: 15px; margin-bottom: 10px; font-size: 0.95em; color: #4a5568; }
+        .evidence-text { font-size: 0.8em; color: #6b7280; margin-left: 15px; border-left: 3px solid #cbd5e0; padding-left: 12px; margin-top: 8px; background-color: #f0f4f8; padding: 10px; border-radius: 6px; }
+        .disclaimer { background: #fffbe6; border-left: 5px solid #f59e0b; padding: 20px; margin-top: 40px; border-radius: 8px; font-size: 0.9em; color: #92400e; }
+        .file-list { list-style-type: none; padding: 0; margin-top: 15px; }
+        .file-list li { background-color: #f0f8ff; border: 1px solid #dbeafe; padding: 10px 15px; margin-bottom: 8px; border-radius: 6px; font-size: 0.9em; color: #1e40af; }
+        .file-list li strong { color: #1e40af; }
     </style>
 </head>
 <body>
@@ -1556,14 +1559,14 @@ export default function AIAssessmentPage() {
         <h2>Uploaded Documents</h2>
         <div class="section-content">
             <ul class="file-list">
-                ${uploadedFiles.map(item => `<li>${item.file.name} (Label: ${item.label}) - ${(item.file.size / 1024 / 1024).toFixed(2)} MB</li>`).join('')}
+                ${uploadedFiles.map(item => `<li><strong>${item.file.name}</strong> (Label: ${item.label}) - ${(item.file.size / 1024 / 1024).toFixed(2)} MB</li>`).join('')}
             </ul>
         </div>
 
         <h2>Detailed Responses</h2>
         <div class="section-content">
             ${questionsForCategory.map(question => `
-                <div style="margin-bottom: 20px;">
+                <div style="margin-bottom: 25px;">
                     <p class="question-title">${question.question}</p>
                     <p class="answer-text"><strong>Answer:</strong> ${
                         typeof answers[question.id] === "boolean"
