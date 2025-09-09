@@ -36,8 +36,8 @@ export interface ComplianceMetrics {
 // Get risk analytics
 export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> {
   try {
-    const { profile } = await getCurrentUserWithProfile()
-    if (!profile) throw new Error("No user profile found")
+    const { user, profile } = await getCurrentUserWithProfile()
+    if (!user || !profile) throw new Error("No authenticated user or user profile found")
 
     // Calculate date range
     const endDate = new Date()
@@ -57,10 +57,11 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
         break
     }
 
-    // Get assessments data
+    // Get assessments data, filtering by user_id for RLS compliance
     const { data: assessments, error } = await supabaseClient
       .from("assessments")
       .select("*")
+      .eq("user_id", user.id) // Filter by current user's ID
       .eq("organization_id", profile.organization_id)
       .gte("created_at", startDate.toISOString())
       .lte("created_at", endDate.toISOString())
@@ -90,8 +91,8 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
       averageRiskScore: Math.round(averageRiskScore),
       highRiskVendors: (riskDistribution[2]?.count || 0) + (riskDistribution[3]?.count || 0),
       riskTrend,
-      riskDistribution,
       complianceScore: calculateComplianceScore(assessments || []),
+      riskDistribution,
     }
   } catch (error) {
     console.error("Error getting risk analytics:", error)
@@ -102,12 +103,14 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
 // Get vendor analytics
 export async function getVendorAnalytics(): Promise<VendorMetrics> {
   try {
-    const { profile } = await getCurrentUserWithProfile()
-    if (!profile) throw new Error("No user profile found")
+    const { user, profile } = await getCurrentUserWithProfile()
+    if (!user || !profile) throw new Error("No authenticated user or user profile found")
 
+    // Assuming 'vendors' table has 'user_id' and 'organization_id' for RLS
     const { data: vendors, error } = await supabaseClient
       .from("vendors")
       .select("*")
+      .eq("user_id", user.id) // Filter by current user's ID
       .eq("organization_id", profile.organization_id)
 
     if (error) throw error

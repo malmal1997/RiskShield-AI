@@ -118,9 +118,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(currentUser);
 
-      // Add a small delay to allow database changes to propagate, especially after a new user/profile creation
-      // This is crucial if the profile/org/role were just created by the approveRegistration server action.
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+      // Removed the artificial delay
+      // await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
 
       // Use the service function to fetch all related data
       const { user: fetchedUser, profile: fetchedProfile, organization: fetchedOrganization, role: fetchedRole } = await getCurrentUserWithProfile();

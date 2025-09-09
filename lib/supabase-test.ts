@@ -1,4 +1,4 @@
-import { supabase } from "./supabase"
+import { supabaseClient } from "./supabase-client" // Changed import to supabaseClient
 
 export async function testSupabaseConnection() {
   try {
@@ -17,7 +17,7 @@ export async function testSupabaseConnection() {
     }
 
     // Test basic connection
-    const { data, error } = await supabase.from("assessments").select("count", { count: "exact", head: true })
+    const { data, error } = await supabaseClient.from("assessments").select("count", { count: "exact", head: true })
 
     if (error) {
       console.error("Supabase connection error:", error)

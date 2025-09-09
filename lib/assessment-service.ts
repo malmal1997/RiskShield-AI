@@ -1,9 +1,10 @@
-import { supabase, type Assessment } from "./supabase"
 import { supabaseClient } from "./supabase-client"
+import { supabaseAdmin } from "@/src/integrations/supabase/admin" // Import supabaseAdmin
 import { getCurrentUserWithProfile } from "./auth-service" // Import getCurrentUserWithProfile
+import type { User } from "@supabase/supabase-js" // Import User type
 
 // Get current user with comprehensive error handling
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<User | null> {
   try {
     console.log("🔍 Getting current user...")
 
@@ -39,7 +40,7 @@ export async function getCurrentUser() {
 // Test database connection
 export async function testConnection() {
   try {
-    const { data, error } = await supabase.from("assessments").select("count", { count: "exact", head: true })
+    const { data, error } = await supabaseClient.from("assessments").select("count", { count: "exact", head: true })
 
     if (error) {
       console.error("Database connection test failed:", error)
@@ -99,7 +100,7 @@ function getRiskLevel(score: number): string {
 }
 
 // Get all assessments for the current user
-export async function getAssessments(): Promise<Assessment[]> {
+export async function getAssessments(): Promise<any[]> { // Changed to any[] for flexibility with nested data
   try {
     console.log("📋 Getting assessments...")
 
@@ -147,11 +148,11 @@ export async function getAssessments(): Promise<Assessment[]> {
 }
 
 // Get assessment by ID (public access for vendors)
-export async function getAssessmentById(id: string): Promise<Assessment | null> {
+export async function getAssessmentById(id: string): Promise<any | null> { // Changed to any for flexibility
   try {
     console.log("🔍 Getting assessment by ID:", id)
 
-    const { data, error } = await supabase.from("assessments").select("*").eq("id", id).single()
+    const { data, error } = await supabaseClient.from("assessments").select("*").eq("id", id).single()
 
     if (error) {
       console.error("❌ Supabase error:", error)
@@ -282,7 +283,7 @@ export async function submitAssessmentResponse(
     console.log("📈 Calculated risk score:", riskScore, "level:", riskLevel)
 
     // Get the assessment to find the owner
-    const { data: assessment, error: assessmentError } = await supabase
+    const { data: assessment, error: assessmentError } = await supabaseClient
       .from("assessments")
       .select("user_id")
       .eq("id", assessmentId)
@@ -294,7 +295,7 @@ export async function submitAssessmentResponse(
     }
 
     // Insert the response into assessment_responses table
-    const { error: responseError } = await supabase.from("assessment_responses").insert([
+    const { error: responseError } = await supabaseClient.from("assessment_responses").insert([
       {
         assessment_id: assessmentId,
         user_id: assessment.user_id, // Link to the assessment owner
@@ -312,7 +313,7 @@ export async function submitAssessmentResponse(
     console.log("✅ Assessment response saved successfully")
 
     // Update the assessment status to completed with proper data
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseClient
       .from("assessments")
       .update({
         status: "completed",
