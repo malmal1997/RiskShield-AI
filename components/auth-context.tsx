@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { supabaseClient } from "@/lib/supabase-client"
 import type { User, Session } from "@supabase/supabase-js" // Import Session type
+import { getCurrentUserWithProfile } from "@/lib/auth-service" // Import the service function
 
 interface DemoUser {
   id: string
@@ -120,74 +121,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // This is crucial if the profile/org/role were just created by the approveRegistration server action.
       await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
 
-      // Initialize profile, organization, role to null before fetching
-      let fetchedProfile = null;
-      let fetchedOrganization = null;
-      let fetchedRole = null;
+      // Use the service function to fetch all related data
+      const { user: fetchedUser, profile: fetchedProfile, organization: fetchedOrganization, role: fetchedRole } = await getCurrentUserWithProfile();
 
-      // Get user profile from Supabase
-      console.log("AuthContext: Fetching user profile...")
-      const { data: profileData, error: profileError } = await supabaseClient
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", currentUser.id) // Use currentUser.id
-        .single()
-
-      if (profileError) {
-        console.error("AuthContext: Error fetching user profile:", profileError); // Log the actual error
-        setProfile(null);
-        setOrganization(null);
-        setRole(null);
-      } else if (!profileData) {
+      if (fetchedProfile) {
+        console.log("AuthContext: User profile found:", fetchedProfile);
+        setProfile(fetchedProfile);
+      } else {
         console.log("AuthContext: No user profile data found for user:", currentUser.id);
         setProfile(null);
-        setOrganization(null);
-        setRole(null);
+      }
+
+      if (fetchedOrganization) {
+        console.log("AuthContext: Organization found:", fetchedOrganization);
+        setOrganization(fetchedOrganization);
       } else {
-        console.log("AuthContext: User profile found:", profileData)
-        fetchedProfile = profileData;
-        setProfile(profileData);
+        console.log("AuthContext: No organization data found.");
+        setOrganization(null);
+      }
 
-        // Get organization (only if profile exists)
-        console.log("AuthContext: Fetching organization...")
-        const { data: organizationData, error: orgError } = await supabaseClient
-          .from("organizations")
-          .select("*")
-          .eq("id", profileData.organization_id)
-          .single()
-
-        if (orgError) {
-          console.error("AuthContext: Error fetching organization:", orgError); // Log the actual error
-          setOrganization(null)
-        } else if (!organizationData) {
-          console.log("AuthContext: No organization data found for ID:", profileData.organization_id);
-          setOrganization(null)
-        } else {
-          console.log("AuthContext: Organization found:", organizationData)
-          fetchedOrganization = organizationData;
-          setOrganization(organizationData)
-        }
-
-        // Get user role (only if profile exists)
-        console.log("AuthContext: Fetching user role...")
-        const { data: roleData, error: roleError } = await supabaseClient
-          .from("user_roles")
-          .select("*")
-          .eq("user_id", currentUser.id) // Use currentUser.id
-          .eq("organization_id", profileData.organization_id)
-          .single()
-
-        if (roleError) {
-          console.error("AuthContext: Error fetching user role:", roleError); // Log the actual error
-          setRole(null)
-        } else if (!roleData) {
-          console.log("AuthContext: No user role data found for user:", currentUser.id, "org:", profileData.organization_id);
-          setRole(null)
-        } else {
-          console.log("AuthContext: User role found:", roleData)
-          fetchedRole = roleData;
-          setRole(roleData)
-        }
+      if (fetchedRole) {
+        console.log("AuthContext: User role found:", fetchedRole);
+        setRole(fetchedRole);
+      } else {
+        console.log("AuthContext: No user role data found.");
+        setRole(null);
       }
       
       setIsDemo(false)
