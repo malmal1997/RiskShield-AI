@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [showPendingApproval, setShowPendingApproval] = useState(false); // New state for pending approval
   const router = useRouter()
-  const { signIn, user, profile, role, loading, signOut } = useAuth() // Get user, profile, role, loading from useAuth
+  const { signIn, user, profile, role, loading, signOut, refreshProfile } = useAuth() // Get user, profile, role, loading from useAuth
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,11 +38,9 @@ export default function LoginPage() {
         return
       }
 
-      // If signIn is successful, AuthContext's onAuthStateChange listener will fire.
-      // We need to wait for the profile and role to be loaded by AuthContext.
-      // The redirect logic is now primarily handled by AuthGuard.
-      // If the user is signed in but has no profile/role, it means their registration is pending.
-      // This check will be done in the useEffect below.
+      // After successful signIn, explicitly refresh the profile to ensure latest data is fetched
+      // This is crucial if the user was just approved and their profile/role were created.
+      await refreshProfile();
 
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
@@ -52,16 +50,19 @@ export default function LoginPage() {
 
   // Effect to check user status after AuthContext has loaded
   useEffect(() => {
-    if (!loading && user && !profile && !role) {
-      // User is authenticated in Supabase, but no profile/role means pending approval
-      setShowPendingApproval(true);
-      setError("Your account is pending approval. Please wait for an administrator to approve your registration.");
-      // Optionally, sign out the user if they are not approved to prevent them from staying logged in
-      // signOut(); 
-    } 
-    // Removed the else if (!loading && user && profile && role) { router.replace('/dashboard'); }
-    // This redirection is now handled by AuthGuard.
-  }, [loading, user, profile, role, setShowPendingApproval, setError, signOut]);
+    if (!loading && user && !isDemo) { // Only check for non-demo users
+      if (!profile && !role) {
+        // User is authenticated in Supabase, but no profile/role means pending approval
+        console.log(`Login Page: User ${user.email} is authenticated but not approved. Showing pending message.`);
+        setShowPendingApproval(true);
+        setError("Your account is pending approval. Please wait for an administrator to approve your registration.");
+      } else {
+        // User is authenticated AND approved, redirect to dashboard
+        console.log(`Login Page: User ${user.email} is authenticated and approved. Redirecting to dashboard.`);
+        router.replace('/dashboard');
+      }
+    }
+  }, [loading, user, isDemo, profile, role, router]);
 
   const handleDemoLogin = () => {
     localStorage.setItem("demo_session", JSON.stringify({ user: { id: "demo-user-id", email: "demo@riskguard.ai", name: "Demo User" }, organization: { id: "demo-org-id", name: "RiskGuard Demo Organization", plan: "enterprise" }, role: "admin", loginTime: new Date().toISOString() }));
@@ -87,6 +88,7 @@ export default function LoginPage() {
                     setError("");
                     setEmail("");
                     setPassword("");
+                    signOut(); // Sign out to clear any partial session
                   }}>
                     Try Again
                   </Button>

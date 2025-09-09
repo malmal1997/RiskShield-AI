@@ -48,7 +48,8 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     } 
     
     // Scenario 2: User IS authenticated (Supabase user, not demo) but NOT APPROVED (no profile/role)
-    // and tries to access any page other than login/register/forgot.
+    // This check should only apply if they are trying to access a protected page.
+    // If they are on login/register, they should be allowed to stay there.
     if (user && !isDemo && !isApproved && !isPublicPath && pathname !== '/auth/login' && pathname !== '/auth/register') {
       console.log(`AuthGuard: User ${user.email} is authenticated but not approved. Setting showPendingApprovalMessage to true.`);
       setShowPendingApprovalMessage(true); // Set state to show message

@@ -121,6 +121,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let fetchedOrganization = null;
       let fetchedRole = null;
 
+      // Add a small delay to allow database changes to propagate
+      await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
+
       // Get user profile from Supabase
       console.log("AuthContext: Fetching user profile...")
       const { data: profileData, error: profileError } = await supabaseClient
