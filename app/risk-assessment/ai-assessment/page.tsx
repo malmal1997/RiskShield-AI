@@ -41,6 +41,9 @@ import {
 import { AuthGuard } from "@/components/auth-guard"
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service" // For delegation email
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Import Select components
+import { useAuth } from "@/components/auth-context" // Import useAuth
+import { useToast } from "@/components/ui/use-toast" // Import useToast
+import { saveAiAssessmentReport } from "@/lib/assessment-service" // Import the new service function
 
 // Complete assessment categories for AI assessment
 const assessmentCategories = [
@@ -1358,6 +1361,8 @@ interface UploadedFileWithLabel {
 }
 
 export default function AIAssessmentPage() {
+  const { user, isDemo } = useAuth(); // Get user and isDemo from AuthContext
+  const { toast } = useToast(); // Initialize useToast
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select-category" | "upload-documents" | "soc-info" | "review-answers" | "results"
@@ -1369,6 +1374,7 @@ export default function AIAssessmentPage() {
   const [riskScore, setRiskScore] = useState<number | null>(null)
   const [riskLevel, setRiskLevel] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isReportSaved, setIsReportSaved] = useState(false); // New state to track if report is saved
   const [socInfo, setSocInfo] = useState({
     socType: "", // SOC 1, SOC 2, SOC 3
     reportType: "", // Type 1, Type 2
@@ -1607,6 +1613,73 @@ export default function AIAssessmentPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  const handleSaveReport = async () => {
+    if (isDemo) {
+      toast({
+        title: "Preview Mode",
+        description: "Reports cannot be saved in preview mode. Please sign up for full access.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!analysisResults || !currentCategory || riskScore === null || riskLevel === null) {
+      toast({
+        title: "Error",
+        description: "No complete report data available to save.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      toast({
+        title: "Saving Report...",
+        description: "Your AI assessment report is being saved to your profile.",
+      });
+
+      const reportTitle = `${currentCategory.name} AI Assessment`;
+      const reportSummary = analysisResults.overallAnalysis.substring(0, 250) + "..."; // Truncate for summary
+
+      const savedReport = await saveAiAssessmentReport({
+        assessmentType: currentCategory.name,
+        reportTitle: reportTitle,
+        riskScore: riskScore,
+        riskLevel: riskLevel,
+        reportSummary: reportSummary,
+        fullReportContent: {
+          analysisResults: analysisResults,
+          answers: answers,
+          questions: questionsForCategory,
+          socInfo: socInfo, // Include SOC info if available
+        },
+        uploadedDocumentsMetadata: uploadedFiles.map(item => ({
+          fileName: item.file.name,
+          fileSize: item.file.size,
+          fileType: item.file.type,
+          label: item.label,
+        })),
+        socInfo: socInfo,
+      });
+
+      if (savedReport) {
+        setIsReportSaved(true);
+        toast({
+          title: "Report Saved!",
+          description: "Your AI assessment report has been successfully saved to your profile.",
+          variant: "default",
+        });
+      }
+    } catch (err: any) {
+      console.error("Error saving report:", err);
+      toast({
+        title: "Error Saving Report",
+        description: err.message || "Failed to save the report. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getRiskLevelColor = (level: string | null) => {
@@ -2375,10 +2448,29 @@ export default function AIAssessmentPage() {
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Back to Review
                     </Button>
-                    <Button onClick={handleDownloadReport} className="bg-blue-600 hover:bg-blue-700">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Full Report
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={handleSaveReport}
+                        className="bg-blue-600 hover:bg-blue-700"
+                        disabled={isReportSaved || isDemo}
+                      >
+                        {isReportSaved ? (
+                          <>
+                            <Check className="mr-2 h-4 w-4" />
+                            Report Saved
+                          </>
+                        ) : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Save Report
+                          </>
+                        )}
+                      </Button>
+                      <Button onClick={handleDownloadReport} className="bg-blue-600 hover:bg-blue-700">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Full Report
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

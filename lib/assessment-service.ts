@@ -1,5 +1,6 @@
 import { supabase, type Assessment } from "./supabase"
 import { supabaseClient } from "./supabase-client"
+import { getCurrentUserWithProfile } from "./auth-service" // Import getCurrentUserWithProfile
 
 // Get current user with comprehensive error handling
 export async function getCurrentUser() {
@@ -351,5 +352,59 @@ export async function deleteAssessment(id: string) {
   } catch (error) {
     console.error("Error in deleteAssessment:", error)
     throw error
+  }
+}
+
+// New function to save AI assessment reports
+export async function saveAiAssessmentReport(reportData: {
+  assessmentType: string;
+  reportTitle: string;
+  riskScore: number;
+  riskLevel: string;
+  reportSummary: string;
+  fullReportContent: any; // JSON object containing all details
+  uploadedDocumentsMetadata: any[];
+  socInfo?: any; // Optional SOC-specific info
+}) {
+  try {
+    console.log("💾 Attempting to save AI assessment report...");
+    const { user, organization, profile } = await getCurrentUserWithProfile();
+
+    if (!user || !organization || !profile) {
+      throw new Error("User not authenticated or organization not found. Cannot save report.");
+    }
+
+    const insertData = {
+      user_id: user.id,
+      organization_id: organization.id,
+      assessment_type: reportData.assessmentType,
+      report_title: reportData.reportTitle,
+      risk_score: reportData.riskScore,
+      risk_level: reportData.riskLevel,
+      analysis_date: new Date().toISOString(),
+      report_summary: reportData.reportSummary,
+      full_report_content: reportData.fullReportContent,
+      uploaded_documents_metadata: reportData.uploadedDocumentsMetadata,
+      soc_info: reportData.socInfo || null,
+    };
+
+    console.log("📝 Inserting AI assessment report data:", insertData);
+
+    const { data, error } = await supabaseClient
+      .from("ai_assessment_reports")
+      .insert(insertData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("❌ Supabase error saving AI assessment report:", error);
+      throw new Error(`Failed to save AI assessment report: ${error.message}`);
+    }
+
+    console.log("✅ AI assessment report saved successfully:", data);
+    return data;
+  } catch (error) {
+    console.error("💥 Error in saveAiAssessmentReport:", error);
+    throw error;
   }
 }
