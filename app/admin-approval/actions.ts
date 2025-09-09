@@ -1,7 +1,7 @@
 "use server";
 
 import { supabaseAdmin } from "@/src/integrations/supabase/admin";
-import type { PendingRegistration } from "@/lib/auth-service"; // Import the interface
+import type { PendingRegistration } from "@/lib/auth-service";
 
 // Function to approve a pending registration (Admin action)
 export async function approveRegistration(registrationId: string, adminUserId: string): Promise<{ success: boolean, error: any | null }> {
@@ -21,16 +21,35 @@ export async function approveRegistration(registrationId: string, adminUserId: s
       return { success: true, error: null }; // Already approved
     }
 
-    // 2. Create the organization
-    let orgSlug = pendingReg.institution_name.toLowerCase().replace(/[^a-z0-9]/g, "-");
-    // Ensure slug is not empty and append a unique part of the registrationId
-    if (!orgSlug) {
-      orgSlug = "organization";
+    // 2. Create the organization with a guaranteed unique slug
+    let baseSlug = pendingReg.institution_name.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    if (!baseSlug) {
+      baseSlug = "organization";
     }
-    // Append a short, unique identifier from the registrationId to ensure uniqueness
-    // Using the last 8 characters of the UUID should be sufficient for uniqueness in slugs
-    const uniqueSuffix = registrationId.substring(registrationId.length - 8);
-    orgSlug = `${orgSlug}-${uniqueSuffix}`;
+
+    let orgSlug = baseSlug;
+    let counter = 0;
+    let isSlugUnique = false;
+
+    while (!isSlugUnique) {
+      const { data: existingOrg, error: checkSlugError } = await supabaseAdmin
+        .from('organizations')
+        .select('id')
+        .eq('slug', orgSlug)
+        .maybeSingle(); // Use maybeSingle to return null if no record found
+
+      if (checkSlugError) {
+        throw new Error(checkSlugError.message);
+      }
+
+      if (!existingOrg) {
+        isSlugUnique = true;
+      } else {
+        // If slug exists, append a counter or a random string
+        counter++;
+        orgSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 8)}-${counter}`;
+      }
+    }
 
     const { data: organization, error: orgError } = await supabaseAdmin
       .from("organizations")
@@ -53,6 +72,7 @@ export async function approveRegistration(registrationId: string, adminUserId: s
       organization_id: organization.id,
       first_name: pendingReg.contact_name.split(' ')[0],
       last_name: pendingReg.contact_name.split(' ').slice(1).join(' '),
+      email: pendingReg.email, // <-- Added email here
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       language: "en",
     });
