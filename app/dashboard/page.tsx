@@ -19,6 +19,7 @@ import {
   FileText,
   CheckCircle,
   Shield,
+  RefreshCw, // Added RefreshCw icon
 } from "lucide-react"
 import {
   LineChart,
@@ -36,84 +37,11 @@ import {
 } from "recharts"
 import { AuthGuard } from "@/components/auth-guard"
 import Link from "next/link"
-import type { RiskMetrics, VendorMetrics } from "@/lib/analytics-service"
-import type { Notification } from "@/lib/notification-service"
+import { getRiskAnalytics, getVendorAnalytics, type RiskMetrics, type VendorMetrics } from "@/lib/analytics-service"
+import { getUserNotifications, markAllNotificationsAsRead, type Notification } from "@/lib/notification-service"
+import { useAuth } from "@/components/auth-context" // Import useAuth
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
-
-// Sample real-time data (in production, this would come from your analytics service)
-const sampleRiskMetrics: RiskMetrics = {
-  totalAssessments: 247,
-  completedAssessments: 189,
-  averageRiskScore: 72,
-  highRiskVendors: 23,
-  riskTrend: [
-    { date: "2024-01-01", score: 68 },
-    { date: "2024-01-02", score: 71 },
-    { date: "2024-01-03", score: 69 },
-    { date: "2024-01-04", score: 74 },
-    { date: "2024-01-05", score: 72 },
-    { date: "2024-01-06", score: 76 },
-    { date: "2024-01-07", score: 73 },
-  ],
-  riskDistribution: [
-    { level: "Low", count: 45 },
-    { level: "Medium", count: 121 },
-    { level: "High", count: 18 },
-    { level: "Critical", count: 5 },
-  ],
-  complianceScore: 87,
-}
-
-const sampleVendorMetrics: VendorMetrics = {
-  totalVendors: 156,
-  activeVendors: 134,
-  riskLevels: { low: 45, medium: 121, high: 18, critical: 5 },
-  industryBreakdown: [
-    { industry: "Technology", count: 42 },
-    { industry: "Financial Services", count: 28 },
-    { industry: "Healthcare", count: 21 },
-    { industry: "Manufacturing", count: 18 },
-    { industry: "Retail", count: 15 },
-  ],
-  assessmentCompletion: 76.5,
-}
-
-const sampleNotifications: Notification[] = [
-  {
-    id: "1",
-    organization_id: "org1", // Added
-    user_id: "user1",
-    title: "High-risk vendor assessment completed",
-    message: "TechCorp assessment shows critical security gaps",
-    type: "alert",
-    data: {}, // Added
-    read_at: undefined, // Changed from null to undefined to match Notification interface
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    organization_id: "org1", // Added
-    user_id: "user1",
-    title: "New vendor onboarding request",
-    message: "DataFlow Inc. submitted assessment request",
-    type: "info",
-    data: {}, // Added
-    read_at: undefined, // Changed from null to undefined to match Notification interface
-    created_at: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: "3",
-    organization_id: "org1", // Added
-    user_id: "user1",
-    title: "Compliance deadline approaching",
-    message: "SOC 2 audit due in 7 days",
-    type: "warning",
-    data: {}, // Added
-    read_at: new Date().toISOString(),
-    created_at: new Date(Date.now() - 7200000).toISOString(),
-  },
-]
 
 export default function DashboardPage() {
   return (
@@ -124,11 +52,55 @@ export default function DashboardPage() {
 }
 
 function DashboardContent() {
-  const [riskMetrics, setRiskMetrics] = useState<RiskMetrics>(sampleRiskMetrics)
-  const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics>(sampleVendorMetrics)
-  const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications)
-  const [loading, setLoading] = useState(false)
-  const [timeframe, setTimeframe] = useState("7d")
+  // State variables to hold fetched data
+  const [riskMetrics, setRiskMetrics] = useState<RiskMetrics | null>(null)
+  const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics | null>(null)
+  const [notifications, setNotifications] = useState<Notification[] | null>(null)
+  const [loading, setLoading] = useState(true) // Initial loading state
+  const [timeframe, setTimeframe] = useState("7d") // Existing timeframe state
+
+  // Access auth context
+  const { user, organization, loading: authLoading } = useAuth()
+
+  // Function to fetch all dashboard data
+  const fetchDashboardData = async () => {
+    if (authLoading || !user || !organization) {
+      // Don't fetch if auth is still loading or user/org not available
+      setLoading(true) // Keep loading true if auth is not ready
+      return
+    }
+
+    setLoading(true)
+    try {
+      // Fetch risk metrics
+      const fetchedRiskMetrics = await getRiskAnalytics(timeframe)
+      setRiskMetrics(fetchedRiskMetrics)
+
+      // Fetch vendor metrics
+      const fetchedVendorMetrics = await getVendorAnalytics()
+      setVendorMetrics(fetchedVendorMetrics)
+
+      // Fetch notifications
+      const fetchedNotifications = await getUserNotifications()
+      setNotifications(fetchedNotifications)
+
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error)
+      // Optionally set error state to display a message to the user
+      setRiskMetrics(null);
+      setVendorMetrics(null);
+      setNotifications(null);
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // useEffect to trigger data fetching
+  useEffect(() => {
+    fetchDashboardData()
+  }, [timeframe, user, organization, authLoading]) // Re-fetch when timeframe or auth context changes
+
+  // Simulate real-time updates for business metrics (these are still mock for now)
   const [businessMetrics, setBusinessMetrics] = useState({
     highRiskVendors: 8,
     overdueAssessments: 12,
@@ -157,19 +129,20 @@ function DashboardContent() {
   }, [])
 
   const handleMarkAllNotificationsRead = async () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read_at: new Date().toISOString() })))
+    if (!user) return;
+    await markAllNotificationsAsRead();
+    setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || null);
   }
 
-  const handleRefresh = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      // Simulate data refresh
-      setRiskMetrics((prevRiskMetrics) => ({
-        ...prevRiskMetrics,
-        averageRiskScore: prevRiskMetrics.averageRiskScore + Math.floor(Math.random() * 6) - 3,
-      }))
-    }, 1000)
+  if (loading || !riskMetrics || !vendorMetrics || !notifications) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -218,7 +191,7 @@ function DashboardContent() {
                   <div className="flex items-center justify-center mb-2">
                     <AlertTriangle className="h-8 w-8 text-red-500" />
                   </div>
-                  <div className="text-3xl font-bold text-red-600">{businessMetrics.highRiskVendors}</div>
+                  <div className="text-3xl font-bold text-red-600">{riskMetrics.highRiskVendors}</div>
                   <div className="text-sm text-gray-600 mt-1">High-Risk Vendors</div>
                   <div className="text-xs text-blue-600 mt-2">Click to manage →</div>
                 </CardContent>
@@ -231,7 +204,7 @@ function DashboardContent() {
                   <div className="flex items-center justify-center mb-2">
                     <Clock className="h-8 w-8 text-orange-500" />
                   </div>
-                  <div className="text-3xl font-bold text-orange-600">{businessMetrics.overdueAssessments}</div>
+                  <div className="text-3xl font-bold text-orange-600">{/* Placeholder for overdue assessments */}12</div>
                   <div className="text-sm text-gray-600 mt-1">Overdue Assessments</div>
                   <div className="text-xs text-blue-600 mt-2">Click to follow up →</div>
                 </CardContent>
@@ -244,7 +217,7 @@ function DashboardContent() {
                   <div className="flex items-center justify-center mb-2">
                     <FileText className="h-8 w-8 text-blue-500" />
                   </div>
-                  <div className="text-3xl font-bold text-blue-600">{businessMetrics.pendingReviews}</div>
+                  <div className="text-3xl font-bold text-blue-600">{/* Placeholder for pending reviews */}15</div>
                   <div className="text-sm text-gray-600 mt-1">Pending Reviews</div>
                   <div className="text-xs text-blue-600 mt-2">Click to review →</div>
                 </CardContent>
@@ -256,7 +229,7 @@ function DashboardContent() {
                 <div className="flex items-center justify-center mb-2">
                   <CheckCircle className="h-8 w-8 text-green-500" />
                 </div>
-                <div className="text-3xl font-bold text-green-600">{businessMetrics.complianceRate}%</div>
+                <div className="text-3xl font-bold text-green-600">{riskMetrics.complianceScore}%</div>
                 <div className="text-sm text-gray-600 mt-1">Compliance Rate</div>
               </CardContent>
             </Card>
@@ -360,7 +333,7 @@ function DashboardContent() {
                     <div className="flex items-center justify-between">
                       <CardTitle>Live Risk Trend</CardTitle>
                       <div className="flex space-x-2">
-                        {["7d", "30d", "90d"].map((period) => (
+                        {["7d", "30d", "90d", "1y"].map((period) => (
                           <Button
                             key={period}
                             variant={timeframe === period ? "default" : "outline"}
@@ -430,6 +403,9 @@ function DashboardContent() {
                         ))}
                       </div>
                     </ScrollArea>
+                    <Button onClick={handleMarkAllNotificationsRead} className="w-full mt-4" variant="outline">
+                      Mark All As Read
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
@@ -483,14 +459,18 @@ function DashboardContent() {
                         Manage Vendors
                       </Button>
                     </Link>
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
-                        <BarChart3 className="mr-2 h-4 w-4" />
-                        Generate Report
-                    </Button>
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
-                        <Shield className="mr-2 h-4 w-4" />
-                        Configure Workflows
-                    </Button>
+                    <Link href="/reports">
+                      <Button className="w-full justify-start bg-transparent" variant="outline">
+                          <BarChart3 className="mr-2 h-4 w-4" />
+                          Generate Report
+                      </Button>
+                    </Link>
+                    <Link href="/settings">
+                      <Button className="w-full justify-start bg-transparent" variant="outline">
+                          <Shield className="mr-2 h-4 w-4" />
+                          Configure Workflows
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               </div>
