@@ -90,53 +90,44 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     window.location.href = "/dashboard"; 
   };
 
-  let contentToRender = null;
-
-  if (loading || redirecting) {
-    console.log("AuthGuard: Rendering loading spinner due to loading or redirecting state.");
-    contentToRender = (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">
-            {loading ? "Loading authentication..." : "Redirecting..."}
-          </p>
-        </div>
+  const contentToRender = (loading || redirecting) ? (
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-2 text-gray-600">
+          {loading ? "Loading authentication..." : "Redirecting..."}
+        </p>
       </div>
-    );
-  } else if (showPendingApprovalMessage && user && !isDemo && !profile && !role) {
-    console.log("AuthGuard: Rendering 'Pending Approval' message for authenticated but unapproved user.");
-    contentToRender = (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
-                <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
-                <p className="text-gray-600">
-                  Your account ({user.email}) is currently pending review by our administrators. You will receive an email notification once your account has been approved.
-                </p>
-                <div className="pt-4">
-                  <Button className="w-full" onClick={signOut}>
-                    Sign Out
+    </div>
+  ) : (showPendingApprovalMessage && user && !isDemo && !profile && !role) ? (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
+              <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
+              <p className="text-gray-600">
+                Your account ({user.email}) is currently pending review by our administrators. You will receive an email notification once your account has been approved.
+              </p>
+              <div className="pt-4">
+                <Button className="w-full" onClick={signOut}>
+                  Sign Out
+                </Button>
+                <a href="/auth/login">
+                  <Button variant="outline" className="w-full mt-2">
+                    Go to Login Page
                   </Button>
-                  <a href="/auth/login">
-                    <Button variant="outline" className="w-full mt-2">
-                      Go to Login Page
-                    </Button>
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    );
-  } else {
-    console.log("AuthGuard: Final decision - rendering children.");
-    contentToRender = <>{children}</>;
-  }
+    </div>
+  ) : (
+    <>{children}</>
+  );
 
   return contentToRender;
 }
