@@ -37,7 +37,7 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[1200px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <FileText className="h-6 w-6 text-blue-600" />
