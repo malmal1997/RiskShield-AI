@@ -6,6 +6,6 @@ import {
   type ThemeProviderProps,
 } from 'next-themes'
 
-export function ThemeProvider(props: ThemeProviderProps) { // Removed 'children' from destructuring
+export function ThemeProvider(props: ThemeProviderProps) {
   return <NextThemesProvider {...props} />
 }

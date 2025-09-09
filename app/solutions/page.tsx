@@ -17,6 +17,7 @@ import {
   Lock,
   Cog,
   LifeBuoy,
+  AlertTriangle, // Added AlertTriangle
 } from "lucide-react"
 
 export default function SolutionsPage() {
