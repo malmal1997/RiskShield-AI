@@ -44,6 +44,7 @@ import { getUserNotifications, markAllNotificationsAsRead, type Notification } f
 import { getAiAssessmentReports } from "@/lib/assessment-service" // Import getAiAssessmentReports
 import type { AiAssessmentReport } from "@/lib/supabase" // Import AiAssessmentReport type
 import { useAuth } from "@/components/auth-context"
+import { AiReportDetailModal } from "@/components/AiReportDetailModal" // Import the new modal component
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
 
@@ -62,6 +63,8 @@ function DashboardContent() {
   const [aiReports, setAiReports] = useState<AiAssessmentReport[] | null>(null) // New state for AI reports
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState("7d")
+  const [showReportDetailModal, setShowReportDetailModal] = useState(false); // State for modal visibility
+  const [selectedReport, setSelectedReport] = useState<AiAssessmentReport | null>(null); // State for selected report
 
   const { user, organization, loading: authLoading } = useAuth()
 
@@ -104,6 +107,11 @@ function DashboardContent() {
     await markAllNotificationsAsRead()
     setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || null)
   }
+
+  const handleViewReport = (report: AiAssessmentReport) => {
+    setSelectedReport(report);
+    setShowReportDetailModal(true);
+  };
 
   const getRiskLevelColor = (level: string) => {
     switch (level?.toLowerCase()) {
@@ -570,7 +578,7 @@ function DashboardContent() {
                               <p className="text-sm text-gray-600">
                                 Analyzed: {new Date(report.analysis_date).toLocaleDateString()}
                               </p>
-                              <Button variant="outline" size="sm" className="mt-2">
+                              <Button variant="outline" size="sm" className="mt-2" onClick={() => handleViewReport(report)}>
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Report
                               </Button>
@@ -698,6 +706,13 @@ function DashboardContent() {
             </div>
           </div>
         </footer>
+
+        {/* AI Report Detail Modal */}
+        <AiReportDetailModal
+          report={selectedReport}
+          isOpen={showReportDetailModal}
+          onClose={() => setShowReportDetailModal(false)}
+        />
       </div>
   )
 }
