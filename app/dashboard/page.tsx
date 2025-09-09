@@ -44,7 +44,7 @@ import { getUserNotifications, markAllNotificationsAsRead, type Notification } f
 import { getAiAssessmentReports } from "@/lib/assessment-service" // Import getAiAssessmentReports
 import type { AiAssessmentReport } from "@/lib/supabase" // Import AiAssessmentReport type
 import { useAuth } from "@/components/auth-context"
-import { AiReportDetailModal } from "@/components/AiReportDetailModal" // Import the new modal component
+import { AiReportDetailModal } from "@/src/components/AiReportDetailModal" // Corrected import path
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
 
