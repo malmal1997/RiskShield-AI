@@ -67,16 +67,20 @@ export async function getCurrentUserWithProfile(): Promise<{
   role: UserRole | null
 }> {
   try {
+    console.log("getCurrentUserWithProfile: Attempting to fetch user from Supabase Auth.");
     const {
       data: { user },
       error: userError,
     } = await supabaseClient.auth.getUser()
 
     if (userError || !user) {
+      console.log("getCurrentUserWithProfile: No Supabase user found or error:", userError?.message || "No user");
       return { user: null, profile: null, organization: null, role: null }
     }
+    console.log("getCurrentUserWithProfile: Supabase user found:", user.id, user.email);
 
     // Get user profile
+    console.log("getCurrentUserWithProfile: Fetching user profile for user_id:", user.id);
     const { data: profile, error: profileError } = await supabaseClient
       .from("user_profiles")
       .select("*")
@@ -84,23 +88,43 @@ export async function getCurrentUserWithProfile(): Promise<{
       .single()
 
     if (profileError || !profile) {
+      console.log("getCurrentUserWithProfile: No profile found or error:", profileError?.message || "No profile");
       return { user, profile: null, organization: null, role: null }
     }
+    console.log("getCurrentUserWithProfile: Profile found:", profile.id, "organization_id:", profile.organization_id);
 
     // Get organization
+    console.log("getCurrentUserWithProfile: Fetching organization for id:", profile.organization_id);
     const { data: organization, error: orgError } = await supabaseClient
       .from("organizations")
       .select("*")
       .eq("id", profile.organization_id)
       .single()
 
+    if (orgError) {
+        console.log("getCurrentUserWithProfile: Organization fetch error:", orgError.message);
+    } else if (organization) {
+        console.log("getCurrentUserWithProfile: Organization found:", organization.id, organization.name);
+    } else {
+        console.log("getCurrentUserWithProfile: No organization found for profile's organization_id:", profile.organization_id);
+    }
+
     // Get user role
+    console.log("getCurrentUserWithProfile: Fetching user role for user_id:", user.id, "and organization_id:", profile.organization_id);
     const { data: roleData, error: roleError } = await supabaseClient
       .from("user_roles")
       .select("*")
       .eq("user_id", user.id)
       .eq("organization_id", profile.organization_id)
       .single()
+
+    if (roleError) {
+        console.log("getCurrentUserWithProfile: Role fetch error:", roleError.message);
+    } else if (roleData) {
+        console.log("getCurrentUserWithProfile: Role found:", roleData.role);
+    } else {
+        console.log("getCurrentUserWithProfile: No role found for user:", user.id, "in organization:", profile.organization_id);
+    }
 
     return {
       user,
@@ -109,7 +133,7 @@ export async function getCurrentUserWithProfile(): Promise<{
       role: roleError ? null : roleData,
     }
   } catch (error) {
-    console.error("Error getting user with profile:", error)
+    console.error("getCurrentUserWithProfile: Unhandled error:", error);
     return { user: null, profile: null, organization: null, role: null }
   }
 }
