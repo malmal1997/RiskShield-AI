@@ -1,5 +1,5 @@
 import { supabaseClient } from "./supabase-client"
-import { supabaseAdmin } from "@/integrations/supabase/admin" // Import the new admin client
+import { supabaseAdmin } from "@/src/integrations/supabase/admin" // Corrected import path
 import type { User } from "@supabase/supabase-js"
 
 export interface Organization {
