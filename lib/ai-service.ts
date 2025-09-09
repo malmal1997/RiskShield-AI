@@ -124,7 +124,6 @@ function isSupportedFileType(file: File): boolean {
     "text/csv",
     "application/json",
     "text/html",
-    "application/xml",
     "text/xml",
   ]
 
@@ -468,7 +467,7 @@ export async function analyzeDocuments(
     const testResult = await generateText({
       model: google("gemini-1.5-flash"),
       prompt: "Reply with 'OK' if you can read this.",
-      max_tokens: 10, 
+      maxOutputTokens: 10, // Changed from max_tokens
       temperature: 0.1,
     })
 
@@ -634,7 +633,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             },
           ],
           temperature: 0.1,
-          max_tokens: 4000, 
+          maxOutputTokens: 4000, // Changed from max_tokens
         })
         console.log(`✅ Successfully processed ${validPdfAttachments.length} PDF file(s) with Google AI`)
       } else {
@@ -644,7 +643,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           model: google("gemini-1.5-flash"),
           prompt: basePrompt,
           temperature: 0.1,
-          max_tokens: 4000, 
+          maxOutputTokens: 4000, // Changed from max_tokens
         })
       }
     } else {
@@ -653,7 +652,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         model: google("gemini-1.5-flash"),
         prompt: basePrompt,
         temperature: 0.1,
-        max_tokens: 4000, 
+        maxOutputTokens: 4000, // Changed from max_tokens
       })
     }
 
@@ -942,7 +941,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
       const result = await generateText({
         model: google("gemini-1.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
-        max_tokens: 10, 
+        maxOutputTokens: 10, // Changed from max_tokens
         temperature: 0.1,
       })
       results.google = result.text.toLowerCase().includes("ok")

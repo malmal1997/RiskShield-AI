@@ -59,6 +59,7 @@ const assessmentCategories = [
         question: "Does your organization have a formal cybersecurity policy?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "cs2",
@@ -67,6 +68,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
         weight: 8,
+        required: true,
       },
       {
         id: "cs3",
@@ -74,6 +76,7 @@ const assessmentCategories = [
         question: "Do you have multi-factor authentication implemented for all critical systems?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "cs4",
@@ -82,6 +85,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
         weight: 8,
+        required: true,
       },
       {
         id: "cs5",
@@ -89,6 +93,7 @@ const assessmentCategories = [
         question: "Do you have an incident response plan in place?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
     ],
   },
@@ -104,6 +109,7 @@ const assessmentCategories = [
         question: "Are you compliant with current FDIC regulations?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "rc2",
@@ -112,6 +118,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 8,
+        required: true,
       },
       {
         id: "rc3",
@@ -119,6 +126,7 @@ const assessmentCategories = [
         question: "Do you have a dedicated compliance officer?",
         type: "boolean" as const,
         weight: 7,
+        required: true,
       },
       {
         id: "rc4",
@@ -127,6 +135,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 9,
+        required: true,
       },
       {
         id: "rc5",
@@ -134,6 +143,7 @@ const assessmentCategories = [
         question: "Do you maintain proper documentation for all compliance activities?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
     ],
   },
@@ -149,6 +159,7 @@ const assessmentCategories = [
         question: "Do you have documented operational procedures for all critical processes?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "or2",
@@ -157,6 +168,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 7,
+        required: true,
       },
       {
         id: "or3",
@@ -164,6 +176,7 @@ const assessmentCategories = [
         question: "Do you have adequate segregation of duties in place?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "or4",
@@ -172,6 +185,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Quarterly"],
         weight: 8,
+        required: true,
       },
       {
         id: "or5",
@@ -179,6 +193,7 @@ const assessmentCategories = [
         question: "Do you have a business continuity plan?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
     ],
   },
@@ -194,6 +209,7 @@ const assessmentCategories = [
         question: "Do you have a documented Business Continuity Management (BCM) program in place?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "bc2",
@@ -202,6 +218,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3+ years", "Every 2-3 years", "Annually", "Semi-annually"],
         weight: 9,
+        required: true,
       },
       {
         id: "bc3",
@@ -209,6 +226,7 @@ const assessmentCategories = [
         question: "Does your BCM program have executive oversight and sponsorship?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc4",
@@ -217,6 +235,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 7,
+        required: true,
       },
       {
         id: "bc5",
@@ -224,6 +243,7 @@ const assessmentCategories = [
         question: "Do you monitor system capacity and availability on an ongoing basis?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc6",
@@ -231,6 +251,7 @@ const assessmentCategories = [
         question: "Do you have adequate physical security controls for critical facilities?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc7",
@@ -238,6 +259,7 @@ const assessmentCategories = [
         question: "Do you have environmental security controls (fire suppression, climate control, etc.)?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc8",
@@ -245,6 +267,7 @@ const assessmentCategories = [
         question: "Do you have redundant telecommunications infrastructure to handle failures?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "bc9",
@@ -253,6 +276,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "As needed only", "Annually", "Semi-annually", "Quarterly"],
         weight: 8,
+        required: true,
       },
       {
         id: "bc10",
@@ -260,6 +284,7 @@ const assessmentCategories = [
         question: "Do you have backup power systems (UPS/generators) for critical operations?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "bc11",
@@ -267,6 +292,7 @@ const assessmentCategories = [
         question: "Do you have comprehensive data protection (firewall, anti-virus, encryption)?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "bc12",
@@ -274,6 +300,7 @@ const assessmentCategories = [
         question: "Do you have contingency plans for failures of critical third-party providers?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc13",
@@ -281,6 +308,7 @@ const assessmentCategories = [
         question: "Do you conduct background checks on employees with access to critical systems?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc14",
@@ -288,6 +316,7 @@ const assessmentCategories = [
         question: "Do you have adequate staffing depth and cross-training for critical functions?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc15",
@@ -295,6 +324,7 @@ const assessmentCategories = [
         question: "Do you have a documented Disaster Recovery Plan separate from your BCM?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "bc16",
@@ -302,6 +332,7 @@ const assessmentCategories = [
         question: "Do you have established internal and external communication protocols for crisis management?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc17",
@@ -309,6 +340,7 @@ const assessmentCategories = [
         question: "Do you have communication procedures for planned system outages?",
         type: "boolean" as const,
         weight: 7,
+        required: true,
       },
       {
         id: "bc18",
@@ -316,6 +348,7 @@ const assessmentCategories = [
         question: "Do you have a cybersecurity incident management plan?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "bc19",
@@ -323,6 +356,7 @@ const assessmentCategories = [
         question: "Do you maintain appropriate business continuity insurance coverage?",
         type: "boolean" as const,
         weight: 7,
+        required: true,
       },
       {
         id: "bc20",
@@ -330,6 +364,7 @@ const assessmentCategories = [
         question: "Do you have pandemic/health emergency continuity plans?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc21",
@@ -337,6 +372,7 @@ const assessmentCategories = [
         question: "Do you have remote administration contingencies for critical systems?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc22",
@@ -344,6 +380,7 @@ const assessmentCategories = [
         question: "Do you have proper source code management and version control systems?",
         type: "boolean" as const,
         weight: 7,
+        required: true,
       },
       {
         id: "bc23",
@@ -351,6 +388,7 @@ const assessmentCategories = [
         question: "Have you identified and addressed any outdated systems that pose continuity risks?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc24",
@@ -359,6 +397,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Monthly", "Weekly", "Daily", "Real-time/Continuous"],
         weight: 10,
+        required: true,
       },
       {
         id: "bc25",
@@ -366,6 +405,7 @@ const assessmentCategories = [
         question: "Have you conducted a formal Business Impact Analysis (BIA)?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "bc26",
@@ -373,6 +413,7 @@ const assessmentCategories = [
         question: "Have you defined Recovery Point Objectives (RPO) for critical systems?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "bc27",
@@ -380,6 +421,7 @@ const assessmentCategories = [
         question: "Have you defined Recovery Time Objectives (RTO) for critical systems?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "bc28",
@@ -388,6 +430,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 10,
+        required: true,
       },
       {
         id: "bc29",
@@ -396,6 +439,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 9,
+        required: true,
       },
       {
         id: "bc30",
@@ -404,6 +448,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Quarterly"],
         weight: 9,
+        required: true,
       },
       {
         id: "bc31",
@@ -411,6 +456,7 @@ const assessmentCategories = [
         question: "Do you document and analyze the results of your BC/DR testing?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "bc32",
@@ -418,6 +464,7 @@ const assessmentCategories = [
         question: "Do you have independent audits of your BC/DR plan testing conducted?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
     ],
   },
@@ -433,6 +480,7 @@ const assessmentCategories = [
         question: "Are you compliant with current banking regulations (e.g., Basel III, Dodd-Frank)?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "fs2",
@@ -441,6 +489,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 9,
+        required: true,
       },
       {
         id: "fs3",
@@ -448,6 +497,7 @@ const assessmentCategories = [
         question: "Do you have a comprehensive Know Your Customer (KYC) program?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "fs4",
@@ -456,6 +506,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 8,
+        required: true,
       },
       {
         id: "fs5",
@@ -463,6 +514,7 @@ const assessmentCategories = [
         question: "Do you maintain adequate capital reserves as required by regulators?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "fs6",
@@ -470,6 +522,7 @@ const assessmentCategories = [
         question: "Are you compliant with consumer protection regulations (e.g., CFPB guidelines)?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "fs7",
@@ -478,6 +531,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Quarterly"],
         weight: 9,
+        required: true,
       },
       {
         id: "fs8",
@@ -485,6 +539,7 @@ const assessmentCategories = [
         question: "Do you have proper segregation of client funds and assets?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
     ],
   },
@@ -500,6 +555,7 @@ const assessmentCategories = [
         question: "Are you compliant with applicable data privacy regulations (GDPR, CCPA, etc.)?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "dp2",
@@ -508,6 +564,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "As needed only", "Annually", "Semi-annually", "For all new projects"],
         weight: 9,
+        required: true,
       },
       {
         id: "dp3",
@@ -515,6 +572,7 @@ const assessmentCategories = [
         question: "Do you have documented data retention and deletion policies?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "dp4",
@@ -523,6 +581,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["No formal process", "Manual process", "Semi-automated", "Fully automated", "Comprehensive system"],
         weight: 8,
+        required: true,
       },
       {
         id: "dp5",
@@ -530,6 +589,7 @@ const assessmentCategories = [
         question: "Do you have a designated Data Protection Officer (DPO)?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "dp6",
@@ -537,6 +597,7 @@ const assessmentCategories = [
         question: "Are all third-party data processors properly vetted and contracted?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "dp7",
@@ -545,6 +606,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 7,
+        required: true,
       },
       {
         id: "dp8",
@@ -552,6 +614,7 @@ const assessmentCategories = [
         question: "Do you maintain records of all data processing activities?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "dp9",
@@ -559,6 +622,7 @@ const assessmentCategories = [
         question: "Have you implemented privacy by design principles in your systems?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "dp10",
@@ -566,6 +630,7 @@ const assessmentCategories = [
         question: "Do you have a written Information Security Policy (ISP)?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "dp11",
@@ -574,6 +639,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 8,
+        required: true,
       },
       {
         id: "dp12",
@@ -581,6 +647,7 @@ const assessmentCategories = [
         question: "Do you have a designated person responsible for Information Security Policy?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "dp13",
@@ -876,6 +943,7 @@ const assessmentCategories = [
         question: "Do you have network segmentation implemented for critical systems?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "is2",
@@ -884,6 +952,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "As needed only", "Monthly", "Weekly", "Automated/Real-time"],
         weight: 10,
+        required: true,
       },
       {
         id: "is3",
@@ -891,6 +960,7 @@ const assessmentCategories = [
         question: "Do you have intrusion detection and prevention systems (IDS/IPS) deployed?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "is4",
@@ -899,6 +969,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 9,
+        required: true,
       },
       {
         id: "is5",
@@ -906,6 +977,7 @@ const assessmentCategories = [
         question: "Are all administrative accounts protected with privileged access management?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "is6",
@@ -913,6 +985,7 @@ const assessmentCategories = [
         question: "Do you have comprehensive logging and monitoring for all critical systems?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "is7",
@@ -921,6 +994,7 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
         weight: 8,
+        required: true,
       },
       {
         id: "is8",
@@ -928,6 +1002,7 @@ const assessmentCategories = [
         question: "Do you have secure configuration standards for all infrastructure components?",
         type: "boolean" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "is9",
@@ -935,6 +1010,7 @@ const assessmentCategories = [
         question: "Are all data transmissions encrypted both in transit and at rest?",
         type: "boolean" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "is10",
@@ -942,6 +1018,7 @@ const assessmentCategories = [
         question: "Do you have a formal vulnerability management program?",
         type: "boolean" as const,
         weight: 9,
+        required: true,
       },
     ],
   },
@@ -959,6 +1036,7 @@ const assessmentCategories = [
           "Has management established a governance structure with clear roles and responsibilities for SOC compliance?",
         type: "tested" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "soc2",
@@ -966,6 +1044,7 @@ const assessmentCategories = [
         question: "Are there documented policies and procedures for all SOC-relevant control activities?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc3",
@@ -973,6 +1052,7 @@ const assessmentCategories = [
         question: "Has management established a risk assessment process to identify and evaluate risks?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc4",
@@ -980,6 +1060,7 @@ const assessmentCategories = [
         question: "Are control objectives clearly defined and communicated throughout the organization?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc5",
@@ -987,6 +1068,7 @@ const assessmentCategories = [
         question: "Is there a formal process for monitoring and evaluating control effectiveness?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
 
       // Security Controls
@@ -996,6 +1078,7 @@ const assessmentCategories = [
         question: "Are logical access controls implemented to restrict access to systems and data?",
         type: "tested" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "soc7",
@@ -1003,6 +1086,7 @@ const assessmentCategories = [
         question: "Is user access provisioning and deprovisioning performed in a timely manner?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc8",
@@ -1010,6 +1094,7 @@ const assessmentCategories = [
         question: "Are privileged access rights regularly reviewed and approved?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc9",
@@ -1017,6 +1102,7 @@ const assessmentCategories = [
         question: "Is multi-factor authentication implemented for all critical systems?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc10",
@@ -1024,6 +1110,7 @@ const assessmentCategories = [
         question: "Are password policies enforced and regularly updated?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc11",
@@ -1031,6 +1118,7 @@ const assessmentCategories = [
         question: "Is data encryption implemented for data at rest and in transit?",
         type: "tested" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "soc12",
@@ -1038,6 +1126,7 @@ const assessmentCategories = [
         question: "Are security incident response procedures documented and tested?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc13",
@@ -1045,6 +1134,7 @@ const assessmentCategories = [
         question: "Is vulnerability management performed regularly with timely remediation?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc14",
@@ -1052,6 +1142,7 @@ const assessmentCategories = [
         question: "Are network security controls (firewalls, IDS/IPS) properly configured and monitored?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc15",
@@ -1059,6 +1150,7 @@ const assessmentCategories = [
         question: "Is physical access to data centers and facilities properly controlled?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
 
       // Availability Controls
@@ -1068,6 +1160,7 @@ const assessmentCategories = [
         question: "Are system capacity and performance monitored to ensure availability?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc17",
@@ -1075,6 +1168,7 @@ const assessmentCategories = [
         question: "Is there a documented business continuity and disaster recovery plan?",
         type: "tested" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "soc18",
@@ -1082,6 +1176,7 @@ const assessmentCategories = [
         question: "Are backup and recovery procedures regularly tested?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc19",
@@ -1089,6 +1184,7 @@ const assessmentCategories = [
         question: "Is system availability monitored with appropriate alerting mechanisms?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc20",
@@ -1096,6 +1192,7 @@ const assessmentCategories = [
         question: "Are change management procedures in place for system modifications?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
 
       // Processing Integrity Controls
@@ -1105,6 +1202,7 @@ const assessmentCategories = [
         question: "Are data processing controls implemented to ensure completeness and accuracy?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc22",
@@ -1112,6 +1210,7 @@ const assessmentCategories = [
         question: "Is data input validation performed to prevent processing errors?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc23",
@@ -1119,6 +1218,7 @@ const assessmentCategories = [
         question: "Are automated controls in place to detect and prevent duplicate transactions?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc24",
@@ -1126,6 +1226,7 @@ const assessmentCategories = [
         question: "Is data processing monitored for exceptions and errors?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc25",
@@ -1133,6 +1234,7 @@ const assessmentCategories = [
         question: "Are reconciliation procedures performed to ensure data integrity?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
 
       // Confidentiality Controls
@@ -1142,6 +1244,7 @@ const assessmentCategories = [
         question: "Are confidentiality agreements in place with employees and third parties?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc27",
@@ -1149,6 +1252,7 @@ const assessmentCategories = [
         question: "Is sensitive data classified and handled according to its classification?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc28",
@@ -1156,6 +1260,7 @@ const assessmentCategories = [
         question: "Are data retention and disposal policies implemented and followed?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc29",
@@ -1163,6 +1268,7 @@ const assessmentCategories = [
         question: "Is access to confidential information restricted on a need-to-know basis?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
 
       // Privacy Controls
@@ -1172,6 +1278,7 @@ const assessmentCategories = [
         question: "Are privacy policies and procedures documented and communicated?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc31",
@@ -1179,6 +1286,7 @@ const assessmentCategories = [
         question: "Is personal information collected, used, and disclosed in accordance with privacy policies?",
         type: "tested" as const,
         weight: 10,
+        required: true,
       },
       {
         id: "soc32",
@@ -1186,6 +1294,7 @@ const assessmentCategories = [
         question: "Are individuals provided with notice about data collection and use practices?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc33",
@@ -1193,6 +1302,7 @@ const assessmentCategories = [
         question: "Is consent obtained for the collection and use of personal information where required?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc34",
@@ -1200,6 +1310,7 @@ const assessmentCategories = [
         question: "Are data subject rights (access, correction, deletion) supported and processed?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
 
       // Monitoring and Logging
@@ -1209,6 +1320,7 @@ const assessmentCategories = [
         question: "Are system activities logged and monitored for security events?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc36",
@@ -1216,6 +1328,7 @@ const assessmentCategories = [
         question: "Is log data protected from unauthorized access and modification?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc37",
@@ -1223,6 +1336,7 @@ const assessmentCategories = [
         question: "Are logs regularly reviewed for suspicious activities?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc38",
@@ -1230,6 +1344,7 @@ const assessmentCategories = [
         question: "Is there a centralized logging system for security monitoring?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
 
       // Third-Party Management
@@ -1239,6 +1354,7 @@ const assessmentCategories = [
         question: "Are third-party service providers evaluated for SOC compliance?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc40",
@@ -1246,6 +1362,7 @@ const assessmentCategories = [
         question: "Are contracts with service providers reviewed for appropriate control requirements?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc41",
@@ -1253,6 +1370,7 @@ const assessmentCategories = [
         question: "Is third-party performance monitored against contractual requirements?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
 
       // Training and Awareness
@@ -1262,6 +1380,7 @@ const assessmentCategories = [
         question: "Is security and compliance training provided to all relevant personnel?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc43",
@@ -1269,6 +1388,7 @@ const assessmentCategories = [
         question: "Are employees made aware of their roles and responsibilities for SOC compliance?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc44",
@@ -1276,6 +1396,7 @@ const assessmentCategories = [
         question: "Is ongoing training provided to keep personnel current with policies and procedures?",
         type: "tested" as const,
         weight: 7,
+        required: true,
       },
 
       // Management Review and Oversight
@@ -1285,6 +1406,7 @@ const assessmentCategories = [
         question: "Does management regularly review control effectiveness and compliance status?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc46",
@@ -1292,6 +1414,7 @@ const assessmentCategories = [
         question: "Are control deficiencies identified, documented, and remediated in a timely manner?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
       {
         id: "soc47",
@@ -1299,6 +1422,7 @@ const assessmentCategories = [
         question: "Is there a formal process for management to approve significant changes to controls?",
         type: "tested" as const,
         weight: 8,
+        required: true,
       },
       {
         id: "soc48",
@@ -1306,6 +1430,7 @@ const assessmentCategories = [
         question: "Are internal audits performed to assess control effectiveness?",
         type: "tested" as const,
         weight: 9,
+        required: true,
       },
     ],
   },
@@ -1571,7 +1696,7 @@ export default function AIAssessmentPage() {
 
         <h2>Detailed Responses</h2>
         <div class="section-content">
-            ${questionsForCategory.map(question => `
+            ${questionsForCategory.map((question: Question, index: number) => `
                 <div style="margin-bottom: 25px;">
                     <p class="question-title">${question.question}</p>
                     <p class="answer-text"><strong>Answer:</strong> ${
@@ -1692,6 +1817,8 @@ export default function AIAssessmentPage() {
         return "text-orange-600 bg-orange-100"
       case "high":
         return "text-red-600 bg-red-100"
+      case "critical":
+        return "text-red-800 bg-red-200"
       default:
         return "text-gray-600 bg-gray-100"
     }
@@ -2234,7 +2361,7 @@ export default function AIAssessmentPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-8">
-                    {questionsForCategory.map((question, index) => (
+                    {questionsForCategory.map((question: Question, index: number) => (
                       <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
                         <div>
                           <div className="flex items-start space-x-2 mb-2">
@@ -2270,9 +2397,9 @@ export default function AIAssessmentPage() {
                           </p>
                           {analysisResults.documentExcerpts?.[question.id] &&
                             analysisResults.documentExcerpts[question.id].length > 0 && (
-                              <div className="mt-3 text-xs text-blue-700 italic">
+                              <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded">
                                 <Info className="inline h-3 w-3 mr-1" />
-                                Evidence: "{analysisResults.documentExcerpts[question.id][0].excerpt}" (from{" "}
+                                <strong>Evidence:</strong> "{analysisResults.documentExcerpts[question.id][0].excerpt}" (from{" "}
                                 {analysisResults.documentExcerpts[question.id][0].fileName} -{" "}
                                 {analysisResults.documentExcerpts[question.id][0].label})
                               </div>

@@ -99,8 +99,8 @@ Security policies are reviewed and updated yearly.
     // Create a mock file for testing
     const mockFile = new File([sampleDocument], "sample-policy.txt", { type: "text/plain" })
 
-    // Run the analysis
-    const result = await analyzeDocuments([mockFile], sampleQuestions, "Sample Security Assessment")
+    // Run the analysis - wrap mockFile in FileWithLabel object
+    const result = await analyzeDocuments([{ file: mockFile, label: 'Primary' }], sampleQuestions, "Sample Security Assessment")
 
     return NextResponse.json({
       status: "Sample analysis complete",

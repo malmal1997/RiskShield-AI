@@ -108,7 +108,7 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <h3 className="font-semibold text-red-900 mb-2">Identified Risk Factors</h3>
                 <ul className="text-sm text-red-800 list-disc pl-5 space-y-1">
-                  {analysisResults.riskFactors.map((factor, index) => (
+                  {analysisResults.riskFactors.map((factor: string, index: number) => (
                     <li key={index}>{factor}</li>
                   ))}
                 </ul>
@@ -120,7 +120,7 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <h3 className="font-semibold text-green-900 mb-2">Recommendations</h3>
                 <ul className="text-sm text-green-800 list-disc pl-5 space-y-1">
-                  {analysisResults.recommendations.map((rec, index) => (
+                  {analysisResults.recommendations.map((rec: string, index: number) => (
                     <li key={index}>{rec}</li>
                   ))}
                 </ul>

@@ -76,7 +76,7 @@ function AdminApprovalContent() {
 
   const handleApprove = async (registrationId: string) => {
     // Pass null for adminUserId if in demo mode, as demo user ID is not a valid UUID
-    const actualAdminUserId = isDemo ? null : user?.id; 
+    const actualAdminUserId: string | null = isDemo ? null : user?.id || null; // Explicitly cast to string | null
 
     if (!actualAdminUserId && !isDemo) { // If not demo and no valid user ID
       toast({

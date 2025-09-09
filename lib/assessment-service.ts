@@ -149,7 +149,7 @@ export async function getAssessments(): Promise<(Assessment & { responses?: Asse
 }
 
 // Get assessment by ID (public access for vendors)
-export async function getAssessmentById(id: string): Promise<any | null> { // Changed to any for flexibility
+export async function getAssessmentById(id: string): Promise<Assessment | null> { // Changed to Assessment | null
   try {
     console.log("🔍 Getting assessment by ID:", id)
 
@@ -157,7 +157,7 @@ export async function getAssessmentById(id: string): Promise<any | null> { // Ch
 
     if (error) {
       console.error("❌ Supabase error:", error)
-      throw new Error(`Failed to fetch assessment: ${assessmentError.message}`)
+      throw new Error(`Failed to fetch assessment: ${error.message}`) // Corrected error variable name
     }
 
     console.log("✅ Found assessment:", data?.vendor_name)
