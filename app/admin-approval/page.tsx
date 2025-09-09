@@ -16,14 +16,15 @@ import {
   Check,
   X,
   AlertTriangle,
-  Shield, // Added Shield import
+  Shield,
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
-import { approveRegistration, PendingRegistration } from "@/lib/auth-service"
+import { PendingRegistration } from "@/lib/auth-service"
 import { supabaseClient } from "@/lib/supabase-client"
 import Link from "next/link"
 import { useToast } from "@/components/ui/use-toast"
+import { approveRegistration } from "./actions" // Import from the new server action file
 
 export default function AdminApprovalPage() {
   return (
