@@ -62,7 +62,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true); // Always start loading
 
     // Check for demo session first
-    const demoSession = localStorage.getItem("demo_session")
+    let demoSession = null;
+    if (typeof window !== 'undefined') { // Guard localStorage access
+      demoSession = localStorage.getItem("demo_session");
+    }
+    
     if (demoSession) {
       try {
         const session: DemoSession = JSON.parse(demoSession)
@@ -81,7 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       } catch (error) {
         console.error("AuthContext: Error parsing demo session:", error)
-        localStorage.removeItem("demo_session")
+        if (typeof window !== 'undefined') { // Guard localStorage access
+          localStorage.removeItem("demo_session")
+        }
       }
     }
 
@@ -247,7 +253,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     console.log("AuthContext: signOut called.")
     setLoading(true); // Set loading true during sign-out attempt
-    localStorage.removeItem("demo_session")
+    if (typeof window !== 'undefined') { // Guard localStorage access
+      localStorage.removeItem("demo_session")
+    }
     setIsDemo(false)
 
     const { error } = await supabaseClient.auth.signOut()
