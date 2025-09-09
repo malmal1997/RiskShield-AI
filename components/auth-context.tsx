@@ -116,13 +116,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(currentUser);
 
+      // Add a small delay to allow database changes to propagate, especially after a new user/profile creation
+      // This is crucial if the profile/org/role were just created by the approveRegistration server action.
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+
       // Initialize profile, organization, role to null before fetching
       let fetchedProfile = null;
       let fetchedOrganization = null;
       let fetchedRole = null;
-
-      // Add a small delay to allow database changes to propagate
-      await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
 
       // Get user profile from Supabase
       console.log("AuthContext: Fetching user profile...")
@@ -132,11 +133,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq("user_id", currentUser.id) // Use currentUser.id
         .single()
 
-      if (profileError || !profileData) {
-        console.log("AuthContext: No user profile found or error:", profileError)
-        // User is authenticated but not approved (no profile)
-        // Set profile/org/role to null, but don't return early.
-        // Let the finally block handle setLoading(false).
+      if (profileError) {
+        console.error("AuthContext: Error fetching user profile:", profileError); // Log the actual error
+        setProfile(null);
+        setOrganization(null);
+        setRole(null);
+      } else if (!profileData) {
+        console.log("AuthContext: No user profile data found for user:", currentUser.id);
         setProfile(null);
         setOrganization(null);
         setRole(null);
@@ -153,8 +156,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq("id", profileData.organization_id)
           .single()
 
-        if (orgError || !organizationData) {
-          console.log("AuthContext: No organization found or error:", orgError)
+        if (orgError) {
+          console.error("AuthContext: Error fetching organization:", orgError); // Log the actual error
+          setOrganization(null)
+        } else if (!organizationData) {
+          console.log("AuthContext: No organization data found for ID:", profileData.organization_id);
           setOrganization(null)
         } else {
           console.log("AuthContext: Organization found:", organizationData)
@@ -171,8 +177,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq("organization_id", profileData.organization_id)
           .single()
 
-        if (roleError || !roleData) {
-          console.log("AuthContext: No user role found or error:", roleError)
+        if (roleError) {
+          console.error("AuthContext: Error fetching user role:", roleError); // Log the actual error
+          setRole(null)
+        } else if (!roleData) {
+          console.log("AuthContext: No user role data found for user:", currentUser.id, "org:", profileData.organization_id);
           setRole(null)
         } else {
           console.log("AuthContext: User role found:", roleData)
@@ -183,7 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setIsDemo(false)
     } catch (error) {
-      console.error("AuthContext: Error in refreshProfile:", error)
+      console.error("AuthContext: Unhandled error in refreshProfile:", error)
       clearAuthState(); // This sets loading to false
     } finally {
       console.log("AuthContext: refreshProfile finished. Setting loading to false.")
