@@ -35,7 +35,7 @@ export default function AdminApprovalPage() {
 }
 
 function AdminApprovalContent() {
-  const { user, profile, role, loading: authLoading } = useAuth()
+  const { user, profile, role, loading: authLoading, isDemo } = useAuth() // Get isDemo
   const [pendingRegistrations, setPendingRegistrations] = useState<PendingRegistration[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -75,7 +75,10 @@ function AdminApprovalContent() {
   }, [authLoading, isAdmin])
 
   const handleApprove = async (registrationId: string) => {
-    if (!user?.id) {
+    // Pass null for adminUserId if in demo mode, as demo user ID is not a valid UUID
+    const actualAdminUserId = isDemo ? null : user?.id; 
+
+    if (!actualAdminUserId && !isDemo) { // If not demo and no valid user ID
       toast({
         variant: "destructive",
         title: "Authentication Error",
@@ -86,7 +89,7 @@ function AdminApprovalContent() {
 
     setIsApproving(registrationId)
     try {
-      const { success, error: approveError } = await approveRegistration(registrationId, user.id)
+      const { success, error: approveError } = await approveRegistration(registrationId, actualAdminUserId)
 
       if (approveError) {
         throw new Error(approveError)

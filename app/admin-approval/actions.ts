@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/src/integrations/supabase/admin";
 import type { PendingRegistration } from "@/lib/auth-service";
 
 // Function to approve a pending registration (Admin action)
-export async function approveRegistration(registrationId: string, adminUserId: string): Promise<{ success: boolean, error: any | null }> {
+export async function approveRegistration(registrationId: string, adminUserId: string | null): Promise<{ success: boolean, error: any | null }> {
   try {
     // 1. Fetch the pending registration details using the admin client
     const { data: pendingReg, error: fetchError } = await supabaseAdmin
@@ -100,7 +100,7 @@ export async function approveRegistration(registrationId: string, adminUserId: s
       .from('pending_registrations')
       .update({
         status: 'approved',
-        approved_by: adminUserId,
+        approved_by: adminUserId, // This can now be null
         approved_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
