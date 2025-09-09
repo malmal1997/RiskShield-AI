@@ -1,13 +1,21 @@
 import { createClient } from "@supabase/supabase-js"
 
 // Ensure these environment variables are set for the service role client
-const supabaseUrl = process.env.SUPABASE_URL! // Corrected: Use SUPABASE_URL for server-side
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY! // Use the service role key
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 // --- DEBUGGING START ---
-console.log("DEBUG: SUPABASE_URL (Admin):", supabaseUrl ? "Loaded" : "UNDEFINED"); // Updated log
+console.log("DEBUG: SUPABASE_URL (Admin):", supabaseUrl ? "Loaded" : "UNDEFINED");
 console.log("DEBUG: SUPABASE_SERVICE_ROLE_KEY (Admin):", supabaseServiceRoleKey ? "Loaded" : "UNDEFINED");
 // --- DEBUGGING END ---
+
+// Add runtime checks for environment variables
+if (!supabaseUrl) {
+  throw new Error("Missing environment variable: SUPABASE_URL is not set for Supabase Admin client.");
+}
+if (!supabaseServiceRoleKey) {
+  throw new Error("Missing environment variable: SUPABASE_SERVICE_ROLE_KEY is not set for Supabase Admin client.");
+}
 
 // Initialize client with service_role key
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
