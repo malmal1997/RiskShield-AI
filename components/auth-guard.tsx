@@ -93,44 +93,47 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
   let contentToRender: React.ReactNode = null;
 
-  const renderLoadingStateContent = () => (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-2 text-gray-600">
-          {loading ? "Loading authentication..." : "Redirecting..."}
-        </p>
+  const renderLoadingStateContent = () => {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">
+            {loading ? "Loading authentication..." : "Redirecting..."}
+          </p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
-  const renderPendingApprovalStateContent = () => (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
-              <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
-              <p className="text-gray-600">
-                Your account ({user?.email}) is currently pending review by our administrators. You will receive an email notification once your account has been approved.
-              </p>
-              <div className="pt-4">
-                <Button className="w-full" onClick={signOut}>
-                  Sign Out
-                </Button>
-                <a href="/auth/login">
-                  <Button variant="outline" className="w-full mt-2">
-                    Go to Login Page
+  const renderPendingApprovalStateContent = () => {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
+                <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
+                <p className="text-gray-600">
+                  Your account ({user?.email}) is currently pending review by our administrators. You will receive an email notification once your account has been approved.
+                </p>
+                <div className="pt-4">
+                  <Button className="w-full" onClick={signOut}>
+                    Sign Out
                   </Button>
-                </a>
-              </div>
-            </CardContent>
+                  <a href="/auth/login">
+                    <Button variant="outline" className="w-full mt-2">
+                      Go to Login Page
+                    </Button>
+                  </a>
+                </div>
+              </CardContent>
           </Card>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   if (loading || redirecting) {
     console.log("AuthGuard: Assigning loading state content.");
