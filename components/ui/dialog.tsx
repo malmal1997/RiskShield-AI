@@ -23,7 +23,6 @@ const DialogOverlay = React.forwardRef<
       className
     )}
     {...props}
-    ref={ref}
   />
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
@@ -93,7 +92,7 @@ const DialogTitle = React.forwardRef<
     {...props}
   />
 ))
-DialogTitle.displayName = DialogPrimitive.Title.displayName
+DialogTitle.displayName = "DialogTitle"
 
 const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
@@ -105,14 +104,17 @@ const DialogDescription = React.forwardRef<
     {...props}
   />
 ))
-DialogDescription.displayName = DialogPrimitive.Description.displayName
+DialogDescription.displayName = "DialogDescription"
+
+// Correctly alias DialogPrimitive.Close as DialogClose
+const DialogClose = DialogPrimitive.Close;
 
 export {
   Dialog,
   DialogPortal,
   DialogOverlay,
   DialogTrigger,
-  DialogPrimitive.Close as DialogClose, // Corrected export
+  DialogClose, // Now correctly exported
   DialogContent,
   DialogHeader,
   DialogFooter,

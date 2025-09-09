@@ -1447,7 +1447,7 @@ interface Question {
 }
 
 interface AnalysisResult {
-  answers: Record<string, boolean | string>
+  answers: Record<string, boolean | string | string[]> // Added string[] to answers type
   confidenceScores: Record<string, number>
   reasoning: Record<string, string>
   overallAnalysis: string
@@ -1671,7 +1671,7 @@ export default function AIAssessmentPage() {
 
         <h2>Overall Risk Score</h2>
         <div class="risk-score">${riskScore}%</div>
-        <div class="risk-level ${riskLevel.toLowerCase().replace('-', '')}">${riskLevel} Risk</div>
+        <div class="risk-level ${riskLevel?.toLowerCase().replace('-', '')}">${riskLevel} Risk</div>
 
         <h2>AI Analysis Summary</h2>
         <div class="section-content">
@@ -1679,11 +1679,11 @@ export default function AIAssessmentPage() {
             <p>${analysisResults.overallAnalysis}</p>
             <h3>Identified Risk Factors</h3>
             <ul>
-                ${analysisResults.riskFactors.map(factor => `<li>${factor}</li>`).join('')}
+                ${analysisResults.riskFactors.map((factor: string) => `<li>${factor}</li>`).join('')}
             </ul>
             <h3>Recommendations</h3>
             <ul>
-                ${analysisResults.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                ${analysisResults.recommendations.map((rec: string) => `<li>${rec}</li>`).join('')}
             </ul>
         </div>
 
@@ -2388,12 +2388,10 @@ export default function AIAssessmentPage() {
                           </p>
                           <p className="text-sm font-medium text-blue-900">
                             {typeof analysisResults.answers[question.id] === "boolean"
-                              ? analysisResults.answers[question.id]
-                                ? "Yes"
-                                : "No"
+                              ? (analysisResults.answers[question.id] ? "Yes" : "No")
                               : Array.isArray(analysisResults.answers[question.id])
                                 ? (analysisResults.answers[question.id] as string[]).join(", ")
-                                : analysisResults.answers[question.id]}
+                                : analysisResults.answers[question.id] || "N/A"}
                           </p>
                           {analysisResults.documentExcerpts?.[question.id] &&
                             analysisResults.documentExcerpts[question.id].length > 0 && (
