@@ -36,8 +36,21 @@ export interface ComplianceMetrics {
 // Get risk analytics
 export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> {
   try {
-    const { user, profile } = await getCurrentUserWithProfile()
-    if (!user || !profile) throw new Error("No authenticated user or user profile found")
+    const { user, profile, organization } = await getCurrentUserWithProfile()
+    if (!user || !profile || !organization) {
+      console.log("getRiskAnalytics: No authenticated user, profile, or organization found. Returning empty metrics.");
+      return {
+        totalAssessments: 0,
+        completedAssessments: 0,
+        averageRiskScore: 0,
+        highRiskVendors: 0,
+        riskTrend: [],
+        riskDistribution: [],
+        complianceScore: 0,
+      };
+    }
+
+    console.log(`getRiskAnalytics: User ID: ${user.id}, Profile Org ID: ${profile.organization_id}, Auth Org ID: ${organization.id}`);
 
     // Calculate date range
     const endDate = new Date()
@@ -56,17 +69,26 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
         startDate.setFullYear(endDate.getFullYear() - 1)
         break
     }
+    console.log(`getRiskAnalytics: Filtering by created_at between ${startDate.toISOString()} and ${endDate.toISOString()}`);
 
-    // Get assessments data, filtering by user_id for RLS compliance
+    // Get assessments data, filtering by user_id and organization_id
     const { data: assessments, error } = await supabaseClient
       .from("assessments")
       .select("*")
       .eq("user_id", user.id) // Filter by current user's ID
-      // Removed .eq("organization_id", profile.organization_id) to align with RLS policy
+      .eq("organization_id", organization.id) // Explicitly filter by organization_id
       .gte("created_at", startDate.toISOString())
       .lte("created_at", endDate.toISOString())
 
-    if (error) throw error
+    if (error) {
+      console.error("getRiskAnalytics: Supabase query error:", error);
+      throw error;
+    }
+
+    console.log(`getRiskAnalytics: Fetched ${assessments?.length || 0} assessments.`);
+    if (assessments && assessments.length > 0) {
+      console.log("getRiskAnalytics: Sample assessment:", assessments[0]);
+    }
 
     const totalAssessments = assessments?.length || 0
     const completedAssessments = assessments?.filter((a) => a.status === "completed").length || 0
@@ -103,17 +125,36 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
 // Get vendor analytics
 export async function getVendorAnalytics(): Promise<VendorMetrics> {
   try {
-    const { user, profile } = await getCurrentUserWithProfile()
-    if (!user || !profile) throw new Error("No authenticated user or user profile found")
+    const { user, profile, organization } = await getCurrentUserWithProfile()
+    if (!user || !profile || !organization) {
+      console.log("getVendorAnalytics: No authenticated user, profile, or organization found. Returning empty metrics.");
+      return {
+        totalVendors: 0,
+        activeVendors: 0,
+        riskLevels: { low: 0, medium: 0, high: 0, critical: 0 },
+        industryBreakdown: [],
+        assessmentCompletion: 0,
+      };
+    }
+    console.log(`getVendorAnalytics: User ID: ${user.id}, Profile Org ID: ${profile.organization_id}, Auth Org ID: ${organization.id}`);
+
 
     // Assuming 'vendors' table has 'user_id' and 'organization_id' for RLS
     const { data: vendors, error } = await supabaseClient
       .from("vendors")
       .select("*")
       .eq("user_id", user.id) // Filter by current user's ID
-      // Removed .eq("organization_id", profile.organization_id) to align with RLS policy
+      .eq("organization_id", organization.id) // Explicitly filter by organization_id
 
-    if (error) throw error
+    if (error) {
+      console.error("getVendorAnalytics: Supabase query error:", error);
+      throw error;
+    }
+
+    console.log(`getVendorAnalytics: Fetched ${vendors?.length || 0} vendors.`);
+    if (vendors && vendors.length > 0) {
+      console.log("getVendorAnalytics: Sample vendor:", vendors[0]);
+    }
 
     const totalVendors = vendors?.length || 0
     const activeVendors = vendors?.filter((v) => v.status === "active").length || 0
@@ -146,7 +187,7 @@ export async function getVendorAnalytics(): Promise<VendorMetrics> {
       assessmentCompletion: totalVendors > 0 ? (activeVendors / totalVendors) * 100 : 0,
     }
   } catch (error) {
-    console.error("Error getting vendor analytics:", error)
+    console.error("getVendorAnalytics: Error getting vendor analytics:", error)
     throw error
   }
 }
