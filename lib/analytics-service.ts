@@ -71,41 +71,63 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
     }
     console.log(`getRiskAnalytics: Filtering by created_at between ${startDate.toISOString()} and ${endDate.toISOString()}`);
 
-    // Get assessments data, filtering by user_id and organization_id
-    const { data: assessments, error } = await supabaseClient
+    // 1. Get data from 'assessments' table (for third-party vendors)
+    const { data: thirdPartyAssessments, error: thirdPartyError } = await supabaseClient
       .from("assessments")
-      .select("*")
+      .select("id, status, risk_score, risk_level, created_at")
       .eq("user_id", user.id) // Filter by current user's ID
       .eq("organization_id", organization.id) // Explicitly filter by organization_id
       .gte("created_at", startDate.toISOString())
       .lte("created_at", endDate.toISOString())
 
-    if (error) {
-      console.error("getRiskAnalytics: Supabase query error:", error);
-      throw error;
+    if (thirdPartyError) {
+      console.error("getRiskAnalytics: Supabase query error for third-party assessments:", thirdPartyError);
+      throw thirdPartyError;
+    }
+    console.log(`getRiskAnalytics: Fetched ${thirdPartyAssessments?.length || 0} third-party assessments.`);
+
+    // 2. Get data from 'ai_assessment_reports' table (for primary organization assessments)
+    const { data: aiAssessments, error: aiError } = await supabaseClient
+      .from("ai_assessment_reports")
+      .select("id, risk_score, risk_level, created_at")
+      .eq("user_id", user.id) // Filter by current user's ID
+      .eq("organization_id", organization.id) // Explicitly filter by organization_id
+      .gte("created_at", startDate.toISOString())
+      .lte("created_at", endDate.toISOString())
+
+    if (aiError) {
+      console.error("getRiskAnalytics: Supabase query error for AI assessments:", aiError);
+      throw aiError;
+    }
+    console.log(`getRiskAnalytics: Fetched ${aiAssessments?.length || 0} AI assessments.`);
+
+    // 3. Combine and normalize the data
+    const allAssessments = [
+      ...(thirdPartyAssessments || []).map(a => ({ ...a, status: a.status || 'completed' })), // Assume third-party assessments are 'completed' if they have a risk score
+      ...(aiAssessments || []).map(a => ({ ...a, status: 'completed' })) // AI reports are always 'completed' once saved
+    ];
+
+    console.log(`getRiskAnalytics: Combined total assessments: ${allAssessments.length}`);
+    if (allAssessments.length > 0) {
+      console.log("getRiskAnalytics: Sample combined assessment:", allAssessments[0]);
     }
 
-    console.log(`getRiskAnalytics: Fetched ${assessments?.length || 0} assessments.`);
-    if (assessments && assessments.length > 0) {
-      console.log("getRiskAnalytics: Sample assessment:", assessments[0]);
-    }
-
-    const totalAssessments = assessments?.length || 0
-    const completedAssessments = assessments?.filter((a) => a.status === "completed").length || 0
-    const riskScores = assessments?.filter((a) => a.risk_score).map((a) => a.risk_score) || []
+    const totalAssessments = allAssessments.length || 0
+    const completedAssessments = allAssessments.filter((a) => a.status === "completed").length || 0
+    const riskScores = allAssessments.filter((a) => a.risk_score).map((a) => a.risk_score) || []
     const averageRiskScore =
       riskScores.length > 0 ? riskScores.reduce((sum, score) => sum + score, 0) / riskScores.length : 0
 
     // Risk distribution
     const riskDistribution = [
-      { level: "Low", count: assessments?.filter((a) => a.risk_level === "low").length || 0 },
-      { level: "Medium", count: assessments?.filter((a) => a.risk_level === "medium").length || 0 },
-      { level: "High", count: assessments?.filter((a) => a.risk_level === "high").length || 0 },
-      { level: "Critical", count: assessments?.filter((a) => a.risk_level === "critical").length || 0 },
+      { level: "Low", count: allAssessments.filter((a) => a.risk_level === "low").length || 0 },
+      { level: "Medium", count: allAssessments.filter((a) => a.risk_level === "medium").length || 0 },
+      { level: "High", count: allAssessments.filter((a) => a.risk_level === "high").length || 0 },
+      { level: "Critical", count: allAssessments.filter((a) => a.risk_level === "critical").length || 0 },
     ]
 
     // Risk trend (simplified - would need more complex aggregation in production)
-    const riskTrend = generateRiskTrend(assessments || [], timeframe)
+    const riskTrend = generateRiskTrend(allAssessments || [], timeframe)
 
     return {
       totalAssessments,
@@ -113,7 +135,7 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
       averageRiskScore: Math.round(averageRiskScore),
       highRiskVendors: (riskDistribution[2]?.count || 0) + (riskDistribution[3]?.count || 0),
       riskTrend,
-      complianceScore: calculateComplianceScore(assessments || []),
+      complianceScore: calculateComplianceScore(allAssessments || []),
       riskDistribution,
     }
   } catch (error) {
@@ -188,7 +210,7 @@ export async function getVendorAnalytics(): Promise<VendorMetrics> {
     }
   } catch (error) {
     console.error("getVendorAnalytics: Error getting vendor analytics:", error)
-    throw error
+    throw error;
   }
 }
 
