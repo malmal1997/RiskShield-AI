@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [showPendingApproval, setShowPendingApproval] = useState(false); // New state for pending approval
   const router = useRouter()
-  const { signIn, user, profile, role, loading, signOut, refreshProfile } = useAuth() // Get user, profile, role, loading from useAuth
+  const { signIn, user, profile, role, loading, signOut, refreshProfile, isDemo } = useAuth() // Get user, profile, role, loading from useAuth
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,32 +72,7 @@ export default function LoginPage() {
 
   if (showPendingApproval) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
-                <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
-                <p className="text-gray-600">
-                  Your registration for <strong>{email}</strong> is currently pending review by our administrators. You will receive an email notification once your account has been approved.
-                </p>
-                <div className="pt-4">
-                  <Button className="w-full" onClick={() => {
-                    setShowPendingApproval(false);
-                    setError("");
-                    setEmail("");
-                    setPassword("");
-                    signOut(); // Sign out to clear any partial session
-                  }}>
-                    Try Again
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <div>Pending Approval...</div>
     )
   }
 
