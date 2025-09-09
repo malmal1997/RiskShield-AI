@@ -184,9 +184,9 @@ export async function createAssessment(assessmentData: {
       throw new Error("Missing required assessment data")
     }
 
-    const user = await getCurrentUser()
-    if (!user) {
-      throw new Error("User not authenticated. Cannot create assessment.")
+    const { user, organization } = await getCurrentUserWithProfile()
+    if (!user || !organization) {
+      throw new Error("User not authenticated or organization not found. Cannot create assessment.")
     }
 
     const assessmentId = `assessment-${Date.now()}`
@@ -195,6 +195,7 @@ export async function createAssessment(assessmentData: {
     const insertData: any = {
       id: assessmentId,
       user_id: user.id,
+      organization_id: organization.id, // Include organization_id here
       vendor_name: assessmentData.vendorName,
       vendor_email: assessmentData.vendorEmail,
       contact_person: assessmentData.contactPerson || null,
@@ -282,10 +283,10 @@ export async function submitAssessmentResponse(
     const riskLevel = getRiskLevel(riskScore)
     console.log("📈 Calculated risk score:", riskScore, "level:", riskLevel)
 
-    // Get the assessment to find the owner
+    // Get the assessment to find the owner and organization_id
     const { data: assessment, error: assessmentError } = await supabaseClient
       .from("assessments")
-      .select("user_id")
+      .select("user_id, organization_id") // Select organization_id here
       .eq("id", assessmentId)
       .single()
 
@@ -299,6 +300,7 @@ export async function submitAssessmentResponse(
       {
         assessment_id: assessmentId,
         user_id: assessment.user_id, // Link to the assessment owner
+        organization_id: assessment.organization_id, // Include organization_id here
         vendor_info: vendorInfo,
         answers: answers,
         submitted_at: new Date().toISOString(),

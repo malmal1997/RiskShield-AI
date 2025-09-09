@@ -26,30 +26,12 @@ import {
   Download,
   Upload,
   RefreshCw,
+  X,
+  Trash2,
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
-
-interface Vendor {
-  id: string
-  name: string
-  email: string
-  website?: string
-  industry: string
-  size: string
-  contact_person: string
-  contact_email: string
-  contact_phone?: string
-  risk_level: string
-  status: string
-  tags: string[]
-  last_assessment_date?: string
-  next_assessment_date?: string
-  total_assessments: number
-  completed_assessments: number
-  average_risk_score: number
-  created_at: string
-}
+import { getVendors, createVendor, updateVendor, deleteVendor, type Vendor } from "@/lib/vendor-service" // Import vendor service
 
 export default function VendorsPage() {
   return (
@@ -60,7 +42,7 @@ export default function VendorsPage() {
 }
 
 function VendorsContent() {
-  const { user, profile, organization } = useAuth()
+  const { user, profile, organization, isDemo } = useAuth()
   const [vendors, setVendors] = useState<Vendor[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -69,97 +51,142 @@ function VendorsContent() {
   const [showAddVendor, setShowAddVendor] = useState(false)
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
   const [showVendorDetails, setShowVendorDetails] = useState(false)
+  const [newVendorForm, setNewVendorForm] = useState({
+    name: "",
+    email: "",
+    website: "",
+    industry: "",
+    size: "",
+    contact_person: "",
+    contact_email: "",
+    contact_phone: "",
+    risk_level: "pending",
+    status: "active",
+    tags: [] as string[],
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Mock vendor data
-  const mockVendors: Vendor[] = [
-    {
-      id: "1",
-      name: "TechCorp Solutions",
-      email: "contact@techcorp.com",
-      website: "https://techcorp.com",
-      industry: "Technology",
-      size: "201-500 employees",
-      contact_person: "John Smith",
-      contact_email: "john.smith@techcorp.com",
-      contact_phone: "+1 (555) 123-4567",
-      risk_level: "low",
-      status: "active",
-      tags: ["cloud-provider", "critical"],
-      last_assessment_date: "2024-01-15",
-      next_assessment_date: "2024-07-15",
-      total_assessments: 3,
-      completed_assessments: 3,
-      average_risk_score: 85,
-      created_at: "2023-06-01",
-    },
-    {
-      id: "2",
-      name: "DataFlow Analytics",
-      email: "info@dataflow.com",
-      website: "https://dataflow.com",
-      industry: "Data Analytics",
-      size: "51-200 employees",
-      contact_person: "Sarah Johnson",
-      contact_email: "sarah.johnson@dataflow.com",
-      contact_phone: "+1 (555) 234-5678",
-      risk_level: "medium",
-      status: "active",
-      tags: ["data-processing", "gdpr"],
-      last_assessment_date: "2024-01-20",
-      next_assessment_date: "2024-08-20",
-      total_assessments: 2,
-      completed_assessments: 1,
-      average_risk_score: 72,
-      created_at: "2023-08-15",
-    },
-    {
-      id: "3",
-      name: "SecureNet Services",
-      email: "contact@securenet.com",
-      website: "https://securenet.com",
-      industry: "Cybersecurity",
-      size: "11-50 employees",
-      contact_person: "Michael Chen",
-      contact_email: "michael.chen@securenet.com",
-      risk_level: "high",
-      status: "under_review",
-      tags: ["security", "penetration-testing"],
-      last_assessment_date: "2023-12-10",
-      next_assessment_date: "2024-06-10",
-      total_assessments: 1,
-      completed_assessments: 1,
-      average_risk_score: 58,
-      created_at: "2023-11-01",
-    },
-    {
-      id: "4",
-      name: "CloudHost Pro",
-      email: "support@cloudhost.com",
-      website: "https://cloudhost.com",
-      industry: "Cloud Infrastructure",
-      size: "500+ employees",
-      contact_person: "Lisa Davis",
-      contact_email: "lisa.davis@cloudhost.com",
-      contact_phone: "+1 (555) 345-6789",
-      risk_level: "low",
-      status: "active",
-      tags: ["infrastructure", "iso27001"],
-      last_assessment_date: "2024-01-25",
-      next_assessment_date: "2024-07-25",
-      total_assessments: 4,
-      completed_assessments: 4,
-      average_risk_score: 92,
-      created_at: "2023-03-20",
-    },
-  ]
+  const loadVendors = async () => {
+    setLoading(true)
+    try {
+      if (isDemo) {
+        // Mock data for demo mode
+        setVendors([
+          {
+            id: "demo-1",
+            user_id: "demo-user-id",
+            organization_id: "demo-org-id",
+            name: "MockCorp Solutions",
+            email: "contact@mockcorp.com",
+            website: "https://mockcorp.com",
+            industry: "Technology",
+            size: "201-500 employees",
+            contact_person: "Jane Doe",
+            contact_email: "jane.doe@mockcorp.com",
+            contact_phone: "+1 (555) 111-2222",
+            risk_level: "low",
+            status: "active",
+            tags: ["cloud-provider", "critical"],
+            last_assessment_date: "2024-01-15T00:00:00Z",
+            next_assessment_date: "2024-07-15T00:00:00Z",
+            total_assessments: 3,
+            completed_assessments: 3,
+            average_risk_score: 85,
+            created_at: "2023-06-01T00:00:00Z",
+            updated_at: "2024-01-15T00:00:00Z",
+          },
+          {
+            id: "demo-2",
+            user_id: "demo-user-id",
+            organization_id: "demo-org-id",
+            name: "Preview Analytics",
+            email: "info@preview.com",
+            website: "https://preview.com",
+            industry: "Data Analytics",
+            size: "51-200 employees",
+            contact_person: "John Smith",
+            contact_email: "john.smith@preview.com",
+            contact_phone: "+1 (555) 333-4444",
+            risk_level: "medium",
+            status: "under_review",
+            tags: ["data-processing", "gdpr"],
+            last_assessment_date: "2024-01-20T00:00:00Z",
+            next_assessment_date: "2024-08-20T00:00:00Z",
+            total_assessments: 2,
+            completed_assessments: 1,
+            average_risk_score: 72,
+            created_at: "2023-08-15T00:00:00Z",
+            updated_at: "2024-01-20T00:00:00Z",
+          },
+        ])
+      } else {
+        const fetchedVendors = await getVendors()
+        setVendors(fetchedVendors)
+      }
+    } catch (error) {
+      console.error("Error loading vendors:", error)
+      alert("Failed to load vendors. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    // Simulate loading vendors
-    setTimeout(() => {
-      setVendors(mockVendors)
-      setLoading(false)
-    }, 1000)
-  }, [])
+    loadVendors()
+  }, [user, organization, isDemo])
+
+  const handleNewVendorFormChange = (field: keyof typeof newVendorForm, value: string | string[]) => {
+    setNewVendorForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleAddVendor = async () => {
+    if (isDemo) {
+      alert("Preview Mode: Sign up to add real vendors.")
+      setShowAddVendor(false)
+      return
+    }
+
+    if (!newVendorForm.name || !newVendorForm.email || !newVendorForm.industry || !newVendorForm.size || !newVendorForm.contact_person || !newVendorForm.contact_email) {
+      alert("Please fill in all required fields (marked with *).")
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      await createVendor(newVendorForm)
+      alert("Vendor added successfully!")
+      setShowAddVendor(false)
+      setNewVendorForm({
+        name: "", email: "", website: "", industry: "", size: "", contact_person: "", contact_email: "", contact_phone: "", risk_level: "pending", status: "active", tags: []
+      })
+      await loadVendors() // Refresh the list
+    } catch (error) {
+      console.error("Error adding vendor:", error)
+      alert("Failed to add vendor. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteVendor = async (vendorId: string) => {
+    if (isDemo) {
+      alert("Preview Mode: Sign up to delete real vendors.")
+      return
+    }
+    if (!confirm("Are you sure you want to delete this vendor? This action cannot be undone.")) {
+      return
+    }
+
+    try {
+      await deleteVendor(vendorId)
+      alert("Vendor deleted successfully!")
+      await loadVendors() // Refresh the list
+      setShowVendorDetails(false) // Close details if the deleted vendor was open
+    } catch (error) {
+      console.error("Error deleting vendor:", error)
+      alert("Failed to delete vendor. Please try again.")
+    }
+  }
 
   const getRiskLevelColor = (level: string) => {
     switch (level.toLowerCase()) {
@@ -470,7 +497,7 @@ function VendorsContent() {
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Add New Vendor</h2>
                 <Button variant="outline" onClick={() => setShowAddVendor(false)}>
-                  ×
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -478,74 +505,127 @@ function VendorsContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="vendor_name">Vendor Name *</Label>
-                  <Input id="vendor_name" placeholder="Enter vendor name" />
+                  <Input
+                    id="vendor_name"
+                    placeholder="Enter vendor name"
+                    value={newVendorForm.name}
+                    onChange={(e) => handleNewVendorFormChange("name", e.target.value)}
+                    required
+                  />
                 </div>
                 <div>
                   <Label htmlFor="vendor_email">Email Address *</Label>
-                  <Input id="vendor_email" type="email" placeholder="vendor@company.com" />
+                  <Input
+                    id="vendor_email"
+                    type="email"
+                    placeholder="vendor@company.com"
+                    value={newVendorForm.email}
+                    onChange={(e) => handleNewVendorFormChange("email", e.target.value)}
+                    required
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="vendor_industry">Industry</Label>
+                  <Label htmlFor="vendor_industry">Industry *</Label>
                   <select
                     id="vendor_industry"
+                    value={newVendorForm.industry}
+                    onChange={(e) => handleNewVendorFormChange("industry", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
                   >
                     <option value="">Select industry</option>
-                    <option value="technology">Technology</option>
-                    <option value="finance">Finance</option>
-                    <option value="healthcare">Healthcare</option>
-                    <option value="manufacturing">Manufacturing</option>
-                    <option value="retail">Retail</option>
-                    <option value="other">Other</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Manufacturing">Manufacturing</option>
+                    <option value="Retail">Retail</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div>
-                  <Label htmlFor="vendor_size">Company Size</Label>
+                  <Label htmlFor="vendor_size">Company Size *</Label>
                   <select
                     id="vendor_size"
+                    value={newVendorForm.size}
+                    onChange={(e) => handleNewVendorFormChange("size", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
                   >
                     <option value="">Select size</option>
-                    <option value="1-10">1-10 employees</option>
-                    <option value="11-50">11-50 employees</option>
-                    <option value="51-200">51-200 employees</option>
-                    <option value="201-500">201-500 employees</option>
-                    <option value="500+">500+ employees</option>
+                    <option value="1-10 employees">1-10 employees</option>
+                    <option value="11-50 employees">11-50 employees</option>
+                    <option value="51-200 employees">51-200 employees</option>
+                    <option value="201-500 employees">201-500 employees</option>
+                    <option value="500+ employees">500+ employees</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <Label htmlFor="vendor_website">Website</Label>
-                <Input id="vendor_website" type="url" placeholder="https://vendor.com" />
+                <Input
+                  id="vendor_website"
+                  type="url"
+                  placeholder="https://vendor.com"
+                  value={newVendorForm.website}
+                  onChange={(e) => handleNewVendorFormChange("website", e.target.value)}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="contact_person">Contact Person</Label>
-                  <Input id="contact_person" placeholder="John Smith" />
+                  <Label htmlFor="contact_person">Contact Person *</Label>
+                  <Input
+                    id="contact_person"
+                    placeholder="John Smith"
+                    value={newVendorForm.contact_person}
+                    onChange={(e) => handleNewVendorFormChange("contact_person", e.target.value)}
+                    required
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="contact_email">Contact Email</Label>
-                  <Input id="contact_email" type="email" placeholder="john@vendor.com" />
+                  <Label htmlFor="contact_email">Contact Email *</Label>
+                  <Input
+                    id="contact_email"
+                    type="email"
+                    placeholder="john@vendor.com"
+                    value={newVendorForm.contact_email}
+                    onChange={(e) => handleNewVendorFormChange("contact_email", e.target.value)}
+                    required
+                  />
                 </div>
               </div>
 
               <div>
                 <Label htmlFor="contact_phone">Contact Phone</Label>
-                <Input id="contact_phone" type="tel" placeholder="+1 (555) 123-4567" />
+                <Input
+                  id="contact_phone"
+                  type="tel"
+                  placeholder="+1 (555) 123-4567"
+                  value={newVendorForm.contact_phone}
+                  onChange={(e) => handleNewVendorFormChange("contact_phone", e.target.value)}
+                />
               </div>
 
               <div className="flex space-x-4">
                 <Button variant="outline" onClick={() => setShowAddVendor(false)}>
                   Cancel
                 </Button>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Vendor
+                <Button onClick={handleAddVendor} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Vendor
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -588,7 +668,7 @@ function VendorsContent() {
                     Edit
                   </Button>
                   <Button variant="outline" onClick={() => setShowVendorDetails(false)}>
-                    ×
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -684,6 +764,16 @@ function VendorsContent() {
                       </CardContent>
                     </Card>
                   )}
+                  <div className="flex justify-end">
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleDeleteVendor(selectedVendor.id)}
+                      className="flex items-center"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete Vendor
+                    </Button>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="assessments">
