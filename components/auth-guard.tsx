@@ -90,7 +90,9 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     window.location.href = "/dashboard"; 
   };
 
-  const contentToRender = (loading || redirecting) ? (
+  let contentToRender: React.ReactNode = null;
+
+  const loadingStateContent = (
     <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -99,7 +101,9 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         </p>
       </div>
     </div>
-  ) : (showPendingApprovalMessage && user && !isDemo && !profile && !role) ? (
+  );
+
+  const pendingApprovalStateContent = (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card>
@@ -108,7 +112,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
               <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
               <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
               <p className="text-gray-600">
-                Your account ({user.email}) is currently pending review by our administrators. You will receive an email notification once your account has been approved.
+                Your account ({user?.email}) is currently pending review by our administrators. You will receive an email notification once your account has been approved.
               </p>
               <div className="pt-4">
                 <Button className="w-full" onClick={signOut}>
@@ -125,9 +129,18 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         </div>
       </div>
     </div>
-  ) : (
-    <>{children}</>
   );
+
+  if (loading || redirecting) {
+    console.log("AuthGuard: Assigning loading state content.");
+    contentToRender = loadingStateContent;
+  } else if (showPendingApprovalMessage && user && !isDemo && !profile && !role) {
+    console.log("AuthGuard: Assigning pending approval state content.");
+    contentToRender = pendingApprovalStateContent;
+  } else {
+    console.log("AuthGuard: Assigning children content.");
+    contentToRender = <>{children}</>;
+  }
 
   return contentToRender;
 }
