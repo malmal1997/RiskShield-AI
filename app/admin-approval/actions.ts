@@ -107,7 +107,7 @@ export async function approveRegistration(registrationId: string, adminUserId: s
         first_name: pendingReg.contact_name.split(' ')[0],
         last_name: pendingReg.contact_name.split(' ').slice(1).join(' '),
         email: pendingReg.email,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezone: "UTC", // Set a default timezone for server-side insertion
         language: "en",
       });
 
