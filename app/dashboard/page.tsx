@@ -20,6 +20,8 @@ import {
   CheckCircle,
   Shield,
   RefreshCw,
+  Bot, // Added Bot icon
+  Eye, // Added Eye icon for viewing reports
 } from "lucide-react"
 import {
   LineChart,
@@ -39,6 +41,8 @@ import { AuthGuard } from "@/components/auth-guard"
 import Link from "next/link"
 import { getRiskAnalytics, getVendorAnalytics, type RiskMetrics, type VendorMetrics } from "@/lib/analytics-service"
 import { getUserNotifications, markAllNotificationsAsRead, type Notification } from "@/lib/notification-service"
+import { getAiAssessmentReports } from "@/lib/assessment-service" // Import getAiAssessmentReports
+import type { AiAssessmentReport } from "@/lib/supabase" // Import AiAssessmentReport type
 import { useAuth } from "@/components/auth-context"
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
@@ -55,6 +59,7 @@ function DashboardContent() {
   const [riskMetrics, setRiskMetrics] = useState<RiskMetrics | null>(null)
   const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics | null>(null)
   const [notifications, setNotifications] = useState<Notification[] | null>(null)
+  const [aiReports, setAiReports] = useState<AiAssessmentReport[] | null>(null) // New state for AI reports
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState("7d")
 
@@ -76,11 +81,15 @@ function DashboardContent() {
 
       const fetchedNotifications = await getUserNotifications()
       setNotifications(fetchedNotifications)
+
+      const fetchedAiReports = await getAiAssessmentReports() // Fetch AI reports
+      setAiReports(fetchedAiReports)
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
       setRiskMetrics(null)
       setVendorMetrics(null)
       setNotifications(null)
+      setAiReports(null) // Clear AI reports on error
     } finally {
       setLoading(false)
     }
@@ -96,7 +105,24 @@ function DashboardContent() {
     setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || null)
   }
 
-  if (loading || !riskMetrics || !vendorMetrics || !notifications) {
+  const getRiskLevelColor = (level: string) => {
+    switch (level?.toLowerCase()) {
+      case "low":
+        return "text-green-600 bg-green-100"
+      case "medium":
+        return "text-yellow-600 bg-yellow-100"
+      case "medium-high":
+        return "text-orange-600 bg-orange-100"
+      case "high":
+        return "text-red-600 bg-red-100"
+      case "critical":
+        return "text-red-800 bg-red-200"
+      default:
+        return "text-gray-600 bg-gray-100"
+    }
+  }
+
+  if (loading || !riskMetrics || !vendorMetrics || !notifications || !aiReports) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -278,7 +304,7 @@ function DashboardContent() {
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="vendors">Vendors</TabsTrigger>
               <TabsTrigger value="compliance">Compliance</TabsTrigger>
-              <TabsTrigger value="alerts">Alerts</TabsTrigger>
+              <TabsTrigger value="ai-reports">AI Reports</TabsTrigger> {/* New tab trigger */}
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -516,41 +542,57 @@ function DashboardContent() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="alerts">
+              <TabsContent value="ai-reports"> {/* New tab content for AI Reports */}
                 <Card className="border border-gray-200">
                   <CardHeader>
-                    <CardTitle>Live Alerts & Notifications</CardTitle>
-                    <CardDescription>Real-time security alerts and system notifications</CardDescription>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Bot className="h-5 w-5 text-blue-600" />
+                      <span>AI Assessment Reports</span>
+                    </CardTitle>
+                    <CardDescription>Your AI-generated risk assessment reports.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {notifications.map((notification: Notification) => (
-                        <div
-                          key={notification.id}
-                          className={`p-4 rounded-lg border-l-4 ${
-                            notification.type === "alert"
-                              ? "border-l-red-500 bg-red-50"
-                              : notification.type === "warning"
-                                ? "border-l-yellow-500 bg-yellow-50"
-                                : "border-l-blue-500 bg-blue-50"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium text-gray-900">{notification.title}</h4>
-                            <Badge
-                              variant={notification.type === "alert" ? "destructive" : "secondary"}
-                              className="text-xs"
-                            >
-                              {notification.type}
-                            </Badge>
+                    {aiReports.length > 0 ? (
+                      <div className="space-y-4">
+                        {aiReports.map((report) => (
+                          <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{report.report_title}</h3>
+                              <p className="text-sm text-gray-600">{report.assessment_type}</p>
+                              <div className="flex items-center space-x-2 mt-1">
+                                <Badge className={getRiskLevelColor(report.risk_level)}>
+                                  {report.risk_level} Risk
+                                </Badge>
+                                <span className="text-sm text-gray-500">Score: {report.risk_score}/100</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-600">
+                                Analyzed: {new Date(report.analysis_date).toLocaleDateString()}
+                              </p>
+                              <Button variant="outline" size="sm" className="mt-2">
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Report
+                              </Button>
+                            </div>
                           </div>
-                          <p className="text-sm mt-1 text-gray-600">{notification.message}</p>
-                          <p className="text-xs mt-2 text-gray-500">
-                            {new Date(notification.created_at).toLocaleString()}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Bot className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No AI Reports Found</h3>
+                        <p className="text-gray-600 mb-4">
+                          Start an AI-powered assessment to generate your first report.
+                        </p>
+                        <Link href="/risk-assessment/ai-assessment">
+                          <Button className="bg-blue-600 hover:bg-blue-700">
+                            <Bot className="mr-2 h-4 w-4" />
+                            Start AI Assessment
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

@@ -2,6 +2,7 @@ import { supabaseClient } from "./supabase-client"
 import { supabaseAdmin } from "@/src/integrations/supabase/admin" // Import supabaseAdmin
 import { getCurrentUserWithProfile } from "./auth-service" // Import getCurrentUserWithProfile
 import type { User } from "@supabase/supabase-js" // Import User type
+import type { AiAssessmentReport } from "./supabase" // Import AiAssessmentReport type
 
 // Get current user with comprehensive error handling
 export async function getCurrentUser(): Promise<User | null> {
@@ -408,6 +409,43 @@ export async function saveAiAssessmentReport(reportData: {
     return data;
   } catch (error) {
     console.error("💥 Error in saveAiAssessmentReport:", error);
+    throw error;
+  }
+}
+
+// New function to get AI assessment reports for the current user
+export async function getAiAssessmentReports(): Promise<AiAssessmentReport[]> {
+  try {
+    console.log("📋 Getting AI assessment reports...");
+
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      console.log("📝 No authenticated user or organization, returning empty array for AI reports.");
+      return [];
+    }
+
+    console.log("🔍 Fetching AI assessment reports from Supabase for user:", user.id, "org:", organization.id);
+    const { data, error } = await supabaseClient
+      .from("ai_assessment_reports")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("organization_id", organization.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("❌ Supabase query error fetching AI assessment reports:", error);
+      throw new Error(`Failed to fetch AI assessment reports: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      console.log("📝 No AI assessment reports found in database.");
+      return [];
+    }
+
+    console.log(`✅ Successfully fetched ${data.length} AI assessment reports.`);
+    return data;
+  } catch (error) {
+    console.error("💥 Error in getAiAssessmentReports:", error);
     throw error;
   }
 }

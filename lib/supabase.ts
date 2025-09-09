@@ -1100,3 +1100,4 @@ export type Organization = Tables<'organizations'>;
 export type UserProfile = Tables<'user_profiles'>;
 export type UserRole = Tables<'user_roles'>;
 export type Vendor = Tables<'vendors'>; // Export the Vendor type
+export type AiAssessmentReport = Tables<'ai_assessment_reports'>; // Export the AiAssessmentReport type
