@@ -1,4 +1,5 @@
 import { supabaseClient } from "./supabase-client"
+import { supabaseAdmin } from "@/integrations/supabase/admin" // Import the new admin client
 import type { User } from "@supabase/supabase-js"
 
 export interface Organization {
@@ -158,7 +159,7 @@ export async function registerNewInstitution(data: {
 // Function to approve a pending registration (Admin action)
 export async function approveRegistration(registrationId: string, adminUserId: string): Promise<{ success: boolean, error: any | null }> {
   try {
-    // 1. Fetch the pending registration details
+    // 1. Fetch the pending registration details using the regular client (admin has SELECT policy)
     const { data: pendingReg, error: fetchError } = await supabaseClient
       .from('pending_registrations')
       .select('*')
@@ -173,9 +174,10 @@ export async function approveRegistration(registrationId: string, adminUserId: s
       return { success: true, error: null }; // Already approved
     }
 
+    // Use supabaseAdmin for privileged operations
     // 2. Create the organization
     const orgSlug = pendingReg.institution_name.toLowerCase().replace(/[^a-z0-9]/g, "-");
-    const { data: organization, error: orgError } = await supabaseClient
+    const { data: organization, error: orgError } = await supabaseAdmin
       .from("organizations")
       .insert({
         name: pendingReg.institution_name,
@@ -191,7 +193,7 @@ export async function approveRegistration(registrationId: string, adminUserId: s
     }
 
     // 3. Create the user profile
-    const { error: profileError } = await supabaseClient.from("user_profiles").insert({
+    const { error: profileError } = await supabaseAdmin.from("user_profiles").insert({
       user_id: pendingReg.id, // The ID in pending_registrations is the user_id from auth.users
       organization_id: organization.id,
       first_name: pendingReg.contact_name.split(' ')[0],
@@ -205,7 +207,7 @@ export async function approveRegistration(registrationId: string, adminUserId: s
     }
 
     // 4. Create the admin role for the user
-    const { error: roleError } = await supabaseClient.from("user_roles").insert({
+    const { error: roleError } = await supabaseAdmin.from("user_roles").insert({
       organization_id: organization.id,
       user_id: pendingReg.id,
       role: "admin",
@@ -219,7 +221,7 @@ export async function approveRegistration(registrationId: string, adminUserId: s
     }
 
     // 5. Update the pending registration status
-    const { error: updateError } = await supabaseClient
+    const { error: updateError } = await supabaseAdmin
       .from('pending_registrations')
       .update({
         status: 'approved',
