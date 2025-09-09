@@ -2,7 +2,7 @@ import { supabaseClient } from "./supabase-client"
 import { supabaseAdmin } from "@/src/integrations/supabase/admin" // Import supabaseAdmin
 import { getCurrentUserWithProfile } from "./auth-service" // Import getCurrentUserWithProfile
 import type { User } from "@supabase/supabase-js" // Import User type
-import type { AiAssessmentReport } from "./supabase" // Import AiAssessmentReport type
+import type { AiAssessmentReport, Assessment, AssessmentResponse } from "./supabase" // Import AiAssessmentReport type
 
 // Get current user with comprehensive error handling
 export async function getCurrentUser(): Promise<User | null> {
@@ -101,7 +101,7 @@ function getRiskLevel(score: number): string {
 }
 
 // Get all assessments for the current user
-export async function getAssessments(): Promise<any[]> { // Changed to any[] for flexibility with nested data
+export async function getAssessments(): Promise<(Assessment & { responses?: AssessmentResponse[] })[]> {
   try {
     console.log("📋 Getting assessments...")
 
@@ -119,7 +119,7 @@ export async function getAssessments(): Promise<any[]> { // Changed to any[] for
       .select(
         `
         *,
-        assessment_responses (
+        responses:assessment_responses (
           id,
           vendor_info,
           answers,
@@ -157,7 +157,7 @@ export async function getAssessmentById(id: string): Promise<any | null> { // Ch
 
     if (error) {
       console.error("❌ Supabase error:", error)
-      throw new Error(`Failed to fetch assessment: ${error.message}`)
+      throw new Error(`Failed to fetch assessment: ${assessmentError.message}`)
     }
 
     console.log("✅ Found assessment:", data?.vendor_name)

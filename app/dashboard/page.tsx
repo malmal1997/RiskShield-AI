@@ -41,12 +41,25 @@ import { AuthGuard } from "@/components/auth-guard"
 import Link from "next/link"
 import { getRiskAnalytics, getVendorAnalytics, type RiskMetrics, type VendorMetrics } from "@/lib/analytics-service"
 import { getUserNotifications, markAllNotificationsAsRead, type Notification } from "@/lib/notification-service"
-import { getAiAssessmentReports } from "@/lib/assessment-service" // Import getAiAssessmentReports
-import type { AiAssessmentReport } from "@/lib/supabase" // Import AiAssessmentReport type
+import { getAiAssessmentReports, getAssessments } from "@/lib/assessment-service" // Import getAssessments
+import type { AiAssessmentReport, Assessment, AssessmentResponse } from "@/lib/supabase" // Import Assessment and AssessmentResponse types
 import { useAuth } from "@/components/auth-context"
-import { AiReportDetailModal } from "@/src/components/AiReportDetailModal" // Corrected import path
+import { AiReportDetailModal } from "@/src/components/AiReportDetailModal"
+import { ManualReportDetailModal } from "@/src/components/ManualReportDetailModal" // Import new modal
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
+
+// Define a common interface for all reports
+interface CombinedReport {
+  id: string;
+  reportType: 'ai' | 'manual';
+  title: string;
+  type: string; // assessment_type for both
+  riskLevel: string;
+  riskScore: number | null;
+  date: string; // analysis_date for AI, completed_date for manual (or sent_date if not completed)
+  fullData: AiAssessmentReport | (Assessment & { responses?: AssessmentResponse[] });
+}
 
 export default function DashboardPage() {
   return (
@@ -60,11 +73,16 @@ function DashboardContent() {
   const [riskMetrics, setRiskMetrics] = useState<RiskMetrics | null>(null)
   const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics | null>(null)
   const [notifications, setNotifications] = useState<Notification[] | null>(null)
-  const [aiReports, setAiReports] = useState<AiAssessmentReport[] | null>(null) // New state for AI reports
+  const [aiReports, setAiReports] = useState<AiAssessmentReport[] | null>(null)
+  const [manualReports, setManualReports] = useState<(Assessment & { responses?: AssessmentResponse[] })[] | null>(null); // State for manual reports
+  const [combinedReports, setCombinedReports] = useState<CombinedReport[]>([]); // Combined state for all reports
+
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState("7d")
-  const [showReportDetailModal, setShowReportDetailModal] = useState(false); // State for modal visibility
-  const [selectedReport, setSelectedReport] = useState<AiAssessmentReport | null>(null); // State for selected report
+  const [showAiReportDetailModal, setShowAiReportDetailModal] = useState(false);
+  const [showManualReportDetailModal, setShowManualReportDetailModal] = useState(false);
+  const [selectedAiReport, setSelectedAiReport] = useState<AiAssessmentReport | null>(null);
+  const [selectedManualReport, setSelectedManualReport] = useState<(Assessment & { responses?: AssessmentResponse[] }) | null>(null);
 
   const { user, organization, loading: authLoading } = useAuth()
 
@@ -85,14 +103,56 @@ function DashboardContent() {
       const fetchedNotifications = await getUserNotifications()
       setNotifications(fetchedNotifications)
 
-      const fetchedAiReports = await getAiAssessmentReports() // Fetch AI reports
+      const fetchedAiReports = await getAiAssessmentReports()
       setAiReports(fetchedAiReports)
+
+      const fetchedManualReports = await getAssessments(); // Fetch manual assessments
+      setManualReports(fetchedManualReports);
+
+      // Combine and normalize reports
+      const allReports: CombinedReport[] = [];
+
+      fetchedAiReports.forEach(report => {
+        allReports.push({
+          id: report.id,
+          reportType: 'ai',
+          title: report.report_title,
+          type: report.assessment_type,
+          riskLevel: report.risk_level,
+          riskScore: report.risk_score,
+          date: report.analysis_date,
+          fullData: report,
+        });
+      });
+
+      fetchedManualReports.forEach(report => {
+        // Only include completed manual reports with a risk score
+        if (report.status === 'completed' && report.risk_score !== null) {
+          allReports.push({
+            id: report.id,
+            reportType: 'manual',
+            title: report.vendor_name,
+            type: report.assessment_type,
+            riskLevel: report.risk_level || 'pending',
+            riskScore: report.risk_score,
+            date: report.completed_date || report.sent_date, // Prefer completed_date
+            fullData: report,
+          });
+        }
+      });
+
+      // Sort reports by date, newest first
+      allReports.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setCombinedReports(allReports);
+
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
       setRiskMetrics(null)
       setVendorMetrics(null)
       setNotifications(null)
-      setAiReports(null) // Clear AI reports on error
+      setAiReports(null)
+      setManualReports(null);
+      setCombinedReports([]);
     } finally {
       setLoading(false)
     }
@@ -108,12 +168,17 @@ function DashboardContent() {
     setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || null)
   }
 
-  const handleViewReport = (report: AiAssessmentReport) => {
-    setSelectedReport(report);
-    setShowReportDetailModal(true);
+  const handleViewReport = (report: CombinedReport) => {
+    if (report.reportType === 'ai') {
+      setSelectedAiReport(report.fullData as AiAssessmentReport);
+      setShowAiReportDetailModal(true);
+    } else {
+      setSelectedManualReport(report.fullData as (Assessment & { responses?: AssessmentResponse[] }));
+      setShowManualReportDetailModal(true);
+    }
   };
 
-  const getRiskLevelColor = (level: string) => {
+  const getRiskLevelColor = (level: string | null) => {
     switch (level?.toLowerCase()) {
       case "low":
         return "text-green-600 bg-green-100"
@@ -130,7 +195,7 @@ function DashboardContent() {
     }
   }
 
-  if (loading || !riskMetrics || !vendorMetrics || !notifications || !aiReports) {
+  if (loading || !riskMetrics || !vendorMetrics || !notifications || !aiReports || !manualReports) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -312,7 +377,7 @@ function DashboardContent() {
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="vendors">Vendors</TabsTrigger>
               <TabsTrigger value="compliance">Compliance</TabsTrigger>
-              <TabsTrigger value="risk-reports">Risk Reports</TabsTrigger> {/* Renamed tab trigger */}
+              <TabsTrigger value="risk-reports">Risk Reports</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -549,7 +614,7 @@ function DashboardContent() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="risk-reports"> {/* Updated tab content for Risk Reports */}
+              <TabsContent value="risk-reports">
                 <Card className="border border-gray-200">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
@@ -559,23 +624,25 @@ function DashboardContent() {
                     <CardDescription>All your generated risk assessment reports.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {aiReports.length > 0 ? (
+                    {combinedReports.length > 0 ? (
                       <div className="space-y-4">
-                        {aiReports.map((report) => (
+                        {combinedReports.map((report) => (
                           <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
                             <div>
-                              <h3 className="font-semibold text-gray-900">{report.report_title}</h3>
-                              <p className="text-sm text-gray-600">{report.assessment_type}</p>
+                              <h3 className="font-semibold text-gray-900">{report.title}</h3>
+                              <p className="text-sm text-gray-600">{report.type}</p>
                               <div className="flex items-center space-x-2 mt-1">
-                                <Badge className={getRiskLevelColor(report.risk_level)}>
-                                  {report.risk_level} Risk
+                                <Badge className={getRiskLevelColor(report.riskLevel)}>
+                                  {report.riskLevel} Risk
                                 </Badge>
-                                <span className="text-sm text-gray-500">Score: {report.risk_score}/100</span>
+                                {report.riskScore !== null && (
+                                  <span className="text-sm text-gray-500">Score: {report.riskScore}/100</span>
+                                )}
                               </div>
                             </div>
                             <div className="text-right">
                               <p className="text-sm text-gray-600">
-                                Analyzed: {new Date(report.analysis_date).toLocaleDateString()}
+                                {report.reportType === 'ai' ? 'Analyzed' : 'Completed'}: {new Date(report.date).toLocaleDateString()}
                               </p>
                               <Button variant="outline" size="sm" className="mt-2" onClick={() => handleViewReport(report)}>
                                 <Eye className="mr-2 h-4 w-4" />
@@ -590,12 +657,18 @@ function DashboardContent() {
                         <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">No Risk Reports Found</h3>
                         <p className="text-gray-600 mb-4">
-                          Start an AI-powered assessment to generate your first report.
+                          Start an AI-powered assessment or complete a manual assessment to generate your first report.
                         </p>
                         <Link href="/risk-assessment/ai-assessment">
                           <Button className="bg-blue-600 hover:bg-blue-700">
                             <Bot className="mr-2 h-4 w-4" />
                             Start AI Assessment
+                          </Button>
+                        </Link>
+                        <Link href="/third-party-assessment" className="ml-4">
+                          <Button variant="outline">
+                            <Send className="mr-2 h-4 w-4" />
+                            Send Manual Assessment
                           </Button>
                         </Link>
                       </div>
@@ -708,9 +781,16 @@ function DashboardContent() {
 
         {/* AI Report Detail Modal */}
         <AiReportDetailModal
-          report={selectedReport}
-          isOpen={showReportDetailModal}
-          onClose={() => setShowReportDetailModal(false)}
+          report={selectedAiReport}
+          isOpen={showAiReportDetailModal}
+          onClose={() => setShowAiReportDetailModal(false)}
+        />
+
+        {/* Manual Report Detail Modal */}
+        <ManualReportDetailModal
+          report={selectedManualReport}
+          isOpen={showManualReportDetailModal}
+          onClose={() => setShowManualReportDetailModal(false)}
         />
       </div>
   )
