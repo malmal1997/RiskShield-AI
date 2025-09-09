@@ -36,6 +36,7 @@ export interface ComplianceMetrics {
 // Get risk analytics
 export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> {
   try {
+    console.log("ANALYTICS: getRiskAnalytics started for timeframe:", timeframe);
     const { user, profile, organization } = await getCurrentUserWithProfile()
     if (!user || !profile || !organization) {
       console.log("getRiskAnalytics: No authenticated user, profile, or organization found. Returning empty metrics.");
@@ -129,6 +130,7 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
     // Risk trend (simplified - would need more complex aggregation in production)
     const riskTrend = generateRiskTrend(allAssessments || [], timeframe)
 
+    console.log("ANALYTICS: getRiskAnalytics finished successfully.");
     return {
       totalAssessments,
       completedAssessments,
@@ -139,13 +141,14 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
       riskDistribution,
     }
   } catch (error) {
-    console.error("Error getting risk analytics:", error)
+    console.error("ANALYTICS: Error in getRiskAnalytics:", error);
     throw error
   }
 }
 
 // Get vendor analytics
 export async function getVendorAnalytics(): Promise<VendorMetrics> {
+  console.log("ANALYTICS: getVendorAnalytics started.");
   try {
     const { user, profile, organization } = await getCurrentUserWithProfile()
     if (!user || !profile || !organization) {
@@ -201,6 +204,7 @@ export async function getVendorAnalytics(): Promise<VendorMetrics> {
       count,
     }))
 
+    console.log("ANALYTICS: getVendorAnalytics finished successfully.");
     return {
       totalVendors,
       activeVendors,
@@ -209,14 +213,13 @@ export async function getVendorAnalytics(): Promise<VendorMetrics> {
       assessmentCompletion: totalVendors > 0 ? (activeVendors / totalVendors) * 100 : 0,
     }
   } catch (error) {
-    console.error("getVendorAnalytics: Error getting vendor analytics:", error)
+    console.error("ANALYTICS: Error getting vendor analytics:", error)
     throw error;
   }
 }
 
 // Helper functions
 function generateRiskTrend(assessments: any[], timeframe: string) {
-  // Simplified trend generation - in production would use proper time series aggregation
   const days = timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 90
   const trend = []
 
@@ -225,9 +228,10 @@ function generateRiskTrend(assessments: any[], timeframe: string) {
     date.setDate(date.getDate() - i)
 
     const dayAssessments = assessments.filter((a) => {
-      const assessmentDate = new Date(a.created_at)
-      return assessmentDate.toDateString() === date.toDateString()
-    })
+      if (!a.created_at) return false; // Skip if created_at is null or undefined
+      const assessmentDate = new Date(a.created_at);
+      return !isNaN(assessmentDate.getTime()) && assessmentDate.toDateString() === date.toDateString(); // Check for valid date
+    });
 
     const avgScore =
       dayAssessments.length > 0
