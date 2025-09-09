@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js"
 
 // Ensure these environment variables are set for the service role client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseUrl = process.env.SUPABASE_URL! // Corrected: Use SUPABASE_URL for server-side
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY! // Use the service role key
 
 // --- DEBUGGING START ---
-console.log("DEBUG: NEXT_PUBLIC_SUPABASE_URL (Admin):", supabaseUrl ? "Loaded" : "UNDEFINED");
+console.log("DEBUG: SUPABASE_URL (Admin):", supabaseUrl ? "Loaded" : "UNDEFINED"); // Updated log
 console.log("DEBUG: SUPABASE_SERVICE_ROLE_KEY (Admin):", supabaseServiceRoleKey ? "Loaded" : "UNDEFINED");
 // --- DEBUGGING END ---
 
