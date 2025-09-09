@@ -312,7 +312,7 @@ function DashboardContent() {
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="vendors">Vendors</TabsTrigger>
               <TabsTrigger value="compliance">Compliance</TabsTrigger>
-              <TabsTrigger value="ai-reports">AI Reports</TabsTrigger> {/* New tab trigger */}
+              <TabsTrigger value="risk-reports">Risk Reports</TabsTrigger> {/* Renamed tab trigger */}
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -413,7 +413,6 @@ function DashboardContent() {
                           cy="50%"
                           outerRadius={80}
                           fill="#8884d8"
-                          dataKey="count"
                           label={({ payload }: { payload?: { level: string; count: number } }) => 
                             payload ? `${payload.level}: ${payload.count}` : ''
                           }
@@ -550,14 +549,14 @@ function DashboardContent() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="ai-reports"> {/* New tab content for AI Reports */}
+              <TabsContent value="risk-reports"> {/* Updated tab content for Risk Reports */}
                 <Card className="border border-gray-200">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Bot className="h-5 w-5 text-blue-600" />
-                      <span>AI Assessment Reports</span>
+                      <FileText className="h-5 w-5 text-blue-600" />
+                      <span>Your Risk Reports</span>
                     </CardTitle>
-                    <CardDescription>Your AI-generated risk assessment reports.</CardDescription>
+                    <CardDescription>All your generated risk assessment reports.</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {aiReports.length > 0 ? (
@@ -588,8 +587,8 @@ function DashboardContent() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <Bot className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No AI Reports Found</h3>
+                        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Risk Reports Found</h3>
                         <p className="text-gray-600 mb-4">
                           Start an AI-powered assessment to generate your first report.
                         </p>
