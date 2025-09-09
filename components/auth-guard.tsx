@@ -128,7 +128,8 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
                     </Button>
                   </a>
                 </div>
-              </CardContent>
+              </div>
+            </CardContent>
           </Card>
         </div>
       </div>
