@@ -6,7 +6,6 @@ import { Slot } from "@radix-ui/react-slot"
 import {
   Controller,
   ControllerProps,
-  ControllerRenderProps,
   FieldPath,
   FieldValues,
   useFormContext,
@@ -14,8 +13,6 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label" // Assuming Label component exists
-
-const Form = useFormContext
 
 type FormItemContextValue = {
   id: string
@@ -83,8 +80,7 @@ const FormDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => {
-  const { formDescriptionId } = useFormField()
-
+  const { formDescriptionId } = useFormField() // Correctly get formDescriptionId from hook
   return (
     <p
       ref={ref}
@@ -159,7 +155,6 @@ FormField.displayName = "FormField"
 
 export {
   useFormField,
-  Form,
   FormItem,
   FormLabel,
   FormControl,

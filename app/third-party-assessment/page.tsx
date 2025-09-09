@@ -11,7 +11,7 @@ import { MainNavigation } from "@/components/main-navigation"
 import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Shield } from "lucide-react"
 import { sendAssessmentEmail } from "./email-service"
 import { getAssessments, createAssessment, deleteAssessment } from "@/lib/assessment-service"
-import type { Assessment } from "@/lib/supabase"
+import type { Assessment, AssessmentResponse } from "@/lib/supabase"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 
@@ -19,14 +19,14 @@ import { useAuth } from "@/components/auth-context"
 interface UIAssessment extends Omit<Assessment, 'vendor_name' | 'vendor_email' | 'contact_person' | 'assessment_type' | 'sent_date' | 'completed_date' | 'due_date' | 'risk_score' | 'risk_level' | 'custom_message'> {
   vendorName: string;
   vendorEmail: string;
-  contactPerson?: string;
+  contactPerson?: string | null; // Allow null or undefined
   assessmentType: string;
   sentDate: string;
-  completedDate?: string;
-  dueDate?: string;
-  riskScore?: number;
-  riskLevel?: string;
-  customMessage?: string;
+  completedDate?: string | null; // Allow null or undefined
+  dueDate?: string | null; // Allow null or undefined
+  riskScore?: number | null;
+  riskLevel?: string | null;
+  customMessage?: string | null;
   responses?: {
     id: number;
     vendor_info: {
@@ -147,6 +147,9 @@ export default function ThirdPartyAssessment() {
       setAssessments([
         {
           id: "demo-assessment-1",
+          user_id: "demo-user-id", // Added for UIAssessment
+          organization_id: "demo-org-id", // Added for UIAssessment
+          company_size: "11-50 employees", // Added for UIAssessment
           vendorName: "MockCorp Solutions",
           vendorEmail: "mock@mockcorp.com",
           contactPerson: "Jane Doe",
@@ -154,7 +157,7 @@ export default function ThirdPartyAssessment() {
           status: "pending",
           sentDate: "2024-01-15T10:00:00Z",
           dueDate: "2024-02-15T23:59:59Z",
-          riskScore: undefined,
+          riskScore: null, // Changed to null
           riskLevel: "pending",
           customMessage: "This is a mock assessment for demo purposes.",
           created_at: "2024-01-15T10:00:00Z",
@@ -165,6 +168,9 @@ export default function ThirdPartyAssessment() {
         },
         {
           id: "demo-assessment-2",
+          user_id: "demo-user-id", // Added for UIAssessment
+          organization_id: "demo-org-id", // Added for UIAssessment
+          company_size: "51-200 employees", // Added for UIAssessment
           vendorName: "Preview Analytics",
           vendorEmail: "preview@analytics.com",
           contactPerson: "John Smith",
@@ -375,8 +381,8 @@ ${assessmentLink}
 
     try {
       await deleteAssessment(assessmentId)
-      await loadAssessments() // Refresh the list
       alert("Assessment deleted successfully")
+      await loadAssessments() // Refresh the list
     } catch (error: any) {
       console.error("Error deleting assessment:", error)
       alert("Failed to delete assessment. Please try again.")
@@ -398,7 +404,7 @@ ${assessmentLink}
     }
   }
 
-  const getRiskLevelColor = (level?: string) => { // Make level optional
+  const getRiskLevelColor = (level?: string | null) => { // Make level optional and allow null
     const normalizedLevel = level?.toLowerCase() || "pending"
     switch (normalizedLevel) {
       case "low":
@@ -448,7 +454,7 @@ ${assessmentLink}
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <MainNavigation userEmail={user?.email || "demo@riskshield.ai"} onSignOut={user ? () => {} : undefined} />
+        <MainNavigation /> {/* Removed userEmail and onSignOut props */}
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
@@ -467,7 +473,7 @@ ${assessmentLink}
     >
       <div className="min-h-screen bg-white">
         {/* Navigation */}
-        <MainNavigation userEmail={user?.email || "demo@riskshield.ai"} onSignOut={user ? () => {} : undefined} />
+        <MainNavigation /> {/* Removed userEmail and onSignOut props */}
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
@@ -848,7 +854,7 @@ ${assessmentLink}
                         <Badge className={getRiskLevelColor(selectedAssessment.riskLevel)}>
                           {selectedAssessment.riskLevel} Risk
                         </Badge>
-                        {selectedAssessment.riskScore && (
+                        {selectedAssessment.riskScore !== null && (
                           <div className="text-2xl font-bold text-gray-900">{selectedAssessment.riskScore}/100</div>
                         )}
                       </div>

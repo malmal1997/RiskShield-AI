@@ -29,7 +29,7 @@ interface UIAssessment {
   contactEmail: string;
   isAiPowered: boolean;
   status?: string; // Add status to UIAssessment
-  completedDate?: string; // Add completedDate
+  completedDate?: string | null; // Allow null or undefined
 }
 
 // Assessment questions by type
@@ -297,7 +297,7 @@ const getAssessmentQuestions = (type: string) => {
       },
       {
         id: "privacy_26",
-        category: "Network Security",
+        category: "Network Access",
         question: "Do you require device authentication for network access?",
         type: "boolean",
         options: ["Yes", "No"],
@@ -1120,19 +1120,12 @@ function VendorAssessmentComponent() {
                       </div>
                     )}
 
-                    {analysisResults && (
-                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <div className="flex items-center space-x-2 mb-3">
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                          <h4 className="font-semibold text-green-900">Analysis Complete!</h4>
-                        </div>
-                        <div className="text-sm text-green-800 space-y-1">
-                          <p>✅ {analysisResults.documentsAnalyzed} documents successfully analyzed</p>
-                          <p>📊 {analysisResults.confidence}% average confidence score</p>
-                          <p>🎯 All assessment questions have been automatically completed</p>
-                          <p className="font-medium mt-2">
-                            👀 Please review the AI-generated answers below and make any necessary adjustments before
-                            submitting.
+                    {error && (
+                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg mt-4">
+                        <div className="flex items-center space-x-2">
+                          <AlertCircle className="h-5 w-5 text-red-600" />
+                          <p className="text-sm text-red-800">
+                            <strong>Error:</strong> {error}
                           </p>
                         </div>
                       </div>
@@ -1303,7 +1296,7 @@ function VendorAssessmentComponent() {
             </CardHeader>
             <CardContent className="space-y-8">
               {currentQuestions.map((question: any, index: number) => ( // Explicitly type question and index
-                <div key={question.id} className="space-y-4">
+                <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
                   <div>
                     <div className="flex items-start space-x-2 mb-2">
                       <Badge variant="outline" className="mt-1">

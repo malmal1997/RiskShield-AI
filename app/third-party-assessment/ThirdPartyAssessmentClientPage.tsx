@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod/v3"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { useForm, FormProvider } from "react-hook-form" // Import FormProvider
+import * as z from "zod" // Use z from zod directly
+import { FormField, FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -23,11 +23,11 @@ const formSchema = z.object({
     message: "Company name must be at least 2 characters.",
   }),
   assessmentData: z.string().optional(),
-  dataBreachIncidentResponsePlan: z.boolean().default(false),
-  encryptionInTransitAndAtRest: z.boolean().default(false),
-  regularSecurityAssessments: z.boolean().default(false),
-  accessControlsAndAuthentication: z.boolean().default(false),
-  vendorRiskManagementProgram: z.boolean().default(false),
+  dataBreachIncidentResponsePlan: z.boolean(), // Removed .default(false)
+  encryptionInTransitAndAtRest: z.boolean(), // Removed .default(false)
+  regularSecurityAssessments: z.boolean(), // Removed .default(false)
+  accessControlsAndAuthentication: z.boolean(), // Removed .default(false)
+  vendorRiskManagementProgram: z.boolean(), // Removed .default(false)
 })
 
 const ThirdPartyAssessmentClientPage = () => {
@@ -107,7 +107,7 @@ const ThirdPartyAssessmentClientPage = () => {
         <p className="text-sm text-muted-foreground">
           Please fill out this form to assess the security practices of a third-party vendor.
         </p>
-        <Form {...form}>
+        <FormProvider {...form}> {/* Use FormProvider here */}
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
@@ -250,7 +250,7 @@ const ThirdPartyAssessmentClientPage = () => {
               {isSubmitting ? "Submitting..." : "Submit"}
             </Button>
           </form>
-        </Form>
+        </FormProvider>
       </div>
     </main>
   )
