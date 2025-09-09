@@ -62,7 +62,7 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
       .from("assessments")
       .select("*")
       .eq("user_id", user.id) // Filter by current user's ID
-      .eq("organization_id", profile.organization_id)
+      // Removed .eq("organization_id", profile.organization_id) to align with RLS policy
       .gte("created_at", startDate.toISOString())
       .lte("created_at", endDate.toISOString())
 
@@ -111,7 +111,7 @@ export async function getVendorAnalytics(): Promise<VendorMetrics> {
       .from("vendors")
       .select("*")
       .eq("user_id", user.id) // Filter by current user's ID
-      .eq("organization_id", profile.organization_id)
+      // Removed .eq("organization_id", profile.organization_id) to align with RLS policy
 
     if (error) throw error
 
