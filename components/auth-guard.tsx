@@ -18,7 +18,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, allowPreview = false, previewMessage }: AuthGuardProps) {
-  const { user, loading, isDemo, profile, role, signOut } = useAuth()
+  const { user, loading, isDemo, profile, organization, role, signOut } = useAuth() // Added organization
   const router = useRouter()
   const pathname = usePathname()
 
@@ -32,11 +32,11 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
     if (loading) {
       setRedirecting(false);
-      return;
+      return; // Still loading auth state, do nothing yet
     }
 
     const isAuthenticated = !!user || isDemo;
-    const isApproved = !!profile && !!role;
+    const isApproved = !!profile && !!role && !!organization; // User is fully approved if profile, role, AND organization are present
     const isPublicPath = publicPaths.includes(pathname);
 
     // Scenario 1: User is NOT authenticated (or demo) and tries to access a PROTECTED page
@@ -47,9 +47,8 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       return;
     } 
     
-    // Scenario 2: User IS authenticated (Supabase user, not demo) but NOT APPROVED (no profile/role)
-    // This check should only apply if they are trying to access a protected page.
-    // If they are on login/register, they should be allowed to stay there.
+    // Scenario 2: User IS authenticated (Supabase user, not demo) but NOT APPROVED (no profile/role/organization)
+    // This check applies to protected pages. If they are on login/register, they should be allowed to stay there.
     if (user && !isDemo && !isApproved && !isPublicPath && pathname !== '/auth/login' && pathname !== '/auth/register') {
       console.log(`AuthGuard: User ${user.email} is authenticated but not approved. Setting showPendingApprovalMessage to true.`);
       setShowPendingApprovalMessage(true); // Set state to show message
@@ -57,7 +56,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       return;
     }
 
-    // Scenario 3: User IS fully authenticated and APPROVED (has profile/role) and tries to access an AUTH PAGE (login/register/forgot)
+    // Scenario 3: User IS fully authenticated and APPROVED (has profile/role/organization) and tries to access an AUTH PAGE (login/register/forgot)
     if (isAuthenticated && isApproved && (pathname === '/auth/login' || pathname === '/auth/register' || pathname === '/auth/forgot-password')) {
       console.log(`AuthGuard: Redirecting fully authenticated and approved user from ${pathname} to /dashboard`);
       setRedirecting(true);
@@ -65,9 +64,10 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       return;
     }
 
+    // If none of the above redirect/block conditions are met, then the user is allowed to view the current page.
     setRedirecting(false);
 
-  }, [loading, user, isDemo, profile, role, allowPreview, pathname, router, signOut]);
+  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router, signOut]); // Added organization to dependencies
 
   const handleDemoLogin = () => {
     console.log("AuthGuard: handleDemoLogin called.");
@@ -139,7 +139,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   if (loading || redirecting) {
     console.log("AuthGuard: Assigning loading state content.");
     contentToRender = renderLoadingStateContent();
-  } else if (showPendingApprovalMessage && user && !isDemo && !profile && !role) {
+  } else if (showPendingApprovalMessage && user && !isDemo && (!profile || !role || !organization)) { // Ensure all three are checked
     console.log("AuthGuard: Assigning pending approval state content.");
     contentToRender = renderPendingApprovalStateContent();
   } else {
