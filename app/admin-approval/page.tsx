@@ -21,10 +21,10 @@ import {
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 import { PendingRegistration } from "@/lib/auth-service"
-import { supabaseClient } from "@/lib/supabase-client"
 import Link from "next/link"
 import { useToast } from "@/components/ui/use-toast"
 import { approveRegistration } from "./actions" // Import from the new server action file
+import { fetchPendingRegistrationsServer } from "./fetch-registrations" // Import the new server action
 
 export default function AdminApprovalPage() {
   return (
@@ -44,7 +44,7 @@ function AdminApprovalContent() {
 
   const isAdmin = role?.role === "admin"
 
-  const fetchPendingRegistrations = async () => {
+  const loadRegistrations = async () => {
     if (!isAdmin) {
       setError("You do not have administrative privileges to view this page.")
       setLoading(false)
@@ -54,25 +54,23 @@ function AdminApprovalContent() {
     setLoading(true)
     setError(null)
     try {
-      const { data, error } = await supabaseClient
-        .from("pending_registrations")
-        .select("*")
-        .eq("status", "pending")
-        .order("created_at", { ascending: true })
+      const { data, error: fetchError } = await fetchPendingRegistrationsServer(); // Call the server action
 
-      if (error) throw error
-      setPendingRegistrations(data || [])
+      if (fetchError) {
+        throw new Error(fetchError);
+      }
+      setPendingRegistrations(data || []);
     } catch (err: any) {
-      console.error("Error fetching pending registrations:", err)
-      setError(err.message || "Failed to fetch pending registrations.")
+      console.error("Error fetching pending registrations:", err);
+      setError(err.message || "Failed to fetch pending registrations.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   useEffect(() => {
     if (!authLoading) {
-      fetchPendingRegistrations()
+      loadRegistrations()
     }
   }, [authLoading, isAdmin])
 
@@ -99,7 +97,7 @@ function AdminApprovalContent() {
           title: "Registration Approved!",
           description: "The institution has been approved and can now log in.",
         })
-        await fetchPendingRegistrations() // Refresh the list
+        await loadRegistrations() // Refresh the list
       } else {
         toast({
           variant: "destructive",
@@ -174,7 +172,7 @@ function AdminApprovalContent() {
             <h1 className="text-3xl font-bold text-gray-900">Pending Registrations</h1>
             <p className="mt-2 text-gray-600">Review and approve new institution registrations.</p>
           </div>
-          <Button onClick={fetchPendingRegistrations} disabled={loading}>
+          <Button onClick={loadRegistrations} disabled={loading}>
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Refresh List
           </Button>
