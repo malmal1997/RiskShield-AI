@@ -87,8 +87,11 @@ export async function getCurrentUserWithProfile(): Promise<{
       .eq("user_id", user.id)
       .single()
 
-    if (profileError || !profile) {
-      console.log("getCurrentUserWithProfile: No profile found or error:", profileError?.message || "No profile");
+    if (profileError) {
+      console.log("getCurrentUserWithProfile: Profile fetch error:", profileError.message);
+      return { user, profile: null, organization: null, role: null }
+    } else if (!profile) {
+      console.log("getCurrentUserWithProfile: No profile found for user_id:", user.id);
       return { user, profile: null, organization: null, role: null }
     }
     console.log("getCurrentUserWithProfile: Profile found:", profile.id, "organization_id:", profile.organization_id);
