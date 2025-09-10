@@ -25,11 +25,13 @@ import {
   Upload,
   Trash2,
   Plus,
+  ArrowLeft, // Added ArrowLeft for back button
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 import { updateUserProfile } from "@/lib/auth-service"
 import { useToast } from "@/components/ui/use-toast"
+import Link from "next/link"
 
 export default function SettingsPage() {
   return (
@@ -143,32 +145,21 @@ function SettingsContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-blue-600" />
-                <div>
-                  <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
-                  {organization && <p className="text-sm text-gray-600">{organization.name}</p>}
-                </div>
-              </div>
-            </div>
-            <nav className="flex items-center space-x-4">
-              <Button variant="outline" size="sm" asChild>
-                <a href="/dashboard">← Back to Dashboard</a>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="mt-2 text-gray-600">Manage your account, organization, and application preferences.</p>
+        {/* Page Header - Integrated header content here */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+            <p className="mt-2 text-gray-600">Manage your account, organization, and application preferences.</p>
+          </div>
+          <nav className="flex items-center space-x-4">
+            <Button variant="outline" size="sm" asChild>
+              <a href="/dashboard">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Dashboard
+              </a>
+            </Button>
+          </nav>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

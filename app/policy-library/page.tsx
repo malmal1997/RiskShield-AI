@@ -21,10 +21,11 @@ import {
   Clock,
   AlertCircle,
   Plus,
+  ArrowLeft, // Added ArrowLeft for back button
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
-// import { MainNavigation } from "@/components/main-navigation" // Removed import
 import { useAuth } from "@/components/auth-context"
+import Link from "next/link"
 
 // Mock data for saved policies
 const mockPolicies = [
@@ -221,14 +222,21 @@ export default function PolicyLibrary() {
       previewMessage="Preview Mode: Viewing sample policies. Sign up to create and manage your policy library."
     >
       <div className="min-h-screen bg-white">
-        {/* Navigation - Removed */}
-
-        {/* Rest of the page content remains exactly the same... */}
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-4">
+                <Link href="/dashboard">
+                  <Button variant="outline" size="sm">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                  </Button>
+                </Link>
+                <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Policy Management</Badge>
+              </div>
+            </div>
             <div className="text-center">
-              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Policy Management</Badge>
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
                 Policy Library
                 <br />

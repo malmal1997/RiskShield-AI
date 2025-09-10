@@ -4,7 +4,8 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Building, BarChart3, Bell, Settings, CheckCircle, TrendingUp, Eye, Play } from "lucide-react"
+import { Shield, Building, BarChart3, Bell, Settings, CheckCircle, TrendingUp, Eye, Play, Pause, RotateCcw, ArrowLeft } from "lucide-react" // Added ArrowLeft
+import Link from "next/link"
 
 export default function DemoFeaturesPage() {
   const [activeDemo, setActiveDemo] = useState<string | null>(null)
@@ -71,33 +72,23 @@ export default function DemoFeaturesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-blue-600" />
-                <div>
-                  <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
-                  <p className="text-sm text-gray-600">Feature Demo</p>
-                </div>
-              </div>
-            </div>
-            <nav className="flex items-center space-x-4">
-              <Button variant="outline" size="sm" asChild>
-                <a href="/dashboard">← Back to Dashboard</a>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
+      {/* Removed: Header */}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Live Feature Demonstration</h1>
-          <p className="mt-2 text-gray-600">All enterprise features are working and ready for production use</p>
+        {/* Page Header - Integrated header content here */}
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Live Feature Demonstration</h1>
+              <p className="mt-2 text-gray-600">All enterprise features are working and ready for production use</p>
+            </div>
+          </div>
         </div>
 
         {/* Quick Stats */}

@@ -20,34 +20,21 @@ function AdminDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-blue-600" />
-                <div>
-                  <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
-                  <p className="text-sm text-gray-600">{organization?.name || "Financial Institution"}</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Badge className="bg-green-100 text-green-800">Admin Dashboard</Badge>
-              <span className="text-sm text-gray-600">Welcome, {profile?.first_name || "Admin"}</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Removed: Header */}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Financial Institution Control Center</h1>
-          <p className="mt-2 text-gray-600">
-            Manage your vendor risk assessments, monitor compliance, and oversee third-party relationships.
-          </p>
+        {/* Welcome Section - Integrated header content here */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Financial Institution Control Center</h1>
+            <p className="mt-2 text-gray-600">
+              Manage your vendor risk assessments, monitor compliance, and oversee third-party relationships.
+            </p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Badge className="bg-green-100 text-green-800">Admin Dashboard</Badge>
+            <span className="text-sm text-gray-600">Welcome, {profile?.first_name || "Admin"}</span>
+          </div>
         </div>
 
         {/* Quick Stats */}

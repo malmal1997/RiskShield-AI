@@ -18,7 +18,9 @@ import {
   Zap,
   Globe,
   RefreshCw,
+  ArrowLeft, // Added ArrowLeft for back button
 } from "lucide-react"
+import Link from "next/link"
 
 export default function SystemStatusPage() {
   const [loading, setLoading] = useState(true)
@@ -139,35 +141,21 @@ export default function SystemStatusPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-blue-600" />
-                <div>
-                  <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
-                  <p className="text-sm text-gray-600">System Status</p>
-                </div>
-              </div>
-            </div>
-            <nav className="flex items-center space-x-4">
-              <Button variant="outline" size="sm" asChild>
-                <a href="/dashboard">← Back to Dashboard</a>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Overall Status */}
+        {/* Overall Status - Integrated header content here */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">System Status</h1>
-              <p className="mt-2 text-gray-600">Real-time status of all RiskGuard AI services</p>
+            <div className="flex items-center space-x-4">
+              <Link href="/dashboard">
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Dashboard
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">System Status</h1>
+                <p className="mt-2 text-gray-600">Real-time status of all RiskGuard AI services</p>
+              </div>
             </div>
             <div className="text-right">
               <div className="flex items-center space-x-2 mb-2">

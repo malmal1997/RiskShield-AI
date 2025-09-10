@@ -8,12 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { MainNavigation } from "@/components/main-navigation"
-import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Shield } from "lucide-react"
-import { sendAssessmentEmail } from "./email-service"
+import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Shield, ArrowLeft } from "lucide-react" // Added ArrowLeft
 import { getAssessments, createAssessment, deleteAssessment } from "@/lib/assessment-service"
 import type { Assessment, AssessmentResponse } from "@/lib/supabase"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
+import Link from "next/link"
+import { sendAssessmentEmail } from "./email-service"
 
 // Define a UI-specific interface for assessments to handle transformed data
 interface UIAssessment extends Omit<Assessment, 'vendor_name' | 'vendor_email' | 'contact_person' | 'assessment_type' | 'sent_date' | 'completed_date' | 'due_date' | 'risk_score' | 'risk_level' | 'custom_message'> {
@@ -478,8 +479,18 @@ ${assessmentLink}
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-4">
+                <Link href="/dashboard">
+                  <Button variant="outline" size="sm">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                  </Button>
+                </Link>
+                <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Vendor Risk Management</Badge>
+              </div>
+            </div>
             <div className="text-center">
-              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Vendor Risk Management</Badge>
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
                 Third-Party Assessment
                 <br />

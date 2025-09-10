@@ -20,6 +20,7 @@ import {
   AlertCircle,
   XCircle,
   Building,
+  ArrowLeft, // Added ArrowLeft for back button
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
@@ -186,32 +187,21 @@ function RiskCenterContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">RiskShield AI</span>
-              </Link>
-              <span className="text-gray-400">→</span>
-              <span className="text-gray-600">Risk Management Center</span>
-            </div>
-            <nav className="flex items-center space-x-4">
-              <Link href="/dashboard">
-                <Button variant="outline" size="sm">
-                  ← Back to Dashboard
-                </Button>
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section */}
+      {/* Hero Section - Adjusted to be part of main content */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <Link href="/dashboard">
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Dashboard
+                </Button>
+              </Link>
+              <span className="text-gray-400">→</span>
+              <span className="text-gray-600 font-medium">Risk Management Center</span>
+            </div>
+          </div>
           <div className="text-center">
             <Badge className="mb-4 bg-red-100 text-red-700 hover:bg-red-100">Action Required</Badge>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">

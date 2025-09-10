@@ -174,50 +174,44 @@ function DevDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-gray-900 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center">
-              <div className="flex items-center space-x-2">
-                <Server className="h-8 w-8 text-blue-400" />
-                <div>
-                  <span className="text-xl font-bold">DevOps Dashboard</span>
-                  <p className="text-xs text-gray-400">RiskGuard AI Platform</p>
-                </div>
-              </div>
+      {/* Main Content */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Title and Controls - Integrated header content here */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <Server className="h-8 w-8 text-blue-600" />
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">DevOps Dashboard</h1>
+              <p className="text-gray-600 text-sm">RiskGuard AI Platform</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <Badge className="bg-blue-600">DEVELOPMENT</Badge>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-300">Live Monitoring</span>
-              </div>
+            <Badge className="bg-blue-600">DEVELOPMENT</Badge>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-gray-600">Live Monitoring</span>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={loading}
+              className="border-gray-300 text-gray-600 hover:text-gray-900 hover:border-gray-400"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            </Button>
+            <Link href="/dashboard">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleRefresh}
-                disabled={loading}
-                className="border-gray-600 text-gray-300 hover:text-white hover:border-gray-400"
+                className="border-gray-300 text-gray-600 hover:text-gray-900 hover:border-gray-400"
               >
-                <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                Exit Dev Mode
               </Button>
-              <Link href="/dashboard">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-gray-600 text-gray-300 hover:text-white hover:border-gray-400"
-                >
-                  Exit Dev Mode
-                </Button>
-              </Link>
-            </div>
+            </Link>
           </div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* System Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="bg-white shadow-sm">

@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BarChart3, TrendingUp, FileText, Download, Calendar, Filter } from "lucide-react"
+import { BarChart3, TrendingUp, FileText, Download, Calendar, Filter, ArrowLeft } from "lucide-react" // Added ArrowLeft
+import Link from "next/link"
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
 
@@ -98,10 +99,19 @@ function ReportsContent() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Page Header - Integrated header content here */}
       <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
-          <p className="text-gray-600 mt-2">Generate comprehensive risk reports and view analytics</p>
+        <div className="flex items-center space-x-4">
+          <Link href="/dashboard">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
+            <p className="text-gray-600 mt-2">Generate comprehensive risk reports and view analytics</p>
+          </div>
         </div>
         <div className="flex gap-4">
           <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>

@@ -23,10 +23,11 @@ import {
   FileCheck,
   Calendar,
   User,
+  ArrowLeft, // Added ArrowLeft for back button
 } from "lucide-react"
 import { generatePolicy } from "./actions"
-// import { MainNavigation } from "@/components/main-navigation" // Removed import
 import { AuthGuard } from "@/components/auth-guard"
+import Link from "next/link"
 
 const policyTypes = [
   {
@@ -206,8 +207,18 @@ export default function PolicyGenerator() {
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-4">
+                <Link href="/dashboard">
+                  <Button variant="outline" size="sm">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                  </Button>
+                </Link>
+                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">Policy Generation</Badge>
+              </div>
+            </div>
             <div className="text-center">
-              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Policy Generation</Badge>
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
                 AI-Powered Policy Generator
                 <br />

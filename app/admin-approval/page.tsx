@@ -148,32 +148,22 @@ function AdminApprovalContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">RiskGuard AI</span>
-              </Link>
-              <span className="text-gray-400">→</span>
-              <span className="text-gray-600">Admin Approval</span>
-            </div>
-            <nav className="flex items-center space-x-4">
-              <Button variant="outline" size="sm" asChild>
-                <a href="/dashboard">← Back to Dashboard</a>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
+      {/* Removed: Header */}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header - Integrated header content here */}
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Pending Registrations</h1>
-            <p className="mt-2 text-gray-600">Review and approve new institution registrations.</p>
+          <div className="flex items-center space-x-4">
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Pending Registrations</h1>
+              <p className="mt-2 text-gray-600">Review and approve new institution registrations.</p>
+            </div>
           </div>
           <Button onClick={loadRegistrations} disabled={loading}>
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
