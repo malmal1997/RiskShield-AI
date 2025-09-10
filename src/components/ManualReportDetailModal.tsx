@@ -37,7 +37,7 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] flex flex-col">
+      <DialogContent className="max-h-[95vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <FileText className="h-6 w-6 text-blue-600" />
@@ -48,24 +48,24 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 overflow-x-auto"> {/* Added overflow-x-auto */}
-          <div className="py-4 space-y-6 min-w-max"> {/* Added min-w-max to ensure content doesn't shrink */}
+        <ScrollArea className="flex-1 overflow-x-auto">
+          <div className="py-4 space-y-6"> {/* Removed min-w-max */}
             {/* Report Summary */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-2">Report Overview</h3>
-              <p className="text-sm text-blue-800 break-words"> {/* Added break-words */}
+              <p className="text-sm text-blue-800 break-words">
                 <strong>Assessment Type:</strong> {report.assessment_type}
               </p>
-              <p className="text-sm text-blue-800 break-words"> {/* Added break-words */}
+              <p className="text-sm text-blue-800 break-words">
                 <strong>Sent Date:</strong> {new Date(report.sent_date).toLocaleDateString()}
               </p>
               {report.completed_date && (
-                <p className="text-sm text-blue-800 break-words"> {/* Added break-words */}
+                <p className="text-sm text-blue-800 break-words">
                   <strong>Completed Date:</strong> {new Date(report.completed_date).toLocaleString()}
                 </p>
               )}
               {report.due_date && (
-                <p className="text-sm text-blue-800 break-words"> {/* Added break-words */}
+                <p className="text-sm text-blue-800 break-words">
                   <strong>Due Date:</strong> {new Date(report.due_date).toLocaleDateString()}
                 </p>
               )}
@@ -85,18 +85,18 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
                 <h3 className="font-semibold text-gray-900 mb-2">Vendor Information</h3>
                 <p className="text-sm text-gray-700 break-words"><strong>Company Name:</strong> {vendorInfo.companyName}</p>
                 <p className="text-sm text-gray-700 break-words"><strong>Contact Person:</strong> {vendorInfo.contactName}</p>
-                <p className="text-sm text-gray-700 flex items-center break-words"> {/* Added break-words */}
+                <p className="text-sm text-gray-700 flex items-center break-words">
                   <Mail className="h-4 w-4 mr-1 text-gray-500" />
                   {vendorInfo.email}
                 </p>
                 {vendorInfo.phone && (
-                  <p className="text-sm text-gray-700 flex items-center break-words"> {/* Added break-words */}
+                  <p className="text-sm text-gray-700 flex items-center break-words">
                     <Phone className="h-4 w-4 mr-1 text-gray-500" />
                     {vendorInfo.phone}
                   </p>
                 )}
                 {vendorInfo.website && (
-                  <p className="text-sm text-gray-700 flex items-center break-words"> {/* Added break-words */}
+                  <p className="text-sm text-gray-700 flex items-center break-words">
                     <Globe className="h-4 w-4 mr-1 text-gray-500" />
                     <a href={vendorInfo.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                       {vendorInfo.website}
@@ -115,10 +115,10 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Assessment Answers</h2>
                 {Object.entries(answers).map(([questionId, answer]: [string, any]) => (
                   <div key={questionId} className="mb-6 pb-4 border-b border-gray-100 last:border-b-0 last:pb-0">
-                    <h3 className="font-semibold text-gray-800 mb-2 break-words"> {/* Added break-words */}
+                    <h3 className="font-semibold text-gray-800 mb-2 break-words">
                       {questionId.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                     </h3>
-                    <p className="text-sm text-gray-700 ml-4 break-words"> {/* Added break-words */}
+                    <p className="text-sm text-gray-700 ml-4 break-words">
                       {typeof answer === "boolean"
                         ? (answer ? "Yes" : "No")
                         : Array.isArray(answer)
