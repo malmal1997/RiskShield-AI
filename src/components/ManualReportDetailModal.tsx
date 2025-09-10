@@ -53,19 +53,19 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
             {/* Report Summary */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-2">Report Overview</h3>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-blue-800 whitespace-pre-wrap">
                 <strong>Assessment Type:</strong> {report.assessment_type}
               </p>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-blue-800 whitespace-pre-wrap">
                 <strong>Sent Date:</strong> {new Date(report.sent_date).toLocaleDateString()}
               </p>
               {report.completed_date && (
-                <p className="text-sm text-blue-800">
+                <p className="text-sm text-blue-800 whitespace-pre-wrap">
                   <strong>Completed Date:</strong> {new Date(report.completed_date).toLocaleString()}
                 </p>
               )}
               {report.due_date && (
-                <p className="text-sm text-blue-800">
+                <p className="text-sm text-blue-800 whitespace-pre-wrap">
                   <strong>Due Date:</strong> {new Date(report.due_date).toLocaleDateString()}
                 </p>
               )}
@@ -83,29 +83,29 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
             {vendorInfo && (
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                 <h3 className="font-semibold text-gray-900 mb-2">Vendor Information</h3>
-                <p className="text-sm text-gray-700"><strong>Company Name:</strong> {vendorInfo.companyName}</p>
-                <p className="text-sm text-gray-700"><strong>Contact Person:</strong> {vendorInfo.contactName}</p>
-                <p className="text-sm text-gray-700 flex items-center">
+                <p className="text-sm text-gray-700 whitespace-pre-wrap"><strong>Company Name:</strong> {vendorInfo.companyName}</p>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap"><strong>Contact Person:</strong> {vendorInfo.contactName}</p>
+                <p className="text-sm text-gray-700 flex items-center whitespace-pre-wrap">
                   <Mail className="h-4 w-4 mr-1 text-gray-500" />
                   {vendorInfo.email}
                 </p>
                 {vendorInfo.phone && (
-                  <p className="text-sm text-gray-700 flex items-center">
+                  <p className="text-sm text-gray-700 flex items-center whitespace-pre-wrap">
                     <Phone className="h-4 w-4 mr-1 text-gray-500" />
                     {vendorInfo.phone}
                   </p>
                 )}
                 {vendorInfo.website && (
-                  <p className="text-sm text-gray-700 flex items-center">
+                  <p className="text-sm text-gray-700 flex items-center whitespace-pre-wrap">
                     <Globe className="h-4 w-4 mr-1 text-gray-500" />
                     <a href={vendorInfo.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                       {vendorInfo.website}
                     </a>
                   </p>
                 )}
-                {vendorInfo.industry && <p className="text-sm text-gray-700"><strong>Industry:</strong> {vendorInfo.industry}</p>}
-                {vendorInfo.employeeCount && <p className="text-sm text-gray-700"><strong>Employees:</strong> {vendorInfo.employeeCount}</p>}
-                {vendorInfo.description && <p className="text-sm text-gray-700"><strong>Description:</strong> {vendorInfo.description}</p>}
+                {vendorInfo.industry && <p className="text-sm text-gray-700 whitespace-pre-wrap"><strong>Industry:</strong> {vendorInfo.industry}</p>}
+                {vendorInfo.employeeCount && <p className="text-sm text-gray-700 whitespace-pre-wrap"><strong>Employees:</strong> {vendorInfo.employeeCount}</p>}
+                {vendorInfo.description && <p className="text-sm text-gray-700 whitespace-pre-wrap"><strong>Description:</strong> {vendorInfo.description}</p>}
               </div>
             )}
 
@@ -115,10 +115,10 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Assessment Answers</h2>
                 {Object.entries(answers).map(([questionId, answer]: [string, any]) => (
                   <div key={questionId} className="mb-6 pb-4 border-b border-gray-100 last:border-b-0 last:pb-0">
-                    <h3 className="font-semibold text-gray-800 mb-2">
+                    <h3 className="font-semibold text-gray-800 mb-2 whitespace-pre-wrap">
                       {questionId.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                     </h3>
-                    <p className="text-sm text-gray-700 ml-4">
+                    <p className="text-sm text-gray-700 ml-4 whitespace-pre-wrap">
                       {typeof answer === "boolean"
                         ? (answer ? "Yes" : "No")
                         : Array.isArray(answer)
@@ -132,7 +132,7 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
 
             <div className="disclaimer">
               <h3>Disclaimer:</h3>
-              <p>This report reflects the responses provided by the vendor. It is intended for informational purposes only and should be reviewed and validated by human experts. RiskGuard AI is not responsible for any legal or compliance implications arising from the use of this report.</p>
+              <p className="whitespace-pre-wrap">This report reflects the responses provided by the vendor. It is intended for informational purposes only and should be reviewed and validated by human experts. RiskGuard AI is not responsible for any legal or compliance implications arising from the use of this report.</p>
             </div>
           </div>
         </ScrollArea>
