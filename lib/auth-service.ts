@@ -66,78 +66,110 @@ export async function getCurrentUserWithProfile(): Promise<{
   organization: Organization | null
   role: UserRole | null
 }> {
-  try {
-    console.log("getCurrentUserWithProfile: Attempting to fetch user from Supabase Auth.");
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser()
+  console.log("getCurrentUserWithProfile: Function started.");
+  let user: User | null = null;
+  let profile: UserProfile | null = null;
+  let organization: Organization | null = null;
+  let role: UserRole | null = null;
 
-    if (userError || !user) {
-      console.log("getCurrentUserWithProfile: No Supabase user found or error:", userError?.message || "No user");
-      return { user: null, profile: null, organization: null, role: null }
+  try {
+    console.log("getCurrentUserWithProfile: Attempting to fetch user from Supabase Auth (supabaseClient.auth.getUser()).");
+    const {
+      data: { user: fetchedUser },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+
+    if (userError) {
+      console.error("getCurrentUserWithProfile: Supabase auth.getUser() error:", userError.message);
+      return { user: null, profile: null, organization: null, role: null };
+    }
+    
+    user = fetchedUser;
+    if (!user) {
+      console.log("getCurrentUserWithProfile: No Supabase user found after auth.getUser().");
+      return { user: null, profile: null, organization: null, role: null };
     }
     console.log("getCurrentUserWithProfile: Supabase user found:", user.id, user.email);
 
     // Get user profile
-    console.log("getCurrentUserWithProfile: Fetching user profile for user_id:", user.id);
-    const { data: profile, error: profileError } = await supabaseClient
-      .from("user_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single()
+    try {
+      console.log("getCurrentUserWithProfile: Fetching user_profiles for user_id:", user.id);
+      const { data: fetchedProfile, error: profileError } = await supabaseClient
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
 
-    if (profileError) {
-      console.log("getCurrentUserWithProfile: Profile fetch error:", profileError.message);
-      return { user, profile: null, organization: null, role: null }
-    } else if (!profile) {
-      console.log("getCurrentUserWithProfile: No profile found for user_id:", user.id);
-      return { user, profile: null, organization: null, role: null }
+      if (profileError) {
+        console.error("getCurrentUserWithProfile: Profile fetch error:", profileError.message);
+        // Do not throw, continue with null profile
+      } else if (fetchedProfile) {
+        profile = fetchedProfile;
+        console.log("getCurrentUserWithProfile: Profile found:", profile!.id, "organization_id:", profile!.organization_id);
+      } else {
+        console.log("getCurrentUserWithProfile: No profile found for user_id:", user.id);
+      }
+    } catch (profileCatchError) {
+      console.error("getCurrentUserWithProfile: Catch error during profile fetch:", profileCatchError);
     }
-    console.log("getCurrentUserWithProfile: Profile found:", profile.id, "organization_id:", profile.organization_id);
+
+    // If no profile, we can't fetch organization or role, so return early
+    if (!profile) {
+      console.log("getCurrentUserWithProfile: No profile, returning early.");
+      return { user, profile: null, organization: null, role: null };
+    }
 
     // Get organization
-    console.log("getCurrentUserWithProfile: Fetching organization for id:", profile.organization_id);
-    const { data: organization, error: orgError } = await supabaseClient
-      .from("organizations")
-      .select("*")
-      .eq("id", profile.organization_id)
-      .single()
+    try {
+      console.log("getCurrentUserWithProfile: Fetching organizations for id:", profile.organization_id);
+      const { data: fetchedOrganization, error: orgError } = await supabaseClient
+        .from("organizations")
+        .select("*")
+        .eq("id", profile.organization_id)
+        .single();
 
-    if (orgError) {
-        console.log("getCurrentUserWithProfile: Organization fetch error:", orgError.message);
-    } else if (organization) {
-        console.log("getCurrentUserWithProfile: Organization found:", organization.id, organization.name);
-    } else {
+      if (orgError) {
+        console.error("getCurrentUserWithProfile: Organization fetch error:", orgError.message);
+        // Do not throw, continue with null organization
+      } else if (fetchedOrganization) {
+        organization = fetchedOrganization;
+        console.log("getCurrentUserWithProfile: Organization found:", organization!.id, organization!.name);
+      } else {
         console.log("getCurrentUserWithProfile: No organization found for profile's organization_id:", profile.organization_id);
+      }
+    } catch (orgCatchError) {
+      console.error("getCurrentUserWithProfile: Catch error during organization fetch:", orgCatchError);
     }
 
     // Get user role
-    console.log("getCurrentUserWithProfile: Fetching user role for user_id:", user.id, "and organization_id:", profile.organization_id);
-    const { data: roleData, error: roleError } = await supabaseClient
-      .from("user_roles")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("organization_id", profile.organization_id)
-      .single()
+    try {
+      console.log("getCurrentUserWithProfile: Fetching user_roles for user_id:", user.id, "and organization_id:", profile.organization_id);
+      const { data: fetchedRole, error: roleError } = await supabaseClient
+        .from("user_roles")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("organization_id", profile.organization_id)
+        .single();
 
-    if (roleError) {
-        console.log("getCurrentUserWithProfile: Role fetch error:", roleError.message);
-    } else if (roleData) {
-        console.log("getCurrentUserWithProfile: Role found:", roleData.role);
-    } else {
+      if (roleError) {
+        console.error("getCurrentUserWithProfile: Role fetch error:", roleError.message);
+        // Do not throw, continue with null role
+      } else if (fetchedRole) {
+        role = fetchedRole;
+        console.log("getCurrentUserWithProfile: Role found:", role!.role);
+      } else {
         console.log("getCurrentUserWithProfile: No role found for user:", user.id, "in organization:", profile.organization_id);
+      }
+    } catch (roleCatchError) {
+      console.error("getCurrentUserWithProfile: Catch error during role fetch:", roleCatchError);
     }
 
-    return {
-      user,
-      profile,
-      organization: orgError ? null : organization,
-      role: roleError ? null : roleData,
-    }
-  } catch (error) {
-    console.error("getCurrentUserWithProfile: Unhandled error:", error);
-    return { user: null, profile: null, organization: null, role: null }
+    console.log("getCurrentUserWithProfile: Function finished successfully.");
+    return { user, profile, organization, role };
+
+  } catch (mainCatchError) {
+    console.error("getCurrentUserWithProfile: Unhandled main catch error:", mainCatchError);
+    return { user: null, profile: null, organization: null, role: null };
   }
 }
 
