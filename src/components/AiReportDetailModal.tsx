@@ -41,7 +41,7 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] flex flex-col"> {/* Removed sm:max-w-[1200px] */}
+      <DialogContent className="max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Bot className="h-6 w-6 text-blue-600" />
@@ -52,21 +52,21 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1"> {/* Removed pr-6 -mr-6 */}
-          <div className="py-4 space-y-6">
+        <ScrollArea className="flex-1 overflow-x-auto"> {/* Added overflow-x-auto */}
+          <div className="py-4 space-y-6 min-w-max"> {/* Added min-w-max to ensure content doesn't shrink */}
             {/* Report Summary */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-2">Report Overview</h3>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-blue-800 break-words"> {/* Added break-words */}
                 <strong>Assessment Type:</strong> {report.assessment_type}
               </p>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-blue-800 break-words"> {/* Added break-words */}
                 <strong>Analysis Date:</strong> {new Date(report.analysis_date).toLocaleString()}
               </p>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-blue-800 break-words"> {/* Added break-words */}
                 <strong>AI Provider:</strong> {analysisResults?.aiProvider || 'N/A'}
               </p>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-blue-800 break-words"> {/* Added break-words */}
                 <strong>Documents Analyzed:</strong> {analysisResults?.documentsAnalyzed || 0}
               </p>
               <div className="flex items-center space-x-2 mt-2">
@@ -81,17 +81,17 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
             {socInfo && socInfo.companyName && (
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
                 <h3 className="font-semibold text-purple-900 mb-2">SOC Assessment Details</h3>
-                <p className="text-sm text-purple-800"><strong>Company:</strong> {socInfo.companyName}</p>
-                <p className="text-sm text-purple-800"><strong>Product/Service:</strong> {socInfo.productService}</p>
-                <p className="text-sm text-purple-800"><strong>SOC Type:</strong> {socInfo.socType}</p>
-                {socInfo.reportType && <p className="text-sm text-purple-800"><strong>Report Type:</strong> {socInfo.reportType}</p>}
-                {socInfo.auditor && <p className="text-sm text-purple-800"><strong>Auditor:</strong> {socInfo.auditor}</p>}
-                {socInfo.auditorOpinion && <p className="text-sm text-purple-800"><strong>Auditor Opinion:</strong> {socInfo.auditorOpinion}</p>}
-                {socInfo.auditorOpinionDate && <p className="text-sm text-purple-800"><strong>Opinion Date:</strong> {new Date(socInfo.auditorOpinionDate).toLocaleDateString()}</p>}
-                {socInfo.socDateAsOf && <p className="text-sm text-purple-800"><strong>SOC Date As Of:</strong> {new Date(socInfo.socDateAsOf).toLocaleDateString()}</p>}
-                {socInfo.socStartDate && <p className="text-sm text-purple-800"><strong>Period:</strong> {new Date(socInfo.socStartDate).toLocaleDateString()} - {new Date(socInfo.socEndDate).toLocaleDateString()}</p>}
-                {socInfo.testedStatus && <p className="text-sm text-purple-800"><strong>Testing Status:</strong> {socInfo.testedStatus}</p>}
-                {socInfo.subserviceOrganizations && <p className="text-sm text-purple-800"><strong>Subservice Orgs:</strong> {socInfo.subserviceOrganizations}</p>}
+                <p className="text-sm text-purple-800 break-words"><strong>Company:</strong> {socInfo.companyName}</p>
+                <p className="text-sm text-purple-800 break-words"><strong>Product/Service:</strong> {socInfo.productService}</p>
+                <p className="text-sm text-purple-800 break-words"><strong>SOC Type:</strong> {socInfo.socType}</p>
+                {socInfo.reportType && <p className="text-sm text-purple-800 break-words"><strong>Report Type:</strong> {socInfo.reportType}</p>}
+                {socInfo.auditor && <p className="text-sm text-purple-800 break-words"><strong>Auditor:</strong> {socInfo.auditor}</p>}
+                {socInfo.auditorOpinion && <p className="text-sm text-purple-800 break-words"><strong>Auditor Opinion:</strong> {socInfo.auditorOpinion}</p>}
+                {socInfo.auditorOpinionDate && <p className="text-sm text-purple-800 break-words"><strong>Opinion Date:</strong> {new Date(socInfo.auditorOpinionDate).toLocaleDateString()}</p>}
+                {socInfo.socDateAsOf && <p className="text-sm text-purple-800 break-words"><strong>SOC Date As Of:</strong> {new Date(socInfo.socDateAsOf).toLocaleDateString()}</p>}
+                {socInfo.socStartDate && <p className="text-sm text-purple-800 break-words"><strong>Period:</strong> {new Date(socInfo.socStartDate).toLocaleDateString()} - {new Date(socInfo.socEndDate).toLocaleDateString()}</p>}
+                {socInfo.testedStatus && <p className="text-sm text-purple-800 break-words"><strong>Testing Status:</strong> {socInfo.testedStatus}</p>}
+                {socInfo.subserviceOrganizations && <p className="text-sm text-purple-800 break-words"><strong>Subservice Orgs:</strong> {socInfo.subserviceOrganizations}</p>}
               </div>
             )}
 
@@ -99,7 +99,7 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
             {analysisResults?.overallAnalysis && (
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                 <h3 className="font-semibold text-gray-900 mb-2">Overall AI Analysis</h3>
-                <p className="text-sm text-gray-700">{analysisResults.overallAnalysis}</p>
+                <p className="text-sm text-gray-700 break-words">{analysisResults.overallAnalysis}</p> {/* Added break-words */}
               </div>
             )}
 
@@ -109,8 +109,8 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
                 <h3 className="font-semibold text-red-900 mb-2">Identified Risk Factors</h3>
                 <ul className="text-sm text-red-800 list-disc pl-5 space-y-1">
                   {analysisResults.riskFactors.map((factor: string, index: number) => (
-                    <li key={index}>{factor}</li>
-                  ))}
+                    <li key={index} className="break-words">{factor}</li>
+                  ))} {/* Added break-words */}
                 </ul>
               </div>
             )}
@@ -121,8 +121,8 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
                 <h3 className="font-semibold text-green-900 mb-2">Recommendations</h3>
                 <ul className="text-sm text-green-800 list-disc pl-5 space-y-1">
                   {analysisResults.recommendations.map((rec: string, index: number) => (
-                    <li key={index}>{rec}</li>
-                  ))}
+                    <li key={index} className="break-words">{rec}</li>
+                  ))} {/* Added break-words */}
                 </ul>
               </div>
             )}
@@ -133,7 +133,7 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
                 <h3 className="font-semibold text-gray-900 mb-2">Uploaded Documents</h3>
                 <ul className="text-sm text-gray-700 space-y-1">
                   {(report.uploaded_documents_metadata as any[]).map((doc, index) => (
-                    <li key={index}>
+                    <li key={index} className="break-words"> {/* Added break-words */}
                       <FileText className="inline h-4 w-4 mr-1 text-gray-500" />
                       {doc.fileName} ({(doc.fileSize / 1024 / 1024).toFixed(2)} MB) - Label: {doc.label || 'Primary'}
                     </li>
@@ -148,10 +148,10 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Detailed Responses</h2>
                 {questions.map((question: any, index: number) => (
                   <div key={question.id} className="mb-6 pb-4 border-b border-gray-100 last:border-b-0 last:pb-0">
-                    <h3 className="font-semibold text-gray-800 mb-2">
+                    <h3 className="font-semibold text-gray-800 mb-2 break-words"> {/* Added break-words */}
                       {index + 1}. {question.question}
                     </h3>
-                    <p className="text-sm text-gray-700 ml-4">
+                    <p className="text-sm text-gray-700 ml-4 break-words"> {/* Added break-words */}
                       <strong>Answer:</strong>{" "}
                       {typeof answers[question.id] === "boolean"
                         ? (answers[question.id] ? "Yes" : "No")
@@ -160,13 +160,13 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
                           : answers[question.id] || "N/A"}
                     </p>
                     {analysisResults?.confidenceScores?.[question.id] !== undefined && (
-                      <p className="text-sm text-gray-600 ml-4">
+                      <p className="text-sm text-gray-600 ml-4 break-words"> {/* Added break-words */}
                         <strong>AI Confidence:</strong> {Math.round(analysisResults.confidenceScores[question.id] * 100)}%
                       </p>
                     )}
                     {analysisResults?.documentExcerpts?.[question.id] &&
                       analysisResults.documentExcerpts[question.id].length > 0 && (
-                        <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded">
+                        <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded break-words"> {/* Added break-words */}
                           <Info className="inline h-3 w-3 mr-1" />
                           <strong>Evidence:</strong> "{analysisResults.documentExcerpts[question.id][0].excerpt}" (from{" "}
                           {analysisResults.documentExcerpts[question.id][0].fileName} -{" "}
@@ -180,7 +180,7 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
 
             <div className="disclaimer">
               <h3>Disclaimer:</h3>
-              <p>This report is generated by RiskGuard AI based on the provided documents and AI analysis. It is intended for informational purposes only and should be reviewed and validated by human experts. RiskGuard AI is not responsible for any legal or compliance implications arising from the use of this report.</p>
+              <p className="break-words">This report is generated by RiskGuard AI based on the provided documents and AI analysis. It is intended for informational purposes only and should be reviewed and validated by human experts. RiskGuard AI is not responsible for any legal or compliance implications arising from the use of this report.</p>
             </div>
           </div>
         </ScrollArea>
