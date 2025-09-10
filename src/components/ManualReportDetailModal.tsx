@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Building, User, Mail, Phone, Globe, Info } from "lucide-react";
 import type { Assessment, AssessmentResponse } from "@/lib/supabase";
+import { ScrollAreaHorizontal } from "../../components/ui/scroll-area-horizontal"; // Corrected to relative import path
 
 interface ManualReportDetailModalProps {
   report: (Assessment & { responses?: AssessmentResponse[] }) | null;
@@ -48,8 +49,8 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
-          <div className="py-4 space-y-6 w-max overflow-x-auto">
+        <ScrollAreaHorizontal className="flex-1">
+          <div className="py-4 space-y-6">
             {/* Report Summary */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-2">Report Overview</h3>
@@ -135,7 +136,7 @@ export function ManualReportDetailModal({ report, isOpen, onClose }: ManualRepor
               <p className="whitespace-pre-wrap">This report reflects the responses provided by the vendor. It is intended for informational purposes only and should be reviewed and validated by human experts. RiskGuard AI is not responsible for any legal or compliance implications arising from the use of this report.</p>
             </div>
           </div>
-        </ScrollArea>
+        </ScrollAreaHorizontal>
       </DialogContent>
     </Dialog>
   );
