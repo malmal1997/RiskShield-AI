@@ -44,8 +44,8 @@ import { getUserNotifications, markAllNotificationsAsRead, type Notification } f
 import { getAiAssessmentReports, getAssessments } from "@/lib/assessment-service" // Import getAssessments
 import type { AiAssessmentReport, Assessment, AssessmentResponse } from "@/lib/supabase" // Import Assessment and AssessmentResponse types
 import { useAuth } from "@/components/auth-context"
-import { AiReportDetailModal } from "@/src/components/AiReportDetailModal"
-import { ManualReportDetailModal } from "@/src/components/ManualReportDetailModal" // Import new modal
+// Removed: import { AiReportDetailModal } from "@/src/components/AiReportDetailModal"
+// Removed: import { ManualReportDetailModal } from "@/src/components/ManualReportDetailModal" // Import new modal
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
 
@@ -79,10 +79,10 @@ function DashboardContent() {
 
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState("7d")
-  const [showAiReportDetailModal, setShowAiReportDetailModal] = useState(false);
-  const [showManualReportDetailModal, setShowManualReportDetailModal] = useState(false);
-  const [selectedAiReport, setSelectedAiReport] = useState<AiAssessmentReport | null>(null);
-  const [selectedManualReport, setSelectedManualReport] = useState<(Assessment & { responses?: AssessmentResponse[] }) | null>(null);
+  // Removed: const [showAiReportDetailModal, setShowAiReportDetailModal] = useState(false);
+  // Removed: const [showManualReportDetailModal, setShowManualReportDetailModal] = useState(false);
+  // Removed: const [selectedAiReport, setSelectedAiReport] = useState<AiAssessmentReport | null>(null);
+  // Removed: const [selectedManualReport, setSelectedManualReport] = useState<(Assessment & { responses?: AssessmentResponse[] }) | null>(null);
 
   const { user, organization, loading: authLoading } = useAuth()
 
@@ -168,13 +168,244 @@ function DashboardContent() {
     setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || null)
   }
 
+  const openAiReportInNewTab = (report: AiAssessmentReport) => {
+    const fullReportContent = report.full_report_content as any;
+    const analysisResults = fullReportContent?.analysisResults;
+    const answers = fullReportContent?.answers;
+    const questions = fullReportContent?.questions;
+    const socInfo = fullReportContent?.socInfo;
+    const uploadedDocumentsMetadata = report.uploaded_documents_metadata as any[] || [];
+
+    const reportTitle = `${report.report_title} AI Assessment Report`;
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${reportTitle}</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+        .container { max-width: 960px; margin: 30px auto; background: #ffffff; padding: 40px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        h1 { color: #1e40af; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #bfdbfe; padding-bottom: 15px; font-size: 2.5em; font-weight: 700; }
+        h2 { color: #1e40af; margin-top: 40px; margin-bottom: 20px; font-size: 1.8em; font-weight: 600; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        h3 { color: #3b82f6; margin-top: 25px; margin-bottom: 10px; font-size: 1.4em; font-weight: 600; }
+        p { margin-bottom: 12px; font-size: 1em; }
+        ul { list-style-type: disc; margin-left: 25px; margin-bottom: 12px; }
+        li { margin-bottom: 6px; font-size: 0.95em; }
+        .summary-box { background: #eff6ff; border-left: 5px solid #3b82f6; padding: 20px; margin-bottom: 30px; border-radius: 8px; }
+        .summary-box p { margin: 0; font-size: 1em; color: #1e40af; }
+        .summary-box strong { color: #1e40af; }
+        .risk-score { font-size: 3.5em; font-weight: 700; color: #1e40af; text-align: center; margin-bottom: 15px; }
+        .risk-level { font-size: 1.3em; font-weight: 700; text-align: center; padding: 8px 20px; border-radius: 25px; display: table; margin: 0 auto 30px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .risk-level.low { background-color: #d1fae5; color: #065f46; }
+        .risk-level.medium { background-color: #fef3c7; color: #92400e; }
+        .risk-level.medium-high { background-color: #fee2e2; color: #991b1b; }
+        .risk-level.high { background-color: #fecaca; color: #b91c1c; }
+        .section-content { margin-bottom: 30px; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; background-color: #fdfdfe; }
+        .question-title { font-weight: 600; margin-top: 20px; margin-bottom: 8px; color: #2d3748; font-size: 1.1em; }
+        .answer-text { margin-left: 15px; margin-bottom: 10px; font-size: 0.95em; color: #4a5568; }
+        .evidence-text { font-size: 0.8em; color: #6b7280; margin-left: 15px; border-left: 3px solid #cbd5e0; padding-left: 12px; margin-top: 8px; background-color: #f0f4f8; padding: 10px; border-radius: 6px; }
+        .disclaimer { background: #fffbe6; border-left: 5px solid #f59e0b; padding: 20px; margin-top: 40px; border-radius: 8px; font-size: 0.9em; color: #92400e; }
+        .file-list { list-style-type: none; padding: 0; margin-top: 15px; }
+        .file-list li { background-color: #f0f8ff; border: 1px solid #dbeafe; padding: 10px 15px; margin-bottom: 8px; border-radius: 6px; font-size: 0.9em; color: #1e40af; }
+        .file-list li strong { color: #1e40af; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>${reportTitle}</h1>
+        <div class="summary-box">
+            <p><strong>Assessment Type:</strong> ${report.assessment_type}</p>
+            <p><strong>Analysis Date:</strong> ${new Date(report.analysis_date).toLocaleString()}</p>
+            <p><strong>AI Provider:</strong> ${analysisResults?.aiProvider || 'N/A'}</p>
+            <p><strong>Documents Analyzed:</strong> ${analysisResults?.documentsAnalyzed || 0}</p>
+        </div>
+
+        <h2>Overall Risk Score</h2>
+        <div class="risk-score">${report.risk_score}%</div>
+        <div class="risk-level ${report.risk_level?.toLowerCase().replace('-', '')}">${report.risk_level} Risk</div>
+
+        <h2>AI Analysis Summary</h2>
+        <div class="section-content">
+            <h3>Overall Analysis</h3>
+            <p>${analysisResults?.overallAnalysis || 'N/A'}</p>
+            <h3>Identified Risk Factors</h3>
+            <ul>
+                ${analysisResults?.riskFactors?.map((factor: string) => `<li>${factor}</li>`).join('') || '<li>No risk factors identified.</li>'}
+            </ul>
+            <h3>Recommendations</h3>
+            <ul>
+                ${analysisResults?.recommendations?.map((rec: string) => `<li>${rec}</li>`).join('') || '<li>No recommendations provided.</li>'}
+            </ul>
+        </div>
+
+        <h2>Uploaded Documents</h2>
+        <div class="section-content">
+            <ul class="file-list">
+                ${uploadedDocumentsMetadata.map(item => `<li><strong>${item.fileName}</strong> (Label: ${item.label || 'Primary'}) - ${(item.fileSize / 1024 / 1024).toFixed(2)} MB</li>`).join('')}
+            </ul>
+        </div>
+
+        <h2>Detailed Responses</h2>
+        <div class="section-content">
+            ${questions?.map((question: any, index: number) => `
+                <div style="margin-bottom: 25px;">
+                    <p class="question-title">${question.question}</p>
+                    <p class="answer-text"><strong>Answer:</strong> ${
+                        typeof answers?.[question.id] === "boolean"
+                            ? (answers[question.id] ? "Yes" : "No")
+                            : Array.isArray(answers?.[question.id])
+                                ? (answers[question.id] as string[]).join(", ")
+                                : answers?.[question.id] || "N/A"
+                    }</p>
+                    <p class="answer-text"><strong>AI Confidence:</strong> ${
+                        analysisResults?.confidenceScores?.[question.id] !== undefined
+                            ? `${Math.round(analysisResults.confidenceScores[question.id] * 100)}%`
+                            : "N/A"
+                    }</p>
+                    ${analysisResults?.documentExcerpts?.[question.id] && analysisResults.documentExcerpts[question.id].length > 0 ? `
+                        <div class="evidence-text">
+                            <strong>Evidence:</strong> "${analysisResults.documentExcerpts[question.id][0].excerpt}" (from ${analysisResults.documentExcerpts[question.id][0].fileName} - ${analysisResults.documentExcerpts[question.id][0].label})
+                        </div>
+                    ` : `<div class="evidence-text">No direct evidence cited.</div>`}
+                </div>
+            `).join('') || '<p>No questions or answers available.</p>'}
+        </div>
+
+        ${socInfo && socInfo.companyName ? `
+        <h2>SOC Assessment Details</h2>
+        <div class="section-content">
+            <p><strong>Company:</strong> ${socInfo.companyName}</p>
+            <p><strong>Product/Service:</strong> ${socInfo.productService}</p>
+            <p><strong>SOC Type:</strong> ${socInfo.socType}</p>
+            ${socInfo.reportType ? `<p><strong>Report Type:</strong> ${socInfo.reportType}</p>` : ''}
+            ${socInfo.auditor ? `<p><strong>Auditor:</strong> ${socInfo.auditor}</p>` : ''}
+            ${socInfo.auditorOpinion ? `<p><strong>Auditor Opinion:</strong> ${socInfo.auditorOpinion}</p>` : ''}
+            ${socInfo.auditorOpinionDate ? `<p><strong>Opinion Date:</strong> ${new Date(socInfo.auditorOpinionDate).toLocaleDateString()}</p>` : ''}
+            ${socInfo.socDateAsOf ? `<p><strong>SOC Date As Of:</strong> ${new Date(socInfo.socDateAsOf).toLocaleDateString()}</p>` : ''}
+            ${socInfo.socStartDate && socInfo.socEndDate ? `<p><strong>Period:</strong> ${new Date(socInfo.socStartDate).toLocaleDateString()} - ${new Date(socInfo.socEndDate).toLocaleDateString()}</p>` : ''}
+            ${socInfo.testedStatus ? `<p><strong>Testing Status:</strong> ${socInfo.testedStatus}</p>` : ''}
+            ${socInfo.subserviceOrganizations ? `<p><strong>Subservice Orgs:</strong> ${socInfo.subserviceOrganizations}</p>` : ''}
+        </div>
+        ` : ''}
+
+        <div class="disclaimer">
+            <h3>Disclaimer:</h3>
+            <p class="whitespace-pre-wrap">This report is generated by RiskGuard AI based on the provided documents and AI analysis. It is intended for informational purposes only and should be reviewed and validated by human experts. RiskGuard AI is not responsible for any legal or compliance implications arising from the use of this report.</p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
+    window.open(dataUrl, '_blank');
+  };
+
+  const openManualReportInNewTab = (report: (Assessment & { responses?: AssessmentResponse[] })) => {
+    const responseData = report.responses?.[0];
+    const vendorInfo = responseData?.vendor_info as any;
+    const answers = responseData?.answers as any;
+
+    const reportTitle = `${report.vendor_name} - ${report.assessment_type} Manual Assessment Report`;
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${reportTitle}</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+        .container { max-width: 960px; margin: 30px auto; background: #ffffff; padding: 40px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        h1 { color: #1e40af; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #bfdbfe; padding-bottom: 15px; font-size: 2.5em; font-weight: 700; }
+        h2 { color: #1e40af; margin-top: 40px; margin-bottom: 20px; font-size: 1.8em; font-weight: 600; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        h3 { color: #3b82f6; margin-top: 25px; margin-bottom: 10px; font-size: 1.4em; font-weight: 600; }
+        p { margin-bottom: 12px; font-size: 1em; }
+        ul { list-style-type: disc; margin-left: 25px; margin-bottom: 12px; }
+        li { margin-bottom: 6px; font-size: 0.95em; }
+        .summary-box { background: #eff6ff; border-left: 5px solid #3b82f6; padding: 20px; margin-bottom: 30px; border-radius: 8px; }
+        .summary-box p { margin: 0; font-size: 1em; color: #1e40af; }
+        .summary-box strong { color: #1e40af; }
+        .risk-score { font-size: 3.5em; font-weight: 700; color: #1e40af; text-align: center; margin-bottom: 15px; }
+        .risk-level { font-size: 1.3em; font-weight: 700; text-align: center; padding: 8px 20px; border-radius: 25px; display: table; margin: 0 auto 30px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .risk-level.low { background-color: #d1fae5; color: #065f46; }
+        .risk-level.medium { background-color: #fef3c7; color: #92400e; }
+        .risk-level.medium-high { background-color: #fee2e2; color: #991b1b; }
+        .risk-level.high { background-color: #fecaca; color: #b91c1c; }
+        .section-content { margin-bottom: 30px; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; background-color: #fdfdfe; }
+        .question-title { font-weight: 600; margin-top: 20px; margin-bottom: 8px; color: #2d3748; font-size: 1.1em; }
+        .answer-text { margin-left: 15px; margin-bottom: 10px; font-size: 0.95em; color: #4a5568; }
+        .evidence-text { font-size: 0.8em; color: #6b7280; margin-left: 15px; border-left: 3px solid #cbd5e0; padding-left: 12px; margin-top: 8px; background-color: #f0f4f8; padding: 10px; border-radius: 6px; }
+        .disclaimer { background: #fffbe6; border-left: 5px solid #f59e0b; padding: 20px; margin-top: 40px; border-radius: 8px; font-size: 0.9em; color: #92400e; }
+        .file-list { list-style-type: none; padding: 0; margin-top: 15px; }
+        .file-list li { background-color: #f0f8ff; border: 1px solid #dbeafe; padding: 10px 15px; margin-bottom: 8px; border-radius: 6px; font-size: 0.9em; color: #1e40af; }
+        .file-list li strong { color: #1e40af; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>${reportTitle}</h1>
+        <div class="summary-box">
+            <p><strong>Assessment Type:</strong> ${report.assessment_type}</p>
+            <p><strong>Sent Date:</strong> ${new Date(report.sent_date).toLocaleDateString()}</p>
+            ${report.completed_date ? `<p><strong>Completed Date:</strong> ${new Date(report.completed_date).toLocaleString()}</p>` : ''}
+            ${report.due_date ? `<p><strong>Due Date:</strong> ${new Date(report.due_date).toLocaleDateString()}</p>` : ''}
+        </div>
+
+        <h2>Overall Risk Score</h2>
+        <div class="risk-score">${report.risk_score}%</div>
+        <div class="risk-level ${report.risk_level?.toLowerCase().replace('-', '')}">${report.risk_level} Risk</div>
+
+        ${vendorInfo ? `
+        <h2>Vendor Information</h2>
+        <div class="section-content">
+            <p><strong>Company Name:</strong> ${vendorInfo.companyName || 'N/A'}</p>
+            <p><strong>Contact Person:</strong> ${vendorInfo.contactName || 'N/A'}</p>
+            <p><strong>Email:</strong> ${vendorInfo.email || 'N/A'}</p>
+            ${vendorInfo.phone ? `<p><strong>Phone:</strong> ${vendorInfo.phone}</p>` : ''}
+            ${vendorInfo.website ? `<p><strong>Website:</strong> <a href="${vendorInfo.website}" target="_blank" rel="noopener noreferrer">${vendorInfo.website}</a></p>` : ''}
+            ${vendorInfo.industry ? `<p><strong>Industry:</strong> ${vendorInfo.industry}</p>` : ''}
+            ${vendorInfo.employeeCount ? `<p><strong>Employees:</strong> ${vendorInfo.employeeCount}</p>` : ''}
+            ${vendorInfo.description ? `<p><strong>Description:</strong> ${vendorInfo.description}</p>` : ''}
+        </div>
+        ` : '<p>No vendor information available.</p>'}
+
+        <h2>Assessment Answers</h2>
+        <div class="section-content">
+            ${answers && Object.keys(answers).length > 0 ? Object.entries(answers).map(([questionId, answer]: [string, any]) => `
+                <div style="margin-bottom: 25px;">
+                    <p class="question-title">${questionId.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}</p>
+                    <p class="answer-text">
+                        ${typeof answer === "boolean"
+                            ? (answer ? "Yes" : "No")
+                            : Array.isArray(answer)
+                                ? (answer as string[]).join(", ")
+                                : answer || "N/A"}
+                    </p>
+                </div>
+            `).join('') : '<p>No answers available.</p>'}
+        </div>
+
+        <div class="disclaimer">
+            <h3>Disclaimer:</h3>
+            <p class="whitespace-pre-wrap">This report reflects the responses provided by the vendor. It is intended for informational purposes only and should be reviewed and validated by human experts. RiskGuard AI is not responsible for any legal or compliance implications arising from the use of this report.</p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
+    window.open(dataUrl, '_blank');
+  };
+
   const handleViewReport = (report: CombinedReport) => {
     if (report.reportType === 'ai') {
-      setSelectedAiReport(report.fullData as AiAssessmentReport);
-      setShowAiReportDetailModal(true);
+      openAiReportInNewTab(report.fullData as AiAssessmentReport);
     } else {
-      setSelectedManualReport(report.fullData as (Assessment & { responses?: AssessmentResponse[] }));
-      setShowManualReportDetailModal(true);
+      openManualReportInNewTab(report.fullData as (Assessment & { responses?: AssessmentResponse[] }));
     }
   };
 
@@ -184,8 +415,6 @@ function DashboardContent() {
         return "text-green-600 bg-green-100"
       case "medium":
         return "text-yellow-600 bg-yellow-100"
-      case "medium-high":
-        return "text-orange-600 bg-orange-100"
       case "high":
         return "text-red-600 bg-red-100"
       case "critical":
@@ -779,19 +1008,8 @@ function DashboardContent() {
           </div>
         </footer>
 
-        {/* AI Report Detail Modal */}
-        <AiReportDetailModal
-          report={selectedAiReport}
-          isOpen={showAiReportDetailModal}
-          onClose={() => setShowAiReportDetailModal(false)}
-        />
-
-        {/* Manual Report Detail Modal */}
-        <ManualReportDetailModal
-          report={selectedManualReport}
-          isOpen={showManualReportDetailModal}
-          onClose={() => setShowManualReportDetailModal(false)}
-        />
+        {/* Removed: AI Report Detail Modal */}
+        {/* Removed: Manual Report Detail Modal */}
       </div>
   )
 }
