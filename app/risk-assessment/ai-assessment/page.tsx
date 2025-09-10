@@ -44,6 +44,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/components/auth-context" // Import useAuth
 import { useToast } from "@/components/ui/use-toast" // Import useToast
 import { saveAiAssessmentReport } from "@/lib/assessment-service" // Import the new service function
+import { useRouter } from "next/navigation" // Import useRouter
 
 // Complete assessment categories for AI assessment
 const assessmentCategories = [
@@ -1488,6 +1489,7 @@ interface UploadedFileWithLabel {
 export default function AIAssessmentPage() {
   const { user, isDemo } = useAuth(); // Get user and isDemo from AuthContext
   const { toast } = useToast(); // Initialize useToast
+  const router = useRouter(); // Initialize useRouter
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<
     "select-category" | "upload-documents" | "soc-info" | "review-answers" | "results"
@@ -1616,7 +1618,7 @@ export default function AIAssessmentPage() {
   }
 
   const handleViewFullReport = (reportId: string) => {
-    window.open(`/reports/${reportId}/view?type=ai`, '_blank');
+    router.push(`/reports/${reportId}/view?type=ai`); // Navigate within the same tab
   };
 
   const handleSaveReport = async () => {

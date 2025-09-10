@@ -44,6 +44,7 @@ import { getUserNotifications, markAllNotificationsAsRead, type Notification } f
 import { getAiAssessmentReports, getAssessments } from "@/lib/assessment-service" // Import getAssessments
 import type { AiAssessmentReport, Assessment, AssessmentResponse } from "@/lib/supabase" // Import Assessment and AssessmentResponse types
 import { useAuth } from "@/components/auth-context"
+import { useRouter } from "next/navigation" // Import useRouter
 // Removed: import { AiReportDetailModal } from "@/src/components/AiReportDetailModal"
 // Removed: import { ManualReportDetailModal } from "@/src/components/ManualReportDetailModal" // Import new modal
 
@@ -85,6 +86,7 @@ function DashboardContent() {
   // Removed: const [selectedManualReport, setSelectedManualReport] = useState<(Assessment & { responses?: AssessmentResponse[] }) | null>(null);
 
   const { user, organization, loading: authLoading } = useAuth()
+  const router = useRouter(); // Initialize useRouter
 
   const fetchDashboardData = async () => {
     if (authLoading || !user || !organization) {
@@ -169,7 +171,7 @@ function DashboardContent() {
   }
 
   const handleViewReport = (report: CombinedReport) => {
-    window.open(`/reports/${report.id}/view?type=${report.reportType}`, '_blank');
+    router.push(`/reports/${report.id}/view?type=${report.reportType}`); // Navigate within the same tab
   };
 
   const getRiskLevelColor = (level: string | null) => {
