@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isDemo, setIsDemo] = useState(false)
 
   const clearAuthState = useCallback(() => {
+    console.log("AuthContext: clearAuthState called. Setting all auth states to null/false.");
     setUser(null);
     setProfile(null);
     setOrganization(null);
@@ -58,7 +59,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const _refreshProfile = useCallback(async (sessionFromListener?: Session | null) => {
-    setLoading(true);
+    console.log("AuthContext: _refreshProfile started, setting loading=true");
+    setLoading(true); // Set loading true at the very beginning
 
     let demoSession = null;
     if (typeof window !== 'undefined') {
@@ -78,13 +80,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatar_url: "/placeholder.svg?height=32&width=32",
         })
         setIsDemo(true)
-        setLoading(false)
-        return
+        console.log("AuthContext: Demo session loaded. Setting loading=false.");
+        setLoading(false); // Set loading false for demo session
+        return; // Exit early for demo session
       } catch (error) {
         console.error("AuthContext: Error parsing demo session, removing it:", error)
         if (typeof window !== 'undefined') {
           localStorage.removeItem("demo_session")
         }
+        // Fall through to regular Supabase auth if demo session fails
       }
     }
 
@@ -100,41 +104,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } = await supabaseClient.auth.getUser();
 
         if (userError || !fetchedUser) {
-          clearAuthState();
-          return;
+          console.log("AuthContext: No Supabase user found or error fetching user. Clearing auth state.");
+          clearAuthState(); // This sets loading=false
+          return; 
         }
         currentUser = fetchedUser;
       }
 
       setUser(currentUser);
+      console.log("AuthContext: Supabase user set:", currentUser?.email);
 
       const { user: fetchedUser, profile: fetchedProfile, organization: fetchedOrganization, role: fetchedRole } = await getCurrentUserWithProfile();
 
       if (fetchedProfile) {
         setProfile(fetchedProfile);
+        console.log("AuthContext: Profile set:", fetchedProfile.first_name);
       } else {
         setProfile(null);
+        console.log("AuthContext: Profile set to null.");
       }
 
       if (fetchedOrganization) {
         setOrganization(fetchedOrganization);
+        console.log("AuthContext: Organization set:", fetchedOrganization.name);
       } else {
         setOrganization(null);
+        console.log("AuthContext: Organization set to null.");
       }
 
       if (fetchedRole) {
         setRole(fetchedRole);
+        console.log("AuthContext: Role set:", fetchedRole.role);
       } else {
         setRole(null);
+        console.log("AuthContext: Role set to null.");
       }
       
       setIsDemo(false)
+      console.log("AuthContext: _refreshProfile completed successfully. Setting loading=false.");
+      setLoading(false); // This is the critical line to ensure loading is false after all data is processed
     } catch (error) {
       console.error("AuthContext: Unhandled error in _refreshProfile:", error)
-      clearAuthState();
-    } finally {
-      setLoading(false);
+      clearAuthState(); // This sets loading=false
     }
+    // No finally block needed here.
   }, [clearAuthState]);
 
   const refreshProfile = useCallback(async (sessionFromListener?: Session | null) => {
@@ -152,7 +165,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const getInitialSession = async () => {
+      console.log("AuthContext: Initial session check started.");
       await handleRefreshWrapper();
+      console.log("AuthContext: Initial session check completed.");
     };
 
     getInitialSession();
@@ -162,11 +177,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: { subscription: authSubscription },
       } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (isMounted) {
+          console.log("AuthContext: onAuthStateChange event:", event, "session:", session?.user?.email);
           if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-            await handleRefreshWrapper(session);
+            // Only refresh if the session is new or updated,
+            // or if the current user/profile/role state is inconsistent.
+            // This avoids redundant fetches if the initial load already covered this session.
+            if (session && (session.user?.id !== user?.id || !profile || !role || !organization)) {
+                 await handleRefreshWrapper(session);
+            } else if (!session) { // If session is null (e.g., signed out)
+                clearAuthState();
+            } else {
+                // If user is already set and session is the same, just ensure loading is false
+                // This handles cases where onAuthStateChange fires for an already processed session
+                setLoading(false);
+            }
           } else if (event === 'SIGNED_OUT') {
             clearAuthState();
           } else {
+            // For other events (e.g., PASSWORD_RECOVERY), just ensure state is consistent
             await handleRefreshWrapper(session); 
           }
         }
@@ -176,7 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error("AuthContext: Error setting up auth listener:", error);
       if (isMounted) {
-        setLoading(false);
+        setLoading(false); 
       }
     }
 
@@ -190,7 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     };
-  }, [clearAuthState, _refreshProfile]);
+  }, [clearAuthState, _refreshProfile, user, profile, role, organization]);
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);

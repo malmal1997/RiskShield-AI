@@ -50,6 +50,7 @@ export default function LoginPage() {
 
   // Effect to check user status after AuthContext has loaded
   useEffect(() => {
+    console.log(`Login Page useEffect: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}`);
     if (!loading && user && !isDemo) { // Only check for non-demo users
       if (!profile && !role) {
         // User is authenticated in Supabase, but no profile/role means pending approval

@@ -26,14 +26,16 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const [showPendingApprovalMessage, setShowPendingApprovalMessage] = useState(false);
 
   useEffect(() => {
-    console.log(`AuthGuard useEffect: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}, pathname=${pathname}`);
+    console.log(`AuthGuard useEffect START: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}, pathname=${pathname}`);
 
     setShowPendingApprovalMessage(false); // Reset on each effect run
 
     if (loading) {
       setRedirecting(false);
+      console.log("AuthGuard useEffect: Still loading, returning.");
       return; // Still loading auth state, do nothing yet
     }
+    console.log("AuthGuard useEffect: Loading is false, proceeding with checks.");
 
     const isAuthenticated = !!user || isDemo;
     const isApproved = !!profile && !!role && !!organization; // User is fully approved if profile, role, AND organization are present
@@ -66,6 +68,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
     // If none of the above redirect/block conditions are met, then the user is allowed to view the current page.
     setRedirecting(false);
+    console.log("AuthGuard useEffect END: User is allowed to view this page.");
 
   }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router, signOut]); // Added organization to dependencies
 

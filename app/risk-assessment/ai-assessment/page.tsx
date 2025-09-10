@@ -2107,7 +2107,7 @@ export default function AIAssessmentPage() {
                             {uploadedFiles.length > 0 && (
                               <div className="mt-4 space-y-2">
                                 <h5 className="font-medium text-blue-900">Uploaded Files ({uploadedFiles.length}):</h5>
-                                {uploadedFiles.map((item, index: number) => (
+                                {uploadedFiles.map((item: UploadedFileWithLabel, index: number) => (
                                   <div
                                     key={index}
                                     className="flex items-center justify-between p-3 bg-white border border-blue-200 rounded"
@@ -2234,7 +2234,7 @@ export default function AIAssessmentPage() {
                       <Bot className="h-5 w-5 text-blue-600" />
                       <span>AI-Suggested Responses</span>
                       <Badge className="bg-green-100 text-green-700">
-                        Confidence: {analysisResults.confidenceScores ? Math.round(Object.values(analysisResults.confidenceScores).reduce((sum, val) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100) : 0}%
+                        Confidence: {analysisResults.confidenceScores ? Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100) : 0}%
                       </Badge>
                     </CardTitle>
                     <CardDescription>
@@ -2428,7 +2428,7 @@ export default function AIAssessmentPage() {
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                           <h3 className="font-semibold text-red-900 mb-2">Identified Risk Factors</h3>
                           <ul className="text-sm text-red-800 list-disc pl-5 space-y-1">
-                            {analysisResults.riskFactors.map((factor, index) => (
+                            {analysisResults.riskFactors.map((factor: string, index: number) => (
                               <li key={index}>{factor}</li>
                             ))}
                           </ul>
@@ -2436,7 +2436,7 @@ export default function AIAssessmentPage() {
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                           <h3 className="font-semibold text-green-900 mb-2">Recommendations</h3>
                           <ul className="text-sm text-green-800 list-disc pl-5 space-y-1">
-                            {analysisResults.recommendations.map((rec, index) => (
+                            {analysisResults.recommendations.map((rec: string, index: number) => (
                               <li key={index}>{rec}</li>
                             ))}
                           </ul>

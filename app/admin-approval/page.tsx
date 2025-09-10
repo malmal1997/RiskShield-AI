@@ -148,8 +148,6 @@ function AdminApprovalContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Removed: Header */}
-
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header - Integrated header content here */}
         <div className="flex justify-between items-center mb-8">
