@@ -53,7 +53,7 @@ export function AiReportDetailModal({ report, isOpen, onClose }: AiReportDetailM
         </DialogHeader>
 
         <ScrollArea className="flex-1 overflow-x-auto">
-          <div className="py-4 space-y-6 w-fit"> {/* Added w-fit */}
+          <div className="py-4 space-y-6 min-w-[max-content]"> {/* Changed from w-fit to min-w-[max-content] */}
             {/* Report Summary */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-2">Report Overview</h3>
