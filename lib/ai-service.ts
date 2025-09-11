@@ -550,7 +550,7 @@ CRITICAL INSTRUCTIONS:
 - If evidence is about a different cybersecurity topic than what's being asked, DO NOT use it
 - Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
 - Answer "No" for boolean questions if no directly relevant evidence exists
-- Quote exact text from the documents that SPECIFICALLY relates to each question topic. Followed by: (Source: "DocumentName.pdf" - Page: # Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'.
+- Quote exact text from the documents that SPECIFICALLY relates to each question topic. Followed by: (Source: "DocumentName.pdf", Page: #, Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'.
 - Do NOT make assumptions or use general knowledge beyond what's in the documents
 - Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
@@ -575,7 +575,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     ${questions.map((q: Question) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic. Followed by: (Source: \"DocumentName.pdf\" - Page: # Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'."`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic. Followed by: (Source: \"DocumentName.pdf\", Page: #, Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'."`).join(",\n    ")}
   }
 }`
 
@@ -710,9 +710,9 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             let sourceFileLabel: 'Primary' | '4th Party' = 'Primary';
             let pageNumber: number | undefined = undefined;
 
-            // Regex to extract the quoted text and the source information in the new format
-            // Example: "citation" (Source: "doc reference" - Page: # Label: Primary)
-            const quoteAndSourceRegex = /^"(.*?)"\s*(?:\(Source:\s*"([^"]+?)"\s*-\s*Page:\s*(\d+|N\/A)\s*Label:\s*(Primary|4th Party)\))?/;
+            // Regex to extract the quoted text and the source information
+            // Example: "citation" (Source: "doc reference", Page: #, Label: Primary)
+            const quoteAndSourceRegex = /^"(.*?)"\s*(?:\(Source:\s*"([^"]+?)",\s*(?:Page:\s*(\d+|N\/A),\s*)?Label:\s*(Primary|4th Party)\))?/;
             const match = aiEvidence.match(quoteAndSourceRegex);
 
             if (match) {
@@ -735,11 +735,14 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
                     let remainingText = aiEvidence.substring(fallbackQuoteMatch[0].length).trim();
 
                     // Look for filename and label in remaining text
-                    const filenameLabelMatch = remainingText.match(/(\S+\.(pdf|txt|md|csv|json|html|xml|htm))\s*(?:\(Label:\s*(Primary|4th Party)\))?/i);
+                    const filenameLabelMatch = remainingText.match(/(\S+\.(pdf|txt|md|csv|json|html|xml|htm))\s*(?:-\s*Page:\s*(\d+|N\/A))?\s*(?:\(Label:\s*(Primary|4th Party)\))?/i);
                     if (filenameLabelMatch) {
                         sourceFileName = filenameLabelMatch[1];
-                        if (filenameLabelMatch[3]) {
-                            sourceFileLabel = filenameLabelMatch[3] as 'Primary' | '4th Party';
+                        if (filenameLabelMatch[3]) { // Page number part
+                            pageNumber = filenameLabelMatch[3].trim() === 'N/A' ? undefined : parseInt(filenameLabelMatch[3], 10);
+                        }
+                        if (filenameLabelMatch[4]) { // Label part
+                            sourceFileLabel = filenameLabelMatch[4] as 'Primary' | '4th Party';
                         }
                     }
                 } else {
