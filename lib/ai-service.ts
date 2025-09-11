@@ -551,7 +551,9 @@ CRITICAL INSTRUCTIONS:
 - Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
 - Answer "No" for boolean questions if no directly relevant evidence exists
 - Provide the exact quote from the documents that SPECIFICALLY relates to each question topic in the 'excerpt' field. The quote should NOT include any source information.
-- Provide the source file name in 'source_file_name', the page number (if available, otherwise null) in 'source_page_number', and the label ('Primary' or '4th Party', or null if Primary) in 'source_label'.
+- Provide the source file name (e.g., "DocumentName.pdf") in 'source_file_name'. Do NOT include the label or page number in this field.
+- Provide the page number (e.g., 7) in 'source_page_number', or null if not available.
+- Provide the document's label ("4th Party") in 'source_label', or null if the label is 'Primary' (to indicate default).
 - If no directly relevant evidence is found after a comprehensive search, set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
 - Do NOT make assumptions or use general knowledge beyond what's in the documents
 - Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
@@ -698,7 +700,19 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         let excerpt = aiEvidenceDetails?.excerpt || 'No directly relevant evidence found after comprehensive search';
         let fileName = aiEvidenceDetails?.source_file_name || "N/A";
         let pageNumber = aiEvidenceDetails?.source_page_number || undefined;
-        let label = aiEvidenceDetails?.source_label || 'Primary';
+        let label = aiEvidenceDetails?.source_label || 'Primary'; // Default to 'Primary' if not explicitly provided
+
+        // --- NEW CLEANUP LOGIC FOR FILENAME ---
+        // If the AI incorrectly embeds the label into the filename, extract it.
+        const filenameLabelMatch = fileName.match(/^(.*?)\s*-\s*(Primary|4th Party)$/i);
+        if (filenameLabelMatch) {
+            fileName = filenameLabelMatch[1].trim();
+            // If the label was embedded, and the structured label was default/null, update it.
+            if (label === 'Primary' && filenameLabelMatch[2].toLowerCase() === '4th party') {
+                label = '4th Party';
+            }
+        }
+        // --- END NEW CLEANUP LOGIC ---
 
         // Perform semantic relevance check only if an actual excerpt is provided
         const hasActualExcerpt = excerpt !== 'No directly relevant evidence found after comprehensive search' && excerpt.length > 20;
@@ -724,8 +738,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           
           documentExcerpts[questionId] = [
             {
-              fileName: fileName,
-              label: label,
+              fileName: fileName, // Use the cleaned fileName
+              label: label, // Use the correctly assigned label
               excerpt: excerpt,
               relevance: `Evidence found within ${fileName} (Label: ${label})`,
               pageOrSection: "Document Content", // This can be refined if AI provides section info

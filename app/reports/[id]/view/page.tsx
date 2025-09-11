@@ -96,6 +96,7 @@ export default function ReportViewPage() {
       if (excerptData.pageNumber) {
         citationParts.push(`Page: ${excerptData.pageNumber}`);
       }
+      // Only add '4th Party' if the label is explicitly '4th Party'
       if (excerptData.label === '4th Party') {
         citationParts.push(`4th Party`);
       }
