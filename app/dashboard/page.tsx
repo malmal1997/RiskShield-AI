@@ -62,6 +62,25 @@ interface CombinedReport {
   fullData: AiAssessmentReport | (Assessment & { responses?: AssessmentResponse[] });
 }
 
+// Default values for immediate rendering
+const defaultRiskMetrics: RiskMetrics = {
+  totalAssessments: 0,
+  completedAssessments: 0,
+  averageRiskScore: 0,
+  highRiskVendors: 0,
+  riskTrend: [],
+  riskDistribution: [],
+  complianceScore: 0,
+};
+
+const defaultVendorMetrics: VendorMetrics = {
+  totalVendors: 0,
+  activeVendors: 0,
+  riskLevels: { low: 0, medium: 0, high: 0, critical: 0 },
+  industryBreakdown: [],
+  assessmentCompletion: 0,
+};
+
 export default function DashboardPage() {
   return (
     <AuthGuard>
@@ -71,30 +90,24 @@ export default function DashboardPage() {
 }
 
 function DashboardContent() {
-  const [riskMetrics, setRiskMetrics] = useState<RiskMetrics | null>(null)
-  const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics | null>(null)
-  const [notifications, setNotifications] = useState<Notification[] | null>(null)
-  const [aiReports, setAiReports] = useState<AiAssessmentReport[] | null>(null)
-  const [manualReports, setManualReports] = useState<(Assessment & { responses?: AssessmentResponse[] })[] | null>(null); // State for manual reports
+  const [riskMetrics, setRiskMetrics] = useState<RiskMetrics>(defaultRiskMetrics)
+  const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics>(defaultVendorMetrics)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [aiReports, setAiReports] = useState<AiAssessmentReport[]>([])
+  const [manualReports, setManualReports] = useState<(Assessment & { responses?: AssessmentResponse[] })[]>([]); // State for manual reports
   const [combinedReports, setCombinedReports] = useState<CombinedReport[]>([]); // Combined state for all reports
 
-  const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState("7d")
-  // Removed: const [showAiReportDetailModal, setShowAiReportDetailModal] = useState(false);
-  // Removed: const [showManualReportDetailModal, setShowManualReportDetailModal] = useState(false);
-  // Removed: const [selectedAiReport, setSelectedAiReport] = useState<AiAssessmentReport | null>(null);
-  // Removed: const [selectedManualReport, setSelectedManualReport] = useState<(Assessment & { responses?: AssessmentResponse[] }) | null>(null);
 
   const { user, organization, loading: authLoading } = useAuth()
   const router = useRouter(); // Initialize useRouter
 
   const fetchDashboardData = async () => {
     if (authLoading || !user || !organization) {
-      setLoading(true)
+      // If not authenticated or still loading auth, keep default empty states
       return
     }
 
-    setLoading(true)
     try {
       const fetchedRiskMetrics = await getRiskAnalytics(timeframe)
       setRiskMetrics(fetchedRiskMetrics)
@@ -149,14 +162,7 @@ function DashboardContent() {
 
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
-      setRiskMetrics(null)
-      setVendorMetrics(null)
-      setNotifications(null)
-      setAiReports(null)
-      setManualReports(null);
-      setCombinedReports([]);
-    } finally {
-      setLoading(false)
+      // On error, keep default empty states
     }
   }
 
@@ -167,7 +173,7 @@ function DashboardContent() {
   const handleMarkAllNotificationsRead = async () => {
     if (!user) return
     await markAllNotificationsAsRead()
-    setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || null)
+    setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || [])
   }
 
   const handleViewReport = (report: CombinedReport) => {
@@ -187,17 +193,6 @@ function DashboardContent() {
       default:
         return "text-gray-600 bg-gray-100"
     }
-  }
-
-  if (loading || !riskMetrics || !vendorMetrics || !notifications || !aiReports || !manualReports) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading dashboard data...</p>
-        </div>
-      </div>
-    )
   }
 
   return (

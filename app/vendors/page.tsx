@@ -46,7 +46,6 @@ export default function VendorsPage() {
 function VendorsContent() {
   const { user, profile, organization, isDemo } = useAuth()
   const [vendors, setVendors] = useState<Vendor[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [riskFilter, setRiskFilter] = useState("all")
@@ -69,7 +68,6 @@ function VendorsContent() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const loadVendors = async () => {
-    setLoading(true)
     try {
       if (isDemo) {
         // Mock data for demo mode
@@ -118,7 +116,7 @@ function VendorsContent() {
             completed_assessments: 1,
             average_risk_score: 72,
             created_at: "2023-08-15T00:00:00Z",
-            updated_at: "2024-01-20T00:00:00Z",
+            updated_at: "2024-01-20T14:30:00Z",
           },
         ])
       } else {
@@ -128,8 +126,6 @@ function VendorsContent() {
     } catch (error) {
       console.error("Error loading vendors:", error)
       alert("Failed to load vendors. Please try again.")
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -244,17 +240,6 @@ function VendorsContent() {
   }
 
   const stats = getVendorStats()
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading vendors...</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">

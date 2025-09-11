@@ -24,6 +24,21 @@ interface AnalyticsData {
   }
 }
 
+const defaultAnalyticsData: AnalyticsData = {
+  sessions: [],
+  pageViews: [],
+  interactions: [],
+  leads: [],
+  stats: {
+    totalSessions: 0,
+    totalPageViews: 0,
+    totalInteractions: 0,
+    totalLeads: 0,
+    avgTimeSpent: 0,
+    conversionRate: 0,
+  },
+};
+
 export default function AnalyticsPage() {
   return (
     <AuthGuard>
@@ -33,14 +48,11 @@ export default function AnalyticsPage() {
 }
 
 function AnalyticsContent() {
-  const [data, setData] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<AnalyticsData>(defaultAnalyticsData)
   const [timeframe, setTimeframe] = useState("7d")
 
   const loadAnalytics = async () => {
     try {
-      setLoading(true)
-
       // Calculate date range
       const endDate = new Date()
       const startDate = new Date()
@@ -112,8 +124,7 @@ function AnalyticsContent() {
       })
     } catch (error) {
       console.error("Error loading analytics:", error)
-    } finally {
-      setLoading(false)
+      setData(defaultAnalyticsData); // Reset to default on error
     }
   }
 
@@ -157,16 +168,6 @@ function AnalyticsContent() {
       .sort(([, a]: [string, number], [, b]: [string, number]) => b - a)
       .slice(0, 10)
       .map(([feature, interactions]) => ({ feature, interactions }))
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white">
-        <div className="flex items-center justify-center py-20">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
-        </div>
-      </div>
-    )
   }
 
   return (
