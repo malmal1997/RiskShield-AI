@@ -550,7 +550,9 @@ CRITICAL INSTRUCTIONS:
 - If evidence is about a different cybersecurity topic than what's being asked, DO NOT use it
 - Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
 - Answer "No" for boolean questions if no directly relevant evidence exists
-- Quote exact text from the documents that SPECIFICALLY relates to each question topic. The quote should NOT include any source information. Followed by: (Source: "DocumentName.pdf", Page: #) or (Source: "DocumentName.pdf", Page: #, 4th Party) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, omit 'Page: #' entirely. Only include '4th Party' if the document is labeled as such.
+- Provide the exact quote from the documents that SPECIFICALLY relates to each question topic in the 'excerpt' field. The quote should NOT include any source information.
+- Provide the source file name in 'source_file_name', the page number (if available, otherwise null) in 'source_page_number', and the label ('Primary' or '4th Party', or null if Primary) in 'source_label'.
+- If no directly relevant evidence is found after a comprehensive search, set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
 - Do NOT make assumptions or use general knowledge beyond what's in the documents
 - Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
@@ -574,8 +576,14 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   "reasoning": {
     ${questions.map((q: Question) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
-  "evidence": {
-    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic. The quote should NOT include any source information. Followed by: (Source: \"DocumentName.pdf\", Page: #) or (Source: \"DocumentName.pdf\", Page: #, 4th Party) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, omit 'Page: #' entirely. Only include '4th Party' if the document is labeled as such."`).join(",\n    ")}
+  "evidence_details": {
+    ${questions.map((q: Question) => `
+      "${q.id}": {
+        "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. The quote should NOT include any source information.",
+        "source_file_name": "DocumentName.pdf",
+        "source_page_number": 7, // or null if not available
+        "source_label": "4th Party" // or null if Primary
+      }`).join(",\n    ")}
   }
 }`
 
@@ -679,127 +687,67 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       questions.forEach((question: Question) => {
         const questionId = question.id
         const aiAnswer = aiResponse.answers?.[questionId]
-        const aiEvidence = aiResponse.evidence?.[questionId]
+        const aiEvidenceDetails = aiResponse.evidence_details?.[questionId]; // Use new structured field
         const aiReasoning = aiResponse.reasoning?.[questionId]
         const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
 
         console.log(
-          `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence length=${aiEvidence?.length || 0}`,
+          `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence details present=${!!aiEvidenceDetails}`,
         )
 
-        // Perform semantic relevance check
-        if (
-          aiEvidence &&
-          typeof aiEvidence === "string" &&
-          !aiEvidence.toLowerCase().includes("no directly relevant evidence found") &&
-          aiEvidence.length > 20
-        ) {
-          const relevanceCheck = checkSemanticRelevance(question.question, aiEvidence)
+        let excerpt = aiEvidenceDetails?.excerpt || 'No directly relevant evidence found after comprehensive search';
+        let fileName = aiEvidenceDetails?.source_file_name || "N/A";
+        let pageNumber = aiEvidenceDetails?.source_page_number || undefined;
+        let label = aiEvidenceDetails?.source_label || 'Primary';
+
+        // Perform semantic relevance check only if an actual excerpt is provided
+        const hasActualExcerpt = excerpt !== 'No directly relevant evidence found after comprehensive search' && excerpt.length > 20;
+        let relevanceCheck = { isRelevant: false, confidence: 0.1, reason: "No evidence found in documents" };
+
+        if (hasActualExcerpt) {
+          relevanceCheck = checkSemanticRelevance(question.question, excerpt);
           console.log(
             `🎯 Relevance check for ${questionId}: ${relevanceCheck.isRelevant ? "RELEVANT" : "NOT RELEVANT"} - ${relevanceCheck.reason}`,
-          )
+          );
+        }
 
-          if (relevanceCheck.isRelevant) {
-            // Evidence is relevant - use AI's answer
-            answers[questionId] = aiAnswer
-            confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence)
-            reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
+        if (relevanceCheck.isRelevant && hasActualExcerpt) {
+          // Evidence is relevant - use AI's answer
+          answers[questionId] = aiAnswer
+          confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence)
+          reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
 
-            let actualExcerpt = '';
-            let sourceFileName = "N/A";
-            let sourceFileLabel: 'Primary' | '4th Party' = 'Primary';
-            let pageNumber: number | undefined = undefined;
-
-            // Regex to extract the quoted text and the source information in the new format
-            // Example: "exact quote" (Source: "DocumentName.pdf", Page: #) or (Source: "DocumentName.pdf", Page: #, 4th Party)
-            const quoteAndSourceRegex = /^"(.*?)"\s*(?:\(Source:\s*"([^"]+?)"(?:,\s*Page:\s*(\d+))?(?:,\s*(4th Party))?\))?/;
-            const match = aiEvidence.match(quoteAndSourceRegex);
-
-            if (match) {
-                actualExcerpt = match[1].trim();
-                if (match[2]) { // Filename part
-                    sourceFileName = match[2].trim();
-                }
-                if (match[3]) { // Page number part
-                    pageNumber = parseInt(match[3], 10);
-                }
-                if (match[4]) { // Label part (only '4th Party' is captured)
-                    sourceFileLabel = match[4].trim() as '4th Party';
-                }
-            } else {
-                // Fallback if the new format isn't matched (e.g., AI didn't follow instructions perfectly)
-                // Attempt to extract a quote and then any trailing filename/label
-                const fallbackQuoteMatch = aiEvidence.match(/^"(.*?)"/);
-                if (fallbackQuoteMatch) {
-                    actualExcerpt = fallbackQuoteMatch[1].trim();
-                    let remainingText = aiEvidence.substring(fallbackQuoteMatch[0].length).trim();
-
-                    // Look for filename, page, and label in remaining text
-                    const filenamePageLabelMatch = remainingText.match(/\(Source:\s*"([^"]+?)"(?:,\s*Page:\s*(\d+))?(?:,\s*(4th Party))?\)/i);
-                    if (filenamePageLabelMatch) {
-                        sourceFileName = filenamePageLabelMatch[1];
-                        if (filenamePageLabelMatch[2]) { // Page number part
-                            pageNumber = parseInt(filenamePageLabelMatch[2], 10);
-                        }
-                        if (filenamePageLabelMatch[3]) { // Label part
-                            sourceFileLabel = filenamePageLabelMatch[3] as '4th Party';
-                        }
-                    }
-                } else {
-                    // If no quote found, just use the whole evidence string as excerpt
-                    actualExcerpt = aiEvidence;
-                }
-            }
-
-            // Ensure the excerpt is not too long
-            if (actualExcerpt.length > 500) {
-                actualExcerpt = actualExcerpt.substring(0, 500) + '...';
-            }
-            
-            documentExcerpts[questionId] = [
-              {
-                fileName: sourceFileName,
-                label: sourceFileLabel,
-                excerpt: actualExcerpt,
-                relevance: `Evidence found within ${sourceFileName} (Label: ${sourceFileLabel})`,
-                pageOrSection: "Document Content", // This can be refined if AI provides section info
-                pageNumber: pageNumber, // Use extracted page number
-              },
-            ]
-          } else {
-            // Evidence is not relevant - use conservative answer
-            console.log(`❌ Question ${questionId}: Evidence rejected - ${relevanceCheck.reason}`)
-
-            if (question.type === "boolean") {
-              answers[question.id] = false
-            } else if (question.options && question.options.length > 0) {
-              answers[question.id] = question.options[0] // Most conservative option
-            } else if (question.type === "tested") {
-              answers[question.id] = "not_tested"
-            } else if (question.type === "textarea") {
-              answers[question.id] = "No directly relevant evidence found."
-            }
-
-            confidenceScores[questionId] = 0.9 // High confidence in conservative answer
-            reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
-            documentExcerpts[questionId] = []
+          // Ensure the excerpt is not too long
+          if (excerpt.length > 500) {
+              excerpt = excerpt.substring(0, 500) + '...';
           }
+          
+          documentExcerpts[questionId] = [
+            {
+              fileName: fileName,
+              label: label,
+              excerpt: excerpt,
+              relevance: `Evidence found within ${fileName} (Label: ${label})`,
+              pageOrSection: "Document Content", // This can be refined if AI provides section info
+              pageNumber: pageNumber, // Use extracted page number
+            },
+          ]
         } else {
-          // No evidence provided - use conservative answer
-          console.log(`⚠️ Question ${questionId}: No evidence provided by AI`)
+          // Evidence is not relevant or not provided - use conservative answer
+          console.log(`❌ Question ${questionId}: Evidence rejected or not provided - ${relevanceCheck.reason}`)
 
           if (question.type === "boolean") {
             answers[question.id] = false
           } else if (question.options && question.options.length > 0) {
-            answers[question.id] = question.options[0]
+            answers[question.id] = question.options[0] // Most conservative option
           } else if (question.type === "tested") {
             answers[question.id] = "not_tested"
           } else if (question.type === "textarea") {
             answers[question.id] = "No directly relevant evidence found."
           }
 
-          confidenceScores[questionId] = 0.9
-          reasoning[questionId] = "No directly relevant evidence found in documents"
+          confidenceScores[questionId] = 0.9 // High confidence in conservative answer
+          reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
           documentExcerpts[questionId] = []
         }
       })
@@ -847,7 +795,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       if (answer && (answer as string).length > 0 && !(answer as string).includes("No directly relevant evidence found")) {
         // If there's an answer, give a small boost or mark as complete
         // This part is subjective and can be refined based on desired scoring
-        totalScore += (question.weight || 1) * 0.5; // Small boost for having an answer
+        totalScore += (question.weight || 1) * 0.5; // Small boost for having an "answer"
         maxScore += (question.weight || 1) * 0.5; // Max possible for textarea if answered
       }
     }

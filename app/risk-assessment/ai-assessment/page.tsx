@@ -1700,6 +1700,27 @@ export default function AIAssessmentPage() {
     return progress
   }
 
+  // Helper function to render the evidence citation
+  const renderEvidenceCitation = (excerptData: any) => {
+    if (!excerptData || excerptData.excerpt === 'No directly relevant evidence found after comprehensive search') {
+      return 'No directly relevant evidence found after comprehensive search.';
+    }
+
+    let citationParts = [];
+    if (excerptData.fileName && excerptData.fileName !== 'N/A') {
+      citationParts.push(`Source: "${excerptData.fileName}"`);
+    }
+    if (excerptData.pageNumber) {
+      citationParts.push(`Page: ${excerptData.pageNumber}`);
+    }
+    if (excerptData.label === '4th Party') {
+      citationParts.push(`4th Party`);
+    }
+
+    const citationString = citationParts.length > 0 ? ` (${citationParts.join(", ")})` : '';
+    return `"${excerptData.excerpt}"${citationString}`;
+  };
+
   return (
     <AuthGuard
       allowPreview={true}
@@ -2265,17 +2286,7 @@ export default function AIAssessmentPage() {
                             analysisResults.documentExcerpts[question.id].length > 0 && (
                               <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded">
                                 <Info className="inline h-3 w-3 mr-1" />
-                                <strong>Evidence:</strong> "{analysisResults.documentExcerpts[question.id][0].excerpt}"
-                                {analysisResults.documentExcerpts[question.id][0].fileName &&
-                                  ` (Source: "${analysisResults.documentExcerpts[question.id][0].fileName}"`
-                                }
-                                {analysisResults.documentExcerpts[question.id][0].pageNumber &&
-                                  `, Page: ${analysisResults.documentExcerpts[question.id][0].pageNumber}`
-                                }
-                                {analysisResults.documentExcerpts[question.id][0].label === '4th Party' &&
-                                  `, 4th Party`
-                                }
-                                {analysisResults.documentExcerpts[question.id][0].fileName && `)`}
+                                <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0])}
                               </div>
                             )}
                         </div>

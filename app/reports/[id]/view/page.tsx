@@ -83,6 +83,27 @@ export default function ReportViewPage() {
     const socInfo = fullReportContent?.socInfo;
     const uploadedDocumentsMetadata = report.uploaded_documents_metadata as any[] || [];
 
+    // Helper function to render the evidence citation
+    const renderEvidenceCitation = (excerptData: any) => {
+      if (!excerptData || excerptData.excerpt === 'No directly relevant evidence found after comprehensive search') {
+        return 'No directly relevant evidence found after comprehensive search.';
+      }
+
+      let citationParts = [];
+      if (excerptData.fileName && excerptData.fileName !== 'N/A') {
+        citationParts.push(`Source: "${excerptData.fileName}"`);
+      }
+      if (excerptData.pageNumber) {
+        citationParts.push(`Page: ${excerptData.pageNumber}`);
+      }
+      if (excerptData.label === '4th Party') {
+        citationParts.push(`4th Party`);
+      }
+
+      const citationString = citationParts.length > 0 ? ` (${citationParts.join(", ")})` : '';
+      return `"${excerptData.excerpt}"${citationString}`;
+    };
+
     return (
       <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg">
         <h1 className="text-3xl font-bold text-blue-600 text-center mb-6 border-b pb-4">
@@ -180,17 +201,7 @@ export default function ReportViewPage() {
                 )}
                 {analysisResults?.documentExcerpts?.[question.id] && analysisResults.documentExcerpts[question.id].length > 0 && (
                   <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-100 border border-gray-200 rounded whitespace-pre-wrap">
-                    <strong>Evidence:</strong> "{analysisResults.documentExcerpts[question.id][0].excerpt}"
-                    {analysisResults.documentExcerpts[question.id][0].fileName &&
-                      ` (Source: "${analysisResults.documentExcerpts[question.id][0].fileName}"`
-                    }
-                    {analysisResults.documentExcerpts[question.id][0].pageNumber &&
-                      `, Page: ${analysisResults.documentExcerpts[question.id][0].pageNumber}`
-                    }
-                    {analysisResults.documentExcerpts[question.id][0].label === '4th Party' &&
-                      `, 4th Party`
-                    }
-                    {analysisResults.documentExcerpts[question.id][0].fileName && `)`}
+                    <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0])}
                   </div>
                 )}
               </div>
