@@ -2,7 +2,7 @@ import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
 
 export interface DocumentAnalysisResult {
-  answers: Record<string, boolean | string>
+  answers: Record<string, boolean | string | string[]> // Added string[] to answers type
   confidenceScores: Record<string, number>
   reasoning: Record<string, string>
   overallAnalysis: string
@@ -404,7 +404,7 @@ export async function analyzeDocuments(
   if (supportedFilesWithLabels.length === 0) {
     console.log("❌ No supported files found for analysis")
 
-    const answers: Record<string, boolean | string> = {}
+    const answers: Record<string, boolean | string | string[]> = {}
     const confidenceScores: Record<string, number> = {}
     const reasoning: Record<string, string> = {}
 
@@ -580,7 +580,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
 }`
 
   // Process questions with Google AI - include PDF files if present
-  const answers: Record<string, boolean | string> = {}
+  const answers: Record<string, boolean | string | string[]> = {}
   const confidenceScores: Record<string, number> = {}
   const reasoning: Record<string, string> = {}
   const documentExcerpts: Record<string, Array<any>> = {}
@@ -705,79 +705,60 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence)
             reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
 
-            // Extract document name and label from evidence
-            let sourceFileName = supportedFilesWithLabels.length > 0 ? supportedFilesWithLabels[0].file.name : "Document"
+            // --- START OF MODIFICATION ---
+            let actualExcerpt = '';
+            let sourceFileName = supportedFilesWithLabels.length > 0 ? supportedFilesWithLabels[0].file.name : "Document";
             let sourceFileLabel: 'Primary' | '4th Party' = supportedFilesWithLabels.length > 0 ? supportedFilesWithLabels[0].label : 'Primary';
 
-            const documentNameMatch = aiEvidence.match(
-              /(?:from|in|document|file)[\s:]*([^,.\n]+\.(pdf|txt|md|csv|json|html|xml))\s+\(Label:\s*(Primary|4th Party)\)/i,
-            )
-            if (documentNameMatch) {
-              sourceFileName = documentNameMatch[1].trim()
-              sourceFileLabel = documentNameMatch[3].trim() as 'Primary' | '4th Party';
+            // Regex to find the reference part: (from FILENAME - LABEL) or (from FILENAME (Label: LABEL))
+            const referencePattern = /\s+\(from\s+([^)]+?)\s+-\s*(Primary|4th Party)\)|\s+\(from\s+([^)]+?)\s+\(Label:\s*(Primary|4th Party)\)\)/i;
+            const referenceMatch = aiEvidence.match(referencePattern);
+
+            let referenceString = '';
+            if (referenceMatch) {
+                referenceString = referenceMatch[0];
+                // Extract filename and label from the reference string
+                if (referenceMatch[1] && referenceMatch[2]) { // Matches (from FILENAME - LABEL)
+                    sourceFileName = referenceMatch[1].trim();
+                    sourceFileLabel = referenceMatch[2].trim() as 'Primary' | '4th Party';
+                } else if (referenceMatch[3] && referenceMatch[4]) { // Matches (from FILENAME (Label: LABEL))
+                    sourceFileName = referenceMatch[3].trim();
+                    sourceFileLabel = referenceMatch[4].trim() as 'Primary' | '4th Party';
+                }
+            }
+
+            // The actual excerpt is everything before the reference string
+            let potentialExcerpt = aiEvidence.replace(referenceString, '').trim();
+
+            // Remove leading/trailing quotes from the potential excerpt
+            potentialExcerpt = potentialExcerpt.replace(/^["']+|["']+$/g, '').trim();
+
+            // Remove any remaining "(Label: X)" patterns that might have been part of the quote itself
+            potentialExcerpt = potentialExcerpt.replace(/\(Label:\s*(Primary|4th Party)\)/gi, '').trim();
+
+            // Check if the potential excerpt is just a label or too short to be meaningful
+            const isJustLabel = potentialExcerpt.match(/^\(Label:\s*(Primary|4th Party)\)$/i);
+            if (isJustLabel || potentialExcerpt.length < 10) { // If it's just a label or very short
+                actualExcerpt = 'Relevant information found in the document.'; // Provide a generic message
             } else {
-              // Try to match against uploaded file names and labels
-              const matchingFile = supportedFilesWithLabels.find((item: FileWithLabel) =>
-                aiEvidence.toLowerCase().includes(item.file.name.toLowerCase().replace(/\.[^.]+$/, "")),
-              )
-              if (matchingFile) {
-                sourceFileName = matchingFile.file.name
-                sourceFileLabel = matchingFile.label
-              }
+                actualExcerpt = potentialExcerpt;
             }
 
-            let cleanExcerpt = aiEvidence;
-
-            // Remove document name and label patterns from the beginning or end of quotes
-            cleanExcerpt = cleanExcerpt.replace(/^["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)\s+\(Label:\s*(Primary|4th Party)\)["\s]*:?\s*/i, "");
-            cleanExcerpt = cleanExcerpt.replace(/["\s]*[^"]*\.(pdf|txt|md|csv|json|html|xml)\s+\(Label:\s*(Primary|4th Party)\)["\s]*$/i, "");
+            // Ensure the excerpt is not too long
+            if (actualExcerpt.length > 500) {
+                actualExcerpt = actualExcerpt.substring(0, 500) + '...';
+            }
             
-            // Remove any remaining document name references within quotes
-            supportedFilesWithLabels.forEach((item: FileWithLabel) => {
-              const fileName = item.file.name.replace(/\.[^.]+$/, "") // Remove extension
-              const fileNamePattern = new RegExp(`\\b${fileName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi")
-              cleanExcerpt = cleanExcerpt.replace(fileNamePattern, "").trim()
-
-              // Also remove the full filename with extension and label
-              const fullFileNameWithLabelPattern = new RegExp(
-                `\\b${item.file.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+\\(Label:\\s*${item.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\)\\b`,
-                "gi",
-              )
-              cleanExcerpt = cleanExcerpt.replace(fullFileNameWithLabelPattern, "").trim()
-            })
-
-            // Remove common document reference patterns
-            cleanExcerpt = cleanExcerpt
-              .replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "")
-              .trim()
-
-            // Clean up extra spaces and punctuation
-            cleanExcerpt = cleanExcerpt
-              .replace(/\s+/g, " ")
-              .replace(/^[,.\s]+|[,.\s]+$/g, "")
-              .trim()
-
-            // Remove any existing quotes and add proper ones
-            cleanExcerpt = cleanExcerpt.replace(/^["']+|["']+$/g, "").trim()
-
-            // Ensure we still have meaningful content after cleaning
-            if (cleanExcerpt.length < 5) {
-              // If cleaning removed too much, extract just the meaningful text without document references
-              const meaningfulText = aiEvidence
-                .replace(/\b[A-Za-z-]+\.(pdf|txt|md|csv|json|html|xml)\b/gi, "")
-                .trim()
-              cleanExcerpt = meaningfulText.substring(0, 200).trim()
-            }
-
             documentExcerpts[questionId] = [
               {
                 fileName: sourceFileName,
-                label: sourceFileLabel, // Include label here
-                excerpt: cleanExcerpt.substring(0, 500), // Use cleaned excerpt instead of raw aiEvidence
+                label: sourceFileLabel,
+                excerpt: actualExcerpt,
                 relevance: `Evidence found within ${sourceFileName} (Label: ${sourceFileLabel})`,
                 pageOrSection: "Document Content",
               },
             ]
+            // --- END OF MODIFICATION ---
           } else {
             // Evidence is not relevant - use conservative answer
             console.log(`❌ Question ${questionId}: Evidence rejected - ${relevanceCheck.reason}`)
