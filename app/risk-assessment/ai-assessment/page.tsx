@@ -11,42 +11,42 @@ import { Progress } from "@/components/ui/progress"
 import {
   Shield,
   FileText,
-  Bot,
-  Send,
-  ArrowLeft,
-  X,
-  Brain,
-  Cpu,
   BarChart3,
-  Upload,
-  CheckCircle,
-  AlertCircle,
-  Download,
-  Check,
-  XCircle,
-  Info,
-  Edit,
-  Save,
+  Eye,
+  Bot,
+  Clock,
   Building,
   Lock,
   Server,
+  Send,
+  Users,
   User,
-  FileCheck,
-  CheckCircle2,
-  Plus,
-  ArrowRight,
-  Eye,
-  Clock,
+  ArrowLeft,
+  Building2,
+  CheckCircle2, // Corrected import to CheckCircle2
+  Download,
+  X,
+  ArrowRight, // Added ArrowRight import
+  Upload, // Added Upload import
+  AlertCircle, // Added AlertCircle import
+  Check, // Added Check import
+  Save, // Added Save import
+  Info, // Added Info import
+  FileCheck, // Added FileCheck import
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
-import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service" // For delegation email
+import { Label as ShadcnLabel } from "@/components/ui/label" // Renamed Label to avoid conflict
+import { Textarea as ShadcnTextarea } from "@/components/ui/textarea" // Renamed Textarea to avoid conflict
+import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
+import Link from "next/link"
+import { Input as ShadcnInput } from "@/components/ui/input" // Renamed Input to avoid conflict
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Import Select components
 import { useAuth } from "@/components/auth-context" // Import useAuth
 import { useToast } from "@/components/ui/use-toast" // Import useToast
 import { saveAiAssessmentReport } from "@/lib/assessment-service" // Import the new service function
 import { useRouter } from "next/navigation" // Import useRouter
 
-// Complete assessment categories for AI assessment
+// Assessment categories and questions
 const assessmentCategories = [
   {
     id: "cybersecurity",
@@ -60,7 +60,6 @@ const assessmentCategories = [
         question: "Does your organization have a formal cybersecurity policy?",
         type: "boolean" as const,
         weight: 10,
-        required: true,
       },
       {
         id: "cs2",
@@ -69,7 +68,6 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
         weight: 8,
-        required: true,
       },
       {
         id: "cs3",
@@ -77,7 +75,6 @@ const assessmentCategories = [
         question: "Do you have multi-factor authentication implemented for all critical systems?",
         type: "boolean" as const,
         weight: 9,
-        required: true,
       },
       {
         id: "cs4",
@@ -86,7 +83,6 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
         weight: 8,
-        required: true,
       },
       {
         id: "cs5",
@@ -94,7 +90,6 @@ const assessmentCategories = [
         question: "Do you have an incident response plan in place?",
         type: "boolean" as const,
         weight: 9,
-        required: true,
       },
     ],
   },
@@ -110,7 +105,6 @@ const assessmentCategories = [
         question: "Are you compliant with current FDIC regulations?",
         type: "boolean" as const,
         weight: 10,
-        required: true,
       },
       {
         id: "rc2",
@@ -119,7 +113,6 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 8,
-        required: true,
       },
       {
         id: "rc3",
@@ -127,7 +120,6 @@ const assessmentCategories = [
         question: "Do you have a dedicated compliance officer?",
         type: "boolean" as const,
         weight: 7,
-        required: true,
       },
       {
         id: "rc4",
@@ -136,7 +128,6 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 9,
-        required: true,
       },
       {
         id: "rc5",
@@ -144,7 +135,6 @@ const assessmentCategories = [
         question: "Do you maintain proper documentation for all compliance activities?",
         type: "boolean" as const,
         weight: 8,
-        required: true,
       },
     ],
   },
@@ -160,7 +150,6 @@ const assessmentCategories = [
         question: "Do you have documented operational procedures for all critical processes?",
         type: "boolean" as const,
         weight: 8,
-        required: true,
       },
       {
         id: "or2",
@@ -169,7 +158,6 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Semi-annually"],
         weight: 7,
-        required: true,
       },
       {
         id: "or3",
@@ -177,7 +165,6 @@ const assessmentCategories = [
         question: "Do you have adequate segregation of duties in place?",
         type: "boolean" as const,
         weight: 9,
-        required: true,
       },
       {
         id: "or4",
@@ -186,7 +173,6 @@ const assessmentCategories = [
         type: "multiple" as const,
         options: ["Never", "Every 3 years", "Every 2 years", "Annually", "Quarterly"],
         weight: 8,
-        required: true,
       },
       {
         id: "or5",
@@ -194,7 +180,6 @@ const assessmentCategories = [
         question: "Do you have a business continuity plan?",
         type: "boolean" as const,
         weight: 9,
-        required: true,
       },
     ],
   },
@@ -1845,7 +1830,7 @@ export default function AIAssessmentPage() {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="socType">SOC Type *</Label>
+                        <ShadcnLabel htmlFor="socType">SOC Type *</ShadcnLabel>
                         <select
                           id="socType"
                           value={socInfo.socType}
@@ -1863,7 +1848,7 @@ export default function AIAssessmentPage() {
                       </div>
                       {socInfo.socType !== "SOC 3" && (
                         <div>
-                          <Label htmlFor="reportType">Report Type *</Label>
+                          <ShadcnLabel htmlFor="reportType">Report Type *</ShadcnLabel>
                           <select
                             id="reportType"
                             value={socInfo.reportType}
@@ -1881,8 +1866,8 @@ export default function AIAssessmentPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="auditor">Auditor/CPA Firm</Label>
-                        <Input
+                        <ShadcnLabel htmlFor="auditor">Auditor/CPA Firm</ShadcnLabel>
+                        <ShadcnInput
                           id="auditor"
                           value={socInfo.auditor}
                           onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
@@ -1891,7 +1876,7 @@ export default function AIAssessmentPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="auditorOpinion">Auditor Opinion</Label>
+                        <ShadcnLabel htmlFor="auditorOpinion">Auditor Opinion</ShadcnLabel>
                         <select
                           id="auditorOpinion"
                           value={socInfo.auditorOpinion}
@@ -1909,8 +1894,8 @@ export default function AIAssessmentPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
-                        <Label htmlFor="auditorOpinionDate">Auditor Opinion Date</Label>
-                        <Input
+                        <ShadcnLabel htmlFor="auditorOpinionDate">Auditor Opinion Date</ShadcnLabel>
+                        <ShadcnInput
                           id="auditorOpinionDate"
                           type="date"
                           value={socInfo.auditorOpinionDate}
@@ -1922,8 +1907,8 @@ export default function AIAssessmentPage() {
                         socInfo.reportType &&
                         (socInfo.reportType === "Type 1" || socInfo.socType === "SOC 3" ? (
                           <div>
-                            <Label htmlFor="socDateAsOf">SOC Date as of</Label>
-                            <Input
+                            <ShadcnLabel htmlFor="socDateAsOf">SOC Date as of</ShadcnLabel>
+                            <ShadcnInput
                               id="socDateAsOf"
                               type="date"
                               value={socInfo.socDateAsOf}
@@ -1934,8 +1919,8 @@ export default function AIAssessmentPage() {
                         ) : (
                           <>
                             <div>
-                              <Label htmlFor="socStartDate">SOC Start Date</Label>
-                              <Input
+                              <ShadcnLabel htmlFor="socStartDate">SOC Start Date</ShadcnLabel>
+                              <ShadcnInput
                                 id="socStartDate"
                                 type="date"
                                 value={socInfo.socStartDate}
@@ -1944,8 +1929,8 @@ export default function AIAssessmentPage() {
                               />
                             </div>
                             <div>
-                              <Label htmlFor="socEndDate">SOC End Date</Label>
-                              <Input
+                              <ShadcnLabel htmlFor="socEndDate">SOC End Date</ShadcnLabel>
+                              <ShadcnInput
                                 id="socEndDate"
                                 type="date"
                                 value={socInfo.socEndDate}
@@ -1959,7 +1944,7 @@ export default function AIAssessmentPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="testedStatus">Testing Status</Label>
+                        <ShadcnLabel htmlFor="testedStatus">Testing Status</ShadcnLabel>
                         <select
                           id="testedStatus"
                           value={socInfo.testedStatus}
@@ -1976,8 +1961,8 @@ export default function AIAssessmentPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="companyName">Company Name *</Label>
-                        <Input
+                        <ShadcnLabel htmlFor="companyName">Company Name *</ShadcnLabel>
+                        <ShadcnInput
                           id="companyName"
                           value={socInfo.companyName}
                           onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
@@ -1986,8 +1971,8 @@ export default function AIAssessmentPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="productService">Product/Service Being Assessed *</Label>
-                        <Input
+                        <ShadcnLabel htmlFor="productService">Product/Service Being Assessed *</ShadcnLabel>
+                        <ShadcnInput
                           id="productService"
                           value={socInfo.productService}
                           onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
@@ -1998,8 +1983,8 @@ export default function AIAssessmentPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="subserviceOrganizations">Subservice Organizations</Label>
-                      <Textarea
+                      <ShadcnLabel htmlFor="subserviceOrganizations">Subservice Organizations</ShadcnLabel>
+                      <ShadcnTextarea
                         id="subserviceOrganizations"
                         value={socInfo.subserviceOrganizations}
                         onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
@@ -2078,9 +2063,9 @@ export default function AIAssessmentPage() {
 
                         <div className="space-y-4">
                           <div>
-                            <Label htmlFor="document-upload" className="text-sm font-medium text-gray-700">
+                            <ShadcnLabel htmlFor="document-upload" className="text-sm font-medium text-gray-700">
                               Upload Supporting Documents
-                            </Label>
+                            </ShadcnLabel>
                             <div className="mt-2 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors bg-blue-25">
                               <input
                                 id="document-upload"
@@ -2233,9 +2218,11 @@ export default function AIAssessmentPage() {
                     <CardTitle className="flex items-center space-x-2">
                       <Bot className="h-5 w-5 text-blue-600" />
                       <span>AI-Suggested Responses</span>
-                      <Badge className="bg-green-100 text-green-700">
-                        Confidence: {analysisResults.confidenceScores ? Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100) : 0}%
-                      </Badge>
+                      {!isReportSaved && analysisResults.confidenceScores && (
+                        <Badge className="bg-green-100 text-green-700">
+                          Confidence: {Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
+                        </Badge>
+                      )}
                     </CardTitle>
                     <CardDescription>
                       Review the AI's answers and make any necessary adjustments.
@@ -2250,7 +2237,7 @@ export default function AIAssessmentPage() {
                               {question.category}
                             </Badge>
                             {question.required && <span className="text-red-500 text-sm">*</span>}
-                            {analysisResults.confidenceScores?.[question.id] !== undefined && (
+                            {!isReportSaved && analysisResults.confidenceScores?.[question.id] !== undefined && (
                               <Badge className="bg-blue-100 text-blue-700 text-xs">
                                 AI Confidence: {Math.round(analysisResults.confidenceScores[question.id] * 100)}%
                               </Badge>
@@ -2287,9 +2274,9 @@ export default function AIAssessmentPage() {
 
                         {/* Editable Answer Field */}
                         <div className="mt-4 pt-4 border-t border-gray-100">
-                          <Label htmlFor={`answer-${question.id}`} className="text-sm font-medium text-gray-700">
+                          <ShadcnLabel htmlFor={`answer-${question.id}`} className="text-sm font-medium text-gray-700">
                             Your Final Answer (Edit if needed)
-                          </Label>
+                          </ShadcnLabel>
                           {question.type === "boolean" && (
                             <div className="flex space-x-4 mt-2">
                               <label className="flex items-center">
@@ -2321,7 +2308,7 @@ export default function AIAssessmentPage() {
                               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
                             >
                               <option value="">Select an option</option>
-                              {question.options?.map((option) => (
+                              {question.options?.map((option: string) => (
                                   <option key={option} value={option}>
                                   {option}
                                 </option>
@@ -2353,7 +2340,7 @@ export default function AIAssessmentPage() {
                             </div>
                           )}
                           {question.type === "textarea" && (
-                            <Textarea
+                            <ShadcnTextarea
                               id={`answer-${question.id}`}
                               value={answers[question.id] || ""}
                               onChange={(e) => handleAnswerChange(question.id, e.target.value)}
