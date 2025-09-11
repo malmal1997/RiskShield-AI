@@ -550,7 +550,7 @@ CRITICAL INSTRUCTIONS:
 - If evidence is about a different cybersecurity topic than what's being asked, DO NOT use it
 - Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
 - Answer "No" for boolean questions if no directly relevant evidence exists
-- Quote exact text from the documents that SPECIFICALLY relates to each question topic. Followed by: (Source: "DocumentName.pdf", Page: #, Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'.
+- Quote exact text from the documents that SPECIFICALLY relates to each question topic. The quote should NOT include any source information. Followed by: (Source: "DocumentName.pdf", Page: #, Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'.
 - Do NOT make assumptions or use general knowledge beyond what's in the documents
 - Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
@@ -575,7 +575,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     ${questions.map((q: Question) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic. Followed by: (Source: \"DocumentName.pdf\", Page: #, Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'."`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic. The quote should NOT include any source information. Followed by: (Source: \"DocumentName.pdf\", Page: #, Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'."`).join(",\n    ")}
   }
 }`
 
@@ -711,43 +711,28 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             let pageNumber: number | undefined = undefined;
 
             // Regex to extract the quoted text and the source information
-            // Example: "citation" (Source: "doc reference", Page: #, Label: Primary)
-            const quoteAndSourceRegex = /^"(.*?)"\s*(?:\(Source:\s*"([^"]+?)",\s*(?:Page:\s*(\d+|N\/A),\s*)?Label:\s*(Primary|4th Party)\))?/;
-            const match = aiEvidence.match(quoteAndSourceRegex);
+            // Example: "exact quote" (Source: "DocumentName.pdf", Page: #, Label: Primary)
+            const quoteMatch = aiEvidence.match(/^"(.*?)"/);
+            if (quoteMatch) {
+                actualExcerpt = quoteMatch[1].trim();
+                let remainingText = aiEvidence.substring(quoteMatch[0].length).trim();
 
-            if (match) {
-                actualExcerpt = match[1].trim();
-                if (match[2]) { // Filename part
-                    sourceFileName = match[2].trim();
-                }
-                if (match[3]) { // Page number part
-                    pageNumber = match[3].trim() === 'N/A' ? undefined : parseInt(match[3], 10);
-                }
-                if (match[4]) { // Label part
-                    sourceFileLabel = match[4].trim() as 'Primary' | '4th Party';
+                const sourceMatch = remainingText.match(/\(Source:\s*"([^"]+?)",\s*(?:Page:\s*(\d+|N\/A),\s*)?Label:\s*(Primary|4th Party)\)/);
+                if (sourceMatch) {
+                    sourceFileName = sourceMatch[1].trim();
+                    pageNumber = sourceMatch[2] && sourceMatch[2].trim() !== 'N/A' ? parseInt(sourceMatch[2], 10) : undefined;
+                    sourceFileLabel = sourceMatch[3].trim() as 'Primary' | '4th Party';
                 }
             } else {
-                // Fallback if the new format isn't matched (e.g., AI didn't follow instructions perfectly)
-                // Attempt to extract a quote and then any trailing filename/label
-                const fallbackQuoteMatch = aiEvidence.match(/^"(.*?)"/);
-                if (fallbackQuoteMatch) {
-                    actualExcerpt = fallbackQuoteMatch[1].trim();
-                    let remainingText = aiEvidence.substring(fallbackQuoteMatch[0].length).trim();
-
-                    // Look for filename and label in remaining text
-                    const filenameLabelMatch = remainingText.match(/(\S+\.(pdf|txt|md|csv|json|html|xml|htm))\s*(?:-\s*Page:\s*(\d+|N\/A))?\s*(?:\(Label:\s*(Primary|4th Party)\))?/i);
-                    if (filenameLabelMatch) {
-                        sourceFileName = filenameLabelMatch[1];
-                        if (filenameLabelMatch[3]) { // Page number part
-                            pageNumber = filenameLabelMatch[3].trim() === 'N/A' ? undefined : parseInt(filenameLabelMatch[3], 10);
-                        }
-                        if (filenameLabelMatch[4]) { // Label part
-                            sourceFileLabel = filenameLabelMatch[4] as 'Primary' | '4th Party';
-                        }
-                    }
-                } else {
-                    // If no quote found, just use the whole evidence string as excerpt
-                    actualExcerpt = aiEvidence;
+                // Fallback: if no quote found, treat the whole evidence as excerpt and try to find source info within it
+                actualExcerpt = aiEvidence;
+                const sourceMatch = aiEvidence.match(/\(Source:\s*"([^"]+?)",\s*(?:Page:\s*(\d+|N\/A),\s*)?Label:\s*(Primary|4th Party)\)/);
+                if (sourceMatch) {
+                    sourceFileName = sourceMatch[1].trim();
+                    pageNumber = sourceMatch[2] && sourceMatch[2].trim() !== 'N/A' ? parseInt(sourceMatch[2], 10) : undefined;
+                    sourceFileLabel = sourceMatch[3].trim() as 'Primary' | '4th Party';
+                    // Remove source part from excerpt if found within it
+                    actualExcerpt = actualExcerpt.replace(sourceMatch[0], '').trim();
                 }
             }
 
