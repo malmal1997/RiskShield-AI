@@ -1706,20 +1706,29 @@ export default function AIAssessmentPage() {
       return 'No directly relevant evidence found after comprehensive search.';
     }
 
-    const parts = [];
-    if (excerptData.fileName && excerptData.fileName !== 'N/A') {
-      parts.push(`Source: "${excerptData.fileName}"`);
-    }
-    // Check if pageNumber is a valid number (not null, undefined, or NaN)
-    if (typeof excerptData.pageNumber === 'number' && !isNaN(excerptData.pageNumber)) {
-      parts.push(`Page: ${excerptData.pageNumber}`);
-    }
-    // Only add '4th Party' if the label is explicitly '4th Party'
-    if (excerptData.label === '4th Party') {
-      parts.push(`4th Party`);
+    let sourceInfoParts = [];
+    const fileName = excerptData.fileName;
+    const pageNumber = excerptData.pageNumber;
+    const label = excerptData.label;
+
+    if (fileName && fileName !== 'N/A') {
+      sourceInfoParts.push(`"${fileName}"`);
     }
 
-    const citationString = parts.length > 0 ? ` (${parts.join(", ")})` : '';
+    if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
+      sourceInfoParts.push(`Page: ${pageNumber}`);
+    }
+
+    if (label === '4th Party') {
+      sourceInfoParts.push('4th Party');
+    }
+
+    let citationString = '';
+    if (sourceInfoParts.length > 0) {
+      // Construct the string with "from" prefix and " - " separator
+      citationString = ` (from ${sourceInfoParts.join(' - ')})`;
+    }
+
     return `"${excerptData.excerpt}"${citationString}`;
   };
 
