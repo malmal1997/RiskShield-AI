@@ -89,19 +89,20 @@ export default function ReportViewPage() {
         return 'No directly relevant evidence found after comprehensive search.';
       }
 
-      let citationParts = [];
+      const parts = [];
       if (excerptData.fileName && excerptData.fileName !== 'N/A') {
-        citationParts.push(`Source: "${excerptData.fileName}"`);
+        parts.push(`Source: "${excerptData.fileName}"`);
       }
-      if (excerptData.pageNumber) {
-        citationParts.push(`Page: ${excerptData.pageNumber}`);
+      // Check if pageNumber is a valid number (not null, undefined, or NaN)
+      if (typeof excerptData.pageNumber === 'number' && !isNaN(excerptData.pageNumber)) {
+        parts.push(`Page: ${excerptData.pageNumber}`);
       }
       // Only add '4th Party' if the label is explicitly '4th Party'
       if (excerptData.label === '4th Party') {
-        citationParts.push(`4th Party`);
+        parts.push(`4th Party`);
       }
 
-      const citationString = citationParts.length > 0 ? ` (${citationParts.join(", ")})` : '';
+      const citationString = parts.length > 0 ? ` (${parts.join(", ")})` : '';
       return `"${excerptData.excerpt}"${citationString}`;
     };
 
