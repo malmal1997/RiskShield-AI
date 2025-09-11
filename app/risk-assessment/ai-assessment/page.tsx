@@ -2265,10 +2265,8 @@ export default function AIAssessmentPage() {
                             analysisResults.documentExcerpts[question.id].length > 0 && (
                               <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded">
                                 <Info className="inline h-3 w-3 mr-1" />
-                                <strong>Evidence:</strong> "{analysisResults.documentExcerpts[question.id][0].excerpt}" (Page{" "}
-                                {analysisResults.documentExcerpts[question.id][0].pageNumber || 'N/A'} of{" "}
-                                {analysisResults.documentExcerpts[question.id][0].fileName} -{" "}
-                                {analysisResults.documentExcerpts[question.id][0].label})
+                                <strong>Evidence:</strong> "{analysisResults.documentExcerpts[question.id][0].excerpt}" (Source: "{analysisResults.documentExcerpts[question.id][0].fileName}" - Page:{" "}
+                                {analysisResults.documentExcerpts[question.id][0].pageNumber || 'N/A'} Label: {analysisResults.documentExcerpts[question.id][0].label})
                               </div>
                             )}
                         </div>

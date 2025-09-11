@@ -550,7 +550,7 @@ CRITICAL INSTRUCTIONS:
 - If evidence is about a different cybersecurity topic than what's being asked, DO NOT use it
 - Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
 - Answer "No" for boolean questions if no directly relevant evidence exists
-- Quote exact text from the documents that SPECIFICALLY relates to each question topic. Followed by: (Source: DocumentName.pdf - Label: Primary - Page: #) or 'No directly relevant evidence found after comprehensive search'
+- Quote exact text from the documents that SPECIFICALLY relates to each question topic. Followed by: (Source: "DocumentName.pdf" - Page: # Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'.
 - Do NOT make assumptions or use general knowledge beyond what's in the documents
 - Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
@@ -575,7 +575,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     ${questions.map((q: Question) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic. Followed by: (Source: DocumentName.pdf - Label: Primary - Page: #) or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic. Followed by: (Source: \"DocumentName.pdf\" - Page: # Label: Primary) or 'No directly relevant evidence found after comprehensive search'. If page number is not available, use 'N/A'."`).join(",\n    ")}
   }
 }`
 
@@ -710,9 +710,9 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             let sourceFileLabel: 'Primary' | '4th Party' = 'Primary';
             let pageNumber: number | undefined = undefined;
 
-            // Regex to extract the quoted text and the source information
-            // Example: "quote text" (Source: DocumentName.pdf - Label: Primary - Page: 4)
-            const quoteAndSourceRegex = /^"(.*?)"\s*(?:\(Source:\s*([^)]+?)\s*-\s*Label:\s*(Primary|4th Party)(?:\s*-\s*Page:\s*(\d+))?\))?/;
+            // Regex to extract the quoted text and the source information in the new format
+            // Example: "citation" (Source: "doc reference" - Page: # Label: Primary)
+            const quoteAndSourceRegex = /^"(.*?)"\s*(?:\(Source:\s*"([^"]+?)"\s*-\s*Page:\s*(\d+|N\/A)\s*Label:\s*(Primary|4th Party)\))?/;
             const match = aiEvidence.match(quoteAndSourceRegex);
 
             if (match) {
@@ -720,11 +720,11 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
                 if (match[2]) { // Filename part
                     sourceFileName = match[2].trim();
                 }
-                if (match[3]) { // Label part
-                    sourceFileLabel = match[3].trim() as 'Primary' | '4th Party';
+                if (match[3]) { // Page number part
+                    pageNumber = match[3].trim() === 'N/A' ? undefined : parseInt(match[3], 10);
                 }
-                if (match[4]) { // Page number part
-                    pageNumber = parseInt(match[4], 10);
+                if (match[4]) { // Label part
+                    sourceFileLabel = match[4].trim() as 'Primary' | '4th Party';
                 }
             } else {
                 // Fallback if the new format isn't matched (e.g., AI didn't follow instructions perfectly)
