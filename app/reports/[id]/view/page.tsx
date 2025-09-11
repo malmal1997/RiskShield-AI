@@ -180,7 +180,7 @@ export default function ReportViewPage() {
                 )}
                 {analysisResults?.documentExcerpts?.[question.id] && analysisResults.documentExcerpts[question.id].length > 0 && (
                   <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-100 border border-gray-200 rounded whitespace-pre-wrap">
-                    "{analysisResults.documentExcerpts[question.id][0].excerpt}" (From page{" "}
+                    <strong>Evidence:</strong> "{analysisResults.documentExcerpts[question.id][0].excerpt}" (Page{" "}
                     {analysisResults.documentExcerpts[question.id][0].pageNumber || 'N/A'} of{" "}
                     {analysisResults.documentExcerpts[question.id][0].fileName} -{" "}
                     {analysisResults.documentExcerpts[question.id][0].label})
