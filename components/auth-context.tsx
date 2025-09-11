@@ -95,8 +95,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       let currentUser: User | null = null;
 
+      console.log("AuthContext: Attempting to get user from session or Supabase client.");
       if (sessionFromListener?.user) {
         currentUser = sessionFromListener.user;
+        console.log("AuthContext: User from listener:", currentUser?.email);
       } else {
         const {
           data: { user: fetchedUser },
@@ -109,45 +111,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return; 
         }
         currentUser = fetchedUser;
+        console.log("AuthContext: User from getUser():", currentUser?.email);
       }
 
       setUser(currentUser);
-      console.log("AuthContext: Supabase user set:", currentUser?.email);
+      console.log("AuthContext: Supabase user set in state:", currentUser?.email);
 
-      const { user: fetchedUser, profile: fetchedProfile, organization: fetchedOrganization, role: fetchedRole } = await getCurrentUserWithProfile();
+      console.log("AuthContext: Calling getCurrentUserWithProfile to fetch profile, org, role.");
+      const { profile: fetchedProfile, organization: fetchedOrganization, role: fetchedRole } = await getCurrentUserWithProfile();
 
-      if (fetchedProfile) {
-        setProfile(fetchedProfile);
-        console.log("AuthContext: Profile set:", fetchedProfile.first_name);
-      } else {
-        setProfile(null);
-        console.log("AuthContext: Profile set to null.");
-      }
+      setProfile(fetchedProfile);
+      setOrganization(fetchedOrganization);
+      setRole(fetchedRole);
+      setIsDemo(false); 
 
-      if (fetchedOrganization) {
-        setOrganization(fetchedOrganization);
-        console.log("AuthContext: Organization set:", fetchedOrganization.name);
-      } else {
-        setOrganization(null);
-        console.log("AuthContext: Organization set to null.");
-      }
-
-      if (fetchedRole) {
-        setRole(fetchedRole);
-        console.log("AuthContext: Role set:", fetchedRole.role);
-      } else {
-        setRole(null);
-        console.log("AuthContext: Role set to null.");
-      }
+      console.log("AuthContext: Profile state updated to:", fetchedProfile?.first_name);
+      console.log("AuthContext: Organization state updated to:", fetchedOrganization?.name);
+      console.log("AuthContext: Role state updated to:", fetchedRole?.role);
       
-      setIsDemo(false)
       console.log("AuthContext: _refreshProfile completed successfully. Setting loading=false.");
-      setLoading(false); // This is the critical line to ensure loading is false after all data is processed
+      setLoading(false); 
     } catch (error) {
       console.error("AuthContext: Unhandled error in _refreshProfile:", error)
-      clearAuthState(); // This sets loading=false
+      clearAuthState(); 
     }
-    // No finally block needed here.
   }, [clearAuthState]);
 
   const refreshProfile = useCallback(async (sessionFromListener?: Session | null) => {
@@ -159,54 +146,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let subscription: any = null;
     let isMounted = true;
 
-    const handleRefreshWrapper = async (sessionFromListener?: Session | null) => {
-      if (!isMounted) return;
-      await _refreshProfile(sessionFromListener);
-    };
-
-    const getInitialSession = async () => {
+    const setupAuthListener = async () => {
+      // First, perform initial session check
       console.log("AuthContext: Initial session check started.");
-      await handleRefreshWrapper();
+      await _refreshProfile(); // Call _refreshProfile without a listener session initially
       console.log("AuthContext: Initial session check completed.");
+
+      // Then, set up the onAuthStateChange listener
+      try {
+        const {
+          data: { subscription: authSubscription },
+        } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+          if (isMounted) {
+            console.log("AuthContext: onAuthStateChange event:", event, "session:", session?.user?.email);
+            if (event === 'SIGNED_OUT') {
+              clearAuthState();
+            } else {
+              // For other events (SIGNED_IN, USER_UPDATED, PASSWORD_RECOVERY, etc.), refresh profile
+              await _refreshProfile(session); 
+            }
+          }
+        });
+        subscription = authSubscription;
+      } catch (error) {
+        console.error("AuthContext: Error setting up auth listener:", error);
+        if (isMounted) {
+          setLoading(false); 
+        }
+      }
     };
 
-    getInitialSession();
-
-    try {
-      const {
-        data: { subscription: authSubscription },
-      } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        if (isMounted) {
-          console.log("AuthContext: onAuthStateChange event:", event, "session:", session?.user?.email);
-          if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-            // Only refresh if the session is new or updated,
-            // or if the current user/profile/role state is inconsistent.
-            // This avoids redundant fetches if the initial load already covered this session.
-            if (session && (session.user?.id !== user?.id || !profile || !role || !organization)) {
-                 await handleRefreshWrapper(session);
-            } else if (!session) { // If session is null (e.g., signed out)
-                clearAuthState();
-            } else {
-                // If user is already set and session is the same, just ensure loading is false
-                // This handles cases where onAuthStateChange fires for an already processed session
-                setLoading(false);
-            }
-          } else if (event === 'SIGNED_OUT') {
-            clearAuthState();
-          } else {
-            // For other events (e.g., PASSWORD_RECOVERY), just ensure state is consistent
-            await handleRefreshWrapper(session); 
-          }
-        }
-      });
-
-      subscription = authSubscription;
-    } catch (error) {
-      console.error("AuthContext: Error setting up auth listener:", error);
-      if (isMounted) {
-        setLoading(false); 
-      }
-    }
+    setupAuthListener();
 
     return () => {
       isMounted = false;
@@ -218,7 +188,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     };
-  }, [clearAuthState, _refreshProfile, user, profile, role, organization]);
+  }, [clearAuthState, _refreshProfile]); // Dependencies are correct here.
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
