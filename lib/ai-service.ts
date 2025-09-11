@@ -705,12 +705,12 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence)
             reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
 
-            // --- START OF MODIFICATION ---
             let actualExcerpt = '';
-            let sourceFileName = supportedFilesWithLabels.length > 0 ? supportedFilesWithLabels[0].file.name : "Document";
-            let sourceFileLabel: 'Primary' | '4th Party' = supportedFilesWithLabels.length > 0 ? supportedFilesWithLabels[0].label : 'Primary';
+            let sourceFileName = "Document";
+            let sourceFileLabel: 'Primary' | '4th Party' = 'Primary';
 
             // Regex to find the reference part: (from FILENAME - LABEL) or (from FILENAME (Label: LABEL))
+            // This pattern is more robust to variations in spacing and parentheses
             const referencePattern = /\s+\(from\s+([^)]+?)\s+-\s*(Primary|4th Party)\)|\s+\(from\s+([^)]+?)\s+\(Label:\s*(Primary|4th Party)\)\)/i;
             const referenceMatch = aiEvidence.match(referencePattern);
 
@@ -736,9 +736,11 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             // Remove any remaining "(Label: X)" patterns that might have been part of the quote itself
             potentialExcerpt = potentialExcerpt.replace(/\(Label:\s*(Primary|4th Party)\)/gi, '').trim();
 
-            // Check if the potential excerpt is just a label or too short to be meaningful
-            const isJustLabel = potentialExcerpt.match(/^\(Label:\s*(Primary|4th Party)\)$/i);
-            if (isJustLabel || potentialExcerpt.length < 10) { // If it's just a label or very short
+            // Check if the potential excerpt is just the filename or too short to be meaningful
+            const normalizedSourceFileName = sourceFileName.toLowerCase().replace(/\.pdf|\.txt|\.md|\.csv|\.json|\.html|\.xml|\.htm/g, '').trim();
+            const normalizedPotentialExcerpt = potentialExcerpt.toLowerCase().replace(/\.pdf|\.txt|\.md|\.csv|\.json|\.html|\.xml|\.htm/g, '').trim();
+
+            if (normalizedPotentialExcerpt === normalizedSourceFileName || potentialExcerpt.length < 10) {
                 actualExcerpt = 'Relevant information found in the document.'; // Provide a generic message
             } else {
                 actualExcerpt = potentialExcerpt;
@@ -758,7 +760,6 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
                 pageOrSection: "Document Content",
               },
             ]
-            // --- END OF MODIFICATION ---
           } else {
             // Evidence is not relevant - use conservative answer
             console.log(`❌ Question ${questionId}: Evidence rejected - ${relevanceCheck.reason}`)
