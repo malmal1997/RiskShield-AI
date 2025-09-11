@@ -550,7 +550,7 @@ CRITICAL INSTRUCTIONS:
 - If evidence is about a different cybersecurity topic than what's being asked, DO NOT use it
 - Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
 - Answer "No" for boolean questions if no directly relevant evidence exists
-- Quote exact text from the documents that SPECIFICALLY relates to each question topic
+- Quote exact text from the documents that SPECIFICALLY relates to each question topic. Followed by: (Source: DocumentName.pdf - Label: Primary - Page: #) or 'No directly relevant evidence found after comprehensive search'
 - Do NOT make assumptions or use general knowledge beyond what's in the documents
 - Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions
@@ -575,7 +575,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     ${questions.map((q: Question) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic, including document name and its label (e.g., 'DocumentName.pdf (Label: Primary)'), or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": "exact quote from documents that SPECIFICALLY addresses this question topic. Followed by: (Source: DocumentName.pdf - Label: Primary - Page: #) or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   }
 }`
 
@@ -706,44 +706,46 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
             reasoning[questionId] = aiReasoning || "Evidence found and validated as relevant"
 
             let actualExcerpt = '';
-            let sourceFileName = "Document";
+            let sourceFileName = "N/A";
             let sourceFileLabel: 'Primary' | '4th Party' = 'Primary';
+            let pageNumber: number | undefined = undefined;
 
-            // Regex to find the reference part: (from FILENAME - LABEL) or (from FILENAME (Label: LABEL))
-            // This pattern is more robust to variations in spacing and parentheses
-            const referencePattern = /\s+\(from\s+([^)]+?)\s+-\s*(Primary|4th Party)\)|\s+\(from\s+([^)]+?)\s+\(Label:\s*(Primary|4th Party)\)\)/i;
-            const referenceMatch = aiEvidence.match(referencePattern);
+            // Regex to extract the quoted text and the source information
+            // Example: "quote text" (Source: DocumentName.pdf - Label: Primary - Page: 4)
+            const quoteAndSourceRegex = /^"(.*?)"\s*(?:\(Source:\s*([^)]+?)\s*-\s*Label:\s*(Primary|4th Party)(?:\s*-\s*Page:\s*(\d+))?\))?/;
+            const match = aiEvidence.match(quoteAndSourceRegex);
 
-            let referenceString = '';
-            if (referenceMatch) {
-                referenceString = referenceMatch[0];
-                // Extract filename and label from the reference string
-                if (referenceMatch[1] && referenceMatch[2]) { // Matches (from FILENAME - LABEL)
-                    sourceFileName = referenceMatch[1].trim();
-                    sourceFileLabel = referenceMatch[2].trim() as 'Primary' | '4th Party';
-                } else if (referenceMatch[3] && referenceMatch[4]) { // Matches (from FILENAME (Label: LABEL))
-                    sourceFileName = referenceMatch[3].trim();
-                    sourceFileLabel = referenceMatch[4].trim() as 'Primary' | '4th Party';
+            if (match) {
+                actualExcerpt = match[1].trim();
+                if (match[2]) { // Filename part
+                    sourceFileName = match[2].trim();
                 }
-            }
-
-            // The actual excerpt is everything before the reference string
-            let potentialExcerpt = aiEvidence.replace(referenceString, '').trim();
-
-            // Remove leading/trailing quotes from the potential excerpt
-            potentialExcerpt = potentialExcerpt.replace(/^["']+|["']+$/g, '').trim();
-
-            // Remove any remaining "(Label: X)" patterns that might have been part of the quote itself
-            potentialExcerpt = potentialExcerpt.replace(/\(Label:\s*(Primary|4th Party)\)/gi, '').trim();
-
-            // Check if the potential excerpt is just the filename or too short to be meaningful
-            const normalizedSourceFileName = sourceFileName.toLowerCase().replace(/\.pdf|\.txt|\.md|\.csv|\.json|\.html|\.xml|\.htm/g, '').trim();
-            const normalizedPotentialExcerpt = potentialExcerpt.toLowerCase().replace(/\.pdf|\.txt|\.md|\.csv|\.json|\.html|\.xml|\.htm/g, '').trim();
-
-            if (normalizedPotentialExcerpt === normalizedSourceFileName || potentialExcerpt.length < 10) {
-                actualExcerpt = 'Relevant information found in the document.'; // Provide a generic message
+                if (match[3]) { // Label part
+                    sourceFileLabel = match[3].trim() as 'Primary' | '4th Party';
+                }
+                if (match[4]) { // Page number part
+                    pageNumber = parseInt(match[4], 10);
+                }
             } else {
-                actualExcerpt = potentialExcerpt;
+                // Fallback if the new format isn't matched (e.g., AI didn't follow instructions perfectly)
+                // Attempt to extract a quote and then any trailing filename/label
+                const fallbackQuoteMatch = aiEvidence.match(/^"(.*?)"/);
+                if (fallbackQuoteMatch) {
+                    actualExcerpt = fallbackQuoteMatch[1].trim();
+                    let remainingText = aiEvidence.substring(fallbackQuoteMatch[0].length).trim();
+
+                    // Look for filename and label in remaining text
+                    const filenameLabelMatch = remainingText.match(/(\S+\.(pdf|txt|md|csv|json|html|xml|htm))\s*(?:\(Label:\s*(Primary|4th Party)\))?/i);
+                    if (filenameLabelMatch) {
+                        sourceFileName = filenameLabelMatch[1];
+                        if (filenameLabelMatch[3]) {
+                            sourceFileLabel = filenameLabelMatch[3] as 'Primary' | '4th Party';
+                        }
+                    }
+                } else {
+                    // If no quote found, just use the whole evidence string as excerpt
+                    actualExcerpt = aiEvidence;
+                }
             }
 
             // Ensure the excerpt is not too long
@@ -757,7 +759,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
                 label: sourceFileLabel,
                 excerpt: actualExcerpt,
                 relevance: `Evidence found within ${sourceFileName} (Label: ${sourceFileLabel})`,
-                pageOrSection: "Document Content",
+                pageOrSection: "Document Content", // This can be refined if AI provides section info
+                pageNumber: pageNumber, // Use extracted page number
               },
             ]
           } else {
