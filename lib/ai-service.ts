@@ -582,7 +582,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     ${questions.map((q: Question) => `
       "${q.id}": {
         "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. The quote should NOT include any source information.",
-        "source_file_name": "DocumentName.pdf",
+        "source_file_name": "DocumentName.pdf", // or null if not available
         "source_page_number": 7, // or null if not available
         "source_label": "4th Party" // or null if Primary
       }`).join(",\n    ")}
@@ -702,17 +702,17 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         let pageNumber = aiEvidenceDetails?.source_page_number || undefined;
         let label = aiEvidenceDetails?.source_label || 'Primary'; // Default to 'Primary' if not explicitly provided
 
-        // --- NEW CLEANUP LOGIC FOR FILENAME ---
-        // If the AI incorrectly embeds the label into the filename, extract it.
-        const filenameLabelMatch = fileName.match(/^(.*?)\s*-\s*(Primary|4th Party)$/i);
-        if (filenameLabelMatch) {
-            fileName = filenameLabelMatch[1].trim();
-            // If the label was embedded, and the structured label was default/null, update it.
-            if (label === 'Primary' && filenameLabelMatch[2].toLowerCase() === '4th party') {
-                label = '4th Party';
-            }
+        // Clean up fileName if AI incorrectly embeds label or page info
+        // This regex is more robust to catch various incorrect embeddings
+        const cleanupFileNameMatch = fileName.match(/^(.*?)(?:\s*-\s*(?:Page\s*\d+|Primary|4th Party))*\s*$/i);
+        if (cleanupFileNameMatch && cleanupFileNameMatch[1]) {
+            fileName = cleanupFileNameMatch[1].trim();
         }
-        // --- END NEW CLEANUP LOGIC ---
+        // Ensure label is null if it's 'Primary' for cleaner rendering
+        if (label === 'Primary') {
+            label = null;
+        }
+
 
         // Perform semantic relevance check only if an actual excerpt is provided
         const hasActualExcerpt = excerpt !== 'No directly relevant evidence found after comprehensive search' && excerpt.length > 20;
@@ -739,7 +739,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           documentExcerpts[questionId] = [
             {
               fileName: fileName, // Use the cleaned fileName
-              label: label, // Use the correctly assigned label
+              label: label, // Use the correctly assigned label (null for Primary)
               excerpt: excerpt,
               relevance: `Evidence found within ${fileName} (Label: ${label})`,
               pageOrSection: "Document Content", // This can be refined if AI provides section info
