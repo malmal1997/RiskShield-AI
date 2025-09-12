@@ -1142,8 +1142,8 @@ function VendorAssessmentComponent() {
                     </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
           </Card>
         )}
 

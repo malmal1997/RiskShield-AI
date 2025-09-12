@@ -665,6 +665,6 @@ function SettingsContent() {
           </TabsContent>
         </Tabs>
       </div>
-    </AuthGuard>
+    </div>
   )
 }

@@ -291,7 +291,7 @@ export default function SystemStatusPage() {
                           ? "bg-yellow-500"
                           : "bg-blue-500"
                     }`}
-                  ></div>
+                  />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">{activity.event}</p>
                     <p className="text-xs text-gray-500">{activity.time}</p>
