@@ -37,9 +37,9 @@ const mockPolicies = [
     status: "approved",
     approvedBy: "John Smith",
     approverRole: "Chief Information Security Officer (CISO)",
-    createdDate: "2024-01-15",
-    approvedDate: "2024-01-16",
-    nextReviewDate: "2025-01-16",
+    createdDate: "2025-01-15",
+    approvedDate: "2025-01-16",
+    nextReviewDate: "2026-01-16",
     version: "1.0",
     description: "Comprehensive cybersecurity framework including data protection and incident response.",
   },
@@ -49,7 +49,7 @@ const mockPolicies = [
     companyName: "Community Credit Union",
     institutionType: "Credit Union",
     status: "draft",
-    createdDate: "2024-01-20",
+    createdDate: "2025-01-20",
     version: "0.1",
     description: "FDIC and regulatory compliance policies tailored to credit union operations.",
   },
@@ -61,9 +61,9 @@ const mockPolicies = [
     status: "approved",
     approvedBy: "Sarah Johnson",
     approverRole: "Chief Risk Officer (CRO)",
-    createdDate: "2024-01-10",
-    approvedDate: "2024-01-12",
-    nextReviewDate: "2025-01-12",
+    createdDate: "2025-01-10",
+    approvedDate: "2025-01-12",
+    nextReviewDate: "2026-01-12",
     version: "2.1",
     description: "Vendor management and third-party risk assessment framework.",
   },
@@ -73,7 +73,7 @@ const mockPolicies = [
     companyName: "TechFin Solutions",
     institutionType: "Fintech Company",
     status: "pending_review",
-    createdDate: "2024-01-22",
+    createdDate: "2025-01-22",
     version: "1.0",
     description: "Disaster recovery and business continuity planning procedures.",
   },
@@ -85,9 +85,9 @@ const mockPolicies = [
     status: "approved",
     approvedBy: "Michael Chen",
     approverRole: "Chief Compliance Officer (CCO)",
-    createdDate: "2024-01-05",
-    approvedDate: "2024-01-08",
-    nextReviewDate: "2025-01-08",
+    createdDate: "2025-01-05",
+    approvedDate: "2025-01-08",
+    nextReviewDate: "2026-01-08",
     version: "1.2",
     description: "Customer privacy protection policies compliant with federal regulations.",
   },
@@ -99,9 +99,9 @@ const mockPolicies = [
     status: "expired",
     approvedBy: "Lisa Davis",
     approverRole: "President",
-    createdDate: "2023-06-15",
-    approvedDate: "2023-06-18",
-    nextReviewDate: "2024-06-18",
+    createdDate: "2024-06-15",
+    approvedDate: "2024-06-18",
+    nextReviewDate: "2025-06-18",
     version: "1.0",
     description: "Internal controls and operational risk management framework.",
   },
@@ -600,7 +600,7 @@ export default function PolicyLibrary() {
             </div>
 
             <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-              <p>&copy; 2024 RiskShield AI. All rights reserved.</p>
+              <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
             </div>
           </div>
         </footer>

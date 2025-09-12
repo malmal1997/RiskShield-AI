@@ -591,7 +591,7 @@ function VendorAssessmentComponent() {
           id: assessmentData.id,
           companyName: "RiskGuard AI",
           assessmentType: assessmentData.assessment_type,
-          dueDate: assessmentData.due_date || "2024-02-15",
+          dueDate: assessmentData.due_date || "2025-02-15",
           customMessage:
             assessmentData.custom_message ||
             (isAiPowered
@@ -1142,8 +1142,8 @@ function VendorAssessmentComponent() {
                     </p>
                   </div>
                 </div>
-              </div>
-            </CardContent>
+              </CardContent>
+            </Card>
           </Card>
         )}
 

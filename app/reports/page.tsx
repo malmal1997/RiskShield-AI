@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -33,7 +33,7 @@ function ReportsContent() {
       description: "High-level risk overview for executives",
       type: "executive",
       frequency: "monthly",
-      lastGenerated: "2024-01-15",
+      lastGenerated: "2025-01-15",
       status: "active",
     },
     {
@@ -42,7 +42,7 @@ function ReportsContent() {
       description: "Detailed vendor risk analysis",
       type: "vendor",
       frequency: "quarterly",
-      lastGenerated: "2024-01-10",
+      lastGenerated: "2025-01-10",
       status: "active",
     },
     {
@@ -51,7 +51,7 @@ function ReportsContent() {
       description: "Regulatory compliance tracking",
       type: "compliance",
       frequency: "monthly",
-      lastGenerated: "2024-01-20",
+      lastGenerated: "2025-01-20",
       status: "active",
     },
     {
@@ -60,17 +60,17 @@ function ReportsContent() {
       description: "Security KPIs and metrics",
       type: "security",
       frequency: "weekly",
-      lastGenerated: "2024-01-22",
+      lastGenerated: "2025-01-22",
       status: "active",
     },
   ]
 
   const riskTrendData = [
-    { date: "2024-01-01", score: 75 },
-    { date: "2024-01-08", score: 78 },
-    { date: "2024-01-15", score: 72 },
-    { date: "2024-01-22", score: 80 },
-    { date: "2024-01-29", score: 77 },
+    { date: "2025-01-01", score: 75 },
+    { date: "2025-01-08", score: 78 },
+    { date: "2025-01-15", score: 72 },
+    { date: "2025-01-22", score: 80 },
+    { date: "2025-01-29", score: 77 },
   ]
 
   const riskDistributionData = [

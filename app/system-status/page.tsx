@@ -187,7 +187,6 @@ export default function SystemStatusPage() {
                   <div className="text-sm text-gray-500">Uptime</div>
                 </div>
               </div>
-              <Progress value={healthPercentage} className="h-3" />
             </CardContent>
           </Card>
         </div>

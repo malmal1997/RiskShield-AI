@@ -68,7 +68,7 @@ try {
       name: "TechCorp Solutions",
       risk_level: "low",
       status: "active",
-      last_assessment: "2024-01-15",
+      last_assessment: "2025-01-15",
       risk_score: 85,
     },
     {
@@ -76,7 +76,7 @@ try {
       name: "DataFlow Inc",
       risk_level: "medium",
       status: "active",
-      last_assessment: "2024-01-10",
+      last_assessment: "2025-01-10",
       risk_score: 72,
     },
     {
@@ -84,7 +84,7 @@ try {
       name: "SecureNet Services",
       risk_level: "high",
       status: "under_review",
-      last_assessment: "2023-12-20",
+      last_assessment: "2024-12-20",
       risk_score: 58,
     },
   ]
@@ -116,7 +116,7 @@ try {
       type: "cybersecurity",
       status: "completed",
       risk_score: 85,
-      created_at: "2024-01-15",
+      created_at: "2025-01-15",
     },
     {
       id: "assessment-2",
@@ -124,7 +124,7 @@ try {
       type: "data_privacy",
       status: "pending",
       risk_score: null,
-      created_at: "2024-01-20",
+      created_at: "2025-01-20",
     },
   ]
 
@@ -186,9 +186,9 @@ try {
     assessmentsThisMonth: 12,
     complianceScore: 87,
     riskTrend: [
-      { date: "2024-01-01", score: 75 },
-      { date: "2024-01-15", score: 78 },
-      { date: "2024-01-30", score: 76 },
+      { date: "2025-01-01", score: 75 },
+      { date: "2025-01-15", score: 78 },
+      { date: "2025-01-30", score: 76 },
     ],
   }
 
@@ -242,9 +242,9 @@ try {
   }
 
   const complianceFrameworks = [
-    { name: "SOC 2", status: "compliant", lastAudit: "2024-01-01" },
+    { name: "SOC 2", status: "compliant", lastAudit: "2025-01-01" },
     { name: "ISO 27001", status: "in_progress", completion: 85 },
-    { name: "GDPR", status: "compliant", lastReview: "2024-01-15" },
+    { name: "GDPR", status: "compliant", lastReview: "2025-01-15" },
     { name: "HIPAA", status: "not_applicable", reason: "No healthcare data" },
   ]
 

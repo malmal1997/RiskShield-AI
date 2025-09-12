@@ -144,7 +144,7 @@ export async function sendAssessmentEmail(emailData: {
           <p style="font-size: 12px; color: #666; text-align: center; margin-top: 30px;">
               This email was sent by RiskGuard AI on behalf of ${emailData.companyName}<br>
               If you have questions, please contact the requesting organization directly.<br>
-              © 2024 RiskGuard AI. All rights reserved.
+              © 2025 RiskGuard AI. All rights reserved.
           </p>
       </div>
   </div>

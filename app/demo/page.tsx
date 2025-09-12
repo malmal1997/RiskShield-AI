@@ -282,10 +282,9 @@ export default function InteractiveDemo() {
               </p>
             </div>
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
-              <p className="text-sm text-amber-800 text-center">
-                ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
-              </p>
-            </div>
+            <p className="text-sm text-amber-800 text-center">
+              ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -324,9 +323,9 @@ export default function InteractiveDemo() {
                       <Building className="h-5 w-5 text-orange-600" />
                     </div>
                     <div>
-                      <p className="font-medium">DataSecure Inc</p>
-                      <p className="text-sm text-gray-500">Data Processing</p>
-                      <Badge className="bg-orange-100 text-orange-700 text-xs mt-1">Medium Risk</Badge>
+                      <p className="font-medium">DataSecure Inc.</p>
+                      <p className="text-sm text-gray-500">Cloud Storage</p>
+                      <Badge className="bg-red-100 text-red-700 text-xs mt-1">High Risk</Badge>
                     </div>
                   </div>
                 </CardContent>
@@ -339,62 +338,38 @@ export default function InteractiveDemo() {
                       <Building className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium">FinanceFlow LLC</p>
+                      <p className="font-medium">Global Payments</p>
                       <p className="text-sm text-gray-500">Payment Processing</p>
-                      <Badge className="bg-blue-100 text-blue-700 text-xs mt-1">Under Review</Badge>
+                      <Badge className="bg-yellow-100 text-yellow-700 text-xs mt-1">Medium Risk</Badge>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            <Card className="border border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-lg">Risk Assessment Details - DataSecure Inc</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium mb-3">Risk Factors</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Data Security</span>
-                        <Badge className="bg-green-100 text-green-700">Strong</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Financial Stability</span>
-                        <Badge className="bg-orange-100 text-orange-700">Moderate</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Compliance History</span>
-                        <Badge className="bg-green-100 text-green-700">Excellent</Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-3">Recommendations</h4>
-                    <ul className="space-y-1 text-sm text-gray-600">
-                      <li>• Request updated SOC 2 Type II report</li>
-                      <li>• Schedule quarterly business reviews</li>
-                      <li>• Monitor financial health indicators</li>
-                      <li>• Review contract terms annually</li>
-                    </ul>
-                  </div>
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
-                    <p className="text-sm text-amber-800 text-center">
-                      ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
-                    </p>
-                  </div>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div>
+                  <p className="font-medium text-blue-900">Vendor Risk Overview</p>
+                  <p className="text-sm text-blue-700 mt-1">
+                    Monitor vendor risk scores, assessment status, and compliance. Drill down into individual vendor
+                    profiles for detailed insights.
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+            <p className="text-sm text-amber-800 text-center">
+              ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+            </p>
           </div>
         </CardContent>
       </Card>
     </div>
   )
 
-  const renderCurrentDemo = () => {
+  const renderDemoContent = () => {
     switch (currentStep) {
       case 1:
         return renderDashboardDemo()
@@ -405,257 +380,70 @@ export default function InteractiveDemo() {
       case 4:
         return renderVendorDemo()
       default:
-        return renderDashboardDemo()
+        return null
     }
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-blue-50 to-white py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard">
-                <Button variant="outline" size="sm">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Dashboard
-                </Button>
-              </Link>
-              <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Interactive Demo</Badge>
-            </div>
-          </div>
-          <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-              Experience RiskGuard AI
-              <br />
-              <span className="text-blue-600">in Action</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-              Explore our comprehensive risk management platform through this interactive demonstration. See how
-              RiskGuard AI can transform your institution's risk assessment process.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Controls */}
-      <section className="py-8 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-4">
-              <Button onClick={startDemo} disabled={isPlaying} className="bg-blue-600 hover:bg-blue-700 text-white">
-                {isPlaying ? (
-                  <>
-                    <Pause className="mr-2 h-4 w-4" />
-                    Demo Running...
-                  </>
-                ) : (
-                  <>
-                    <Play className="mr-2 h-4 w-4" />
-                    Start Demo
-                  </>
-                )}
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Dashboard
               </Button>
-              <Button variant="outline" onClick={resetDemo}>
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Reset
-              </Button>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">Progress:</span>
-              <Progress value={progress} className="w-32" />
-              <span className="text-sm font-medium">{Math.round(progress)}%</span>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Interactive Demo</h1>
+              <p className="mt-2 text-gray-600">Experience RiskGuard AI's core features</p>
             </div>
           </div>
-
-          {/* Step Navigation */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            {demoSteps.map((step) => (
-              <Card
-                key={step.id}
-                className={`cursor-pointer transition-all ${
-                  currentStep === step.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"
-                }`}
-                onClick={() => setCurrentStep(step.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        currentStep === step.id ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
-                      }`}
-                    >
-                      {step.id}
-                    </div>
-                    <div>
-                      <p
-                        className={`font-medium text-sm ${currentStep === step.id ? "text-blue-900" : "text-gray-900"}`}
-                      >
-                        {step.title}
-                      </p>
-                      <p className="text-xs text-gray-500">{step.description}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Content */}
-      <section className="py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {demoSteps.find((step) => step.id === currentStep)?.title}
-            </h2>
-            <p className="text-gray-600">{demoSteps.find((step) => step.id === currentStep)?.description}</p>
-          </div>
-
-          {renderCurrentDemo()}
-
-          {/* Navigation */}
-          <div className="flex justify-between mt-12">
-            <Button
-              variant="outline"
-              onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
-              disabled={currentStep === 1}
-            >
-              Previous Step
+          <div className="flex items-center space-x-4">
+            <Button onClick={startDemo} disabled={isPlaying} className="bg-blue-600 hover:bg-blue-700">
+              <Play className="mr-2 h-4 w-4" />
+              Start Demo
             </Button>
-            <Button
-              onClick={() => setCurrentStep(Math.min(4, currentStep + 1))}
-              disabled={currentStep === 4}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Next Step
-              <ArrowRight className="ml-2 h-4 w-4" />
+            <Button onClick={() => setIsPlaying(false)} disabled={!isPlaying} variant="outline">
+              <Pause className="mr-2 h-4 w-4" />
+              Pause
+            </Button>
+            <Button onClick={resetDemo} variant="outline">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reset
             </Button>
           </div>
         </div>
-      </section>
 
-      {/* Call to Action */}
-      <section className="bg-blue-600 py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
-            <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
-              Experience the full power of RiskGuard AI with a personalized demo tailored to your institution's needs.
-            </p>
-            <div className="flex items-center justify-center gap-4">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
-                Start Free Trial
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Demo Progress</CardTitle>
+            <CardDescription>Follow the steps to explore the platform</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Step {currentStep} of {demoSteps.length}</span>
+              <span className="text-sm text-gray-600">{Math.round(progress)}% Complete</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+            <div className="mt-4 text-center">
+              <h3 className="text-lg font-semibold text-gray-900">{demoSteps[currentStep - 1]?.title}</h3>
+              <p className="text-sm text-gray-600">{demoSteps[currentStep - 1]?.description}</p>
+            </div>
+            <div className="mt-6 flex justify-between">
+              <Button onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))} disabled={currentStep === 1}>
+                Previous
               </Button>
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-blue-600 bg-transparent">
-                Schedule Demo
+              <Button onClick={() => setCurrentStep(prev => Math.min(demoSteps.length, prev + 1))} disabled={currentStep === demoSteps.length}>
+                Next
               </Button>
             </div>
-          </div>
-        </div>
-      </section>
+          </CardContent>
+        </Card>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Shield className="h-6 w-6 text-blue-400" />
-                <span className="text-lg font-bold">RiskShield AI</span>
-              </div>
-              <p className="text-gray-400 text-sm">
-                AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
-                risks.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Platform</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Risk Assessment
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Compliance Monitoring
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Policy Generator
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Integrations
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Help Center
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Contact Support
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Status Page
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Terms of Service
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 RiskShield AI. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+        {renderDemoContent()}
+      </div>
     </div>
   )
 }

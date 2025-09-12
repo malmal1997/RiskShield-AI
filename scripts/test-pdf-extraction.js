@@ -72,9 +72,7 @@ xref
 0000000364 00000 n 
 trailer
 <<
-/Size 6
-/Root 1 0 R
->>
+/Size 6/Root 1 0 R>>
 startxref
 457
 %%EOF`
@@ -129,8 +127,8 @@ async function testExtractionMethods() {
       name: 'Multiple Text Blocks',
       content: `BT /F1 12 Tf 72 720 Td (Title: Information Security) Tj ET
                 BT /F1 10 Tf 72 700 Td (Version: 1.0) Tj ET
-                BT /F1 10 Tf 72 680 Td (Date: 2024) Tj ET`,
-      expected: 'Title: Information Security Version: 1.0 Date: 2024'
+                BT /F1 10 Tf 72 680 Td (Date: 2025) Tj ET`,
+      expected: 'Title: Information Security Version: 1.0 Date: 2025'
     }
   ]
   
