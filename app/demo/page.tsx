@@ -166,16 +166,18 @@ export default function InteractiveDemo() {
               Do you have a formal incident response plan?
             </label>
             <div className="space-y-2">
-              <input type="radio" name="incident" value="yes" className="text-blue-600" defaultChecked />
-              <span>Yes, documented and regularly tested</span>
-            </div>
-            <div className="space-y-2">
-              <input type="radio" name="incident" value="partial" className="text-blue-600" />
-              <span>Yes, but not regularly updated</span>
-            </div>
-            <div className="space-y-2">
-              <input type="radio" name="incident" value="no" className="text-blue-600" />
-              <span>No formal plan exists</span>
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="incident" value="yes" className="text-blue-600" defaultChecked />
+                <span>Yes, documented and regularly tested</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="incident" value="partial" className="text-blue-600" />
+                <span>Yes, but not regularly updated</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input type="radio" name="incident" value="no" className="text-blue-600" />
+                <span>No formal plan exists</span>
+              </label>
             </div>
           </div>
 
