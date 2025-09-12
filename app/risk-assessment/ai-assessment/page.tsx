@@ -1712,12 +1712,12 @@ export default function AIAssessmentPage() {
 
     const parts: string[] = [];
 
-    if (fileName && fileName.trim() !== '' && fileName !== 'N/A') {
+    if (fileName && String(fileName).trim() !== '' && fileName !== 'N/A') {
       parts.push(`"${fileName}"`);
     }
 
-    // Be more lenient with pageNumber type, allowing numbers or non-empty strings
-    if (pageNumber !== null && pageNumber !== undefined && String(pageNumber).trim() !== '') {
+    // Only add page number if it's a non-null/non-undefined value and not an empty string
+    if (pageNumber != null && String(pageNumber).trim() !== '') {
       parts.push(`Page: ${pageNumber}`);
     }
 
@@ -1726,7 +1726,7 @@ export default function AIAssessmentPage() {
     }
 
     // Filter out any potentially empty or null parts before joining
-    const filteredParts = parts.filter(part => part && part.trim() !== '');
+    const filteredParts = parts.filter(part => part && String(part).trim() !== ''); // Ensure parts are non-empty strings
 
     if (filteredParts.length === 0) {
       return `"${excerptData.excerpt}"`;

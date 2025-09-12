@@ -98,8 +98,8 @@ export default function ReportViewPage() {
         citationParts.push(`"${fileName}"`);
       }
 
-      // Be more lenient with pageNumber type, allowing numbers or non-empty strings
-      if (pageNumber !== null && pageNumber !== undefined && String(pageNumber).trim() !== '') {
+      // Only add page number if it's a non-null/non-undefined value and not an empty string
+      if (pageNumber != null && String(pageNumber).trim() !== '') {
         citationParts.push(`Page: ${pageNumber}`);
       }
 
