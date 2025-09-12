@@ -1706,30 +1706,28 @@ export default function AIAssessmentPage() {
       return 'No directly relevant evidence found after comprehensive search.';
     }
 
-    let sourceInfoParts = [];
+    let citationParts = [];
     const fileName = excerptData.fileName;
     const pageNumber = excerptData.pageNumber;
     const label = excerptData.label;
 
     if (fileName && fileName !== 'N/A') {
-      sourceInfoParts.push(`"${fileName}"`);
+      citationParts.push(`"${fileName}"`);
     }
 
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
-      sourceInfoParts.push(`Page: ${pageNumber}`);
+      citationParts.push(`Page: ${pageNumber}`);
     }
 
     if (label === '4th Party') {
-      sourceInfoParts.push('4th Party');
+      citationParts.push('4th Party');
     }
 
-    let citationString = '';
-    if (sourceInfoParts.length > 0) {
-      // Construct the string with "from" prefix and " - " separator
-      citationString = ` (from ${sourceInfoParts.join(' - ')})`;
+    if (citationParts.length === 0) {
+      return `"${excerptData.excerpt}"`; // Only excerpt if no source info
     }
 
-    return `"${excerptData.excerpt}"${citationString}`;
+    return `"${excerptData.excerpt}" (from ${citationParts.join(' - ')})`;
   };
 
   return (
