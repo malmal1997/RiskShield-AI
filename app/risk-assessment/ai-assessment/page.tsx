@@ -1504,6 +1504,8 @@ export default function AIAssessmentPage() {
     subserviceOrganizations: "",
     userEntityControls: "",
   })
+  const [showOtherInput, setShowOtherInput] = useState<Record<string, boolean>>({});
+
 
   useEffect(() => {
     // Check for pre-selected category from main risk assessment page
@@ -2341,18 +2343,43 @@ export default function AIAssessmentPage() {
                             </div>
                           )}
                           {question.type === "multiple" && (
-                            <select
-                              value={answers[question.id] || ""}
-                              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                            >
-                              <option value="">Select an option</option>
-                              {question.options?.map((option: string) => (
+                            <>
+                              <select
+                                value={
+                                  (question.options?.includes(answers[question.id]) || !answers[question.id])
+                                    ? answers[question.id]
+                                    : "Other"
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === "Other") {
+                                    setShowOtherInput(prev => ({ ...prev, [question.id]: true }));
+                                    handleAnswerChange(question.id, ""); // Clear answer when "Other" is selected
+                                  } else {
+                                    setShowOtherInput(prev => ({ ...prev, [question.id]: false }));
+                                    handleAnswerChange(question.id, value);
+                                  }
+                                }}
+                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                              >
+                                <option value="">Select an option</option>
+                                {question.options?.map((option: string) => (
                                   <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
+                                    {option}
+                                  </option>
+                                ))}
+                                <option value="Other">Other (please specify)</option>
+                              </select>
+                              {showOtherInput[question.id] && (
+                                <ShadcnInput
+                                  id={`other-answer-${question.id}`}
+                                  value={answers[question.id] || ""}
+                                  onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                                  placeholder="Please specify..."
+                                  className="mt-2"
+                                />
+                              )}
+                            </>
                           )}
                           {question.type === "tested" && (
                             <div className="flex space-x-4 mt-2">
