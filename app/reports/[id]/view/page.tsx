@@ -94,11 +94,12 @@ export default function ReportViewPage() {
       const pageNumber = excerptData.pageNumber;
       const label = excerptData.label;
 
-      if (fileName && fileName !== 'N/A') {
+      if (fileName && fileName.trim() !== '' && fileName !== 'N/A') {
         citationParts.push(`"${fileName}"`);
       }
 
-      if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
+      // Be more lenient with pageNumber type, as long as it's not null/undefined
+      if (pageNumber !== null && pageNumber !== undefined) {
         citationParts.push(`Page: ${pageNumber}`);
       }
 

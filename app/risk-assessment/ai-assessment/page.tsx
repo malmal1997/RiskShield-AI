@@ -1712,11 +1712,12 @@ export default function AIAssessmentPage() {
 
     const parts: string[] = [];
 
-    if (fileName && fileName !== 'N/A') {
+    if (fileName && fileName.trim() !== '' && fileName !== 'N/A') {
       parts.push(`"${fileName}"`);
     }
 
-    if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
+    // Be more lenient with pageNumber type, as long as it's not null/undefined
+    if (pageNumber !== null && pageNumber !== undefined) {
       parts.push(`Page: ${pageNumber}`);
     }
 
