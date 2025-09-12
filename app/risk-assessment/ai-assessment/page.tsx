@@ -1706,28 +1706,32 @@ export default function AIAssessmentPage() {
       return 'No directly relevant evidence found after comprehensive search.';
     }
 
-    let citationParts = [];
     const fileName = excerptData.fileName;
     const pageNumber = excerptData.pageNumber;
-    const label = excerptData.label;
+    const label = excerptData.label; // This will be '4th Party' or null
+
+    const parts: string[] = [];
 
     if (fileName && fileName !== 'N/A') {
-      citationParts.push(`"${fileName}"`);
+      parts.push(`"${fileName}"`);
     }
 
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
-      citationParts.push(`Page: ${pageNumber}`);
+      parts.push(`Page: ${pageNumber}`);
     }
 
     if (label === '4th Party') {
-      citationParts.push('4th Party');
+      parts.push('4th Party');
     }
 
-    if (citationParts.length === 0) {
-      return `"${excerptData.excerpt}"`; // Only excerpt if no source info
+    // Filter out any potentially empty or null parts before joining
+    const filteredParts = parts.filter(part => part && part.trim() !== '');
+
+    if (filteredParts.length === 0) {
+      return `"${excerptData.excerpt}"`;
     }
 
-    return `"${excerptData.excerpt}" (from ${citationParts.join(' - ')})`;
+    return `"${excerptData.excerpt}" (from ${filteredParts.join(' - ')})`;
   };
 
   return (
