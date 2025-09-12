@@ -552,7 +552,7 @@ CRITICAL INSTRUCTIONS:
 - Answer "No" for boolean questions if no directly relevant evidence exists
 - Provide the exact quote from the documents that SPECIFICALLY relates to each question topic in the 'excerpt' field. The quote should NOT include any source information.
 - Provide the source file name (e.g., "DocumentName.pdf") in 'source_file_name'. Do NOT include the label or page number in this field.
-- Provide the page number (e.g., 7) in 'source_page_number', or null if not available.
+- Provide the page number (e.g., 7) in 'source_page_number', or null if not available. IMPORTANT: ALWAYS provide the page number if the excerpt is found in a paginated document. Only use null if the page number cannot be determined at all.
 - Provide the document's label ("4th Party") in 'source_label', or null if the label is 'Primary' (to indicate default).
 - If no directly relevant evidence is found after a comprehensive search, set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
 - Do NOT make assumptions or use general knowledge beyond what's in the documents
@@ -583,7 +583,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       "${q.id}": {
         "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. The quote should NOT include any source information.",
         "source_file_name": "DocumentName.pdf", // or null if not available
-        "source_page_number": 7, // or null if not available
+        "source_page_number": 7, // IMPORTANT: ALWAYS provide the page number if the excerpt is found in a paginated document. Only use null if the page number cannot be determined at all.
         "source_label": "4th Party" // or null if Primary
       }`).join(",\n    ")}
   }
