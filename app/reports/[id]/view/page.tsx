@@ -98,9 +98,11 @@ export default function ReportViewPage() {
         citationParts.push(`"${fileName}"`);
       }
 
-      // Only add page number if it's a non-null/non-undefined value and not an empty string
+      // Explicitly add page number or 'N/A'
       if (pageNumber != null && String(pageNumber).trim() !== '') {
         citationParts.push(`Page: ${pageNumber}`);
+      } else {
+        citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing
       }
 
       if (label === '4th Party') {

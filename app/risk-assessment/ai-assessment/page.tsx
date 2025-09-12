@@ -1716,9 +1716,11 @@ export default function AIAssessmentPage() {
       parts.push(`"${fileName}"`);
     }
 
-    // Only add page number if it's a non-null/non-undefined value and not an empty string
+    // Explicitly add page number or 'N/A'
     if (pageNumber != null && String(pageNumber).trim() !== '') {
       parts.push(`Page: ${pageNumber}`);
+    } else {
+      parts.push(`Page: N/A`); // Explicitly show N/A if page number is missing
     }
 
     if (label === '4th Party') {
@@ -1728,11 +1730,15 @@ export default function AIAssessmentPage() {
     // Filter out any potentially empty or null parts before joining
     const filteredParts = parts.filter(part => part && String(part).trim() !== ''); // Ensure parts are non-empty strings
 
+    // The excerpt is always the first part of the return string
+    const excerptText = `"${excerptData.excerpt}"`;
+
     if (filteredParts.length === 0) {
-      return `"${excerptData.excerpt}"`;
+      return excerptText;
     }
 
-    return `"${excerptData.excerpt}" (from ${filteredParts.join(' - ')})`;
+    // Join parts for the citation, ensuring the excerpt is first
+    return `${excerptText} (from ${filteredParts.join(' - ')})`;
   };
 
   return (
