@@ -1716,8 +1716,8 @@ export default function AIAssessmentPage() {
       parts.push(`"${fileName}"`);
     }
 
-    // Be more lenient with pageNumber type, as long as it's not null/undefined
-    if (pageNumber !== null && pageNumber !== undefined) {
+    // Be more lenient with pageNumber type, allowing numbers or non-empty strings
+    if (pageNumber !== null && pageNumber !== undefined && String(pageNumber).trim() !== '') {
       parts.push(`Page: ${pageNumber}`);
     }
 
