@@ -290,7 +290,8 @@ export default function InteractiveDemo() {
                   ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
                 </p>
               </div>
-            </React.Fragment>
+            </div>
+          </React.Fragment>
         </CardContent>
       </Card>
     </div>
@@ -369,6 +370,7 @@ export default function InteractiveDemo() {
               ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
             </p>
           </div>
+        </div>
         </CardContent>
       </Card>
     </div>

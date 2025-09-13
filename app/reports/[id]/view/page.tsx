@@ -206,11 +206,7 @@ export default function ReportViewPage() {
                       ? (answers[question.id] as string[]).join(", ")
                       : answers?.[question.id] || "N/A"}
                 </p>
-                {analysisResults?.confidenceScores?.[question.id] !== undefined && (
-                  <p className="text-sm text-gray-600 ml-4 whitespace-pre-wrap">
-                    <strong>AI Confidence:</strong> {Math.round(analysisResults.confidenceScores[question.id] * 100)}%
-                  </p>
-                )}
+                {/* Removed AI Confidence display */}
                 {analysisResults?.documentExcerpts?.[question.id] && analysisResults.documentExcerpts[question.id].length > 0 && (
                   <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-100 border border-gray-200 rounded whitespace-pre-wrap">
                     <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0])}
