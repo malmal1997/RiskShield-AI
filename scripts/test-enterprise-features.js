@@ -84,7 +84,7 @@ try {
       name: "SecureNet Services",
       risk_level: "high",
       status: "under_review",
-      last_assessment: "2024-12-20",
+      last_assessment: "2025-12-20",
       risk_score: 58,
     },
   ]

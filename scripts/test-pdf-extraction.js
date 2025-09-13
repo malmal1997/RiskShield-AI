@@ -48,8 +48,7 @@ endobj
 stream
 BT
 /F1 12 Tf
-72 720 Td
-(Hello World) Tj
+72 720 Td (Hello World) Tj
 ET
 endstream
 endobj
@@ -305,7 +304,7 @@ trailer<</Size 5/Root 1 0 R>>
   console.log('3. Risk Assessment')
   
   try {
-    const result = await analyzeDocuments([testFile], testQuestions, 'Test Assessment')
+    const result = await analyzeDocuments([{ file: testFile, label: 'Primary' }], testQuestions, 'Test Assessment')
     
     console.log('\n✅ Full Workflow Results:')
     console.log(`   Documents Analyzed: ${result.documentsAnalyzed}`)
@@ -314,9 +313,9 @@ trailer<</Size 5/Root 1 0 R>>
     console.log(`   Risk Level: ${result.riskLevel}`)
     console.log(`   PDF Extraction Results:`)
     
-    if (result.pdfExtractionResults) {
-      result.pdfExtractionResults.forEach(pdf => {
-        console.log(`     - ${pdf.fileName}: ${pdf.success ? '✅' : '❌'} (${pdf.method}, ${pdf.textLength} chars)`)
+    if (result.directUploadResults) {
+      result.directUploadResults.forEach(pdf => {
+        console.log(`     - ${pdf.fileName}: ${pdf.success ? '✅' : '❌'} (${pdf.processingMethod}, ${pdf.fileSize} bytes)`)
       })
     }
     

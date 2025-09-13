@@ -432,7 +432,7 @@ function RiskCenterContent() {
                                 </Badge>
                                 <span className="text-sm text-gray-500">
                                   Due: {new Date(assessment.dueDate).toLocaleDateString()}
-                                </span>
+                                </span >
                                 <span className="text-sm text-gray-500">
                                   Last Contact: {new Date(assessment.lastContact).toLocaleDateString()}
                                 </span>
