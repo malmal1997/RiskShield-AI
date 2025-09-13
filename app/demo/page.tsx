@@ -73,7 +73,7 @@ export default function InteractiveDemo() {
   }
 
   const renderDashboardDemo = () => (
-    <div className="space-y-6">
+    <div className="space-y-6"> {/* Added closing div tag */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="border border-gray-200">
           <CardContent className="p-6">
@@ -267,10 +267,10 @@ export default function InteractiveDemo() {
                   <div className="flex items-start space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
                     <span className="text-sm">Security awareness training completed</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  </div >
+                </div >
+              </div >
+            </div >
 
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="font-medium text-gray-900 mb-2">Executive Summary</h4>
@@ -292,7 +292,7 @@ export default function InteractiveDemo() {
   )
 
   const renderVendorDemo = () => (
-    <div className="space-y-6">
+    <div className="space-y-6"> {/* Added closing div tag */}
       <Card className="border border-gray-200">
         <CardHeader>
           <CardTitle>Third-Party Risk Assessment</CardTitle>
