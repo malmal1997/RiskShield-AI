@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import {
@@ -18,6 +18,7 @@ import {
   ArrowLeft, // Added ArrowLeft for back button
 } from "lucide-react"
 import Link from "next/link"
+import React from "react" // Import React for Fragment
 
 const demoSteps = [
   {
@@ -73,7 +74,7 @@ export default function InteractiveDemo() {
   }
 
   const renderDashboardDemo = () => (
-    <div className="space-y-6"> {/* Added closing div tag */}
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="border border-gray-200">
           <CardContent className="p-6">
@@ -126,28 +127,30 @@ export default function InteractiveDemo() {
           <CardTitle>Recent Risk Assessments</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Shield className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="font-medium">Cybersecurity Assessment</p>
-                  <p className="text-sm text-gray-500">Completed 2 days ago</p>
+          <React.Fragment>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <Shield className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <p className="font-medium">Cybersecurity Assessment</p>
+                    <p className="text-sm text-gray-500">Completed 2 days ago</p>
+                  </div>
                 </div>
+                <Badge className="bg-green-100 text-green-700">Compliant</Badge>
               </div>
-              <Badge className="bg-green-100 text-green-700">Compliant</Badge>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Building className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="font-medium">Third-Party Risk Review</p>
-                  <p className="text-sm text-gray-500">In progress</p>
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <Building className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <p className="font-medium">Third-Party Risk Review</p>
+                    <p className="text-sm text-gray-500">In progress</p>
+                  </div>
                 </div>
+                <Badge className="bg-orange-100 text-orange-700">In Review</Badge>
               </div>
-              <Badge className="bg-orange-100 text-orange-700">In Review</Badge>
             </div>
-          </div>
+          </React.Fragment>
         </CardContent>
       </Card>
     </div>
@@ -224,75 +227,77 @@ export default function InteractiveDemo() {
           <CardDescription>Generated on {new Date().toLocaleDateString()}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3">Compliance Status</h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Information Security</span>
-                    <div className="flex items-center space-x-2">
-                      <Progress value={95} className="w-20" />
-                      <span className="text-sm font-medium">95%</span>
+          <React.Fragment>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Compliance Status</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Information Security</span>
+                      <div className="flex items-center space-x-2">
+                        <Progress value={95} className="w-20" />
+                        <span className="text-sm font-medium">95%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Business Continuity</span>
+                      <div className="flex items-center space-x-2">
+                        <Progress value={88} className="w-20" />
+                        <span className="text-sm font-medium">88%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Third-Party Risk</span>
+                      <div className="flex items-center space-x-2">
+                        <Progress value={92} className="w-20" />
+                        <span className="text-sm font-medium">92%</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Business Continuity</span>
-                    <div className="flex items-center space-x-2">
-                      <Progress value={88} className="w-20" />
-                      <span className="text-sm font-medium">88%</span>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Action Items</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-start space-x-2">
+                      <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
+                      <span className="text-sm">Update disaster recovery testing schedule</span>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Third-Party Risk</span>
-                    <div className="flex items-center space-x-2">
-                      <Progress value={92} className="w-20" />
-                      <span className="text-sm font-medium">92%</span>
+                    <div className="flex items-start space-x-2">
+                      <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
+                      <span className="text-sm">Review vendor risk assessments</span>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                      <span className="text-sm">Security awareness training completed</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3">Action Items</h4>
-                <div className="space-y-2">
-                  <div className="flex items-start space-x-2">
-                    <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <span className="text-sm">Update disaster recovery testing schedule</span>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <span className="text-sm">Review vendor risk assessments</span>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span className="text-sm">Security awareness training completed</span>
-                  </div >
-                </div >
-              </div >
-            </div >
-
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Executive Summary</h4>
-              <p className="text-sm text-gray-700">
-                Your institution demonstrates strong compliance with FDIC requirements, achieving an overall score of
-                92%. Key strengths include robust information security controls and comprehensive staff training
-                programs. Priority areas for improvement include disaster recovery testing frequency and third-party
-                vendor documentation.
-              </p>
-            </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
-            <p className="text-sm text-amber-800 text-center">
-              ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
-            </p>
-          </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-900 mb-2">Executive Summary</h4>
+                <p className="text-sm text-gray-700">
+                  Your institution demonstrates strong compliance with FDIC requirements, achieving an overall score of
+                  92%. Key strengths include robust information security controls and comprehensive staff training
+                  programs. Priority areas for improvement include disaster recovery testing frequency and third-party
+                  vendor documentation.
+                </p>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+                <p className="text-sm text-amber-800 text-center">
+                  ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+                </p>
+              </div>
+            </React.Fragment>
         </CardContent>
       </Card>
     </div>
   )
 
   const renderVendorDemo = () => (
-    <div className="space-y-6"> {/* Added closing div tag */}
+    <div className="space-y-6">
       <Card className="border border-gray-200">
         <CardHeader>
           <CardTitle>Third-Party Risk Assessment</CardTitle>
