@@ -245,6 +245,106 @@ export type Database = {
           },
         ]
       }
+      assessment_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_templates_created_by_fkey"
+            columns: ["created_by"]
+            references: ["users", "id"]
+          },
+          {
+            foreignKeyName: "assessment_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            references: ["organizations", "id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip_address: string | null
+          new_values: Json | null
+          old_values: Json | null
+          organization_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          organization_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          organization_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            references: ["organizations", "id"]
+          },
+          {
+            foreignName: "audit_logs_user_id_fkey"
+            columns: ["user_id"]
+            references: ["users", "id"]
+          },
+        ]
+      }
       delegated_assessments: {
         Row: {
           assessment_type: string
@@ -390,6 +490,89 @@ export type Database = {
             foreignKeyName: "feature_interactions_session_id_fkey"
             columns: ["session_id"]
             references: ["preview_sessions", "session_id"]
+          },
+        ]
+      }
+      integrations: {
+        Row: {
+          created_at: string
+          id: string
+          integration_name: string
+          organization_id: string
+          settings: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          integration_name: string
+          organization_id: string
+          settings: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          integration_name?: string
+          organization_id?: string
+          settings?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrations_organization_id_fkey"
+            columns: ["organization_id"]
+            references: ["organizations", "id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          message: string
+          organization_id: string
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message: string
+          organization_id: string
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message?: string
+          organization_id?: string
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_organization_id_fkey"
+            columns: ["organization_id"]
+            references: ["organizations", "id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            references: ["users", "id"]
           },
         ]
       }
@@ -634,6 +817,126 @@ export type Database = {
           },
         ]
       }
+      policies: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          approved_by_user_id: string | null
+          approver_role: string | null
+          approval_status: string
+          company_name: string
+          content: Json
+          created_date: string
+          current_version: string
+          description: string | null
+          id: string
+          institution_type: string
+          next_review_date: string | null
+          organization_id: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          version: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          approved_by_user_id?: string | null
+          approver_role?: string | null
+          approval_status?: string
+          company_name: string
+          content?: Json
+          created_date?: string
+          current_version?: string
+          description?: string | null
+          id?: string
+          institution_type: string
+          next_review_date?: string | null
+          organization_id: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          version?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          approved_by_user_id?: string | null
+          approver_role?: string | null
+          approval_status?: string
+          company_name?: string
+          content?: Json
+          created_date?: string
+          current_version?: string
+          description?: string | null
+          id?: string
+          institution_type?: string
+          next_review_date?: string | null
+          organization_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policies_approved_by_user_id_fkey"
+            columns: ["approved_by_user_id"]
+            references: ["users", "id"]
+          },
+          {
+            foreignKeyName: "policies_organization_id_fkey"
+            columns: ["organization_id"]
+            references: ["organizations", "id"]
+          },
+          {
+            foreignKeyName: "policies_user_id_fkey"
+            columns: ["user_id"]
+            references: ["users", "id"]
+          },
+        ]
+      }
+      policy_versions: {
+        Row: {
+          content: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          policy_id: string
+          version_number: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          policy_id: string
+          version_number: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          policy_id?: string
+          version_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_versions_created_by_fkey"
+            columns: ["created_by"]
+            references: ["users", "id"]
+          },
+          {
+            foreignKeyName: "policy_versions_policy_id_fkey"
+            columns: ["policy_id"]
+            references: ["policies", "id"]
+          },
+        ]
+      }
       preview_leads: {
         Row: {
           company: string | null
@@ -793,6 +1096,54 @@ export type Database = {
           },
         ]
       }
+      template_questions: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          options: Json | null
+          order: number
+          question_text: string
+          question_type: string
+          required: boolean
+          template_id: string
+          updated_at: string
+          weight: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          options?: Json | null
+          order: number
+          question_text: string
+          question_type: string
+          required?: boolean
+          template_id: string
+          updated_at?: string
+          weight?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          options?: Json | null
+          order?: number
+          question_text?: string
+          question_type?: string
+          required?: boolean
+          template_id?: string
+          updated_at?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_questions_template_id_fkey"
+            columns: ["template_id"]
+            references: ["assessment_templates", "id"]
+          },
+        ]
+      }
       user_profiles: {
         Row: {
           avatar_url: string | null
@@ -806,6 +1157,7 @@ export type Database = {
           organization_id: string
           phone: string | null
           preferences: Json | null
+          status: string
           timezone: string
           updated_at: string | null
           user_id: string
@@ -822,6 +1174,7 @@ export type Database = {
           organization_id: string
           phone?: string | null
           preferences?: Json | null
+          status?: string
           timezone?: string
           updated_at?: string | null
           user_id: string
@@ -838,6 +1191,7 @@ export type Database = {
           organization_id?: string
           phone?: string | null
           preferences?: Json | null
+          status?: string
           timezone?: string
           updated_at?: string | null
           user_id?: string
@@ -1001,6 +1355,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      update_updated_at_column: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
@@ -1101,3 +1459,9 @@ export type UserProfile = Tables<'user_profiles'>;
 export type UserRole = Tables<'user_roles'>;
 export type Vendor = Tables<'vendors'>; // Export the Vendor type
 export type AiAssessmentReport = Tables<'ai_assessment_reports'>; // Export the AiAssessmentReport type
+export type AuditLog = Tables<'audit_logs'>;
+export type AssessmentTemplate = Tables<'assessment_templates'>;
+export type TemplateQuestion = Tables<'template_questions'>;
+export type Policy = Tables<'policies'>;
+export type PolicyVersion = Tables<'policy_versions'>;
+export type Integration = Tables<'integrations'>;
