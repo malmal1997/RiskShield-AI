@@ -89,7 +89,7 @@ export default function RegisterPage() {
                 <Clock className="h-16 w-16 text-yellow-500 mx-auto" /> {/* Changed to Clock icon */}
                 <h2 className="text-2xl font-bold text-gray-900">Registration Submitted for Approval</h2>
                 <p className="text-gray-600">
-                  Thank you for registering your institution with RiskGuard AI. Your registration is now pending review by our administrators. You will receive an email notification once your account has been approved.
+                  Thank you for registering your institution with RiskShield AI. Your registration is now pending review by our administrators. You will receive an email notification once your account has been approved.
                 </p>
                 <div className="pt-4">
                   <Link href="/auth/login">
@@ -110,7 +110,7 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-10 w-10 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">RiskGuard AI</span>
+            <span className="text-2xl font-bold text-gray-900">RiskShield AI</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Get Started</h1>
           <p className="text-gray-600 mt-2">Register your financial institution</p>
@@ -119,7 +119,7 @@ export default function RegisterPage() {
         <Card>
           <CardHeader>
             <CardTitle>Institution Registration</CardTitle>
-            <CardDescription>Complete this form to request access to RiskGuard AI</CardDescription>
+            <CardDescription>Complete this form to request access to RiskShield AI</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">

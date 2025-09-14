@@ -434,7 +434,7 @@ export default function SolutionsPage() {
       <section className="bg-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-blue-600">See RiskGuard AI in Action</h2>
+            <h2 className="text-3xl font-bold text-blue-600">See RiskShield AI in Action</h2>
             <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
               Experience our intuitive dashboard that provides real-time insights into your risk assessment progress and
               compliance status.
@@ -549,7 +549,7 @@ export default function SolutionsPage() {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Ready to Strengthen Your Risk Management?</h2>
             <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
-              Join hundreds of organizations using RiskGuard AI to maintain compliance and mitigate risks with
+              Join hundreds of organizations using RiskShield AI to maintain compliance and mitigate risks with
               confidence.
             </p>
             <div className="flex items-center justify-center gap-4">

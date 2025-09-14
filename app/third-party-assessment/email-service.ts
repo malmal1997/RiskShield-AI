@@ -142,9 +142,9 @@ export async function sendAssessmentEmail(emailData: {
           </div>
           
           <p style="font-size: 12px; color: #666; text-align: center; margin-top: 30px;">
-              This email was sent by RiskGuard AI on behalf of ${emailData.companyName}<br>
+              This email was sent by RiskShield AI on behalf of ${emailData.companyName}<br>
               If you have questions, please contact the requesting organization directly.<br>
-              © 2025 RiskGuard AI. All rights reserved.
+              © 2025 RiskShield AI. All rights reserved.
           </p>
       </div>
   </div>
@@ -191,12 +191,12 @@ IMPORTANT: This assessment link is unique to your company. Please do not share i
 If you have questions, please contact the requesting organization directly.
 
 Best regards,
-RiskGuard AI Team
+RiskShield AI Team
     `
 
     // Prepare the email payload for Resend
     const emailPayload = {
-      from: "RiskGuard AI <onboarding@resend.dev>",
+      from: "RiskShield AI <onboarding@resend.dev>",
       to: [emailData.vendorEmail],
       subject: `🛡️ ${isAiPowered ? "AI-Powered " : ""}Vendor Risk Assessment Required - ${emailData.assessmentType}`,
       html: htmlContent,

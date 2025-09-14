@@ -135,7 +135,7 @@ export default function RiskGuardLanding() {
                     <CheckCircle className="h-4 w-4 text-green-500" />
                     <span className="text-sm text-gray-600">Actionable advisory statements</span>
                   </div>
-                </div>
+                </div >
               </CardContent>
             </Card>
 
@@ -237,7 +237,7 @@ export default function RiskGuardLanding() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-blue-600">Get Started in 3 Simple Steps</h2>
-            <p className="mt-4 text-lg text-gray-600">Join hundreds of organizations already using RiskGuard AI</p>
+            <p className="mt-4 text-lg text-gray-600">Join hundreds of organizations already using RiskShield AI</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -335,7 +335,7 @@ export default function RiskGuardLanding() {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Ready to Strengthen Your Risk Management?</h2>
             <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
-              Join hundreds of organizations using RiskGuard AI to maintain compliance and mitigate risks with
+              Join hundreds of organizations using RiskShield AI to maintain compliance and mitigate risks with
               confidence.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

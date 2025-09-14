@@ -10,7 +10,7 @@ import { MainNavigation } from "@/components/main-navigation" // <-- Import Main
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "RiskGuard AI - Intelligent Risk Assessment Platform",
+  title: "RiskShield AI - Intelligent Risk Assessment Platform",
   description: "AI-powered risk assessment and compliance management platform for modern businesses.",
     generator: 'v0.app'
 }

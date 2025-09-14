@@ -589,7 +589,7 @@ function VendorAssessmentComponent() {
 
         setAssessment({
           id: assessmentData.id,
-          companyName: "RiskGuard AI",
+          companyName: "RiskShield AI",
           assessmentType: assessmentData.assessment_type,
           dueDate: assessmentData.due_date || "2025-02-15",
           customMessage:
@@ -597,7 +597,7 @@ function VendorAssessmentComponent() {
             (isAiPowered
               ? "Please complete this AI-powered assessment. You can upload documents for automatic analysis and completion."
               : "Please complete this assessment to help us evaluate our partnership."),
-          contactEmail: "security@riskguard.ai",
+          contactEmail: "security@riskshield.ai",
           isAiPowered: isAiPowered,
           status: assessmentData.status,
           completedDate: assessmentData.completed_date,
@@ -770,7 +770,8 @@ function VendorAssessmentComponent() {
         } else {
           console.log("⚠️ Failed to send completion notification, but assessment was still submitted")
         }
-      } catch (notificationError: any) { // Explicitly type error
+      } catch (notificationError: any) // Explicitly type error
+      {
         console.error("⚠️ Error sending completion notification:", notificationError.message)
         // Don't fail the submission for notification errors
       }
@@ -778,7 +779,8 @@ function VendorAssessmentComponent() {
       console.log("🎉 Assessment submission completed successfully!")
       setIsSubmitted(true)
       alert("Assessment submitted successfully! The requesting company will be notified.")
-    } catch (error: any) { // Explicitly type error
+    } catch (error: any) // Explicitly type error
+    {
       console.error("💥 Error submitting assessment:", error)
       console.error("Error details:", {
         message: error.message,
@@ -934,520 +936,515 @@ function VendorAssessmentComponent() {
           </div>
         </div>
       </div>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Assessment Info */}
-        <Card className={`mb-8 ${isAiPoweredAssessment ? "border-blue-200 bg-blue-50" : ""}`}>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Building className="h-5 w-5 text-blue-600" />
-              <span>{assessment.assessmentType}</span>
-              {isAiPoweredAssessment && (
-                <Badge className="bg-blue-600 text-white text-xs">
-                  <Bot className="h-3 w-3 mr-1" />
-                  AI-POWERED
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <p className="text-sm text-gray-600">Requesting Organization</p>
-                <p className="font-medium">{assessment.companyName}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Due Date</p>
-                <p className="font-medium">{new Date(assessment.dueDate).toLocaleDateString()}</p>
-              </div>
-            </div>
-            {assessment.customMessage && (
-              <div className={`p-4 rounded-lg ${isAiPoweredAssessment ? "bg-blue-100" : "bg-blue-50"}`}>
-                <p className={`text-sm ${isAiPoweredAssessment ? "text-blue-900" : "text-blue-800"}`}>
-                  {assessment.customMessage}
-                </p>
-              </div>
-            )}
-            {isAiPoweredAssessment && (
-              <div className="bg-white p-4 rounded-lg mt-4 border-l-4 border-blue-400">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Bot className="h-5 w-5 text-blue-600" />
-                  <h4 className="font-semibold text-blue-900">AI-Powered Assessment Features</h4>
-                </div>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• Upload your security policies, procedures, and compliance documents</li>
-                  <li>• AI analyzes your documents and suggests answers automatically</li>
-                  <li>• Review and approve AI-generated responses</li>
-                  <li>• Complete assessments 3x faster with AI assistance</li>
-                </ul>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* AI Assessment Features - Show prominently for AI-powered assessments */}
-        {isAiPoweredAssessment && (
-          <Card className="mb-8 border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Bot className="h-6 w-6 text-blue-600" />
-                <span className="text-blue-900">AI Document Analysis</span>
-                <Badge className="bg-green-100 text-green-700 text-xs">RECOMMENDED</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="bg-white p-4 rounded-lg border border-blue-200">
-                  <h4 className="font-semibold text-blue-900 mb-3">📄 Upload Your Documents</h4>
-                  <p className="text-sm text-blue-800 mb-4">
-                    Upload your security policies, SOC reports, compliance documents, and procedures. Our AI will
-                    analyze them and automatically complete the assessment for you.
+      <main> {/* Added missing <main> tag here */}
+        {/* Main content of the assessment */}
+        <section className="py-12">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            {savedVendorAssessment && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-blue-900">
+                    You have a saved draft from{" "}
+                    {new Date(savedVendorAssessment.timestamp).toLocaleTimeString()}
                   </p>
+                  <p className="text-sm text-blue-800">
+                    Would you like to continue where you left off?
+                  </p>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm" onClick={loadSavedVendorAssessment}>
+                    Load Draft
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={deleteSavedVendorAssessment}>
+                    Delete Draft
+                  </Button>
+                </div>
+              </div>
+            )}
 
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="document-upload" className="text-sm font-medium text-gray-700">
-                        Upload Supporting Documents
-                      </Label>
-                      <div className="mt-2 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors bg-blue-25">
-                        <input
-                          id="document-upload"
-                          type="file"
-                          multiple
-                          accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.ppt,.pptx"
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => { // Explicitly type event
-                            if (e.target.files) {
-                              setUploadedFiles(Array.from(e.target.files))
-                            }
-                          }}
-                          className="hidden"
-                        />
-                        <label htmlFor="document-upload" className="cursor-pointer">
-                          <Upload className="h-12 w-12 text-blue-400 mx-auto mb-3" />
-                          <p className="text-lg font-medium text-blue-900 mb-1">Click to upload or drag and drop</p>
-                          <p className="text-sm text-blue-700">
-                            PDF, DOC, DOCX, TXT, CSV, XLSX, PPT, PPTX up to 10MB each
-                          </p>
-                          <p className="text-xs text-blue-600 mt-2">
-                            💡 Recommended: Security policies, SOC reports, compliance certificates, procedures
-                          </p>
-                        </label>
+            {/* Step 0: Vendor Information */}
+            {currentStep === 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Building className="h-5 w-5 text-blue-600" />
+                    <span>Vendor Information</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Please provide your company and contact details for this assessment.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <Label htmlFor="companyName">Your Company Name *</Label>
+                    <Input
+                      id="companyName"
+                      value={vendorInfo.companyName}
+                      onChange={(e) => handleVendorInfoChange("companyName", e.target.value)}
+                      placeholder="e.g., Acme Corp"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contactName">Your Name *</Label>
+                    <Input
+                      id="contactName"
+                      value={vendorInfo.contactName}
+                      onChange={(e) => handleVendorInfoChange("contactName", e.target.value)}
+                      placeholder="e.g., Jane Doe"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Your Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={vendorInfo.email}
+                      onChange={(e) => handleVendorInfoChange("email", e.target.value)}
+                      placeholder="e.g., jane.doe@acmecorp.com"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Your Phone (Optional)</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={vendorInfo.phone}
+                      onChange={(e) => handleVendorInfoChange("phone", e.target.value)}
+                      placeholder="e.g., (555) 123-4567"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="website">Your Company Website (Optional)</Label>
+                    <Input
+                      id="website"
+                      type="url"
+                      value={vendorInfo.website}
+                      onChange={(e) => handleVendorInfoChange("website", e.target.value)}
+                      placeholder="e.g., https://www.acmecorp.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="employeeCount">Number of Employees (Optional)</Label>
+                    <Input
+                      id="employeeCount"
+                      value={vendorInfo.employeeCount}
+                      onChange={(e) => handleVendorInfoChange("employeeCount", e.target.value)}
+                      placeholder="e.g., 50-100"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="industry">Industry (Optional)</Label>
+                    <Input
+                      id="industry"
+                      value={vendorInfo.industry}
+                      onChange={(e) => handleVendorInfoChange("industry", e.target.value)}
+                      placeholder="e.g., Software Development"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Company Description (Optional)</Label>
+                    <Textarea
+                      id="description"
+                      value={vendorInfo.description}
+                      onChange={(e) => handleVendorInfoChange("description", e.target.value)}
+                      placeholder="Briefly describe your company..."
+                      rows={3}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button onClick={handleNext} disabled={!isStepComplete(0)}>
+                      Continue to Questions
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* AI-Powered Assessment Flow */}
+            {isAiPoweredAssessment && currentStep === 1 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Bot className="h-5 w-5 text-blue-600" />
+                    <span>AI-Powered Document Upload</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Upload your policies and procedures for AI to analyze and pre-fill answers.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <Label htmlFor="document-upload" className="text-sm font-medium text-gray-700">
+                      Upload Supporting Documents
+                    </Label>
+                    <div className="mt-2 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors bg-blue-25">
+                      <input
+                        id="document-upload"
+                        type="file"
+                        multiple
+                        accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.ppt,.pptx"
+                        onChange={(e) => {
+                          if (e.target.files) {
+                            setUploadedFiles(Array.from(e.target.files));
+                          }
+                        }}
+                        className="hidden"
+                      />
+                      <label htmlFor="document-upload" className="cursor-pointer">
+                        <Upload className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                        <p className="text-lg font-medium text-blue-900 mb-1">
+                          Click to upload or drag and drop
+                        </p>
+                        <p className="text-sm text-blue-700">
+                          PDF, DOC, DOCX, TXT, CSV, XLSX, PPT, PPTX up to 10MB each
+                        </p>
+                        <p className="text-xs text-blue-600 mt-2">
+                          💡 Recommended: Security policies, SOC reports, compliance certificates, procedures
+                        </p>
+                      </label>
+                    </div>
+
+                    {uploadedFiles.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        <h5 className="font-medium text-blue-900">Uploaded Files ({uploadedFiles.length}):</h5>
+                        {uploadedFiles.map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-3 bg-white border border-blue-200 rounded"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <FileText className="h-4 w-4 text-blue-600" />
+                              <span className="text-sm text-gray-700">{file.name}</span>
+                              <span className="text-xs text-gray-500">
+                                ({(file.size / 1024 / 1024).toFixed(1)} MB)
+                              </span>
+                            </div>
+                            <Button variant="outline" size="sm" onClick={() => {
+                              setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
+                            }}>
+                              Remove
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <Button
+                    onClick={async () => {
+                      setIsAnalyzing(true);
+                      setError(null);
+                      try {
+                        const formData = new FormData();
+                        uploadedFiles.forEach(file => formData.append('files', file));
+                        formData.append('questions', JSON.stringify(questions));
+                        formData.append('assessmentType', assessment.assessmentType);
+
+                        const response = await fetch("/api/ai-assessment/analyze", {
+                          method: "POST",
+                          body: formData,
+                        });
+
+                        if (!response.ok) {
+                          const errorData = await response.json();
+                          throw new Error(errorData.error || "AI analysis failed");
+                        }
+
+                        const result = await response.json();
+                        setAnalysisResults(result);
+                        setAnswers(result.answers); // Pre-fill answers with AI suggestions
+                        setShowReviewStep(true); // Move to review step
+                      } catch (err: any) {
+                        console.error("AI Analysis Failed:", err);
+                        setError(err.message || "Failed to perform AI analysis. Please try again.");
+                      } finally {
+                        setIsAnalyzing(false);
+                      }
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                    disabled={isAnalyzing || uploadedFiles.length === 0}
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Clock className="mr-2 h-5 w-5 animate-spin" />
+                        Analyzing Documents...
+                      </>
+                    ) : (
+                      <>
+                        <Bot className="mr-2 h-5 w-5" />
+                        🚀 Analyze Documents with AI
+                      </>
+                    )}
+                  </Button>
+
+                  {error && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg mt-4">
+                      <div className="flex items-center space-x-2">
+                        <AlertCircle className="h-5 w-5 text-red-600" />
+                        <p className="text-sm text-red-800">
+                          <strong>Error:</strong> {error}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle className="h-5 w-5 text-amber-600" />
+                      <p className="text-sm text-amber-800">
+                        <strong>Note:</strong> AI-generated responses are suggestions based on your documents.
+                        Please review and verify all answers before submission.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between pt-4 border-t border-gray-100">
+                    <Button variant="outline" onClick={handlePrevious}>
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back
+                    </Button>
+                    <Button onClick={() => setShowReviewStep(true)} disabled={!analysisResults}>
+                      Review AI Answers
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* AI Review Step */}
+            {isAiPoweredAssessment && currentStep === 1 && showReviewStep && analysisResults && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Bot className="h-5 w-5 text-blue-600" />
+                    <span>Review AI-Generated Answers</span>
+                  </CardTitle>
+                  <CardDescription>
+                    The AI has analyzed your documents and provided suggested answers. Please review and edit as needed.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  {questions.map((question: any, index: number) => (
+                    <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
+                      <div>
+                        <div className="flex items-start space-x-2 mb-2">
+                          <Badge variant="outline" className="mt-1">
+                            {question.category}
+                          </Badge>
+                          {question.required && <span className="text-red-500 text-sm">*</span>}
+                          {analysisResults.confidenceScores?.[question.id] !== undefined && (
+                            <Badge className="bg-blue-100 text-blue-700 text-xs">
+                              AI Confidence: {Math.round(analysisResults.confidenceScores[question.id] * 100)}%
+                            </Badge>
+                          )}
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900">
+                          {index + 1}. {question.question}
+                        </h3>
                       </div>
 
-                      {uploadedFiles.length > 0 && (
-                        <div className="mt-4 space-y-2">
-                          <h5 className="font-medium text-blue-900">Uploaded Files ({uploadedFiles.length}):</h5>
-                          {uploadedFiles.map((file: File, index: number) => ( // Explicitly type file and index
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-3 bg-white border border-blue-200 rounded"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <FileText className="h-4 w-4 text-blue-600" />
-                                <span className="text-sm text-gray-700">{file.name}</span>
-                                <span className="text-xs text-gray-500">
-                                  ({(file.size / 1024 / 1024).toFixed(1)} MB)
-                                </span>
-                              </div>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setUploadedFiles((files) => files.filter((_, i) => i !== index))}
-                              >
-                                Remove
-                              </Button>
+                      {/* AI Suggested Answer Display */}
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-800 mb-2">
+                          <Bot className="inline h-4 w-4 mr-1" />
+                          AI Suggestion:
+                        </p>
+                        <p className="text-sm font-medium text-blue-900">
+                          {typeof analysisResults.answers[question.id] === "boolean"
+                            ? (analysisResults.answers[question.id] ? "Yes" : "No")
+                            : Array.isArray(analysisResults.answers[question.id])
+                              ? (analysisResults.answers[question.id] as string[]).join(", ")
+                              : analysisResults.answers[question.id] || "N/A"}
+                        </p>
+                        {analysisResults.documentExcerpts?.[question.id] &&
+                          analysisResults.documentExcerpts[question.id].length > 0 && (
+                            <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded">
+                              <Info className="inline h-3 w-3 mr-1" />
+                              <strong>Evidence:</strong> {analysisResults.documentExcerpts[question.id][0].excerpt}
+                            </div>
+                          )}
+                      </div>
+
+                      {/* Editable Answer Field */}
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        <Label htmlFor={`answer-${question.id}`} className="text-sm font-medium text-gray-700">
+                          Your Final Answer (Edit if needed)
+                        </Label>
+                        {question.type === "boolean" && (
+                          <div className="flex space-x-4 mt-2">
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name={`question-${question.id}`}
+                                checked={answers[question.id] === true}
+                                onChange={() => handleAnswerChange(question.id, true)}
+                                className="mr-2"
+                              />
+                              Yes
+                            </label>
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name={`question-${question.id}`}
+                                checked={answers[question.id] === false}
+                                onChange={() => handleAnswerChange(question.id, false)}
+                                className="mr-2"
+                              />
+                              No
+                            </label>
+                          </div>
+                        )}
+                        {question.type === "multiple" && (
+                          <select
+                            value={answers[question.id] || ""}
+                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                          >
+                            <option value="">Select an option</option>
+                            {question.options?.map((option: string) => ( // Explicitly type option
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                        {question.type === "textarea" && (
+                          <Textarea
+                            id={`answer-${question.id}`}
+                            value={answers[question.id] || ""}
+                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                            placeholder="Provide your detailed response here..."
+                            rows={4}
+                            className="mt-2"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex justify-between pt-4 border-t border-gray-100">
+                    <Button variant="outline" onClick={() => setShowReviewStep(false)}>
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back to Upload
+                    </Button>
+                    <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 text-white">
+                      <FileCheck className="mr-2 h-4 w-4" />
+                      Submit Assessment
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Manual Assessment Flow */}
+            {!isAiPoweredAssessment && currentStep > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    <span>Assessment Questions</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Please answer the following questions about your organization's practices.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  {currentQuestions.map((question: any, index: number) => ( // Explicitly type question
+                    <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
+                      <div>
+                        <div className="flex items-start space-x-2 mb-2">
+                          <Badge variant="outline" className="mt-1">
+                            {question.category}
+                          </Badge>
+                          {question.required && <span className="text-red-500 text-sm">*</span>}
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900">
+                          {(currentStep - 1) * 2 + index + 1}. {question.question}
+                        </h3>
+                      </div>
+
+                      {question.type === "radio" && (
+                        <RadioGroup
+                          value={answers[question.id] || ""}
+                          onValueChange={(value) => handleAnswerChange(question.id, value)}
+                          className="space-y-2"
+                        >
+                          {question.options.map((option: string) => ( // Explicitly type option
+                            <div key={option} className="flex items-center">
+                              <RadioGroupItem value={option} id={`${question.id}-${option}`} />
+                              <Label htmlFor={`${question.id}-${option}`} className="ml-2">
+                                {option}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      )}
+
+                      {question.type === "checkbox" && (
+                        <div className="space-y-2">
+                          {question.options.map((option: string) => ( // Explicitly type option
+                            <div key={option} className="flex items-center">
+                              <Checkbox
+                                id={`${question.id}-${option}`}
+                                checked={answers[question.id]?.includes(option) || false}
+                                onCheckedChange={(checked) => {
+                                  const currentAnswers = answers[question.id] || []
+                                  if (checked) {
+                                    handleAnswerChange(question.id, [...currentAnswers, option])
+                                  } else {
+                                    handleAnswerChange(
+                                      question.id,
+                                      currentAnswers.filter((item: string) => item !== option), // Explicitly type item
+                                    )
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`${question.id}-${option}`} className="ml-2">
+                                {option}
+                              </Label>
                             </div>
                           ))}
                         </div>
                       )}
-                    </div>
 
-                    {uploadedFiles.length > 0 && !isAnalyzing && !analysisResults && (
-                      <Button
-                        onClick={async () => {
-                          setIsAnalyzing(true)
-                          // Simulate AI analysis with more realistic timing
-                          await new Promise((resolve) => setTimeout(resolve, 4000))
-                          setAnalysisResults({
-                            documentsAnalyzed: uploadedFiles.length,
-                            confidence: Math.floor(Math.random() * 15) + 80, // 80-95% confidence
-                            suggestedAnswers: questions.reduce(
-                              (acc: Record<string, any>, q: any) => { // Explicitly type acc and q
-                                if (q.type === "radio") {
-                                  acc[q.id] = q.options?.[0] || "Yes, comprehensive policy"
-                                } else if (q.type === "checkbox") {
-                                  acc[q.id] = q.options?.slice(0, 3) || []
-                                } else {
-                                  acc[q.id] =
-                                    "Based on the uploaded documentation, comprehensive security measures are in place with regular reviews and updates following industry best practices."
-                                }
-                                return acc
-                              },
-                              {} as Record<string, any>,
-                            ),
-                          })
-                          setIsAnalyzing(false)
-                          setShowReviewStep(true)
-                        }}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
-                        disabled={isAnalyzing}
-                      >
-                        {isAnalyzing ? (
-                          <>
-                            <Clock className="mr-2 h-5 w-5 animate-spin" />
-                            Analyzing Documents... This may take a few moments
-                          </>
-                        ) : (
-                          <>
-                            <Bot className="mr-2 h-5 w-5" />🚀 Analyze Documents with AI
-                          </>
-                        )}
-                      </Button>
-                    )}
-
-                    {isAnalyzing && (
-                      <div className="p-4 bg-blue-100 border border-blue-300 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <Clock className="h-5 w-5 text-blue-600 animate-spin" />
-                          <div>
-                            <h4 className="font-semibold text-blue-900">AI Analysis in Progress</h4>
-                            <p className="text-sm text-blue-800">
-                              Processing {uploadedFiles.length} documents and generating assessment responses...
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {error && (
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg mt-4">
-                        <div className="flex items-center space-x-2">
-                          <AlertCircle className="h-5 w-5 text-red-600" />
-                          <p className="text-sm text-red-800">
-                            <strong>Error:</strong> {error}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                  <div className="flex items-center space-x-2">
-                    <AlertCircle className="h-5 w-5 text-amber-600" />
-                    <p className="text-sm text-amber-800">
-                      <strong>Note:</strong> AI-generated responses are suggestions based on your documents. Please
-                      review and verify all answers before submission.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Saved Assessment Banner */}
-        {savedVendorAssessment && currentStep === 0 && (
-          <Card className="mb-6 border-orange-200 bg-orange-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Clock className="h-5 w-5 text-orange-600" />
-                  <div>
-                    <h3 className="font-medium text-gray-900">Previous Progress Found</h3>
-                    <p className="text-sm text-gray-600">
-                      You have a saved assessment from {new Date(savedVendorAssessment.timestamp).toLocaleDateString()}
-                      at {new Date(savedVendorAssessment.timestamp).toLocaleTimeString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button onClick={loadSavedVendorAssessment} className="bg-orange-600 hover:bg-orange-700" size="sm">
-                    Resume
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={deleteSavedVendorAssessment}>
-                    Start Fresh
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Vendor Information Step */}
-        {currentStep === 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-blue-600" />
-                <span>Company Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="companyName">Company Name *</Label>
-                  <Input
-                    id="companyName"
-                    value={vendorInfo.companyName}
-                    onChange={(e) => handleVendorInfoChange("companyName", e.target.value)}
-                    placeholder="Your company name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="contactName">Contact Person *</Label>
-                  <Input
-                    id="contactName"
-                    value={vendorInfo.contactName}
-                    onChange={(e) => handleVendorInfoChange("contactName", e.target.value)}
-                    placeholder="Your full name"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="email">Email Address *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={vendorInfo.email}
-                    onChange={(e) => handleVendorInfoChange("email", e.target.value)}
-                    placeholder="your.email@company.com"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    value={vendorInfo.phone}
-                    onChange={(e) => handleVendorInfoChange("phone", e.target.value)}
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="website">Website</Label>
-                  <Input
-                    id="website"
-                    value={vendorInfo.website}
-                    onChange={(e) => handleVendorInfoChange("website", e.target.value)}
-                    placeholder="https://www.yourcompany.com"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="employeeCount">Number of Employees</Label>
-                  <select
-                    id="employeeCount"
-                    value={vendorInfo.employeeCount}
-                    onChange={(e) => handleVendorInfoChange("employeeCount", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select range</option>
-                    <option value="1-10">1-10 employees</option>
-                    <option value="11-50">11-50 employees</option>
-                    <option value="51-200">51-200 employees</option>
-                    <option value="201-500">201-500 employees</option>
-                    <option value="500+">500+ employees</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="industry">Industry</Label>
-                <Input
-                  id="industry"
-                  value={vendorInfo.industry}
-                  onChange={(e) => handleVendorInfoChange("industry", e.target.value)}
-                  placeholder="e.g., Technology, Healthcare, Finance"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description">Company Description</Label>
-                <Textarea
-                  id="description"
-                  value={vendorInfo.description}
-                  onChange={(e) => handleVendorInfoChange("description", e.target.value)}
-                  placeholder="Brief description of your company and services..."
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Assessment Questions */}
-        {currentStep > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <span>Assessment Questions</span>
-                {analysisResults && (
-                  <Badge className="bg-green-100 text-green-700">
-                    <Bot className="h-3 w-3 mr-1" />
-                    AI-Generated
-                  </Badge>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              {currentQuestions.map((question: any, index: number) => ( // Explicitly type question and index
-                <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
-                  <div>
-                    <div className="flex items-start space-x-2 mb-2">
-                      <Badge variant="outline" className="mt-1">
-                        {question.category}
-                      </Badge>
-                      {question.required && <span className="text-red-500 text-sm">*</span>}
-                      {analysisResults && (
-                        <Badge className="bg-blue-100 text-blue-700 text-xs">
-                          AI Confidence: {analysisResults.confidence}%
-                        </Badge>
+                      {question.type === "textarea" && (
+                        <Textarea
+                          id={question.id}
+                          value={answers[question.id] || ""}
+                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                          placeholder="Provide your detailed response here..."
+                          rows={4}
+                        />
                       )}
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900">{question.question}</h3>
+                  ))}
+
+                  <div className="flex justify-between pt-4 border-t border-gray-100">
+                    <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Previous
+                    </Button>
+                    {currentStep < Math.ceil(questions.length / 2) ? (
+                      <Button onClick={handleNext} disabled={!isStepComplete(currentStep)}>
+                        Next
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button onClick={handleSubmit} disabled={!isStepComplete(currentStep)}>
+                        <FileCheck className="mr-2 h-4 w-4" />
+                        Submit Assessment
+                      </Button>
+                    )}
                   </div>
-
-                  {analysisResults && (
-                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-sm text-blue-800 mb-2">
-                        <Bot className="inline h-4 w-4 mr-1" />
-                        AI Suggestion based on your documents:
-                      </p>
-                      <p className="text-sm font-medium text-blue-900">
-                        {typeof analysisResults.suggestedAnswers[question.id] === "boolean"
-                          ? analysisResults.suggestedAnswers[question.id]
-                            ? "Yes"
-                            : "No"
-                          : Array.isArray(analysisResults.suggestedAnswers[question.id])
-                            ? (analysisResults.suggestedAnswers[question.id] as string[]).join(", ")
-                            : analysisResults.suggestedAnswers[question.id]}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Question rendering logic */}
-                  {question.type === "radio" && (
-                    <RadioGroup
-                      value={
-                        answers[question.id] || (analysisResults ? analysisResults.suggestedAnswers[question.id] : "")
-                      }
-                      onValueChange={(value) => handleAnswerChange(question.id, value)}
-                    >
-                      {question.options?.map((option: string) => ( // Explicitly type option
-                        <div key={option} className="flex items-center space-x-2">
-                          <RadioGroupItem value={option} id={`${question.id}-${option}`} />
-                          <Label htmlFor={`${question.id}-${option}`}>{option}</Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  )}
-
-                  {question.type === "checkbox" && (
-                    <div className="space-y-2">
-                      {question.options?.map((option: string) => ( // Explicitly type option
-                        <div key={option} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`${question.id}-${option}`}
-                            checked={(
-                              answers[question.id] ||
-                              (analysisResults ? analysisResults.suggestedAnswers[question.id] : [])
-                            ).includes(option)}
-                            onCheckedChange={(checked: boolean) => { // Explicitly type checked
-                              const currentAnswers =
-                                answers[question.id] ||
-                                (analysisResults ? analysisResults.suggestedAnswers[question.id] : [])
-                              if (checked) {
-                                handleAnswerChange(question.id, [...currentAnswers, option])
-                              } else {
-                                handleAnswerChange(
-                                  question.id,
-                                  currentAnswers.filter((a: string) => a !== option),
-                                )
-                              }
-                            }}
-                          />
-                          <Label htmlFor={`${question.id}-${option}`}>{option}</Label>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {question.type === "textarea" && (
-                    <Textarea
-                      value={
-                        answers[question.id] || (analysisResults ? analysisResults.suggestedAnswers[question.id] : "")
-                      }
-                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                      placeholder="Please provide detailed information..."
-                      rows={4}
-                    />
-                  )}
-
-                  {/* Additional Information Field */}
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <Label htmlFor={`additional-${question.id}`} className="text-sm font-medium text-gray-600">
-                      Additional Information (Optional)
-                    </Label>
-                    <Textarea
-                      id={`additional-${question.id}`}
-                      value={answers[`${question.id}_additional`] || ""}
-                      onChange={(e) => handleAnswerChange(`${question.id}_additional`, e.target.value)}
-                      placeholder="Add any additional context, notes, or explanations for this question..."
-                      rows={2}
-                      className="mt-1 text-sm"
-                    />
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* AI Disclaimer */}
-        <div className="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <p className="text-sm text-amber-800 text-center">
-            ⚠️ This assessment{" "}
-            {isAiPoweredAssessment
-              ? "uses AI technology for document analysis and suggestions"
-              : "is processed using AI technology"}
-            . Please ensure all information is accurate and complete.
-          </p>
-        </div>
-
-        {/* Navigation */}
-        <div className="mt-8 flex items-center justify-between">
-          <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0}>
-            Previous
-          </Button>
-
-          <div className="text-sm text-gray-600">
-            Step {currentStep + 1} of {Math.ceil(questions.length / 2) + 1}
+                </CardContent>
+              </Card>
+            )}
           </div>
-
-          {currentStep < Math.ceil(questions.length / 2) ? (
-            <Button
-              onClick={handleNext}
-              disabled={!isStepComplete(currentStep)}
-              className={`${isAiPoweredAssessment ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-600 hover:bg-gray-700"}`}
-            >
-              Next
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={!isStepComplete(currentStep)}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Submit Assessment
-            </Button>
-          )}
-        </div>
+        </section>
       </main>
     </div>
   )

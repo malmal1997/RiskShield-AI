@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-10 w-10 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">RiskGuard AI</span>
+            <span className="text-2xl font-bold text-gray-900">RiskShield AI</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Reset Password</h1>
           <p className="text-gray-600 mt-2">Enter your email to receive reset instructions</p>

@@ -211,7 +211,7 @@ export default function InteractiveDemo() {
           </div>
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
             <p className="text-sm text-amber-800 text-center">
-              ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+              ⚠️ RiskShield AI may make mistakes. Please use with discretion.
             </p>
           </div>
         </CardContent>
@@ -287,7 +287,7 @@ export default function InteractiveDemo() {
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
                 <p className="text-sm text-amber-800 text-center">
-                  ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+                  ⚠️ RiskShield AI may make mistakes. Please use with discretion.
                 </p>
               </div>
             </div>
@@ -367,7 +367,7 @@ export default function InteractiveDemo() {
             </div>
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
             <p className="text-sm text-amber-800 text-center">
-              ⚠️ RiskGuard AI may make mistakes. Please use with discretion.
+              ⚠️ RiskShield AI may make mistakes. Please use with discretion.
             </p>
           </div>
         </div>
@@ -404,7 +404,7 @@ export default function InteractiveDemo() {
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Interactive Demo</h1>
-              <p className="mt-2 text-gray-600">Experience RiskGuard AI's core features</p>
+              <p className="mt-2 text-gray-600">Experience RiskShield AI's core features</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">

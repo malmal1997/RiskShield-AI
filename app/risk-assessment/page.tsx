@@ -1625,7 +1625,6 @@ export default function AIAssessmentPage() {
 
     setIsAnalyzing(true)
     setError(null)
-    setAnalysisResults(null)
     setAnswers({})
 
     try {

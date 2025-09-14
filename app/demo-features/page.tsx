@@ -245,7 +245,7 @@ export default function DemoFeaturesPage() {
         <Card className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
           <CardContent className="p-8 text-center">
             <Shield className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">🎉 RiskGuard AI Enterprise is Production Ready!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">🎉 RiskShield AI Enterprise is Production Ready!</h2>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
               All enterprise features have been implemented and tested. The platform now offers multi-tenant
               architecture, advanced analytics, comprehensive vendor management, and enterprise-grade security features.
