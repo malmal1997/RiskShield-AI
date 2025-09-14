@@ -36,15 +36,8 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
     { name: "Third-Party Assessment", href: "/third-party-assessment" },
     { name: "Policy Generator", href: "/policy-generator" },
     { name: "Policy Library", href: "/policy-library" },
-    { name: "Settings", href: "/settings" },
+    { name: "Settings", href: isAdmin ? "/settings" : "/settings/personal" }, // Dynamic settings link
   ];
-
-  // Admin Approval link is now moved to the Settings page, not directly in main nav.
-  // Team Management and Assessment Templates are already linked from Settings.
-  if (isAdmin) { // For organization admins (including demo admins)
-    // authenticatedNavigationItems.push({ name: "Team Management", href: "/settings/team-management" }); // Already handled by Settings page
-    // authenticatedNavigationItems.push({ name: "Assessment Templates", href: "/assessment-templates" }); // Already handled by Settings page
-  }
 
   const navigationItems = user ? authenticatedNavigationItems : publicNavigationItems;
 
