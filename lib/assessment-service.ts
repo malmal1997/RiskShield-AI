@@ -340,7 +340,7 @@ export async function submitAssessmentResponse(
       entity_type: 'assessment_response',
       entity_id: newResponse.id.toString(),
       new_values: newResponse,
-      old_values: undefined, 
+      old_values: undefined, // Fixed: Changed null to undefined
     });
 
     console.log("✅ Assessment response saved successfully")
@@ -550,15 +550,15 @@ export async function getAssessmentTemplateById(templateId: string): Promise<{ d
 
     const { data, error } = await supabaseClient
       .from('assessment_templates')
-      .select('id')
+      .select('*') // Fixed: Select all columns
       .eq('id', templateId)
       .eq('organization_id', organization.id)
       .single();
 
     if (error) {
-      return { data: null, error: "Template not found or not accessible." };
+      console.error("getAssessmentTemplateById: Supabase query error:", error);
+      return { data: null, error: error.message };
     }
-
     return { data, error: null };
   } catch (error) {
     console.error("getAssessmentTemplateById: Unexpected error:", error);

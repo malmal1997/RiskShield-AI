@@ -201,7 +201,7 @@ export default function PolicyGenerator() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
     link.href = url
-    link.download = `${generatedPolicy.title.replace(/\s+/g, "_")}_${generatedPolicy.company_name.replace(/\s+/g, "_")}_Policy.html`
+    link.download = `${generatedPolicy.title.replace(/\s+/g, "_")}_${(generatedPolicy.content as any).companyName.replace(/\s+/g, "_")}_Policy.html`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
