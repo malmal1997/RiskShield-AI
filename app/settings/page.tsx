@@ -42,6 +42,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Textarea } from "@/components/ui/textarea"; // Import Textarea
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select for integration status
 
+// Define the super admin email. This user will be the only one to see the Admin Approval card.
+const SUPER_ADMIN_EMAIL = "new.admin@riskguard.ai"; // Or "demo@riskguard.ai" if you prefer the demo user to be the sole approver.
+
 export default function SettingsPage() {
   return (
     <AuthGuard>
@@ -294,6 +297,7 @@ function SettingsContent() {
   ]
 
   const isOrgAdmin = role?.role === "admin";
+  const isSuperAdmin = isOrgAdmin && user?.email === SUPER_ADMIN_EMAIL;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -529,27 +533,29 @@ function SettingsContent() {
                   </CardContent>
                 </Card>
 
-                {/* Admin Approval Card */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <CheckCircle className="h-5 w-5" />
-                      <span>Admin Approval</span>
-                    </CardTitle>
-                    <CardDescription>Review and approve new institution registrations.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex justify-between items-center mb-4">
-                      <p className="text-sm text-gray-600">Access pending registrations for approval.</p>
-                      <Link href="/admin-approval">
-                        <Button size="sm">
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          Review Registrations
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Admin Approval Card - Only visible to the designated super admin */}
+                {(isSuperAdmin || isDemo) && ( // Keep isDemo for preview mode functionality
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <CheckCircle className="h-5 w-5" />
+                        <span>Admin Approval</span>
+                      </CardTitle>
+                      <CardDescription>Review and approve new institution registrations.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex justify-between items-center mb-4">
+                        <p className="text-sm text-gray-600">Access pending registrations for approval.</p>
+                        <Link href="/admin-approval">
+                          <Button size="sm">
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Review Registrations
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </>
             )}
           </TabsContent>
