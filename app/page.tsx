@@ -6,29 +6,6 @@ import Link from "next/link"
 // import { MainNavigation } from "@/components/main-navigation" // Removed import
 
 export default function RiskGuardLanding() {
-  const handleCreateAdmin = async () => {
-    try {
-      const response = await fetch("/api/admin-actions/create-and-approve-admin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}), // Empty body as the route doesn't expect specific input
-      });
-      const result = await response.json();
-      if (response.ok) {
-        alert(`Admin user created: ${result.email} with password: ${result.password}. PLEASE CHANGE THIS PASSWORD IMMEDIATELY!`);
-        console.log("Admin creation successful:", result);
-      } else {
-        alert(`Error creating admin: ${result.error}`);
-        console.error("Admin creation failed:", result);
-      }
-    } catch (error) {
-      alert(`An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}`);
-      console.error("Fetch error:", error);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation - Removed */}
@@ -64,18 +41,6 @@ export default function RiskGuardLanding() {
             </p>
           </div>
         </div>
-      </section>
-
-      {/* Temporary Admin Creation Button */}
-      <section className="py-10 text-center">
-        <h2 className="text-2xl font-bold mb-4">Admin Account Setup</h2>
-        <p className="mb-4 text-gray-700">Click the button below ONCE to create your new admin account.</p>
-        <Button onClick={handleCreateAdmin} className="bg-purple-600 hover:bg-purple-700 text-white">
-          Create New Admin User
-        </Button>
-        <p className="mt-4 text-sm text-red-600">
-          **IMPORTANT:** After clicking, remember to delete this button and the `app/admin-actions/create-and-approve-admin/route.ts` file!
-        </p>
       </section>
 
       {/* Experience the Platform Section */}
