@@ -29,6 +29,7 @@ import {
   Loader2, // For loading states
   X, // For closing dialogs
   Edit, // For editing integrations
+  CheckCircle, // For Admin Approval card
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
@@ -506,26 +507,50 @@ function SettingsContent() {
 
             {/* Team Management */}
             {isOrgAdmin && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Users className="h-5 w-5" />
-                    <span>Team Management</span>
-                  </CardTitle>
-                  <CardDescription>Manage team members and their roles.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center mb-4">
-                    <p className="text-sm text-gray-600">Manage who has access to your organization.</p>
-                    <Link href="/settings/team-management">
-                      <Button size="sm">
-                        <Users className="mr-2 h-4 w-4" />
-                        Manage Team
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
+              <>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Users className="h-5 w-5" />
+                      <span>Team Management</span>
+                    </CardTitle>
+                    <CardDescription>Manage team members and their roles.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center mb-4">
+                      <p className="text-sm text-gray-600">Manage who has access to your organization.</p>
+                      <Link href="/settings/team-management">
+                        <Button size="sm">
+                          <Users className="mr-2 h-4 w-4" />
+                          Manage Team
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Admin Approval Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <CheckCircle className="h-5 w-5" />
+                      <span>Admin Approval</span>
+                    </CardTitle>
+                    <CardDescription>Review and approve new institution registrations.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center mb-4">
+                      <p className="text-sm text-gray-600">Access pending registrations for approval.</p>
+                      <Link href="/admin-approval">
+                        <Button size="sm">
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Review Registrations
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
             )}
           </TabsContent>
 

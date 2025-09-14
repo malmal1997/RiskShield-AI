@@ -39,15 +39,11 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
     { name: "Settings", href: "/settings" },
   ];
 
-  // Add Admin Approval link if the user is a super admin
-  if (role?.role === "admin") { // Only for super admins
-    authenticatedNavigationItems.push({ name: "Admin Approval", href: "/admin-approval" });
-  }
-
-  // Add Team Management link if the user is an organization admin
+  // Admin Approval link is now moved to the Settings page, not directly in main nav.
+  // Team Management and Assessment Templates are already linked from Settings.
   if (isAdmin) { // For organization admins (including demo admins)
-    authenticatedNavigationItems.push({ name: "Team Management", href: "/settings/team-management" });
-    authenticatedNavigationItems.push({ name: "Assessment Templates", href: "/assessment-templates" }); // Added for Phase 3
+    // authenticatedNavigationItems.push({ name: "Team Management", href: "/settings/team-management" }); // Already handled by Settings page
+    // authenticatedNavigationItems.push({ name: "Assessment Templates", href: "/assessment-templates" }); // Already handled by Settings page
   }
 
   const navigationItems = user ? authenticatedNavigationItems : publicNavigationItems;
