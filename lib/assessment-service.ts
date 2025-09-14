@@ -334,13 +334,13 @@ export async function submitAssessmentResponse(
       throw new Error(`Failed to save assessment response: ${responseError.message}`)
     }
 
-    // Log audit event for response submission
+    // Log audit event
     await logAuditEvent({
       action: 'assessment_response_submitted',
       entity_type: 'assessment_response',
       entity_id: newResponse.id.toString(),
       new_values: newResponse,
-      old_values: undefined, // Fixed: Changed null to undefined
+      old_values: undefined, 
     });
 
     console.log("✅ Assessment response saved successfully")
@@ -364,7 +364,7 @@ export async function submitAssessmentResponse(
       throw new Error(`Failed to update assessment status: ${updateError.message}`)
     }
 
-    // Log audit event for assessment completion
+    // Log audit event
     await logAuditEvent({
       action: 'assessment_completed',
       entity_type: 'assessment',
