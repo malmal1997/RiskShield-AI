@@ -227,6 +227,7 @@ export async function createAssessment(assessmentData: {
       entity_type: 'assessment',
       entity_id: data.id,
       new_values: data,
+      old_values: undefined, 
     });
 
     console.log("✅ Assessment created successfully:", data)
@@ -339,7 +340,7 @@ export async function submitAssessmentResponse(
       entity_type: 'assessment_response',
       entity_id: newResponse.id.toString(),
       new_values: newResponse,
-      old_values: null, // No old response to compare
+      old_values: undefined, 
     });
 
     console.log("✅ Assessment response saved successfully")
@@ -403,6 +404,7 @@ export async function deleteAssessment(id: string) {
       entity_type: 'assessment',
       entity_id: id,
       old_values: oldData,
+      new_values: undefined, 
     });
 
   } catch (error) {
@@ -463,6 +465,7 @@ export async function saveAiAssessmentReport(reportData: {
       entity_type: 'ai_assessment_report',
       entity_id: data.id,
       new_values: data,
+      old_values: undefined, 
     });
 
     console.log("✅ AI assessment report saved successfully:", data);
@@ -547,15 +550,15 @@ export async function getAssessmentTemplateById(templateId: string): Promise<{ d
 
     const { data, error } = await supabaseClient
       .from('assessment_templates')
-      .select('*')
+      .select('id')
       .eq('id', templateId)
       .eq('organization_id', organization.id)
       .single();
 
     if (error) {
-      console.error("getAssessmentTemplateById: Supabase query error:", error);
-      return { data: null, error: error.message };
+      return { data: null, error: "Template not found or not accessible." };
     }
+
     return { data, error: null };
   } catch (error) {
     console.error("getAssessmentTemplateById: Unexpected error:", error);
@@ -592,6 +595,7 @@ export async function createAssessmentTemplate(templateData: Omit<AssessmentTemp
       entity_type: 'assessment_template',
       entity_id: data.id,
       new_values: data,
+      old_values: undefined, 
     });
 
     return { data, error: null };
@@ -669,6 +673,7 @@ export async function deleteAssessmentTemplate(templateId: string): Promise<{ su
       entity_type: 'assessment_template',
       entity_id: templateId,
       old_values: oldData,
+      new_values: undefined, 
     });
 
     return { success: true, error: null };
@@ -752,6 +757,7 @@ export async function createTemplateQuestion(questionData: Omit<TemplateQuestion
       entity_type: 'template_question',
       entity_id: data.id,
       new_values: data,
+      old_values: undefined, 
     });
 
     return { data, error: null };
@@ -871,6 +877,7 @@ export async function deleteTemplateQuestion(questionId: string): Promise<{ succ
       entity_type: 'template_question',
       entity_id: questionId,
       old_values: oldData,
+      new_values: undefined, 
     });
 
     return { success: true, error: null };

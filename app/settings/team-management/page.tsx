@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   X,
   Loader2,
+  Users, // Added Users import
 } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { useAuth } from "@/components/auth-context";
@@ -29,6 +30,7 @@ import {
   updateMemberRole,
   updateMemberStatus,
   OrganizationMember,
+  UserProfile, // Added UserProfile import
 } from "@/lib/auth-service";
 import { inviteUserToOrganization, deleteUserFromOrganization } from "./actions";
 import { useToast } from "@/components/ui/use-toast";
