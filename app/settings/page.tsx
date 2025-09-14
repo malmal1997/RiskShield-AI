@@ -54,7 +54,7 @@ export default function SettingsPage() {
 }
 
 function SettingsContent() {
-  const { user, profile, organization, role, refreshProfile, isDemo } = useAuth()
+  const { user, profile, organization, role, refreshProfile, isDemo, loading: authLoading } = useAuth()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
@@ -298,6 +298,22 @@ function SettingsContent() {
 
   const isOrgAdmin = role?.role === "admin";
   const isSuperAdmin = isOrgAdmin && user?.email === SUPER_ADMIN_EMAIL;
+
+  // If not an admin and not in demo mode, deny access to the entire page
+  if (!authLoading && !isOrgAdmin && !isDemo) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center p-8">
+          <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600 mb-6">You don't have permission to access the settings page.</p>
+          <Link href="/dashboard">
+            <Button>Return to Dashboard</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
