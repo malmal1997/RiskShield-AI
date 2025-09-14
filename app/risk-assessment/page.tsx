@@ -40,11 +40,12 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Import Select components
 import { useAuth } from "@/components/auth-context" // Import useAuth
 import { useToast } from "@/components/ui/use-toast" // Import useToast
-import { saveAiAssessmentReport } from "@/lib/assessment-service" // Import the new service function
+import { saveAiAssessmentReport, getAssessmentTemplates, getTemplateQuestions } from "@/lib/assessment-service" // Import the new service function
+import type { AssessmentTemplate, TemplateQuestion } from "@/lib/supabase"; // Import types
 import { useRouter } from "next/navigation" // Import useRouter
 
-// Assessment categories and questions
-const assessmentCategories = [
+// Assessment categories and questions (now default/built-in templates)
+const builtInAssessmentCategories = [
   {
     id: "cybersecurity",
     name: "Cybersecurity",
@@ -1473,6 +1474,7 @@ export default function AIAssessmentPage() {
   const { toast } = useToast(); // Initialize useToast
   const router = useRouter(); // Initialize useRouter
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null); // New state for custom template ID
   const [currentStep, setCurrentStep] = useState<
     "select-category" | "upload-documents" | "soc-info" | "review-answers" | "results"
   >("select-category")
@@ -1501,6 +1503,10 @@ export default function AIAssessmentPage() {
     subserviceOrganizations: "",
     userEntityControls: "",
   })
+  const [showOtherInput, setShowOtherInput] = useState<Record<string, boolean>>({});
+  const [customTemplates, setCustomTemplates] = useState<AssessmentTemplate[]>([]);
+  const [currentQuestions, setCurrentQuestions] = useState<TemplateQuestion[]>([]);
+
 
   useEffect(() => {
     // Check for pre-selected category from main risk assessment page
@@ -1516,8 +1522,67 @@ export default function AIAssessmentPage() {
     }
   }, [])
 
-  const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
-  const questionsForCategory = currentCategory?.questions || []
+  useEffect(() => {
+    async function fetchTemplates() {
+      if (user) {
+        const { data, error } = await getAssessmentTemplates();
+        if (error) {
+          console.error("Failed to fetch custom templates:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load custom assessment templates.",
+            variant: "destructive",
+          });
+        } else {
+          setCustomTemplates(data || []);
+        }
+      }
+    }
+    fetchTemplates();
+  }, [user, toast]);
+
+  useEffect(() => {
+    async function loadQuestions() {
+      if (selectedTemplateId) {
+        const { data, error } = await getTemplateQuestions(selectedTemplateId);
+        if (error) {
+          console.error("Failed to load template questions:", error);
+          setError("Failed to load questions for the selected template.");
+          setCurrentQuestions([]);
+        } else {
+          setCurrentQuestions(data || []);
+          const selectedTemplate = customTemplates.find(t => t.id === selectedTemplateId);
+          if (selectedTemplate?.id === "soc-compliance") { // Check if it's the SOC template
+            setCurrentStep("soc-info");
+          } else {
+            setCurrentStep("upload-documents");
+          }
+        }
+      } else if (selectedCategory) {
+        const builtIn = builtInAssessmentCategories.find(cat => cat.id === selectedCategory);
+        if (builtIn) {
+          setCurrentQuestions(builtIn.questions.map(q => ({
+            ...q,
+            template_id: "builtin", // Indicate it's a built-in template
+            order: 0, // Default order
+            question_text: q.question,
+            question_type: q.type,
+            options: q.options || null,
+            required: q.required || false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })));
+          if (selectedCategory === "soc-compliance") {
+            setCurrentStep("soc-info");
+          } else {
+            setCurrentStep("upload-documents");
+          }
+        }
+      }
+    }
+    loadQuestions();
+  }, [selectedCategory, selectedTemplateId, customTemplates, user]);
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -1542,8 +1607,12 @@ export default function AIAssessmentPage() {
   };
 
   const handleAnalyzeDocuments = async () => {
-    if (!currentCategory || uploadedFiles.length === 0) {
-      setError("Please select an assessment category and upload documents.")
+    if (!selectedCategory && !selectedTemplateId) {
+      setError("Please select an assessment category or template.")
+      return
+    }
+    if (uploadedFiles.length === 0) {
+      setError("Please upload documents for analysis.")
       return
     }
 
@@ -1558,8 +1627,8 @@ export default function AIAssessmentPage() {
         formData.append('files', item.file);
       });
       formData.append('labels', JSON.stringify(uploadedFiles.map(item => item.label)));
-      formData.append('questions', JSON.stringify(questionsForCategory));
-      formData.append('assessmentType', currentCategory.name);
+      formData.append('questions', JSON.stringify(currentQuestions));
+      formData.append('assessmentType', (customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name || "Custom Assessment"));
 
       const response = await fetch("/api/ai-assessment/analyze", {
         method: "POST",
@@ -1613,7 +1682,7 @@ export default function AIAssessmentPage() {
       return;
     }
 
-    if (!analysisResults || !currentCategory || riskScore === null || riskLevel === null) {
+    if (!analysisResults || (!selectedCategory && !selectedTemplateId) || riskScore === null || riskLevel === null) {
       toast({
         title: "Error",
         description: "No complete report data available to save.",
@@ -1628,11 +1697,11 @@ export default function AIAssessmentPage() {
         description: "Your AI assessment report is being saved to your profile.",
       });
 
-      const reportTitle = `${currentCategory.name} AI Assessment`;
+      const reportTitle = `${(customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name || "Custom Assessment")} AI Assessment`;
       const reportSummary = analysisResults.overallAnalysis.substring(0, 250) + "..."; // Truncate for summary
 
       const savedReport = await saveAiAssessmentReport({
-        assessmentType: currentCategory.name,
+        assessmentType: (customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name || "Custom Assessment"),
         reportTitle: reportTitle,
         riskScore: riskScore,
         riskLevel: riskLevel,
@@ -1640,7 +1709,7 @@ export default function AIAssessmentPage() {
         fullReportContent: {
           analysisResults: analysisResults,
           answers: answers,
-          questions: questionsForCategory,
+          questions: currentQuestions,
           socInfo: socInfo, // Include SOC info if available
         },
         uploadedDocumentsMetadata: uploadedFiles.map(item => ({
@@ -1696,6 +1765,46 @@ export default function AIAssessmentPage() {
     else if (currentStep === "results") progress = 100
     return progress
   }
+
+  // Helper function to render the evidence citation
+  const renderEvidenceCitation = (excerptData: any) => {
+    if (!excerptData || excerptData.excerpt === 'No directly relevant evidence found after comprehensive search') {
+      return 'No directly relevant evidence found after comprehensive search.';
+    }
+
+    let citationParts = [];
+    const fileName = excerptData.fileName;
+    const pageNumber = excerptData.pageNumber;
+    const label = excerptData.label; // This will be '4th Party' or null
+
+    if (fileName && String(fileName).trim() !== '' && fileName !== 'N/A') {
+      citationParts.push(`"${fileName}"`);
+    }
+
+    // Explicitly add page number or 'N/A'
+    if (pageNumber != null && String(pageNumber).trim() !== '') {
+      citationParts.push(`Page: ${pageNumber}`);
+    } else {
+      citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing
+    }
+
+    if (label === '4th Party') {
+      citationParts.push('4th Party');
+    }
+
+    // Filter out any potentially empty or null parts before joining
+    const filteredParts = citationParts.filter(part => part && String(part).trim() !== ''); // Ensure parts are non-empty strings
+
+    // The excerpt is always the first part of the return string
+    const excerptText = `"${excerptData.excerpt}"`;
+
+    if (filteredParts.length === 0) {
+      return excerptText;
+    }
+
+    // Join parts for the citation, ensuring the excerpt is first
+    return `${excerptText} (from ${filteredParts.join(' - ')})`;
+  };
 
   return (
     <AuthGuard
@@ -1754,7 +1863,8 @@ export default function AIAssessmentPage() {
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {assessmentCategories.map((category) => {
+                  {/* Built-in Templates */}
+                  {builtInAssessmentCategories.map((category) => {
                     const IconComponent = category.icon
                     return (
                       <Card
@@ -1762,11 +1872,7 @@ export default function AIAssessmentPage() {
                         className="relative group hover:shadow-lg transition-shadow cursor-pointer"
                         onClick={() => {
                           setSelectedCategory(category.id)
-                          if (category.id === "soc-compliance") {
-                            setCurrentStep("soc-info")
-                          } else {
-                            setCurrentStep("upload-documents")
-                          }
+                          setSelectedTemplateId(null); // Clear custom template selection
                         }}
                       >
                         <CardHeader>
@@ -1789,12 +1895,46 @@ export default function AIAssessmentPage() {
                       </Card>
                     )
                   })}
+
+                  {/* Custom Templates */}
+                  {customTemplates.map((template) => {
+                    const IconComponent = FileText; // Default icon for custom templates
+                    return (
+                      <Card
+                        key={template.id}
+                        className="relative group hover:shadow-lg transition-shadow cursor-pointer border-purple-300 bg-purple-50"
+                        onClick={() => {
+                          setSelectedTemplateId(template.id);
+                          setSelectedCategory(null); // Clear built-in category selection
+                        }}
+                      >
+                        <CardHeader>
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-purple-100 rounded-lg">
+                              <IconComponent className="h-6 w-6 text-purple-600" />
+                            </div>
+                            <div>
+                              <CardTitle className="text-lg">{template.name}</CardTitle>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <CardDescription className="mb-4">{template.description}</CardDescription>
+                          <Badge className="bg-purple-200 text-purple-800 mb-2">Custom Template</Badge>
+                          <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                            <Bot className="mr-2 h-4 w-4" />
+                            Select for AI Analysis
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* Step 2: SOC Information (only for SOC assessments) */}
-            {currentStep === "soc-info" && selectedCategory === "soc-compliance" && (
+            {currentStep === "soc-info" && (selectedCategory === "soc-compliance" || customTemplates.find(t => t.id === selectedTemplateId)?.type === "soc-compliance") && (
               <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
                   <Button
@@ -2015,25 +2155,25 @@ export default function AIAssessmentPage() {
             )}
 
             {/* Step 3: Upload Documents */}
-            {currentStep === "upload-documents" && currentCategory && (
+            {currentStep === "upload-documents" && (selectedCategory || selectedTemplateId) && (
               <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
                   <Button
                     variant="ghost"
                     onClick={() =>
-                      setCurrentStep(selectedCategory === "soc-compliance" ? "soc-info" : "select-category")
+                      setCurrentStep((selectedCategory === "soc-compliance" || customTemplates.find(t => t.id === selectedTemplateId)?.type === "soc-compliance") ? "soc-info" : "select-category")
                     }
                     className="mb-6 hover:bg-blue-50"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to {selectedCategory === "soc-compliance" ? "SOC Information" : "Category Selection"}
+                    Back to {(selectedCategory === "soc-compliance" || customTemplates.find(t => t.id === selectedTemplateId)?.type === "soc-compliance") ? "SOC Information" : "Category Selection"}
                   </Button>
                 </div>
 
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents for AI Analysis</h2>
                   <p className="text-lg text-gray-600">
-                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                    Selected: <span className="font-semibold text-blue-600">{(customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name)}</span>
                   </p>
                   <p className="text-gray-600 mt-2">
                     Upload your policies, reports, and procedures. Our AI will analyze them to answer the assessment
@@ -2187,7 +2327,7 @@ export default function AIAssessmentPage() {
             )}
 
             {/* Step 4: Review AI-Generated Answers */}
-            {currentStep === "review-answers" && currentCategory && analysisResults && (
+            {currentStep === "review-answers" && (selectedCategory || selectedTemplateId) && analysisResults && (
               <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
                   <Button
@@ -2203,7 +2343,7 @@ export default function AIAssessmentPage() {
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">Review AI-Generated Answers</h2>
                   <p className="text-lg text-gray-600">
-                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                    Selected: <span className="font-semibold text-blue-600">{(customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name)}</span>
                   </p>
                   <p className="text-gray-600 mt-2">
                     The AI has analyzed your documents and provided suggested answers. Please review and edit as needed.
@@ -2215,16 +2355,18 @@ export default function AIAssessmentPage() {
                     <CardTitle className="flex items-center space-x-2">
                       <Bot className="h-5 w-5 text-blue-600" />
                       <span>AI-Suggested Responses</span>
-                      <Badge className="bg-green-100 text-green-700">
-                        Confidence: {analysisResults.confidenceScores ? Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100) : 0}%
-                      </Badge>
+                      {!isReportSaved && analysisResults.confidenceScores && (
+                        <Badge className="bg-green-100 text-green-700">
+                          Confidence: {Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
+                        </Badge>
+                      )}
                     </CardTitle>
                     <CardDescription>
                       Review the AI's answers and make any necessary adjustments.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-8">
-                    {questionsForCategory.map((question: Question, index: number) => (
+                    {currentQuestions.map((question: TemplateQuestion, index: number) => (
                       <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
                         <div>
                           <div className="flex items-start space-x-2 mb-2">
@@ -2232,14 +2374,14 @@ export default function AIAssessmentPage() {
                               {question.category}
                             </Badge>
                             {question.required && <span className="text-red-500 text-sm">*</span>}
-                            {analysisResults.confidenceScores?.[question.id] !== undefined && (
+                            {!isReportSaved && analysisResults.confidenceScores?.[question.id] !== undefined && (
                               <Badge className="bg-blue-100 text-blue-700 text-xs">
                                 AI Confidence: {Math.round(analysisResults.confidenceScores[question.id] * 100)}%
                               </Badge>
                             )}
                           </div>
                           <h3 className="text-lg font-medium text-gray-900">
-                            {index + 1}. {question.question}
+                            {index + 1}. {question.question_text}
                           </h3>
                         </div>
 
@@ -2260,9 +2402,7 @@ export default function AIAssessmentPage() {
                             analysisResults.documentExcerpts[question.id].length > 0 && (
                               <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded">
                                 <Info className="inline h-3 w-3 mr-1" />
-                                <strong>Evidence:</strong> "{analysisResults.documentExcerpts[question.id][0].excerpt}" (from{" "}
-                                {analysisResults.documentExcerpts[question.id][0].fileName} -{" "}
-                                {analysisResults.documentExcerpts[question.id][0].label})
+                                <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0])}
                               </div>
                             )}
                         </div>
@@ -2272,7 +2412,7 @@ export default function AIAssessmentPage() {
                           <Label htmlFor={`answer-${question.id}`} className="text-sm font-medium text-gray-700">
                             Your Final Answer (Edit if needed)
                           </Label>
-                          {question.type === "boolean" && (
+                          {question.question_type === "boolean" && (
                             <div className="flex space-x-4 mt-2">
                               <label className="flex items-center">
                                 <input
@@ -2296,21 +2436,46 @@ export default function AIAssessmentPage() {
                               </label>
                             </div>
                           )}
-                          {question.type === "multiple" && (
-                            <select
-                              value={answers[question.id] || ""}
-                              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                            >
-                              <option value="">Select an option</option>
-                              {question.options?.map((option: string) => (
+                          {question.question_type === "multiple" && (
+                            <>
+                              <select
+                                value={
+                                  (question.options?.includes(answers[question.id]) || !answers[question.id])
+                                    ? answers[question.id]
+                                    : "Other"
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === "Other") {
+                                    setShowOtherInput(prev => ({ ...prev, [question.id]: true }));
+                                    handleAnswerChange(question.id, ""); // Clear answer when "Other" is selected
+                                  } else {
+                                    setShowOtherInput(prev => ({ ...prev, [question.id]: false }));
+                                    handleAnswerChange(question.id, value);
+                                  }
+                                }}
+                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                              >
+                                <option value="">Select an option</option>
+                                {question.options?.map((option: string) => (
                                   <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
+                                    {option}
+                                  </option>
+                                ))}
+                                <option value="Other">Other (please specify)</option>
+                              </select>
+                              {showOtherInput[question.id] && (
+                                <Input
+                                  id={`other-answer-${question.id}`}
+                                  value={answers[question.id] || ""}
+                                  onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                                  placeholder="Please specify..."
+                                  className="mt-2"
+                                />
+                              )}
+                            </>
                           )}
-                          {question.type === "tested" && (
+                          {question.question_type === "tested" && (
                             <div className="flex space-x-4 mt-2">
                               <label className="flex items-center">
                                 <input
@@ -2334,7 +2499,7 @@ export default function AIAssessmentPage() {
                               </label>
                             </div>
                           )}
-                          {question.type === "textarea" && (
+                          {question.question_type === "textarea" && (
                             <Textarea
                               id={`answer-${question.id}`}
                               value={answers[question.id] || ""}
@@ -2368,12 +2533,12 @@ export default function AIAssessmentPage() {
             )}
 
             {/* Step 5: Results */}
-            {currentStep === "results" && currentCategory && analysisResults && (
+            {currentStep === "results" && (selectedCategory || selectedTemplateId) && analysisResults && (
               <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">AI Assessment Complete!</h2>
                   <p className="text-lg text-gray-600">
-                    Your {currentCategory.name} risk assessment has been finalized.
+                    Your {(customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name)} risk assessment has been finalized.
                   </p>
                 </div>
 

@@ -2,7 +2,7 @@ import { supabaseClient } from "./supabase-client"
 import { supabaseAdmin } from "@/src/integrations/supabase/admin" // Import supabaseAdmin
 import { getCurrentUserWithProfile } from "./auth-service" // Import getCurrentUserWithProfile
 import type { User } from "@supabase/supabase-js" // Import User type
-import type { AiAssessmentReport, Assessment, AssessmentResponse } from "./supabase" // Import AiAssessmentReport type
+import type { AiAssessmentReport, Assessment, AssessmentResponse, AssessmentTemplate, TemplateQuestion } from "./supabase" // Import AiAssessmentReport, AssessmentTemplate, TemplateQuestion types
 
 // Get current user with comprehensive error handling
 export async function getCurrentUser(): Promise<User | null> {
@@ -447,5 +447,307 @@ export async function getAiAssessmentReports(): Promise<AiAssessmentReport[]> {
   } catch (error) {
     console.error("💥 Error in getAiAssessmentReports:", error);
     throw error;
+  }
+}
+
+// --- New functions for Assessment Templates and Questions ---
+
+// Get all assessment templates for the current organization
+export async function getAssessmentTemplates(): Promise<{ data: AssessmentTemplate[] | null, error: string | null }> {
+  try {
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      return { data: null, error: "User not authenticated or organization not found." };
+    }
+
+    const { data, error } = await supabaseClient
+      .from('assessment_templates')
+      .select('*')
+      .eq('organization_id', organization.id)
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.error("getAssessmentTemplates: Supabase query error:", error);
+      return { data: null, error: error.message };
+    }
+    return { data, error: null };
+  } catch (error) {
+    console.error("getAssessmentTemplates: Unexpected error:", error);
+    return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Get a specific assessment template by ID
+export async function getAssessmentTemplateById(templateId: string): Promise<{ data: AssessmentTemplate | null, error: string | null }> {
+  try {
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      return { data: null, error: "User not authenticated or organization not found." };
+    }
+
+    const { data, error } = await supabaseClient
+      .from('assessment_templates')
+      .select('*')
+      .eq('id', templateId)
+      .eq('organization_id', organization.id)
+      .single();
+
+    if (error) {
+      console.error("getAssessmentTemplateById: Supabase query error:", error);
+      return { data: null, error: error.message };
+    }
+    return { data, error: null };
+  } catch (error) {
+    console.error("getAssessmentTemplateById: Unexpected error:", error);
+    return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Create a new assessment template
+export async function createAssessmentTemplate(templateData: Omit<AssessmentTemplate, 'id' | 'organization_id' | 'created_by' | 'created_at' | 'updated_at'>): Promise<{ data: AssessmentTemplate | null, error: string | null }> {
+  try {
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      return { data: null, error: "User not authenticated or organization not found." };
+    }
+
+    const { data, error } = await supabaseClient
+      .from('assessment_templates')
+      .insert({
+        ...templateData,
+        organization_id: organization.id,
+        created_by: user.id,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("createAssessmentTemplate: Supabase insert error:", error);
+      return { data: null, error: error.message };
+    }
+    return { data, error: null };
+  } catch (error) {
+    console.error("createAssessmentTemplate: Unexpected error:", error);
+    return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Update an existing assessment template
+export async function updateAssessmentTemplate(templateId: string, updates: Partial<Omit<AssessmentTemplate, 'id' | 'organization_id' | 'created_by' | 'created_at'>>): Promise<{ data: AssessmentTemplate | null, error: string | null }> {
+  try {
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      return { data: null, error: "User not authenticated or organization not found." };
+    }
+
+    const { data, error } = await supabaseClient
+      .from('assessment_templates')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', templateId)
+      .eq('organization_id', organization.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("updateAssessmentTemplate: Supabase update error:", error);
+      return { data: null, error: error.message };
+    }
+    return { data, error: null };
+  } catch (error) {
+    console.error("updateAssessmentTemplate: Unexpected error:", error);
+    return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Delete an assessment template
+export async function deleteAssessmentTemplate(templateId: string): Promise<{ success: boolean, error: string | null }> {
+  try {
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      return { success: false, error: "User not authenticated or organization not found." };
+    }
+
+    const { error } = await supabaseClient
+      .from('assessment_templates')
+      .delete()
+      .eq('id', templateId)
+      .eq('organization_id', organization.id);
+
+    if (error) {
+      console.error("deleteAssessmentTemplate: Supabase delete error:", error);
+      return { success: false, error: error.message };
+    }
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("deleteAssessmentTemplate: Unexpected error:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Get all questions for a specific template
+export async function getTemplateQuestions(templateId: string): Promise<{ data: TemplateQuestion[] | null, error: string | null }> {
+  try {
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      return { data: null, error: "User not authenticated or organization not found." };
+    }
+
+    // Verify template belongs to organization
+    const { data: template, error: templateError } = await supabaseClient
+      .from('assessment_templates')
+      .select('id')
+      .eq('id', templateId)
+      .eq('organization_id', organization.id)
+      .single();
+
+    if (templateError || !template) {
+      return { data: null, error: "Template not found or not accessible." };
+    }
+
+    const { data, error } = await supabaseClient
+      .from('template_questions')
+      .select('*')
+      .eq('template_id', templateId)
+      .order('order', { ascending: true });
+
+    if (error) {
+      console.error("getTemplateQuestions: Supabase query error:", error);
+      return { data: null, error: error.message };
+    }
+    return { data, error: null };
+  } catch (error) {
+    console.error("getTemplateQuestions: Unexpected error:", error);
+    return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Create a new question for a template
+export async function createTemplateQuestion(questionData: Omit<TemplateQuestion, 'id' | 'created_at' | 'updated_at'>): Promise<{ data: TemplateQuestion | null, error: string | null }> {
+  try {
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      return { data: null, error: "User not authenticated or organization not found." };
+    }
+
+    // Verify template belongs to organization
+    const { data: template, error: templateError } = await supabaseClient
+      .from('assessment_templates')
+      .select('id')
+      .eq('id', questionData.template_id)
+      .eq('organization_id', organization.id)
+      .single();
+
+    if (templateError || !template) {
+      return { data: null, error: "Template not found or not accessible." };
+    }
+
+    const { data, error } = await supabaseClient
+      .from('template_questions')
+      .insert(questionData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("createTemplateQuestion: Supabase insert error:", error);
+      return { data: null, error: error.message };
+    }
+    return { data, error: null };
+  } catch (error) {
+    console.error("createTemplateQuestion: Unexpected error:", error);
+    return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Update an existing question for a template
+export async function updateTemplateQuestion(questionId: string, updates: Partial<Omit<TemplateQuestion, 'id' | 'template_id' | 'created_at'>>): Promise<{ data: TemplateQuestion | null, error: string | null }> {
+  try {
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      return { data: null, error: "User not authenticated or organization not found." };
+    }
+
+    // Verify question's template belongs to organization
+    const { data: question, error: questionError } = await supabaseClient
+      .from('template_questions')
+      .select('template_id')
+      .eq('id', questionId)
+      .single();
+
+    if (questionError || !question) {
+      return { data: null, error: "Question not found." };
+    }
+
+    const { data: template, error: templateError } = await supabaseClient
+      .from('assessment_templates')
+      .select('id')
+      .eq('id', question.template_id)
+      .eq('organization_id', organization.id)
+      .single();
+
+    if (templateError || !template) {
+      return { data: null, error: "Template not found or not accessible." };
+    }
+
+    const { data, error } = await supabaseClient
+      .from('template_questions')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', questionId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("updateTemplateQuestion: Supabase update error:", error);
+      return { data: null, error: error.message };
+    }
+    return { data, error: null };
+  } catch (error) {
+    console.error("updateTemplateQuestion: Unexpected error:", error);
+    return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Delete a question from a template
+export async function deleteTemplateQuestion(questionId: string): Promise<{ success: boolean, error: string | null }> {
+  try {
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      return { success: false, error: "User not authenticated or organization not found." };
+    }
+
+    // Verify question's template belongs to organization
+    const { data: question, error: questionError } = await supabaseClient
+      .from('template_questions')
+      .select('template_id')
+      .eq('id', questionId)
+      .single();
+
+    if (questionError || !question) {
+      return { success: false, error: "Question not found." };
+    }
+
+    const { data: template, error: templateError } = await supabaseClient
+      .from('assessment_templates')
+      .select('id')
+      .eq('id', question.template_id)
+      .eq('organization_id', organization.id)
+      .single();
+
+    if (templateError || !template) {
+      return { success: false, error: "Template not found or not accessible." };
+    }
+
+    const { error } = await supabaseClient
+      .from('template_questions')
+      .delete()
+      .eq('id', questionId);
+
+    if (error) {
+      console.error("deleteTemplateQuestion: Supabase delete error:", error);
+      return { success: false, error: error.message };
+    }
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("deleteTemplateQuestion: Unexpected error:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }

@@ -39,9 +39,14 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
     { name: "Settings", href: "/settings" },
   ];
 
-  // Add Admin Approval link if the user is an admin
-  if (isAdmin) {
+  // Add Admin Approval link if the user is a super admin
+  if (role?.role === "admin") { // Only for super admins
     authenticatedNavigationItems.push({ name: "Admin Approval", href: "/admin-approval" });
+  }
+
+  // Add Team Management link if the user is an organization admin
+  if (isAdmin) { // For organization admins (including demo admins)
+    authenticatedNavigationItems.push({ name: "Team Management", href: "/settings/team-management" });
   }
 
   const navigationItems = user ? authenticatedNavigationItems : publicNavigationItems;

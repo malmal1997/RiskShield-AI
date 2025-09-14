@@ -29,6 +29,7 @@ export interface UserProfile {
   last_active_at?: string
   created_at: string
   updated_at: string
+  status: string; -- Added status
 }
 
 export interface UserRole {
@@ -57,6 +58,20 @@ export interface PendingRegistration {
   rejected_at?: string;
   created_at: string;
   updated_at: string;
+}
+
+// Combined type for organization members
+export interface OrganizationMember {
+  user_id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
+  profile_status: string;
+  role_id: string;
+  role_name: UserRole['role'];
+  role_permissions: Json | null;
+  created_at: string;
 }
 
 // Get current user with profile and organization
@@ -234,6 +249,129 @@ export async function updateUserProfile(updates: Partial<UserProfile>) {
   } catch (error) {
     console.error("Error updating user profile:", error)
     throw error
+  }
+}
+
+// Get all members for the current user's organization
+export async function getOrganizationMembers(): Promise<{ data: OrganizationMember[] | null, error: string | null }> {
+  try {
+    const { user, profile, organization } = await getCurrentUserWithProfile();
+    if (!user || !profile || !organization) {
+      return { data: null, error: "User not authenticated or organization not found." };
+    }
+
+    // Fetch all user profiles and their associated roles for the current organization
+    const { data, error } = await supabaseClient
+      .from('user_profiles')
+      .select(`
+        user_id,
+        email,
+        first_name,
+        last_name,
+        avatar_url,
+        status:status,
+        user_roles (
+          id,
+          role,
+          permissions
+        )
+      `)
+      .eq('organization_id', organization.id);
+
+    if (error) {
+      console.error("getOrganizationMembers: Supabase query error:", error);
+      return { data: null, error: error.message };
+    }
+
+    const members: OrganizationMember[] = (data || []).map(item => ({
+      user_id: item.user_id,
+      email: item.email,
+      first_name: item.first_name,
+      last_name: item.last_name,
+      avatar_url: item.avatar_url,
+      profile_status: item.status,
+      role_id: (item.user_roles as any)?.id || '',
+      role_name: (item.user_roles as any)?.role || 'viewer',
+      role_permissions: (item.user_roles as any)?.permissions || null,
+      created_at: item.created_at, // Assuming created_at is available on user_profiles
+    }));
+
+    return { data: members, error: null };
+  } catch (error) {
+    console.error("getOrganizationMembers: Unexpected error:", error);
+    return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Update a member's role within the organization
+export async function updateMemberRole(memberUserId: string, newRole: UserRole['role']): Promise<{ success: boolean, error: string | null }> {
+  try {
+    const { user, profile, organization, role: currentUserRole } = await getCurrentUserWithProfile();
+    if (!user || !profile || !organization || !currentUserRole) {
+      return { success: false, error: "User not authenticated or organization not found." };
+    }
+
+    // Only admins can update roles
+    if (currentUserRole.role !== 'admin') {
+      return { success: false, error: "Only administrators can update user roles." };
+    }
+
+    // Prevent admin from changing their own role (or demoting themselves)
+    if (memberUserId === user.id && newRole !== 'admin') {
+      return { success: false, error: "Administrators cannot change their own role." };
+    }
+
+    const { error } = await supabaseClient
+      .from('user_roles')
+      .update({ role: newRole, updated_at: new Date().toISOString() }) // Assuming updated_at exists on user_roles
+      .eq('user_id', memberUserId)
+      .eq('organization_id', organization.id);
+
+    if (error) {
+      console.error("updateMemberRole: Supabase update error:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("updateMemberRole: Unexpected error:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Update a member's profile status within the organization
+export async function updateMemberStatus(memberUserId: string, newStatus: UserProfile['status']): Promise<{ success: boolean, error: string | null }> {
+  try {
+    const { user, profile, organization, role: currentUserRole } = await getCurrentUserWithProfile();
+    if (!user || !profile || !organization || !currentUserRole) {
+      return { success: false, error: "User not authenticated or organization not found." };
+    }
+
+    // Only admins can update user statuses
+    if (currentUserRole.role !== 'admin') {
+      return { success: false, error: "Only administrators can update user statuses." };
+    }
+
+    // Prevent admin from deactivating their own account
+    if (memberUserId === user.id && newStatus === 'inactive') {
+      return { success: false, error: "Administrators cannot deactivate their own account." };
+    }
+
+    const { error } = await supabaseClient
+      .from('user_profiles')
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq('user_id', memberUserId)
+      .eq('organization_id', organization.id);
+
+    if (error) {
+      console.error("updateMemberStatus: Supabase update error:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("updateMemberStatus: Unexpected error:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
 

@@ -143,6 +143,8 @@ function SettingsContent() {
     { code: "zh", name: "中文" },
   ]
 
+  const isOrgAdmin = role?.role === "admin";
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
@@ -354,44 +356,28 @@ function SettingsContent() {
             </Card>
 
             {/* Team Management */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span>Team Management</span>
-                </CardTitle>
-                <CardDescription>Manage team members and their roles.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center mb-4">
-                  <p className="text-sm text-gray-600">Manage who has access to your organization.</p>
-                  <Button size="sm">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Invite Member
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <Avatar>
-                        <AvatarImage src={profile?.avatar_url || "/placeholder.svg"} />
-                        <AvatarFallback>
-                          {profile?.first_name?.[0]}
-                          {profile?.last_name?.[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">
-                          {profile?.first_name} {profile?.last_name}
-                        </p>
-                        <p className="text-sm text-gray-600">{user?.email}</p>
-                      </div>
-                    </div>
-                    <Badge>{role?.role}</Badge>
+            {isOrgAdmin && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Users className="h-5 w-5" />
+                    <span>Team Management</span>
+                  </CardTitle>
+                  <CardDescription>Manage team members and their roles.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center mb-4">
+                    <p className="text-sm text-gray-600">Manage who has access to your organization.</p>
+                    <Link href="/settings/team-management">
+                      <Button size="sm">
+                        <Users className="mr-2 h-4 w-4" />
+                        Manage Team
+                      </Button>
+                    </Link>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Notification Settings */}
