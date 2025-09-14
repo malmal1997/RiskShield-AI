@@ -26,12 +26,20 @@ import {
   Trash2,
   Plus,
   ArrowLeft, // Added ArrowLeft for back button
+  Loader2, // For loading states
+  X, // For closing dialogs
+  Edit, // For editing integrations
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
 import { updateUserProfile } from "@/lib/auth-service"
 import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link"
+import { getIntegrations, createIntegration, updateIntegration, deleteIntegration } from "@/lib/integration-service"; // Import integration services
+import type { Integration } from "@/lib/supabase"; // Import Integration type
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea"; // Import Textarea
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select for integration status
 
 export default function SettingsPage() {
   return (
@@ -42,7 +50,7 @@ export default function SettingsPage() {
 }
 
 function SettingsContent() {
-  const { user, profile, organization, role, refreshProfile } = useAuth()
+  const { user, profile, organization, role, refreshProfile, isDemo } = useAuth()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
@@ -79,6 +87,18 @@ function SettingsContent() {
     password_expiry: 90,
   })
 
+  // Integrations state
+  const [integrations, setIntegrations] = useState<Integration[]>([]);
+  const [showIntegrationDialog, setShowIntegrationDialog] = useState(false);
+  const [editingIntegration, setEditingIntegration] = useState<Integration | null>(null);
+  const [integrationForm, setIntegrationForm] = useState({
+    integration_name: "",
+    settings: "{}", // JSON string
+    status: "inactive" as Integration['status'],
+  });
+  const [isSavingIntegration, setIsSavingIntegration] = useState(false);
+  const [isDeletingIntegration, setIsDeletingIntegration] = useState<string | null>(null);
+
   useEffect(() => {
     if (profile) {
       setProfileForm({
@@ -97,6 +117,40 @@ function SettingsContent() {
       })
     }
   }, [profile, organization])
+
+  const loadIntegrations = async () => {
+    if (isDemo) {
+      // Mock data for demo mode
+      setIntegrations([
+        { id: "mock-slack", organization_id: "demo-org", integration_name: "Slack", settings: {}, status: "active", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+        { id: "mock-jira", organization_id: "demo-org", integration_name: "Jira", settings: {}, status: "inactive", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+      ]);
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error: fetchError } = await getIntegrations();
+      if (fetchError) {
+        throw new Error(fetchError);
+      }
+      setIntegrations(data || []);
+    } catch (err: any) {
+      console.error("Error fetching integrations:", err);
+      toast({
+        title: "Error",
+        description: err.message || "Failed to load integrations.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "integrations" && !loading) {
+      loadIntegrations();
+    }
+  }, [activeTab, loading, isDemo]);
 
   const handleProfileUpdate = async () => {
     try {
@@ -117,6 +171,101 @@ function SettingsContent() {
       setLoading(false)
     }
   }
+
+  const handleIntegrationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isDemo) {
+      toast({
+        title: "Preview Mode",
+        description: "Integration management is not available in preview mode. Please sign up for full access.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSavingIntegration(true);
+    try {
+      const parsedSettings = JSON.parse(integrationForm.settings); // Validate JSON
+      const dataToSave = { ...integrationForm, settings: parsedSettings };
+
+      let result;
+      if (editingIntegration) {
+        result = await updateIntegration(editingIntegration.id, dataToSave);
+      } else {
+        result = await createIntegration(dataToSave);
+      }
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      toast({
+        title: "Success!",
+        description: `Integration "${integrationForm.integration_name}" has been ${editingIntegration ? "updated" : "created"}.`,
+      });
+      setShowIntegrationDialog(false);
+      setEditingIntegration(null);
+      setIntegrationForm({ integration_name: "", settings: "{}", status: "inactive" });
+      await loadIntegrations();
+    } catch (err: any) {
+      console.error("Error saving integration:", err);
+      toast({
+        title: "Error",
+        description: err.message || "Failed to save integration. Ensure settings is valid JSON.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingIntegration(false);
+    }
+  };
+
+  const handleEditIntegration = (integration: Integration) => {
+    setEditingIntegration(integration);
+    setIntegrationForm({
+      integration_name: integration.integration_name,
+      settings: JSON.stringify(integration.settings, null, 2),
+      status: integration.status,
+    });
+    setShowIntegrationDialog(true);
+  };
+
+  const handleDeleteIntegration = async (integrationId: string) => {
+    if (isDemo) {
+      toast({
+        title: "Preview Mode",
+        description: "Integration deletion is not available in preview mode. Please sign up for full access.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!confirm("Are you sure you want to delete this integration?")) {
+      return;
+    }
+
+    setIsDeletingIntegration(integrationId);
+    try {
+      const { success, error: deleteError } = await deleteIntegration(integrationId);
+      if (deleteError) {
+        throw new Error(deleteError);
+      }
+      if (success) {
+        toast({
+          title: "Success!",
+          description: "Integration deleted successfully.",
+        });
+        await loadIntegrations();
+      }
+    } catch (err: any) {
+      console.error("Error deleting integration:", err);
+      toast({
+        title: "Error",
+        description: err.message || "Failed to delete integration.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeletingIntegration(null);
+    }
+  };
 
   const timezones = [
     "UTC",
@@ -282,7 +431,7 @@ function SettingsContent() {
                   <Button onClick={handleProfileUpdate} disabled={loading}>
                     {loading ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Saving...
                       </>
                     ) : (
@@ -614,34 +763,77 @@ function SettingsContent() {
                 <CardDescription>Connect RiskGuard AI with your existing tools and workflows.</CardDescription>
               </CardHeader>
               <CardContent>
+                <div className="flex justify-end mb-4">
+                  <Button onClick={() => {
+                    setEditingIntegration(null);
+                    setIntegrationForm({ integration_name: "", settings: "{}", status: "inactive" });
+                    setShowIntegrationDialog(true);
+                  }}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Integration
+                  </Button>
+                </div>
+
+                {integrations.length === 0 && !loading && (
+                  <div className="text-center py-8 text-gray-500">
+                    <Zap className="h-10 w-10 mx-auto mb-3" />
+                    <p>No integrations configured yet. Click "Add Integration" to get started.</p>
+                  </div>
+                )}
+
+                {loading && (
+                  <div className="text-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+                    <p className="text-gray-600">Loading integrations...</p>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[
-                    { name: "Slack", description: "Get notifications in Slack", icon: "💬", connected: false },
-                    {
-                      name: "Microsoft Teams",
-                      description: "Collaborate with your team",
-                      icon: "👥",
-                      connected: false,
-                    },
-                    { name: "ServiceNow", description: "Sync with ITSM workflows", icon: "🔧", connected: false },
-                    { name: "Jira", description: "Create tickets for remediation", icon: "📋", connected: true },
-                    { name: "Salesforce", description: "Sync vendor information", icon: "☁️", connected: false },
-                    { name: "Webhook", description: "Custom webhook integrations", icon: "🔗", connected: false },
-                  ].map((integration) => (
-                    <Card key={integration.name} className="border">
+                  {integrations.map((integration) => (
+                    <Card key={integration.id} className="border">
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-3">
-                            <span className="text-2xl">{integration.icon}</span>
+                            <span className="text-2xl">
+                              {integration.integration_name === "Slack" && "💬"}
+                              {integration.integration_name === "Jira" && "📋"}
+                              {integration.integration_name === "Microsoft Teams" && "👥"}
+                              {integration.integration_name === "ServiceNow" && "🔧"}
+                              {integration.integration_name === "Salesforce" && "☁️"}
+                              {integration.integration_name === "Webhook" && "🔗"}
+                              {!["Slack", "Jira", "Microsoft Teams", "ServiceNow", "Salesforce", "Webhook"].includes(integration.integration_name) && "🔌"}
+                            </span>
                             <div>
-                              <h3 className="font-medium">{integration.name}</h3>
-                              <p className="text-sm text-gray-600">{integration.description}</p>
+                              <h3 className="font-medium">{integration.integration_name}</h3>
+                              <p className="text-sm text-gray-600">
+                                Status:{" "}
+                                <Badge variant="outline" className={integration.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                                  {integration.status}
+                                </Badge>
+                              </p>
                             </div>
                           </div>
                         </div>
-                        <Button variant={integration.connected ? "outline" : "default"} size="sm" className="w-full">
-                          {integration.connected ? "Disconnect" : "Connect"}
-                        </Button>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditIntegration(integration)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleDeleteIntegration(integration.id)}
+                            disabled={isDeletingIntegration === integration.id}
+                          >
+                            {isDeletingIntegration === integration.id ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="mr-2 h-4 w-4" />
+                            )}
+                            Delete
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -651,6 +843,80 @@ function SettingsContent() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Integration Dialog */}
+      <Dialog open={showIntegrationDialog} onOpenChange={setShowIntegrationDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{editingIntegration ? "Edit Integration" : "Add New Integration"}</DialogTitle>
+            <DialogDescription>
+              {editingIntegration ? "Update the details for this integration." : "Configure a new third-party integration."}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleIntegrationSubmit} className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="integration_name">Integration Name *</Label>
+              <Input
+                id="integration_name"
+                value={integrationForm.integration_name}
+                onChange={(e) => setIntegrationForm({ ...integrationForm, integration_name: e.target.value })}
+                placeholder="e.g., Slack, Jira, Custom Webhook"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="settings">Settings (JSON) *</Label>
+              <Textarea
+                id="settings"
+                value={integrationForm.settings}
+                onChange={(e) => setIntegrationForm({ ...integrationForm, settings: e.target.value })}
+                rows={8}
+                placeholder='{"api_key": "your_key", "channel": "#alerts"}'
+                required
+              />
+              <p className="text-xs text-gray-500">
+                Sensitive information like API keys should be stored securely (e.g., encrypted in Supabase).
+              </p>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={integrationForm.status}
+                onValueChange={(value: Integration['status']) => setIntegrationForm({ ...integrationForm, status: value })}
+              >
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="error">Error</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" disabled={isSavingIntegration}>
+                {isSavingIntegration ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    {editingIntegration ? "Save Changes" : "Add Integration"}
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

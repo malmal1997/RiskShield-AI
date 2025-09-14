@@ -1,7 +1,7 @@
 "use server";
 
 import { supabaseAdmin } from "@/src/integrations/supabase/admin";
-import { getCurrentUserWithProfile, OrganizationMember, UserProfile, UserRole } from "@/lib/auth-service";
+import { getCurrentUserWithProfile, OrganizationMember, UserProfile, UserRole, logAuditEvent } from "@/lib/auth-service"; // Import logAuditEvent
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -68,12 +68,13 @@ export async function inviteUserToOrganization(email: string, firstName: string,
       return { success: false, error: `Failed to assign user role: ${roleError.message}` };
     }
 
-    // 4. Send invitation email via Resend (Supabase inviteUserByEmail already sends an email, this is for custom content)
-    // This part is optional if Supabase's default email is sufficient.
-    // If you want a custom email, you'd need to disable Supabase's default email for invites
-    // and send your own here. For now, we'll assume Supabase handles the initial invite email.
-    // If you want to send a *separate* notification, you can do so here.
-    console.log(`User ${email} invited to organization ${organization.name} with role ${role}. Supabase will send the confirmation email.`);
+    // Log audit event
+    await logAuditEvent({
+      action: 'user_invited',
+      entity_type: 'user',
+      entity_id: invitedUser.user.id,
+      new_values: { email, firstName, lastName, role, organization_id: organization.id },
+    });
 
     return { success: true, error: null };
   } catch (error) {
@@ -94,6 +95,10 @@ export async function deleteUserFromOrganization(memberUserId: string): Promise<
     if (memberUserId === currentUser.id) {
       return { success: false, error: "Administrators cannot delete their own account." };
     }
+
+    // Fetch old values for audit log
+    const { data: oldProfile } = await supabaseAdmin.from('user_profiles').select('*').eq('user_id', memberUserId).single();
+    const { data: oldRole } = await supabaseAdmin.from('user_roles').select('*').eq('user_id', memberUserId).single();
 
     // 1. Delete user's role
     const { error: roleError } = await supabaseAdmin.from('user_roles')
@@ -124,6 +129,14 @@ export async function deleteUserFromOrganization(memberUserId: string): Promise<
       console.error("deleteUserFromOrganization: Supabase Auth user deletion error:", authError);
       return { success: false, error: `Failed to delete user from authentication: ${authError.message}` };
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'user_deleted',
+      entity_type: 'user',
+      entity_id: memberUserId,
+      old_values: { profile: oldProfile, role: oldRole },
+    });
 
     console.log(`User ${memberUserId} deleted from organization ${organization.name}.`);
     return { success: true, error: null };

@@ -1,5 +1,8 @@
 "use server"
 
+import { getCurrentUserWithProfile } from "@/lib/auth-service"
+import { supabaseClient } from "@/lib/supabase-client"
+
 interface PolicyFormData {
   companyName: string
   institutionType: string
@@ -421,7 +424,56 @@ export async function generatePolicy(formData: PolicyFormData) {
       throw new Error("Policy template not found")
     }
 
-    return template(formData)
+    const generatedContent = template(formData);
+
+    // Get current user and organization
+    const { user, organization } = await getCurrentUserWithProfile();
+    if (!user || !organization) {
+      throw new Error("User not authenticated or organization not found. Cannot save policy.");
+    }
+
+    // Save the new policy to the 'policies' table
+    const { data: newPolicy, error: policyError } = await supabaseClient
+      .from('policies')
+      .insert({
+        organization_id: organization.id,
+        user_id: user.id,
+        title: generatedContent.title,
+        company_name: generatedContent.companyName,
+        institution_type: generatedContent.institutionType,
+        status: 'draft', // Initial status
+        approval_status: 'draft', // Initial approval status
+        created_date: new Date().toISOString(),
+        next_review_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        version: '1.0',
+        current_version: '1.0',
+        description: generatedContent.sections[0]?.content || null, // Use purpose as description
+        content: generatedContent, // Store full content as JSONB
+      })
+      .select()
+      .single();
+
+    if (policyError) {
+      console.error("Error saving new policy:", policyError);
+      throw new Error(`Failed to save policy: ${policyError.message}`);
+    }
+
+    // Save the initial version to 'policy_versions' table
+    const { error: versionError } = await supabaseClient
+      .from('policy_versions')
+      .insert({
+        policy_id: newPolicy.id,
+        version_number: '1.0',
+        content: generatedContent,
+        created_by: user.id,
+      });
+
+    if (versionError) {
+      console.error("Error saving policy version:", versionError);
+      // Consider rolling back the policy creation if version fails, or just log
+    }
+
+    return newPolicy; // Return the newly created policy object
   } catch (error) {
     console.error("Error generating policy:", error)
     throw new Error("Failed to generate policy")

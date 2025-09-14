@@ -28,6 +28,9 @@ import {
 import { generatePolicy } from "./actions"
 import { AuthGuard } from "@/components/auth-guard"
 import Link from "next/link"
+import { useAuth } from "@/components/auth-context" // Import useAuth
+import { useToast } from "@/components/ui/use-toast" // Import useToast
+import type { Policy } from "@/lib/supabase" // Import Policy type
 
 const policyTypes = [
   {
@@ -62,7 +65,7 @@ const policyTypes = [
     id: "privacy",
     name: "Privacy & Data Protection Policy",
     description:
-      "Establishes commitment to protecting customer and employee personal information in compliance with privacy laws.",
+      "Establishes commitment to protecting customer and employee personal information in compliance with applicable privacy laws.",
     features: ["Data Collection & Use", "Customer Rights", "Data Security", "Legal Framework (GLBA, CCPA)"],
   },
   {
@@ -75,6 +78,8 @@ const policyTypes = [
 ]
 
 export default function PolicyGenerator() {
+  const { user, isDemo } = useAuth(); // Use useAuth hook
+  const { toast } = useToast(); // Use useToast hook
   const [selectedPolicyType, setSelectedPolicyType] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     companyName: "",
@@ -82,20 +87,18 @@ export default function PolicyGenerator() {
     employeeCount: "",
     assets: "",
   })
-  const [generatedPolicy, setGeneratedPolicy] = useState<any>(null)
+  const [generatedPolicy, setGeneratedPolicy] = useState<Policy | null>(null) // Type as Policy
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
-
-  useEffect(() => {
-    const hasAuth = localStorage.getItem("demo_session")
-    setIsPreviewMode(!hasAuth)
-  }, [])
 
   const handleGeneratePolicy = async () => {
-    if (isPreviewMode) {
-      alert("Preview Mode: Sign up to generate and save your actual policies.")
-      return
+    if (isDemo) {
+      toast({
+        title: "Preview Mode",
+        description: "Policy generation is not available in preview mode. Please sign up for full access.",
+        variant: "destructive",
+      });
+      return;
     }
 
     if (!selectedPolicyType || !formData.companyName || !formData.institutionType) {
@@ -116,8 +119,17 @@ export default function PolicyGenerator() {
         assets: formData.assets,
       })
       setGeneratedPolicy(policyData)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate policy. Please try again.")
+      toast({
+        title: "Policy Generated!",
+        description: "Your policy has been generated and saved as a draft.",
+      });
+    } catch (err: any) {
+      setError(err.message || "Failed to generate policy. Please try again.")
+      toast({
+        title: "Generation Failed",
+        description: err.message || "Failed to generate policy. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false)
     }
@@ -126,13 +138,16 @@ export default function PolicyGenerator() {
   const handleDownloadPolicy = () => {
     if (!generatedPolicy) return
 
+    // Access the full content from the generatedPolicy object
+    const policyContent = generatedPolicy.content as any; // Cast to any to access sections
+
     const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${generatedPolicy.title} - ${generatedPolicy.companyName}</title>
+    <title>${policyContent.title} - ${policyContent.companyName}</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 40px; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border: 1px solid #ddd; border-radius: 8px; }
@@ -144,20 +159,22 @@ export default function PolicyGenerator() {
         li { margin-bottom: 5px; }
         .meta-info { background: #f0f8ff; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 20px; font-size: 0.9em; }
         .meta-info p { margin: 0; }
-        .disclaimer { background: #fffbe6; border-left: 4px solid #f59e0b; padding: 15px; margin-top: 30px; font-size: 0.85em; color: #92400e; }
+        .disclaimer { background: #fffbe6; border-left: 44px solid #f59e0b; padding: 15px; margin-top: 30px; font-size: 0.85em; color: #92400e; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>${generatedPolicy.title}</h1>
+        <h1>${policyContent.title}</h1>
         <div class="meta-info">
-            <p><strong>Company:</strong> ${generatedPolicy.companyName}</p>
-            <p><strong>Institution Type:</strong> ${generatedPolicy.institutionType}</p>
-            <p><strong>Effective Date:</strong> ${generatedPolicy.effectiveDate}</p>
-            <p><strong>Next Review Date:</strong> ${generatedPolicy.nextReviewDate}</p>
+            <p><strong>Company:</strong> ${policyContent.companyName}</p>
+            <p><strong>Institution Type:</strong> ${policyContent.institutionType}</p>
+            <p><strong>Effective Date:</strong> ${policyContent.effectiveDate}</p>
+            <p><strong>Next Review Date:</strong> ${policyContent.nextReviewDate}</p>
+            <p><strong>Status:</strong> ${generatedPolicy.status}</p>
+            <p><strong>Version:</strong> ${generatedPolicy.current_version}</p>
         </div>
 
-        ${generatedPolicy.sections
+        ${policyContent.sections
           .map(
             (section: any) => `
             <h2>SECTION ${section.number}: ${section.title}</h2>
@@ -184,7 +201,7 @@ export default function PolicyGenerator() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
     link.href = url
-    link.download = `${generatedPolicy.title.replace(/\s+/g, "_")}_${generatedPolicy.companyName.replace(/\s+/g, "_")}_Policy.html`
+    link.download = `${generatedPolicy.title.replace(/\s+/g, "_")}_${generatedPolicy.company_name.replace(/\s+/g, "_")}_Policy.html`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -193,9 +210,12 @@ export default function PolicyGenerator() {
 
   const handleCopyPolicy = () => {
     if (!generatedPolicy) return
-    const policyText = JSON.stringify(generatedPolicy, null, 2)
+    const policyText = JSON.stringify(generatedPolicy.content, null, 2) // Copy only the content
     navigator.clipboard.writeText(policyText)
-    alert("Policy copied to clipboard!")
+    toast({
+      title: "Policy Content Copied!",
+      description: "The policy content has been copied to your clipboard.",
+    });
   }
 
   return (
@@ -215,7 +235,7 @@ export default function PolicyGenerator() {
                     Back to Dashboard
                   </Button>
                 </Link>
-                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">Policy Generation</Badge>
+                <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">Policy Generation</Badge>
               </div>
             </div>
             <div className="text-center">
@@ -319,10 +339,9 @@ export default function PolicyGenerator() {
                                   <h3 className="font-medium text-gray-900">{policy.name}</h3>
                                   <p className="text-xs text-gray-600">{policy.description.substring(0, 60)}...</p>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                              </CardContent>
+                            </Card>
+                          ))}
                       </div>
                     </div>
 
@@ -367,24 +386,27 @@ export default function PolicyGenerator() {
                     {generatedPolicy ? (
                       <div className="space-y-4">
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                          <h3 className="font-semibold text-green-900 mb-2">{generatedPolicy.title}</h3>
+                          <h3 className="font-semibold text-green-900 mb-2">{(generatedPolicy.content as any).title}</h3>
                           <p className="text-sm text-green-800">
-                            Generated for {generatedPolicy.companyName} ({generatedPolicy.institutionType})
+                            Generated for {(generatedPolicy.content as any).companyName} ({(generatedPolicy.content as any).institutionType})
                           </p>
                           <p className="text-xs text-green-700 mt-1">
-                            Effective: {generatedPolicy.effectiveDate} | Review Due:{" "}
-                            {generatedPolicy.nextReviewDate}
+                            Effective: {(generatedPolicy.content as any).effectiveDate} | Review Due:{" "}
+                            {(generatedPolicy.content as any).nextReviewDate}
+                          </p>
+                          <p className="text-xs text-green-700 mt-1">
+                            Status: {generatedPolicy.status} | Version: {generatedPolicy.current_version}
                           </p>
                         </div>
 
                         <ScrollArea className="h-[400px] rounded-md border p-4 bg-gray-50">
-                          <h2 className="text-xl font-bold text-gray-900 mb-4">{generatedPolicy.title}</h2>
+                          <h2 className="text-xl font-bold text-gray-900 mb-4">{(generatedPolicy.content as any).title}</h2>
                           <div className="text-sm text-gray-700 space-y-3">
-                            {generatedPolicy.sections.map((section: any) => (
+                            {(generatedPolicy.content as any).sections.map((section: any) => (
                               <div key={section.number}>
-                                <h3 className="font-semibold text-gray-800">
+                                <h4 className="font-semibold text-gray-800">
                                   SECTION {section.number}: {section.title}
-                                </h3>
+                                </h4>
                                 <p>{section.content}</p>
                                 {section.items && (
                                   <ul className="list-disc pl-5">

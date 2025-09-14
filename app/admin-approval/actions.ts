@@ -1,6 +1,7 @@
 "use server";
 
 import { supabaseAdmin } from "@/src/integrations/supabase/admin";
+import { getCurrentUserWithProfile, logAuditEvent } from "@/lib/auth-service"; // Import logAuditEvent
 import type { PendingRegistration } from "@/lib/auth-service";
 
 // Function to approve a pending registration (Admin action)
@@ -167,6 +168,15 @@ export async function approveRegistration(registrationId: string, adminUserId: s
       throw new Error(`Error updating pending registration status: ${updateError.message}`);
     }
     console.log(`[approveRegistration] Pending registration ${registrationId} status updated to 'approved'.`);
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'registration_approved',
+      entity_type: 'pending_registration',
+      entity_id: registrationId,
+      new_values: { status: 'approved', approved_by: adminUserId },
+      old_values: { status: pendingReg.status },
+    });
 
     return { success: true, error: null };
   } catch (error) {

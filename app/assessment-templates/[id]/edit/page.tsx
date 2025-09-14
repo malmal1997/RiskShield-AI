@@ -36,6 +36,7 @@ import {
 import type { AssessmentTemplate, TemplateQuestion } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge"; // Added Badge import
 
 export default function EditAssessmentTemplatePage() {
   return (
@@ -556,7 +557,7 @@ function EditAssessmentTemplateContent() {
                       <Label htmlFor="new-question-options">Options (comma-separated)</Label>
                       <Input
                         id="new-question-options"
-                        value={newQuestionForm.options?.join(", ") || ""}
+                        value={(newQuestionForm.options as string[] | undefined)?.join(", ") || ""}
                         onChange={(e) =>
                           setNewQuestionForm({ ...newQuestionForm, options: e.target.value.split(",").map(s => s.trim()) })
                         }
@@ -665,7 +666,7 @@ function EditAssessmentTemplateContent() {
                           <Label htmlFor={`edit-question-options-${question.id}`}>Options (comma-separated)</Label>
                           <Input
                             id={`edit-question-options-${question.id}`}
-                            value={question.options?.join(", ") || ""}
+                            value={(question.options as string[] | undefined)?.join(", ") || ""}
                             onChange={(e) =>
                               setQuestions((prev) =>
                                 prev.map((q) =>
@@ -723,7 +724,7 @@ function EditAssessmentTemplateContent() {
                         </h3>
                         {question.options && question.options.length > 0 && (
                           <p className="text-sm text-gray-600 mt-1">
-                            Options: {question.options.join(", ")}
+                            Options: {(question.options as string[]).join(", ")}
                           </p>
                         )}
                       </div>

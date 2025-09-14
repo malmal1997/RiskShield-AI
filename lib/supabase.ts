@@ -1101,7 +1101,7 @@ export type Database = {
           category: string | null
           created_at: string
           id: string
-          options: Json | null
+          options: string[] | null // Changed from Json | null
           order: number
           question_text: string
           question_type: string
@@ -1114,7 +1114,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           id?: string
-          options?: Json | null
+          options?: string[] | null // Changed from Json | null
           order: number
           question_text: string
           question_type: string
@@ -1127,7 +1127,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           id?: string
-          options?: Json | null
+          options?: string[] | null // Changed from Json | null
           order?: number
           question_text?: string
           question_type?: string

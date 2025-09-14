@@ -1,5 +1,5 @@
 import { supabaseClient } from "./supabase-client";
-import { getCurrentUserWithProfile } from "./auth-service";
+import { getCurrentUserWithProfile, logAuditEvent } from "./auth-service"; // Import logAuditEvent
 
 export interface Vendor {
   id: string;
@@ -83,6 +83,14 @@ export async function createVendor(vendorData: Omit<Vendor, 'id' | 'user_id' | '
       throw new Error(`Failed to create vendor: ${error.message}`);
     }
 
+    // Log audit event
+    await logAuditEvent({
+      action: 'vendor_created',
+      entity_type: 'vendor',
+      entity_id: data.id,
+      new_values: data,
+    });
+
     return data;
   } catch (error) {
     console.error("createVendor: Error creating vendor:", error);
@@ -98,6 +106,9 @@ export async function updateVendor(id: string, updates: Partial<Omit<Vendor, 'id
       throw new Error("User not authenticated. Cannot update vendor.");
     }
 
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('vendors').select('*').eq('id', id).single();
+
     const { data, error } = await supabaseClient
       .from("vendors")
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -110,6 +121,15 @@ export async function updateVendor(id: string, updates: Partial<Omit<Vendor, 'id
       console.error("updateVendor: Supabase update error:", error);
       throw new Error(`Failed to update vendor: ${error.message}`);
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'vendor_updated',
+      entity_type: 'vendor',
+      entity_id: data.id,
+      old_values: oldData,
+      new_values: updates,
+    });
 
     return data;
   } catch (error) {
@@ -126,6 +146,9 @@ export async function deleteVendor(id: string): Promise<void> {
       throw new Error("User not authenticated. Cannot delete vendor.");
     }
 
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('vendors').select('*').eq('id', id).single();
+
     const { error } = await supabaseClient
       .from("vendors")
       .delete()
@@ -136,6 +159,15 @@ export async function deleteVendor(id: string): Promise<void> {
       console.error("deleteVendor: Supabase delete error:", error);
       throw new Error(`Failed to delete vendor: ${error.message}`);
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'vendor_deleted',
+      entity_type: 'vendor',
+      entity_id: id,
+      old_values: oldData,
+    });
+
   } catch (error) {
     console.error("deleteVendor: Error deleting vendor:", error);
     throw error;

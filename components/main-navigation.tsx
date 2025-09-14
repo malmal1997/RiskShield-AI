@@ -47,6 +47,7 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
   // Add Team Management link if the user is an organization admin
   if (isAdmin) { // For organization admins (including demo admins)
     authenticatedNavigationItems.push({ name: "Team Management", href: "/settings/team-management" });
+    authenticatedNavigationItems.push({ name: "Assessment Templates", href: "/assessment-templates" }); // Added for Phase 3
   }
 
   const navigationItems = user ? authenticatedNavigationItems : publicNavigationItems;

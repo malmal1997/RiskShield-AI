@@ -1,5 +1,6 @@
 import { supabaseClient } from "./supabase-client"
 import type { User } from "@supabase/supabase-js"
+import type { Json } from "./supabase" // Added Json import
 
 export interface Organization {
   id: string
@@ -29,7 +30,7 @@ export interface UserProfile {
   last_active_at?: string
   created_at: string
   updated_at: string
-  status: string; -- Added status
+  status: string; 
 }
 
 export interface UserRole {
@@ -269,7 +270,8 @@ export async function getOrganizationMembers(): Promise<{ data: OrganizationMemb
         first_name,
         last_name,
         avatar_url,
-        status:status,
+        status,
+        created_at,
         user_roles (
           id,
           role,
@@ -293,7 +295,7 @@ export async function getOrganizationMembers(): Promise<{ data: OrganizationMemb
       role_id: (item.user_roles as any)?.id || '',
       role_name: (item.user_roles as any)?.role || 'viewer',
       role_permissions: (item.user_roles as any)?.permissions || null,
-      created_at: item.created_at, // Assuming created_at is available on user_profiles
+      created_at: item.created_at, 
     }));
 
     return { data: members, error: null };

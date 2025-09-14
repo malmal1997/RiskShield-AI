@@ -1,6 +1,6 @@
 import { supabaseClient } from "./supabase-client"
 import { supabaseAdmin } from "@/src/integrations/supabase/admin" // Import supabaseAdmin
-import { getCurrentUserWithProfile } from "./auth-service" // Import getCurrentUserWithProfile
+import { getCurrentUserWithProfile, logAuditEvent } from "./auth-service" // Import getCurrentUserWithProfile and logAuditEvent
 import type { User } from "@supabase/supabase-js" // Import User type
 import type { AiAssessmentReport, Assessment, AssessmentResponse, AssessmentTemplate, TemplateQuestion } from "./supabase" // Import AiAssessmentReport, AssessmentTemplate, TemplateQuestion types
 
@@ -221,6 +221,14 @@ export async function createAssessment(assessmentData: {
       throw new Error("No data returned from database")
     }
 
+    // Log audit event
+    await logAuditEvent({
+      action: 'assessment_created',
+      entity_type: 'assessment',
+      entity_id: data.id,
+      new_values: data,
+    });
+
     console.log("✅ Assessment created successfully:", data)
     return data
   } catch (error) {
@@ -236,6 +244,9 @@ export async function updateAssessmentStatus(id: string, status: string, riskSco
     if (!user) {
       throw new Error("User not authenticated. Cannot update assessment.")
     }
+
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('assessments').select('*').eq('id', id).single();
 
     const updateData: any = {
       status,
@@ -254,12 +265,21 @@ export async function updateAssessmentStatus(id: string, status: string, riskSco
       updateData.risk_level = riskLevel
     }
 
-    const { error } = await supabaseClient.from("assessments").update(updateData).eq("id", id).eq("user_id", user.id)
+    const { error, data: updatedData } = await supabaseClient.from("assessments").update(updateData).eq("id", id).eq("user_id", user.id).select().single();
 
     if (error) {
       console.error("Error updating assessment:", error)
       throw error
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'assessment_status_updated',
+      entity_type: 'assessment',
+      entity_id: id,
+      old_values: oldData,
+      new_values: updatedData,
+    });
 
     return true
   } catch (error) {
@@ -287,7 +307,7 @@ export async function submitAssessmentResponse(
     // Get the assessment to find the owner and organization_id
     const { data: assessment, error: assessmentError } = await supabaseClient
       .from("assessments")
-      .select("user_id, organization_id") // Select organization_id here
+      .select("user_id, organization_id, status") // Select status for old_values
       .eq("id", assessmentId)
       .single()
 
@@ -297,7 +317,7 @@ export async function submitAssessmentResponse(
     }
 
     // Insert the response into assessment_responses table
-    const { error: responseError } = await supabaseClient.from("assessment_responses").insert([
+    const { error: responseError, data: newResponse } = await supabaseClient.from("assessment_responses").insert([
       {
         assessment_id: assessmentId,
         user_id: assessment.user_id, // Link to the assessment owner
@@ -306,17 +326,26 @@ export async function submitAssessmentResponse(
         answers: answers,
         submitted_at: new Date().toISOString(),
       },
-    ])
+    ]).select().single();
 
     if (responseError) {
       console.error("❌ Error inserting assessment response:", responseError)
       throw new Error(`Failed to save assessment response: ${responseError.message}`)
     }
 
+    // Log audit event for response submission
+    await logAuditEvent({
+      action: 'assessment_response_submitted',
+      entity_type: 'assessment_response',
+      entity_id: newResponse.id.toString(),
+      new_values: newResponse,
+      old_values: null, // No old response to compare
+    });
+
     console.log("✅ Assessment response saved successfully")
 
     // Update the assessment status to completed with proper data
-    const { error: updateError } = await supabaseClient
+    const { error: updateError, data: updatedAssessment } = await supabaseClient
       .from("assessments")
       .update({
         status: "completed",
@@ -326,11 +355,22 @@ export async function submitAssessmentResponse(
         updated_at: new Date().toISOString(),
       })
       .eq("id", assessmentId)
+      .select()
+      .single();
 
     if (updateError) {
       console.error("❌ Error updating assessment status:", updateError)
       throw new Error(`Failed to update assessment status: ${updateError.message}`)
     }
+
+    // Log audit event for assessment completion
+    await logAuditEvent({
+      action: 'assessment_completed',
+      entity_type: 'assessment',
+      entity_id: assessmentId,
+      old_values: { status: assessment.status, risk_score: null, risk_level: 'pending' }, // Assuming initial state
+      new_values: { status: updatedAssessment.status, risk_score: updatedAssessment.risk_score, risk_level: updatedAssessment.risk_level },
+    });
 
     console.log("✅ Assessment status updated to completed")
   } catch (error) {
@@ -347,12 +387,24 @@ export async function deleteAssessment(id: string) {
       throw new Error("User not authenticated. Cannot delete assessment.")
     }
 
-    const { error } = await supabaseClient.from("assessments").delete().eq("id", id).eq("user_id", user.id)
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('assessments').select('*').eq('id', id).single();
+
+    const { error } = await supabaseClient.from("assessments").delete().eq("id", id).eq("user_id", user.id);
 
     if (error) {
       console.error("Error deleting assessment:", error)
       throw new Error(`Failed to delete assessment: ${error.message}`)
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'assessment_deleted',
+      entity_type: 'assessment',
+      entity_id: id,
+      old_values: oldData,
+    });
+
   } catch (error) {
     console.error("Error in deleteAssessment:", error)
     throw error
@@ -404,6 +456,14 @@ export async function saveAiAssessmentReport(reportData: {
       console.error("❌ Supabase error saving AI assessment report:", error);
       throw new Error(`Failed to save AI assessment report: ${error.message}`);
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'ai_assessment_report_saved',
+      entity_type: 'ai_assessment_report',
+      entity_id: data.id,
+      new_values: data,
+    });
 
     console.log("✅ AI assessment report saved successfully:", data);
     return data;
@@ -525,6 +585,15 @@ export async function createAssessmentTemplate(templateData: Omit<AssessmentTemp
       console.error("createAssessmentTemplate: Supabase insert error:", error);
       return { data: null, error: error.message };
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'assessment_template_created',
+      entity_type: 'assessment_template',
+      entity_id: data.id,
+      new_values: data,
+    });
+
     return { data, error: null };
   } catch (error) {
     console.error("createAssessmentTemplate: Unexpected error:", error);
@@ -540,6 +609,9 @@ export async function updateAssessmentTemplate(templateId: string, updates: Part
       return { data: null, error: "User not authenticated or organization not found." };
     }
 
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('assessment_templates').select('*').eq('id', templateId).single();
+
     const { data, error } = await supabaseClient
       .from('assessment_templates')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -552,6 +624,16 @@ export async function updateAssessmentTemplate(templateId: string, updates: Part
       console.error("updateAssessmentTemplate: Supabase update error:", error);
       return { data: null, error: error.message };
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'assessment_template_updated',
+      entity_type: 'assessment_template',
+      entity_id: data.id,
+      old_values: oldData,
+      new_values: data,
+    });
+
     return { data, error: null };
   } catch (error) {
     console.error("updateAssessmentTemplate: Unexpected error:", error);
@@ -567,6 +649,9 @@ export async function deleteAssessmentTemplate(templateId: string): Promise<{ su
       return { success: false, error: "User not authenticated or organization not found." };
     }
 
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('assessment_templates').select('*').eq('id', templateId).single();
+
     const { error } = await supabaseClient
       .from('assessment_templates')
       .delete()
@@ -577,6 +662,15 @@ export async function deleteAssessmentTemplate(templateId: string): Promise<{ su
       console.error("deleteAssessmentTemplate: Supabase delete error:", error);
       return { success: false, error: error.message };
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'assessment_template_deleted',
+      entity_type: 'assessment_template',
+      entity_id: templateId,
+      old_values: oldData,
+    });
+
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteAssessmentTemplate: Unexpected error:", error);
@@ -651,6 +745,15 @@ export async function createTemplateQuestion(questionData: Omit<TemplateQuestion
       console.error("createTemplateQuestion: Supabase insert error:", error);
       return { data: null, error: error.message };
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'template_question_created',
+      entity_type: 'template_question',
+      entity_id: data.id,
+      new_values: data,
+    });
+
     return { data, error: null };
   } catch (error) {
     console.error("createTemplateQuestion: Unexpected error:", error);
@@ -688,6 +791,9 @@ export async function updateTemplateQuestion(questionId: string, updates: Partia
       return { data: null, error: "Template not found or not accessible." };
     }
 
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('template_questions').select('*').eq('id', questionId).single();
+
     const { data, error } = await supabaseClient
       .from('template_questions')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -699,6 +805,16 @@ export async function updateTemplateQuestion(questionId: string, updates: Partia
       console.error("updateTemplateQuestion: Supabase update error:", error);
       return { data: null, error: error.message };
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'template_question_updated',
+      entity_type: 'template_question',
+      entity_id: data.id,
+      old_values: oldData,
+      new_values: data,
+    });
+
     return { data, error: null };
   } catch (error) {
     console.error("updateTemplateQuestion: Unexpected error:", error);
@@ -736,6 +852,9 @@ export async function deleteTemplateQuestion(questionId: string): Promise<{ succ
       return { success: false, error: "Template not found or not accessible." };
     }
 
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('template_questions').select('*').eq('id', questionId).single();
+
     const { error } = await supabaseClient
       .from('template_questions')
       .delete()
@@ -745,6 +864,15 @@ export async function deleteTemplateQuestion(questionId: string): Promise<{ succ
       console.error("deleteTemplateQuestion: Supabase delete error:", error);
       return { success: false, error: error.message };
     }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'template_question_deleted',
+      entity_type: 'template_question',
+      entity_id: questionId,
+      old_values: oldData,
+    });
+
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteTemplateQuestion: Unexpected error:", error);
