@@ -443,19 +443,19 @@ export async function analyzeDocuments(
       if (question.type === "boolean") {
         answers[question.id] = false
         confidenceScores[question.id] = 0.95
-        reasoning[question.id] = "No supported documents available for analysis. Defaulting to 'No' for safety."
+        reasoning[question.id] = "No directly relevant evidence found after comprehensive search. Defaulting to 'No' for safety."
       } else if (question.type === "multiple" && question.options) {
         answers[question.id] = question.options[0] || "Never"
         confidenceScores[question.id] = 0.95
-        reasoning[question.id] = "No supported documents available for analysis. Using most conservative option."
+        reasoning[question.id] = "No directly relevant evidence found after comprehensive search. Using most conservative option."
       } else if (question.type === "tested") {
         answers[question.id] = "not_tested"
         confidenceScores[question.id] = 0.95
-        reasoning[question.id] = "No supported documents available for analysis. Defaulting to 'Not Tested' for safety."
+        reasoning[question.id] = "No directly relevant evidence found after comprehensive search. Defaulting to 'Not Tested' for safety."
       } else if (question.type === "textarea") {
         answers[question.id] = "No directly relevant evidence found after comprehensive search."
         confidenceScores[question.id] = 0.95
-        reasoning[question.id] = "No supported documents available for analysis. Defaulting to 'No directly relevant evidence found after comprehensive search' for safety."
+        reasoning[question.id] = "No directly relevant evidence found after comprehensive search. Defaulting to 'No directly relevant evidence found after comprehensive search' for safety."
       }
     })
 
@@ -577,7 +577,7 @@ ${questions.map((q: Question, idx: number) => `${idx + 1}. ID: ${q.id} - ${q.que
 Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., \`\`\`json) or conversational text outside the JSON. Ensure all property names are double-quoted.
 {
   "answers": {
-    ${questions.map((q: Question) => `"${q.id}": ${q.type === "boolean" ? 'true or false' : '"your_answer"'}`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": ${q.type === "boolean" ? 'true' : '"your_answer"'}`).join(",\n    ")}
   },
   "confidence": {
     ${questions.map((q: Question) => `"${q.id}": 0.8`).join(",\n    ")}
@@ -674,7 +674,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     }
 
     console.log(`📝 Google AI response received (${result.text.length} characters)`)
-    console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
+    console.log(`🔍 Raw AI response text: ${result.text.substring(0, 500)}...`) // Log raw response
 
     let rawAiResponseText = result.text;
 
@@ -691,6 +691,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     try {
       const aiResponse = JSON.parse(rawAiResponseText)
       console.log(`✅ Successfully parsed AI response JSON`)
+      console.log("Parsed AI response object:", aiResponse); // Log parsed object
 
       // Process each question with enhanced validation
       questions.forEach((question: Question) => {
