@@ -386,7 +386,7 @@ ${questions.map((q: Question, idx: number) => {
   return `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""}) - ${formatHint}`;
 }).join("\n")}
 
-Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., \`\`\`json) or conversational text outside the JSON. Ensure all property names are double-quoted.
+YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT BEFORE OR AFTER THE JSON. DO NOT WRAP THE JSON IN MARKDOWN CODE BLOCKS (e.g., \`\`\`json). ENSURE ALL PROPERTY NAMES ARE DOUBLE-QUOTED.
 {
   "question_responses": [
     ${questions.map((q: Question) => `
@@ -495,6 +495,9 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       rawAiResponseText = rawAiResponseText.substring(0, rawAiResponseText.length - 3); // Remove "\n```"
     }
     rawAiResponseText = rawAiResponseText.trim(); // Trim any remaining whitespace
+
+    // Log the exact string before parsing
+    console.log("Attempting to parse JSON string:\n", rawAiResponseText);
 
     // Parse AI response
     try {
