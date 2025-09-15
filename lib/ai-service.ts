@@ -178,7 +178,7 @@ function getGoogleAIMediaType(file: File): string {
   if (fileName.endsWith(".ppt")) return "application/vnd.ms-powerpoint"
   if (fileName.endsWith(".txt")) return "text/plain"
   if (fileName.endsWith(".md")) return "text/markdown"
-  if (fileName.endsWith(".csv")) return "text/csv"
+  if (fileName.endsWith(".csv")) return "application/json"
   if (fileName.endsWith(".json")) return "application/json"
   if (fileName.endsWith(".html") || fileName.endsWith(".htm")) return "text/html"
   if (fileName.endsWith(".xml")) return "application/xml"
@@ -297,6 +297,14 @@ const CYBERSECURITY_CONCEPTS = {
     "security awareness",
     "cybersecurity training",
   ],
+  "multi-factor authentication": [
+    "multi-factor authentication",
+    "mfa",
+    "2fa",
+    "two-factor authentication",
+    "strong authentication",
+    "second factor",
+  ],
 }
 
 // Enhanced semantic relevance checking
@@ -320,42 +328,6 @@ function checkSemanticRelevance(
     }
   }
 
-  const isVulnerabilityQuestion =
-    questionLower.includes("vulnerability") ||
-    questionLower.includes("penetration") ||
-    questionLower.includes("pen test") ||
-    questionLower.includes("security test") ||
-    questionLower.includes("security scan")
-
-  if (isVulnerabilityQuestion) {
-    // For vulnerability questions, check for broader security-related terms
-    const vulnerabilityTerms = [
-      "vulnerability",
-      "penetration",
-      "pen test",
-      "pentest",
-      "security test",
-      "security scan",
-      "security assessment",
-      "vulnerability scan",
-      "vulnerability assessment",
-      "security evaluation",
-      "vulnerability testing",
-      "security audit",
-      "intrusion test",
-    ]
-
-    const hasVulnerabilityTerms = vulnerabilityTerms.some((term) => evidenceLower.includes(term))
-
-    if (hasVulnerabilityTerms && evidenceLower.length > 20) {
-      return {
-        isRelevant: true,
-        confidence: 0.85,
-        reason: "Evidence contains vulnerability/security testing related content",
-      }
-    }
-  }
-
   // Find the primary concept in the question
   let primaryConcept = ""
   let conceptKeywords: string[] = []
@@ -369,7 +341,7 @@ function checkSemanticRelevance(
   }
 
   if (!primaryConcept) {
-    // Fallback to basic keyword extraction
+    // Fallback to basic keyword extraction if no specific concept found
     const questionWords = questionLower.split(/\s+/).filter((word) => word.length > 3)
     conceptKeywords = questionWords.slice(0, 3)
     primaryConcept = "general"
@@ -383,7 +355,7 @@ function checkSemanticRelevance(
     if (primaryConcept === "general" && evidenceLower.length > 50) {
       return {
         isRelevant: true,
-        confidence: 0.6,
+        confidence: 0.5, // Lower confidence for general matches
         reason: "General evidence found for broad question",
       }
     }
@@ -397,16 +369,16 @@ function checkSemanticRelevance(
 
   // Calculate confidence based on keyword matches and context
   const keywordRatio = relevantKeywords.length / conceptKeywords.length
-  let confidence = keywordRatio * 0.8
+  let confidence = keywordRatio * 0.7 // Base confidence
 
   // Boost confidence if multiple relevant keywords are found
   if (relevantKeywords.length >= 2) {
-    confidence = Math.min(confidence + 0.2, 0.95)
+    confidence = Math.min(confidence + 0.2, 0.9)
   }
 
   return {
     isRelevant: true,
-    confidence: Math.max(confidence, 0.6),
+    confidence: Math.max(confidence, 0.6), // Ensure a minimum confidence if relevant
     reason: `Evidence contains relevant keywords: ${relevantKeywords.join(", ")}`,
   }
 }
@@ -560,8 +532,9 @@ export async function analyzeDocuments(
 CRITICAL INSTRUCTIONS:
 - YOU MUST THOROUGHLY ANALYZE ALL PROVIDED DOCUMENTS. This includes both the text content provided directly in the prompt AND any binary files attached (e.g., PDFs, DOCX, XLSX, PPTX). Use your advanced document processing capabilities to extract and understand the content of ALL attached files.
 - BASE YOUR ANSWERS SOLELY AND EXCLUSIVELY ON THE INFORMATION DIRECTLY AND SPECIFICALLY FOUND WITHIN THE PROVIDED DOCUMENTS. DO NOT use external knowledge, make assumptions, or infer information not explicitly stated.
+- For each question, provide the MOST ACCURATE ANSWER based on the evidence.
 - For each question, if relevant evidence is found, provide the EXACT QUOTE from the document in the 'excerpt' field. The quote should be verbatim and should NOT include any source information (like file name or page number).
-- For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if applicable and identifiable, otherwise null), and 'source_label' ('4th Party' or null if 'Primary').
+- For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.txt"), 'source_page_number' (if applicable and explicitly identifiable in the text, otherwise null), and 'source_label' ('Primary' or '4th Party').
 - If no directly relevant evidence is found after a comprehensive search of ALL documents, set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
 - When citing evidence, prioritize documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then prioritize documents labeled "4th Party".
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions.
@@ -588,10 +561,10 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   "evidence_details": {
     ${questions.map((q: Question) => `
       "${q.id}": {
-        "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. The quote should NOT include any source information.",
-        "source_file_name": "DocumentName.pdf", // or null if not available
-        "source_page_number": 7, // CRITICAL: For EVERY excerpt, if the source is a paginated document (like PDF), you MUST provide the exact page number. If the document is not paginated (e.g., a plain text file) or the page number is genuinely unidentifiable, then set 'source_page_number' to null. DO NOT omit page numbers for PDFs if they are present.
-        "source_label": "4th Party" // or null if Primary
+        "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. If no relevant evidence, state 'No directly relevant evidence found after comprehensive search'.",
+        "source_file_name": "DocumentName.txt", // or null if not explicitly found in the text
+        "source_page_number": null, // Set to null if not explicitly found in the text
+        "source_label": "Primary" // or '4th Party'
       }`).join(",\n    ")}
   }
 }`
@@ -823,11 +796,22 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     } else if (question.type === "multiple" && question.options) {
       // For multiple choice, assign score based on position (e.g., first option is lowest risk)
       // Assuming options are ordered from lowest risk to highest risk
-      maxScore += (question.weight || 0) * (question.options.length - 1); // Max score if highest risk option is chosen
+      // The scoring logic here needs to be inverted if options are from lowest to highest risk
+      // Let's assume options are ordered from most conservative (lowest risk) to least conservative (highest risk)
+      // So, "Never" (index 0) is lowest risk, "Annually" (index 3) is higher risk.
+      // The current sample questions have options like ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually", "Quarterly", "Monthly", "Continuously"]
+      // For "How often do you conduct penetration testing?", "Annually" is a good answer, not "Never".
+      // So, the scoring should be: higher index = higher score (better answer).
+      
       const optionIndex = question.options.indexOf(answer as string);
       if (optionIndex !== -1) {
+        // Score based on how "good" the option is. Higher index means better for frequency questions.
+        // Max score for a multiple choice question is (question.weight * (options.length - 1))
+        // For example, if options are 5, index 4 (last option) is best.
         totalScore += (question.weight || 0) * optionIndex;
       }
+      maxScore += (question.weight || 0) * (question.options.length - 1);
+
     } else if (question.type === "textarea") {
       // Textarea questions don't directly contribute to score, but indicate completeness
       // For now, we'll just ensure they are answered to contribute to completeness, not risk score
@@ -840,7 +824,12 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     }
   })
 
-  const riskScore = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0
+  // Normalize score to 0-100 range
+  let riskScore = 0;
+  if (maxScore > 0) {
+    riskScore = Math.round((totalScore / maxScore) * 100);
+  }
+
   let riskLevel = "High"
   if (riskScore >= 75) riskLevel = "Low"
   else if (riskScore >= 50) riskLevel = "Medium"
