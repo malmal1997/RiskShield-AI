@@ -1833,7 +1833,6 @@ interface AnalysisResult {
     fileSize: number
     fileType: string
     processingMethod: string
-    label?: 'Primary' | '4th Party';
   }>
 }
 
@@ -1925,7 +1924,7 @@ export default function AIAssessmentPage() {
           setCurrentQuestions([]);
         } else {
           setCurrentQuestions(data || []);
-          const selectedTemplate = customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId);
+          const selectedTemplate = customTemplates.find(t => t.id === selectedTemplateId);
           if (selectedTemplate?.type === "soc-compliance") { // Check if it's the SOC template
             setCurrentStep("soc-info");
           } else {
@@ -2003,7 +2002,7 @@ export default function AIAssessmentPage() {
       });
       formData.append('labels', JSON.stringify(uploadedFiles.map(item => item.label)));
       formData.append('questions', JSON.stringify(currentQuestions));
-      formData.append('assessmentType', (customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"));
+      formData.append('assessmentType', (customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"));
 
       const response = await fetch("/api/ai-assessment/analyze", {
         method: "POST",
@@ -2073,11 +2072,11 @@ export default function AIAssessmentPage() {
         description: "Your AI assessment report is being saved to your profile.",
       });
 
-      const reportTitle = `${(customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment")} AI Assessment`;
+      const reportTitle = `${(customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment")} AI Assessment`;
       const reportSummary = analysisResults.overallAnalysis.substring(0, 250) + "..."; // Truncate for summary
 
       const savedReport = await saveAiAssessmentReport({
-        assessmentType: (customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"),
+        assessmentType: (customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"),
         reportTitle: reportTitle,
         riskScore: riskScore,
         riskLevel: riskLevel,
@@ -2189,7 +2188,7 @@ export default function AIAssessmentPage() {
       allowPreview={true}
       previewMessage="Preview Mode: Sign up to save assessments and access full features"
     >
-      <div className="bg-white"> {/* Removed min-h-screen */}
+      <div className="min-h-screen bg-white">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -2216,7 +2215,7 @@ export default function AIAssessmentPage() {
         </section>
 
         {/* Progress Bar */}
-        <div className="bg-white">
+        <div className="bg-white border-b border-gray-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="py-4">
               <div className="flex items-center justify-between mb-2">
@@ -3008,6 +3007,106 @@ export default function AIAssessmentPage() {
             )}
           </div>
         </section>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div>
+                <div className="flex items-center space-x-2 mb-4">
+                  <Shield className="h-6 w-6 text-blue-400" />
+                  <span className="text-lg font-bold">RiskShield AI</span>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
+                  risks.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Platform</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Risk Assessment
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Compliance Monitoring
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Policy Generator
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Policy Library
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Support</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Help Center
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Contact Support
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Status Page
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Company</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      About Us
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Careers
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Terms of Service
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
+              <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
       </div>
     </AuthGuard>
   )

@@ -470,7 +470,7 @@ ${assessmentLink}
       allowPreview={true}
       previewMessage="Preview Mode: Sign up to send real vendor assessments and manage your portfolio"
     >
-      <div className="bg-white"> {/* Removed min-h-screen */}
+      <div className="min-h-screen bg-white">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -929,6 +929,111 @@ ${assessmentLink}
             </div>
           </div>
         )}
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div>
+                <div className="flex items-center space-x-2 mb-4">
+                  <Shield className="h-6 w-6 text-blue-400" />
+                  <span className="text-lg font-bold">RiskShield AI</span>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  AI-powered risk assessment platform helping organizations maintain compliance and mitigate risks
+                  across all industries.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Platform</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Risk Assessment
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Third-Party Assessment
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Compliance Monitoring
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Reporting
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Integrations
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Support</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Help Center
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Contact Support
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Status Page
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Company</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      About Us
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Careers
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Terms of Service
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
+              <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
       </div>
     </AuthGuard>
   )
