@@ -352,7 +352,9 @@ export async function analyzeDocuments(
     })
   }
 
-  const basePrompt = `You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions. Your task is to analyze the provided documents and answer specific assessment questions.
+  const basePrompt = `YOUR SOLE TASK IS TO EXTRACT ANSWERS DIRECTLY AND EXCLUSIVELY FROM THE PROVIDED DOCUMENTS. DO NOT GUESS. DO NOT USE EXTERNAL KNOWLEDGE.
+
+You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions. Your task is to analyze the provided documents and answer specific assessment questions.
 
 CRITICAL INSTRUCTIONS:
 - YOU MUST THOROUGHLY ANALYZE ALL PROVIDED DOCUMENTS. This includes both the text content provided directly in the prompt AND any binary files attached (e.g., PDFs, DOCX, XLSX, PPTX). Use your advanced document processing capabilities to extract and understand the content of ALL attached files.
@@ -373,9 +375,9 @@ ASSESSMENT QUESTIONS AND DETAILED ANSWERING INSTRUCTIONS:
 ${questions.map((q: Question, idx: number) => {
   let formatHint = '';
   if (q.type === 'boolean') {
-    formatHint = 'Expected: true or false. FIRST, search for explicit affirmative (e.g., "is encrypted", "is required", "we do") or negative (e.g., "no encryption", "not required", "we do not") statements. If the document explicitly states the presence of the control, answer `true`. If it explicitly states absence, answer `false`. ONLY IF NO INFORMATION IS FOUND, default to `false`.';
+    formatHint = 'Expected: true or false. FIRST, search for explicit affirmative (e.g., "is encrypted", "is required", "we do") or negative (e.g., "no encryption", "not required", "we do not") statements. If an explicit affirmative statement is found, answer `true`. If an explicit negative statement is found, answer `false`. ONLY IF NO EXPLICIT STATEMENT (AFFIRMATIVE OR NEGATIVE) IS FOUND, default to `false`.';
   } else if (q.type === 'multiple' && q.options) {
-    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. FIRST, find the exact matching frequency or description. If multiple apply, choose the most specific or highest frequency mentioned. ONLY IF NO INFORMATION IS FOUND, default to the first option in the list.`;
+    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. FIRST, find the exact option or a clear equivalent in the documents. If found, use that option. ONLY IF NO CLEAR MATCH IS FOUND, default to the first option in the list ("${q.options[0]}").`;
   } else if (q.type === 'tested') {
     formatHint = 'Expected: "tested" or "not_tested". FIRST, look for evidence of testing activities or explicit statements about testing status. If no information is found, default to "not_tested".';
   } else if (q.type === 'textarea') {
@@ -392,7 +394,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       "id": "${q.id}",
       "answer": ${q.type === "boolean" ? 'false' : (q.type === "multiple" || q.type === "tested" ? '""' : '""')}, // Placeholder for AI to fill
       "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. If no relevant evidence, state 'No directly relevant evidence found after comprehensive search'.",
-      "reasoning": "Explain how you arrived at the answer based on the document evidence or why a default was used.",
+      "reasoning": "Explain how you arrived at the answer based on the document evidence or why a default was used. If no evidence, state 'No direct evidence found, defaulting to X'.",
       "source_file_name": null, // or "DocumentName.txt"
       "source_page_number": null,
       "source_label": null // or 'Primary' or '4th Party'
@@ -598,7 +600,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           }
 
           confidenceScores[questionId] = 0.1; // Low confidence for conservative answer
-          reasoning[questionId] = `No directly relevant evidence found after comprehensive search. ${relevanceCheck.reason}`;
+          reasoning[questionId] = `No directly relevant evidence found, defaulting to conservative answer. ${relevanceCheck.reason}`;
           documentExcerpts[questionId] = [];
         }
       });
