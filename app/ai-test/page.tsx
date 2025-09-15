@@ -15,8 +15,7 @@ interface ProviderStatus {
 
 interface TestResult {
   providers: {
-    groq: ProviderStatus
-    huggingface: ProviderStatus
+    google: ProviderStatus
   }
   summary: {
     totalProviders: number
@@ -109,25 +108,29 @@ export default function AITestPage() {
               <div>
                 <h4 className="font-semibold text-green-800 mb-2">✅ Supported Files:</h4>
                 <ul className="text-sm text-green-700 space-y-1">
+                  <li>• .pdf (PDF documents)</li>
+                  <li>• .doc/.docx (Word documents)</li>
+                  <li>• .xls/.xlsx (Excel files)</li>
+                  <li>• .ppt/.pptx (PowerPoint presentations)</li>
                   <li>• .txt (Plain text)</li>
                   <li>• .md (Markdown)</li>
                   <li>• .json (JSON data)</li>
                   <li>• .csv (CSV data)</li>
+                  <li>• .html/.xml (Web/XML documents)</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-red-800 mb-2">❌ Not Supported:</h4>
+                <h4 className="font-semibold text-red-800 mb-2">💡 Note:</h4>
                 <ul className="text-sm text-red-700 space-y-1">
-                  <li>• .pdf (PDF documents)</li>
-                  <li>• .doc/.docx (Word documents)</li>
-                  <li>• .xls/.xlsx (Excel files)</li>
+                  <li>• Google AI handles most common document types directly.</li>
+                  <li>• No client-side conversion needed for PDFs, Word, Excel, etc.</li>
+                  <li>• Ensure documents contain extractable text (not image-only scans).</li>
                 </ul>
               </div>
             </div>
             <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
               <p className="text-sm text-yellow-800">
-                <strong>Workaround:</strong> Convert PDF/Word documents to .txt files for analysis. Copy the text
-                content and save as a plain text file.
+                <strong>Recommendation:</strong> For best results, ensure your documents are text-searchable. If you have scanned PDFs, consider using an OCR tool before uploading.
               </p>
             </div>
           </CardContent>
@@ -141,11 +144,11 @@ export default function AITestPage() {
                 <Brain className="h-5 w-5 text-blue-600" />
                 <span>AI Provider Status</span>
               </CardTitle>
-              <CardDescription>Test if your AI providers are configured and working</CardDescription>
+              <CardDescription>Test if your Google AI provider is configured and working</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Button onClick={testProviders} disabled={isTestingProviders} className="w-full">
-                {isTestingProviders ? "Testing..." : "Test AI Providers"}
+                {isTestingProviders ? "Testing..." : "Test Google AI Provider"}
               </Button>
 
               {testResult && (
@@ -153,46 +156,23 @@ export default function AITestPage() {
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <Zap className="h-4 w-4 text-green-600" />
-                      <span className="font-medium">Groq (FREE)</span>
+                      <span className="font-medium">Google AI (Gemini 1.5 Flash)</span>
                     </div>
                     <Badge
                       className={
-                        testResult.providers.groq.working
+                        testResult.providers.google.working
                           ? "bg-green-100 text-green-800"
-                          : testResult.providers.groq.configured
+                          : testResult.providers.google.configured
                             ? "bg-red-100 text-red-800"
                             : "bg-gray-100 text-gray-800"
                       }
                     >
-                      {testResult.providers.groq.working ? (
+                      {testResult.providers.google.working ? (
                         <CheckCircle className="h-3 w-3 mr-1" />
                       ) : (
                         <XCircle className="h-3 w-3 mr-1" />
                       )}
-                      {testResult.providers.groq.status}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-2">
-                      <Zap className="h-4 w-4 text-green-600" />
-                      <span className="font-medium">Hugging Face (FREE)</span>
-                    </div>
-                    <Badge
-                      className={
-                        testResult.providers.huggingface.working
-                          ? "bg-green-100 text-green-800"
-                          : testResult.providers.huggingface.configured
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
-                      }
-                    >
-                      {testResult.providers.huggingface.working ? (
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                      ) : (
-                        <XCircle className="h-3 w-3 mr-1" />
-                      )}
-                      {testResult.providers.huggingface.status}
+                      {testResult.providers.google.status}
                     </Badge>
                   </div>
 
@@ -295,9 +275,8 @@ export default function AITestPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm">
-              <p>✅ If tests pass: Go to AI Assessment and upload .txt files for analysis</p>
-              <p>❌ If tests fail: Check your API keys in environment variables</p>
-              <p>📄 For PDF analysis: Convert PDFs to .txt files first</p>
+              <p>✅ If tests pass: Go to AI Assessment and upload your documents for analysis</p>
+              <p>❌ If tests fail: Check your GOOGLE_GENERATIVE_AI_API_KEY in environment variables</p>
               <p>🔍 For debugging: Check /api/ai-assessment/debug for detailed info</p>
             </div>
             <div className="mt-4 space-x-2">
