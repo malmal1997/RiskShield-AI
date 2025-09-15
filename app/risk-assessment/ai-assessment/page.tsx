@@ -1433,7 +1433,7 @@ interface Question {
 }
 
 interface AnalysisResult {
-  answers: Record<string, boolean | string | string[]> // Added string[] to answers type
+  answers: Record<string, boolean | string | string[]>
   confidenceScores: Record<string, number>
   reasoning: Record<string, string>
   overallAnalysis: string
@@ -1472,10 +1472,11 @@ interface UploadedFileWithLabel {
 }
 
 export default function AIAssessmentPage() {
-  const { user, isDemo } = useAuth(); // Get user and isDemo from AuthContext
-  const { toast } = useToast(); // Initialize useToast
-  const router = useRouter(); // Initialize useRouter
+  const { user, isDemo } = useAuth();
+  const { toast } = useToast();
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<
     "select-category" | "upload-documents" | "soc-info" | "review-answers" | "results"
   >("select-category")
@@ -1486,7 +1487,8 @@ export default function AIAssessmentPage() {
   const [riskScore, setRiskScore] = useState<number | null>(null)
   const [riskLevel, setRiskLevel] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [isReportSaved, setIsReportSaved] = useState(false); // New state to track if report is saved
+  const [isReportSaved, setIsReportSaved] = useState(false);
+  const [isSavingReport, setIsSavingReport] = useState(false); // Renamed setter to avoid conflict
   const [socInfo, setSocInfo] = useState({
     socType: "", // SOC 1, SOC 2, SOC 3
     reportType: "", // Type 1, Type 2
@@ -1505,6 +1507,8 @@ export default function AIAssessmentPage() {
     userEntityControls: "",
   })
   const [showOtherInput, setShowOtherInput] = useState<Record<string, boolean>>({});
+  const [customTemplates, setCustomTemplates] = useState<AssessmentTemplate[]>([]);
+  const [currentQuestions, setCurrentQuestions] = useState<TemplateQuestion[]>([]);
 
 
   useEffect(() => {
@@ -1521,8 +1525,69 @@ export default function AIAssessmentPage() {
     }
   }, [])
 
-  const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
-  const questionsForCategory = currentCategory?.questions || []
+  useEffect(() => {
+    async function fetchTemplates() {
+      if (user) {
+        const { data, error } = await getAssessmentTemplates();
+        if (error) {
+          console.error("Failed to fetch custom templates:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load custom assessment templates.",
+            variant: "destructive",
+          });
+        } else {
+          setCustomTemplates(data || []);
+        }
+      }
+    }
+    fetchTemplates();
+  }, [user, toast]);
+
+  useEffect(() => {
+    async function loadQuestions() {
+      if (selectedTemplateId) {
+        const { data, error } = await getTemplateQuestions(selectedTemplateId);
+        if (error) {
+          console.error("Failed to load template questions:", error);
+          setError("Failed to load questions for the selected template.");
+          setCurrentQuestions([]);
+        } else {
+          setCurrentQuestions(data || []);
+          const selectedTemplate = customTemplates.find(t => t.id === selectedTemplateId);
+          if (selectedTemplate?.type === "soc-compliance") { // Check if it's the SOC template
+            setCurrentStep("soc-info");
+          } else {
+            setCurrentStep("upload-documents");
+          }
+        }
+      } else if (selectedCategory) {
+        const builtIn = builtInAssessmentCategories.find(cat => cat.id === selectedCategory);
+        if (builtIn) {
+          setCurrentQuestions(builtIn.questions.map((q: any) => ({ // Cast q to any here
+            id: q.id,
+            template_id: "builtin", // Indicate it's a built-in template
+            order: 0, // Default order
+            question_text: q.question,
+            question_type: q.type,
+            options: (q.options as string[] | undefined) || null, // Safely access options
+            required: q.required || false, // Safely access required
+            category: q.category || null,
+            weight: q.weight || null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })));
+          if (selectedCategory === "soc-compliance") {
+            setCurrentStep("soc-info");
+          } else {
+            setCurrentStep("upload-documents");
+          }
+        }
+      }
+    }
+    loadQuestions();
+  }, [selectedCategory, selectedTemplateId, customTemplates, user]);
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -1547,14 +1612,17 @@ export default function AIAssessmentPage() {
   };
 
   const handleAnalyzeDocuments = async () => {
-    if (!currentCategory || uploadedFiles.length === 0) {
-      setError("Please select an assessment category and upload documents.")
+    if (!selectedCategory && !selectedTemplateId) {
+      setError("Please select an assessment category or template.")
+      return
+    }
+    if (uploadedFiles.length === 0) {
+      setError("Please upload documents for analysis.")
       return
     }
 
     setIsAnalyzing(true)
     setError(null)
-    setAnalysisResults(null)
     setAnswers({})
 
     try {
@@ -1563,8 +1631,8 @@ export default function AIAssessmentPage() {
         formData.append('files', item.file);
       });
       formData.append('labels', JSON.stringify(uploadedFiles.map(item => item.label)));
-      formData.append('questions', JSON.stringify(questionsForCategory));
-      formData.append('assessmentType', currentCategory.name);
+      formData.append('questions', JSON.stringify(currentQuestions));
+      formData.append('assessmentType', (customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name || "Custom Assessment"));
 
       const response = await fetch("/api/ai-assessment/analyze", {
         method: "POST",
@@ -1618,7 +1686,7 @@ export default function AIAssessmentPage() {
       return;
     }
 
-    if (!analysisResults || !currentCategory || riskScore === null || riskLevel === null) {
+    if (!analysisResults || (!selectedCategory && !selectedTemplateId) || riskScore === null || riskLevel === null) {
       toast({
         title: "Error",
         description: "No complete report data available to save.",
@@ -1627,17 +1695,18 @@ export default function AIAssessmentPage() {
       return;
     }
 
+    setIsSavingReport(true); // Set saving state to true
     try {
       toast({
         title: "Saving Report...",
         description: "Your AI assessment report is being saved to your profile.",
       });
 
-      const reportTitle = `${currentCategory.name} AI Assessment`;
+      const reportTitle = `${(customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name || "Custom Assessment")} AI Assessment`;
       const reportSummary = analysisResults.overallAnalysis.substring(0, 250) + "..."; // Truncate for summary
 
       const savedReport = await saveAiAssessmentReport({
-        assessmentType: currentCategory.name,
+        assessmentType: (customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name || "Custom Assessment"),
         reportTitle: reportTitle,
         riskScore: riskScore,
         riskLevel: riskLevel,
@@ -1645,7 +1714,7 @@ export default function AIAssessmentPage() {
         fullReportContent: {
           analysisResults: analysisResults,
           answers: answers,
-          questions: questionsForCategory,
+          questions: currentQuestions,
           socInfo: socInfo, // Include SOC info if available
         },
         uploadedDocumentsMetadata: uploadedFiles.map(item => ({
@@ -1672,6 +1741,8 @@ export default function AIAssessmentPage() {
         description: err.message || "Failed to save the report. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSavingReport(false); // Set saving state to false
     }
   };
 
@@ -1708,29 +1779,28 @@ export default function AIAssessmentPage() {
       return 'No directly relevant evidence found after comprehensive search.';
     }
 
+    let citationParts: string[] = [];
     const fileName = excerptData.fileName;
     const pageNumber = excerptData.pageNumber;
     const label = excerptData.label; // This will be '4th Party' or null
 
-    const parts: string[] = [];
-
     if (fileName && String(fileName).trim() !== '' && fileName !== 'N/A') {
-      parts.push(`"${fileName}"`);
+      citationParts.push(`"${fileName}"`);
     }
 
     // Explicitly add page number or 'N/A'
     if (pageNumber != null && String(pageNumber).trim() !== '') {
-      parts.push(`Page: ${pageNumber}`);
+      citationParts.push(`Page: ${pageNumber}`);
     } else {
-      parts.push(`Page: N/A`); // Explicitly show N/A if page number is missing
+      citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing
     }
 
     if (label === '4th Party') {
-      parts.push('4th Party');
+      citationParts.push('4th Party');
     }
 
     // Filter out any potentially empty or null parts before joining
-    const filteredParts = parts.filter(part => part && String(part).trim() !== ''); // Ensure parts are non-empty strings
+    const filteredParts = citationParts.filter(part => part && String(part).trim() !== ''); // Ensure parts are non-empty strings
 
     // The excerpt is always the first part of the return string
     const excerptText = `"${excerptData.excerpt}"`;
@@ -1800,7 +1870,8 @@ export default function AIAssessmentPage() {
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {assessmentCategories.map((category) => {
+                  {/* Built-in Templates */}
+                  {builtInAssessmentCategories.map((category) => {
                     const IconComponent = category.icon
                     return (
                       <Card
@@ -1808,11 +1879,7 @@ export default function AIAssessmentPage() {
                         className="relative group hover:shadow-lg transition-shadow cursor-pointer"
                         onClick={() => {
                           setSelectedCategory(category.id)
-                          if (category.id === "soc-compliance") {
-                            setCurrentStep("soc-info")
-                          } else {
-                            setCurrentStep("upload-documents")
-                          }
+                          setSelectedTemplateId(null); // Clear custom template selection
                         }}
                       >
                         <CardHeader>
@@ -1835,12 +1902,46 @@ export default function AIAssessmentPage() {
                       </Card>
                     )
                   })}
+
+                  {/* Custom Templates */}
+                  {customTemplates.map((template) => {
+                    const IconComponent = FileText; // Default icon for custom templates
+                    return (
+                      <Card
+                        key={template.id}
+                        className="relative group hover:shadow-lg transition-shadow cursor-pointer border-purple-300 bg-purple-50"
+                        onClick={() => {
+                          setSelectedTemplateId(template.id);
+                          setSelectedCategory(null); // Clear built-in category selection
+                        }}
+                      >
+                        <CardHeader>
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-purple-100 rounded-lg">
+                              <IconComponent className="h-6 w-6 text-purple-600" />
+                            </div>
+                            <div>
+                              <CardTitle className="text-lg">{template.name}</CardTitle>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <CardDescription className="mb-4">{template.description}</CardDescription>
+                          <Badge className="bg-purple-200 text-purple-800 mb-2">Custom Template</Badge>
+                          <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                            <Bot className="mr-2 h-4 w-4" />
+                            Select for AI Analysis
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* Step 2: SOC Information (only for SOC assessments) */}
-            {currentStep === "soc-info" && selectedCategory === "soc-compliance" && (
+            {currentStep === "soc-info" && (selectedCategory === "soc-compliance" || customTemplates.find(t => t.id === selectedTemplateId)?.type === "soc-compliance") && (
               <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
                   <Button
@@ -1873,7 +1974,7 @@ export default function AIAssessmentPage() {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <ShadcnLabel htmlFor="socType">SOC Type *</ShadcnLabel>
+                        <Label htmlFor="socType">SOC Type *</Label>
                         <select
                           id="socType"
                           value={socInfo.socType}
@@ -1891,7 +1992,7 @@ export default function AIAssessmentPage() {
                       </div>
                       {socInfo.socType !== "SOC 3" && (
                         <div>
-                          <ShadcnLabel htmlFor="reportType">Report Type *</ShadcnLabel>
+                          <Label htmlFor="reportType">Report Type *</Label>
                           <select
                             id="reportType"
                             value={socInfo.reportType}
@@ -1909,8 +2010,8 @@ export default function AIAssessmentPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <ShadcnLabel htmlFor="auditor">Auditor/CPA Firm</ShadcnLabel>
-                        <ShadcnInput
+                        <Label htmlFor="auditor">Auditor/CPA Firm</Label>
+                        <Input
                           id="auditor"
                           value={socInfo.auditor}
                           onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
@@ -1919,7 +2020,7 @@ export default function AIAssessmentPage() {
                         />
                       </div>
                       <div>
-                        <ShadcnLabel htmlFor="auditorOpinion">Auditor Opinion</ShadcnLabel>
+                        <Label htmlFor="auditorOpinion">Auditor Opinion</Label>
                         <select
                           id="auditorOpinion"
                           value={socInfo.auditorOpinion}
@@ -1937,8 +2038,8 @@ export default function AIAssessmentPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
-                        <ShadcnLabel htmlFor="auditorOpinionDate">Auditor Opinion Date</ShadcnLabel>
-                        <ShadcnInput
+                        <Label htmlFor="auditorOpinionDate">Auditor Opinion Date</Label>
+                        <Input
                           id="auditorOpinionDate"
                           type="date"
                           value={socInfo.auditorOpinionDate}
@@ -1950,8 +2051,8 @@ export default function AIAssessmentPage() {
                         socInfo.reportType &&
                         (socInfo.reportType === "Type 1" || socInfo.socType === "SOC 3" ? (
                           <div>
-                            <ShadcnLabel htmlFor="socDateAsOf">SOC Date as of</ShadcnLabel>
-                            <ShadcnInput
+                            <Label htmlFor="socDateAsOf">SOC Date as of</Label>
+                            <Input
                               id="socDateAsOf"
                               type="date"
                               value={socInfo.socDateAsOf}
@@ -1962,8 +2063,8 @@ export default function AIAssessmentPage() {
                         ) : (
                           <>
                             <div>
-                              <ShadcnLabel htmlFor="socStartDate">SOC Start Date</ShadcnLabel>
-                              <ShadcnInput
+                              <Label htmlFor="socStartDate">SOC Start Date</Label>
+                              <Input
                                 id="socStartDate"
                                 type="date"
                                 value={socInfo.socStartDate}
@@ -1972,8 +2073,8 @@ export default function AIAssessmentPage() {
                               />
                             </div>
                             <div>
-                              <ShadcnLabel htmlFor="socEndDate">SOC End Date</ShadcnLabel>
-                              <ShadcnInput
+                              <Label htmlFor="socEndDate">SOC End Date</Label>
+                              <Input
                                 id="socEndDate"
                                 type="date"
                                 value={socInfo.socEndDate}
@@ -1987,7 +2088,7 @@ export default function AIAssessmentPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <ShadcnLabel htmlFor="testedStatus">Testing Status</ShadcnLabel>
+                        <Label htmlFor="testedStatus">Testing Status</Label>
                         <select
                           id="testedStatus"
                           value={socInfo.testedStatus}
@@ -2004,8 +2105,8 @@ export default function AIAssessmentPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <ShadcnLabel htmlFor="companyName">Company Name *</ShadcnLabel>
-                        <ShadcnInput
+                        <Label htmlFor="companyName">Company Name *</Label>
+                        <Input
                           id="companyName"
                           value={socInfo.companyName}
                           onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
@@ -2014,8 +2115,8 @@ export default function AIAssessmentPage() {
                         />
                       </div>
                       <div>
-                        <ShadcnLabel htmlFor="productService">Product/Service Being Assessed *</ShadcnLabel>
-                        <ShadcnInput
+                        <Label htmlFor="productService">Product/Service Being Assessed *</Label>
+                        <Input
                           id="productService"
                           value={socInfo.productService}
                           onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
@@ -2026,8 +2127,8 @@ export default function AIAssessmentPage() {
                     </div>
 
                     <div>
-                      <ShadcnLabel htmlFor="subserviceOrganizations">Subservice Organizations</ShadcnLabel>
-                      <ShadcnTextarea
+                      <Label htmlFor="subserviceOrganizations">Subservice Organizations</Label>
+                      <Textarea
                         id="subserviceOrganizations"
                         value={socInfo.subserviceOrganizations}
                         onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
@@ -2061,25 +2162,25 @@ export default function AIAssessmentPage() {
             )}
 
             {/* Step 3: Upload Documents */}
-            {currentStep === "upload-documents" && currentCategory && (
+            {currentStep === "upload-documents" && (selectedCategory || selectedTemplateId) && (
               <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
                   <Button
                     variant="ghost"
                     onClick={() =>
-                      setCurrentStep(selectedCategory === "soc-compliance" ? "soc-info" : "select-category")
+                      setCurrentStep((selectedCategory === "soc-compliance" || customTemplates.find(t => t.id === selectedTemplateId)?.type === "soc-compliance") ? "soc-info" : "select-category")
                     }
                     className="mb-6 hover:bg-blue-50"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to {selectedCategory === "soc-compliance" ? "SOC Information" : "Category Selection"}
+                    Back to {(selectedCategory === "soc-compliance" || customTemplates.find(t => t.id === selectedTemplateId)?.type === "soc-compliance") ? "SOC Information" : "Category Selection"}
                   </Button>
                 </div>
 
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Documents for AI Analysis</h2>
                   <p className="text-lg text-gray-600">
-                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                    Selected: <span className="font-semibold text-blue-600">{(customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name)}</span>
                   </p>
                   <p className="text-gray-600 mt-2">
                     Upload your policies, reports, and procedures. Our AI will analyze them to answer the assessment
@@ -2106,9 +2207,9 @@ export default function AIAssessmentPage() {
 
                         <div className="space-y-4">
                           <div>
-                            <ShadcnLabel htmlFor="document-upload" className="text-sm font-medium text-gray-700">
+                            <Label htmlFor="document-upload" className="text-sm font-medium text-gray-700">
                               Upload Supporting Documents
-                            </ShadcnLabel>
+                            </Label>
                             <div className="mt-2 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors bg-blue-25">
                               <input
                                 id="document-upload"
@@ -2233,7 +2334,7 @@ export default function AIAssessmentPage() {
             )}
 
             {/* Step 4: Review AI-Generated Answers */}
-            {currentStep === "review-answers" && currentCategory && analysisResults && (
+            {currentStep === "review-answers" && (selectedCategory || selectedTemplateId) && analysisResults && (
               <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
                   <Button
@@ -2249,7 +2350,7 @@ export default function AIAssessmentPage() {
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">Review AI-Generated Answers</h2>
                   <p className="text-lg text-gray-600">
-                    Selected: <span className="font-semibold text-blue-600">{currentCategory.name}</span>
+                    Selected: <span className="font-semibold text-blue-600">{(customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name)}</span>
                   </p>
                   <p className="text-gray-600 mt-2">
                     The AI has analyzed your documents and provided suggested answers. Please review and edit as needed.
@@ -2259,7 +2360,7 @@ export default function AIAssessmentPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Bot className="h-5 w-5 text-blue-600" />
+                      <Bot className="h-5 w-5" />
                       <span>AI-Suggested Responses</span>
                       {!isReportSaved && analysisResults.confidenceScores && (
                         <Badge className="bg-green-100 text-green-700">
@@ -2272,7 +2373,7 @@ export default function AIAssessmentPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-8">
-                    {questionsForCategory.map((question: Question, index: number) => (
+                    {currentQuestions.map((question: TemplateQuestion, index: number) => (
                       <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
                         <div>
                           <div className="flex items-start space-x-2 mb-2">
@@ -2287,7 +2388,7 @@ export default function AIAssessmentPage() {
                             )}
                           </div>
                           <h3 className="text-lg font-medium text-gray-900">
-                            {index + 1}. {question.question}
+                            {index + 1}. {question.question_text}
                           </h3>
                         </div>
 
@@ -2315,10 +2416,10 @@ export default function AIAssessmentPage() {
 
                         {/* Editable Answer Field */}
                         <div className="mt-4 pt-4 border-t border-gray-100">
-                          <ShadcnLabel htmlFor={`answer-${question.id}`} className="text-sm font-medium text-gray-700">
+                          <Label htmlFor={`answer-${question.id}`} className="text-sm font-medium text-gray-700">
                             Your Final Answer (Edit if needed)
-                          </ShadcnLabel>
-                          {question.type === "boolean" && (
+                          </Label>
+                          {question.question_type === "boolean" && (
                             <div className="flex space-x-4 mt-2">
                               <label className="flex items-center">
                                 <input
@@ -2342,7 +2443,7 @@ export default function AIAssessmentPage() {
                               </label>
                             </div>
                           )}
-                          {question.type === "multiple" && (
+                          {question.question_type === "multiple" && (
                             <>
                               <select
                                 value={
@@ -2371,7 +2472,7 @@ export default function AIAssessmentPage() {
                                 <option value="Other">Other (please specify)</option>
                               </select>
                               {showOtherInput[question.id] && (
-                                <ShadcnInput
+                                <Input
                                   id={`other-answer-${question.id}`}
                                   value={answers[question.id] || ""}
                                   onChange={(e) => handleAnswerChange(question.id, e.target.value)}
@@ -2381,7 +2482,7 @@ export default function AIAssessmentPage() {
                               )}
                             </>
                           )}
-                          {question.type === "tested" && (
+                          {question.question_type === "tested" && (
                             <div className="flex space-x-4 mt-2">
                               <label className="flex items-center">
                                 <input
@@ -2405,8 +2506,8 @@ export default function AIAssessmentPage() {
                               </label>
                             </div>
                           )}
-                          {question.type === "textarea" && (
-                            <ShadcnTextarea
+                          {question.question_type === "textarea" && (
+                            <Textarea
                               id={`answer-${question.id}`}
                               value={answers[question.id] || ""}
                               onChange={(e) => handleAnswerChange(question.id, e.target.value)}
@@ -2428,7 +2529,7 @@ export default function AIAssessmentPage() {
                     className="hover:bg-gray-50"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Upload
+                    Back to Document Upload
                   </Button>
                   <Button onClick={handleFinalSubmit} className="bg-green-600 hover:bg-green-700 text-white">
                     <FileCheck className="mr-2 h-4 w-4" />
@@ -2439,12 +2540,12 @@ export default function AIAssessmentPage() {
             )}
 
             {/* Step 5: Results */}
-            {currentStep === "results" && currentCategory && analysisResults && (
+            {currentStep === "results" && (selectedCategory || selectedTemplateId) && analysisResults && (
               <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">AI Assessment Complete!</h2>
                   <p className="text-lg text-gray-600">
-                    Your {currentCategory.name} risk assessment has been finalized.
+                    Your {(customTemplates.find(t => t.id === selectedTemplateId)?.name || builtInAssessmentCategories.find(c => c.id === selectedCategory)?.name)} risk assessment has been finalized.
                   </p>
                 </div>
 
@@ -2511,12 +2612,12 @@ export default function AIAssessmentPage() {
                       <Button
                         onClick={handleSaveReport}
                         className="bg-blue-600 hover:bg-blue-700"
-                        disabled={isReportSaved || isDemo}
+                        disabled={isSavingReport || isDemo}
                       >
-                        {isReportSaved ? (
+                        {isSavingReport ? (
                           <>
-                            <Check className="mr-2 h-4 w-4" />
-                            Report Saved
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Saving...
                           </>
                         ) : (
                           <>
@@ -2572,7 +2673,7 @@ export default function AIAssessmentPage() {
                   </li>
                   <li>
                     <a href="#" className="hover:text-white">
-                      Integrations
+                      Policy Library
                     </a>
                   </li>
                 </ul>
@@ -2632,7 +2733,7 @@ export default function AIAssessmentPage() {
             </div>
 
             <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-              <p>&copy; 2024 RiskShield AI. All rights reserved.</p>
+              <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
             </div>
           </div>
         </footer>
