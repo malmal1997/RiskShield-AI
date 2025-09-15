@@ -373,11 +373,11 @@ ASSESSMENT QUESTIONS AND DETAILED ANSWERING INSTRUCTIONS:
 ${questions.map((q: Question, idx: number) => {
   let formatHint = '';
   if (q.type === 'boolean') {
-    formatHint = 'Expected: true or false. Search for explicit affirmative (e.g., "is encrypted", "is required", "we do") or negative (e.g., "no encryption", "not required", "we do not") statements. If the document explicitly states the presence of the control, answer `true`. If it explicitly states absence, answer `false`. If no information is found, default to `false`.';
+    formatHint = 'Expected: true or false. FIRST, search for explicit affirmative (e.g., "is encrypted", "is required", "we do") or negative (e.g., "no encryption", "not required", "we do not") statements. If the document explicitly states the presence of the control, answer `true`. If it explicitly states absence, answer `false`. ONLY IF NO INFORMATION IS FOUND, default to `false`.';
   } else if (q.type === 'multiple' && q.options) {
-    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. Find the exact matching frequency or description. If multiple apply, choose the most specific or highest frequency mentioned. If no information is found, default to the first option in the list.`;
+    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. FIRST, find the exact matching frequency or description. If multiple apply, choose the most specific or highest frequency mentioned. ONLY IF NO INFORMATION IS FOUND, default to the first option in the list.`;
   } else if (q.type === 'tested') {
-    formatHint = 'Expected: "tested" or "not_tested". Look for evidence of testing activities or explicit statements about testing status. If no information is found, default to "not_tested".';
+    formatHint = 'Expected: "tested" or "not_tested". FIRST, look for evidence of testing activities or explicit statements about testing status. If no information is found, default to "not_tested".';
   } else if (q.type === 'textarea') {
     formatHint = 'Expected: "Detailed text response". Summarize the relevant information from the documents in a concise paragraph. If no information is found, state "No directly relevant evidence found after comprehensive search."';
   }
@@ -392,6 +392,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       "id": "${q.id}",
       "answer": ${q.type === "boolean" ? 'false' : (q.type === "multiple" || q.type === "tested" ? '""' : '""')}, // Placeholder for AI to fill
       "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. If no relevant evidence, state 'No directly relevant evidence found after comprehensive search'.",
+      "reasoning": "Explain how you arrived at the answer based on the document evidence or why a default was used.",
       "source_file_name": null, // or "DocumentName.txt"
       "source_page_number": null,
       "source_label": null // or 'Primary' or '4th Party'
@@ -510,6 +511,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
 
         let aiAnswer = qr.answer;
         const aiExcerpt = qr.excerpt;
+        const aiReasoning = qr.reasoning || "No specific reasoning provided by AI."; // Capture AI's reasoning
         const aiFileName = qr.source_file_name;
         const aiPageNumber = qr.source_page_number;
         const aiLabel = qr.source_label;
@@ -566,8 +568,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         if (relevanceCheck.isRelevant && hasActualExcerpt) {
           answers[questionId] = aiAnswer;
           confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence); // Use AI's confidence, capped by relevance check
-          reasoning[questionId] = qr.reasoning || "Evidence found and validated as relevant";
-
+          reasoning[questionId] = aiReasoning; // Use AI's reasoning
+          
           if (excerpt.length > 500) {
               excerpt = excerpt.substring(0, 500) + '...';
           }
