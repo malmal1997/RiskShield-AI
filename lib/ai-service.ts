@@ -61,13 +61,13 @@ async function extractTextFromFile(file: File): Promise<{ text: string; success:
   const fileName = file.name.toLowerCase()
 
   try {
-    // Handle PDF files - we'll send these directly to Google AI
-    if (fileType.includes("application/pdf") || fileName.endsWith(".pdf")) {
-      console.log(`📄 PDF file detected: ${file.name} - will be sent directly to Google AI`)
+    // Handle files that should be sent as binary attachments directly to Google AI
+    if (isBinaryAttachmentType(file)) {
+      console.log(`📄 Binary attachment detected: ${file.name} - will be sent directly to Google AI`)
       return {
-        text: "", // Empty text - PDF will be sent as file attachment
+        text: "", // Empty text - file will be sent as binary attachment
         success: true,
-        method: "pdf-direct-upload",
+        method: "binary-direct-upload",
       }
     }
 
@@ -115,10 +115,16 @@ async function extractTextFromFile(file: File): Promise<{ text: string; success:
   }
 }
 
-// Check if file type is supported by Google AI
+// Check if file type is supported by Google AI for direct attachment
 function isSupportedFileType(file: File): boolean {
   const supportedTypes = [
     "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+    "application/msword", // .doc
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    "application/vnd.ms-excel", // .xls
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+    "application/vnd.ms-powerpoint", // .ppt
     "text/plain",
     "text/markdown",
     "text/csv",
@@ -127,12 +133,31 @@ function isSupportedFileType(file: File): boolean {
     "text/xml",
   ]
 
-  const supportedExtensions = [".pdf", ".txt", ".md", ".csv", ".json", ".html", ".xml", ".htm"]
+  const supportedExtensions = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".md", ".csv", ".json", ".html", ".xml", ".htm"]
 
   return (
     supportedTypes.includes(file.type.toLowerCase()) ||
     supportedExtensions.some((ext) => file.name.toLowerCase().endsWith(ext))
   )
+}
+
+// Check if file type should be treated as a binary attachment (not text-extracted client-side)
+function isBinaryAttachmentType(file: File): boolean {
+  const binaryTypes = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+    "application/msword", // .doc
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    "application/vnd.ms-excel", // .xls
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+    "application/vnd.ms-powerpoint", // .ppt
+  ];
+  const binaryExtensions = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"];
+
+  return (
+    binaryTypes.includes(file.type.toLowerCase()) ||
+    binaryExtensions.some((ext) => file.name.toLowerCase().endsWith(ext))
+  );
 }
 
 // Get media type for Google AI API
@@ -145,6 +170,12 @@ function getGoogleAIMediaType(file: File): string {
 
   // Fallback based on file extension
   if (fileName.endsWith(".pdf")) return "application/pdf"
+  if (fileName.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  if (fileName.endsWith(".doc")) return "application/msword"
+  if (fileName.endsWith(".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  if (fileName.endsWith(".xls")) return "application/vnd.ms-excel"
+  if (fileName.endsWith(".pptx")) return "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  if (fileName.endsWith(".ppt")) return "application/vnd.ms-powerpoint"
   if (fileName.endsWith(".txt")) return "text/plain"
   if (fileName.endsWith(".md")) return "text/markdown"
   if (fileName.endsWith(".csv")) return "text/csv"
@@ -432,17 +463,17 @@ export async function analyzeDocuments(
       answers,
       confidenceScores,
       reasoning,
-      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFilesWithLabels.map((item: FileWithLabel) => item.file.name).join(", ")}`,
+      overallAnalysis: `No supported documents were available for Google AI analysis. Supported formats: PDF, DOCX, XLSX, PPTX, TXT, MD, CSV, JSON, HTML, XML. Unsupported files: ${unsupportedFilesWithLabels.map((item: FileWithLabel) => item.file.name).join(", ")}`,
       riskFactors: [
         "No supported document content available for analysis",
         "Unable to assess actual security posture from uploaded files",
         `${unsupportedFilesWithLabels.length} files in unsupported formats`,
       ],
       recommendations: [
-        "Upload documents in supported formats: PDF, TXT, MD, CSV, JSON, HTML, XML",
-        "Convert Word documents to PDF or TXT format",
-        "Convert Excel files to CSV format",
+        "Upload documents in supported formats: PDF, DOCX, XLSX, PPTX, TXT, MD, CSV, JSON, HTML, XML",
         "Ensure files contain actual policy and procedure content",
+        "Prioritize uploading 'Primary' documents for best results, followed by '4th Party' documents.",
+        ...(unsupportedFilesWithLabels.length > 0 ? ["Convert unsupported files to supported formats"] : []),
       ],
       riskScore: 0,
       riskLevel: "High",
@@ -480,22 +511,19 @@ export async function analyzeDocuments(
     throw new Error(`Google AI is not available: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 
-  // Process files - separate PDFs from text files
+  // Process files - separate binary attachments from text files
   console.log("📁 Processing files for Google AI...")
-  const pdfFiles: FileWithLabel[] = []
+  const binaryAttachmentFiles: FileWithLabel[] = []
   const textFiles: Array<{ file: File; label: 'Primary' | '4th Party'; text: string }> = []
   const processingResults: Array<{ fileName: string; success: boolean; method: string; label: 'Primary' | '4th Party' }> = []
 
   for (const item of supportedFilesWithLabels) {
-    const fileType = item.file.type.toLowerCase()
-    const fileName = item.file.name.toLowerCase()
-
-    if (fileType.includes("application/pdf") || fileName.endsWith(".pdf")) {
-      pdfFiles.push(item)
-      processingResults.push({ fileName: item.file.name, success: true, method: "pdf-upload", label: item.label })
-      console.log(`📄 PDF file prepared for upload: ${item.file.name} (Label: ${item.label})`)
+    if (isBinaryAttachmentType(item.file)) {
+      binaryAttachmentFiles.push(item)
+      processingResults.push({ fileName: item.file.name, success: true, method: "binary-direct-upload", label: item.label })
+      console.log(`📄 Binary attachment prepared for upload: ${item.file.name} (Label: ${item.label})`)
     } else {
-      // Extract text from non-PDF files
+      // Extract text from non-binary files (e.g., .txt, .md, .csv, .json, .html, .xml)
       const extraction = await extractTextFromFile(item.file)
       if (extraction.success && extraction.text.length > 0) {
         textFiles.push({ file: item.file, label: item.label, text: extraction.text })
@@ -513,53 +541,32 @@ export async function analyzeDocuments(
 
   // Add text file content
   if (textFiles.length > 0) {
-    documentContent += "TEXT DOCUMENTS:\n"
+    documentContent += "TEXT DOCUMENTS (extracted content):\n"
     textFiles.forEach(({ file, label, text }) => {
       documentContent += `\n=== DOCUMENT: ${file.name} (Label: ${label}) ===\n${text}\n`
     })
   }
 
-  // Add PDF file references
-  if (pdfFiles.length > 0) {
-    documentContent += "\nPDF DOCUMENTS:\n"
-    pdfFiles.forEach((item) => {
-      documentContent += `\n=== PDF DOCUMENT: ${item.file.name} (Label: ${item.label}) ===\n[This PDF file has been uploaded and will be analyzed directly]\n`
+  // Add binary attachment file references
+  if (binaryAttachmentFiles.length > 0) {
+    documentContent += "\nBINARY ATTACHED DOCUMENTS:\n"
+    binaryAttachmentFiles.forEach((item) => {
+      documentContent += `\n=== ATTACHED DOCUMENT: ${item.file.name} (Label: ${item.label}) ===\n[This document has been uploaded as a binary attachment and will be analyzed directly by the AI]\n`
     })
   }
 
-  const basePrompt = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with ${supportedFilesWithLabels.length} document(s) to analyze.
+  const basePrompt = `You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions. Your task is to analyze the provided documents and answer specific assessment questions.
 
 CRITICAL INSTRUCTIONS:
-- Analyze ALL provided documents (both text and PDF files) using your built-in document processing capabilities
-- Answer questions based ONLY on information that is DIRECTLY and SPECIFICALLY found in the documents
-- For PDF files, use your native PDF reading capabilities to extract and analyze the content
-- THOROUGHLY scan ALL sections, pages, and content areas of each document
+- YOU MUST THOROUGHLY ANALYZE ALL PROVIDED DOCUMENTS. This includes both the text content provided directly in the prompt AND any binary files attached (e.g., PDFs, DOCX, XLSX). Use your advanced document processing capabilities to extract and understand the content of ALL attached files.
+- BASE YOUR ANSWERS SOLELY AND EXCLUSIVELY ON THE INFORMATION DIRECTLY AND SPECIFICALLY FOUND WITHIN THE PROVIDED DOCUMENTS. DO NOT use external knowledge, make assumptions, or infer information not explicitly stated.
+- For each question, if relevant evidence is found, provide the EXACT QUOTE from the document in the 'excerpt' field. The quote should be verbatim and should NOT include any source information (like file name or page number).
+- For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if applicable and identifiable, otherwise null), and 'source_label' ('4th Party' or null if 'Primary').
+- If no directly relevant evidence is found after a comprehensive search of ALL documents, set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
 - When citing evidence, prioritize documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then prioritize documents labeled "4th Party".
-- Look for ALL cybersecurity-related content including but not limited to:
-  * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen tests, pentests, security testing, vulnerability assessment, ethical hacking, red team, security audit, intrusion testing, security evaluation, vulnerability testing
-  * PENETRATION TESTING: penetration tests, pen tests, pentests, ethical hacking, red team exercises, intrusion testing, security audits
-  * Security policies, procedures, controls, and measures
-  * Access controls, authentication, authorization, user management
-  * Incident response, breach procedures, emergency protocols
-  * Data protection, encryption, backup procedures, recovery plans
-  * Training programs, awareness initiatives, security education
-  * Compliance requirements, audit procedures, review processes
-  * Network security, endpoint protection, malware protection
-  * Risk management, threat assessment, security monitoring
-- SPECIAL ATTENTION: When looking for vulnerability assessments or penetration testing, search for ANY of these terms: "vulnerability scan", "vulnerability scanning", "vulnerability assessment", "vulnerability testing", "vulnerability analysis", "penetration test", "pen test", "pentest", "security test", "security testing", "security scan", "security assessment", "security evaluation", "security audit", "intrusion test", "ethical hacking", "red team"
-- If evidence is about a different cybersecurity topic than what's being asked, DO NOT use it
-- Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
-- Answer "No" for boolean questions if no directly relevant evidence exists
-- Provide the exact quote from the documents that SPECIFICALLY relates to each question topic in the 'excerpt' field. The quote should NOT include any source information.
-- Provide the source file name (e.g., "DocumentName.pdf") in 'source_file_name'. Do NOT include the label or page number in this field.
-- CRITICAL: For EVERY excerpt, if the source is a paginated document (like PDF), you MUST provide the exact page number in 'source_page_number'. If the document is not paginated (e.g., a plain text file) or the page number is genuinely unidentifiable, then set 'source_page_number' to null. DO NOT omit page numbers for PDFs if they are present.
-- Provide the document's label ("4th Party") in 'source_label', or null if the label is 'Primary' (to indicate default).
-- If no directly relevant evidence is found after a comprehensive search, set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
-- Do NOT make assumptions or use general knowledge beyond what's in the documents
-- Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
-- Pay special attention to technical sections, appendices, and detailed procedure descriptions
+- Pay special attention to technical sections, appendices, and detailed procedure descriptions.
 
-DOCUMENT FILES PROVIDED:
+DOCUMENT FILES PROVIDED FOR ANALYSIS:
 ${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
 
 ${documentContent}
@@ -589,22 +596,22 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   }
 }`
 
-  // Process questions with Google AI - include PDF files if present
+  // Process questions with Google AI - include binary attachment files if present
   const answers: Record<string, boolean | string | string[]> = {}
   const confidenceScores: Record<string, number> = {}
   const reasoning: Record<string, string> = {}
   const documentExcerpts: Record<string, Array<any>> = {}
 
   try {
-    console.log("🧠 Processing documents with Google AI (including PDFs)...")
+    console.log("🧠 Processing documents with Google AI (including binary attachments)...")
 
     let result;
 
-    if (pdfFiles.length > 0) {
-      console.log(`📄 Sending ${pdfFiles.length} PDF file(s) directly to Google AI...`)
+    if (binaryAttachmentFiles.length > 0) {
+      console.log(`📄 Sending ${binaryAttachmentFiles.length} binary attachment file(s) directly to Google AI...`)
 
-      const pdfAttachments = await Promise.all(
-        pdfFiles.map(async (item: FileWithLabel) => {
+      const attachments = await Promise.all(
+        binaryAttachmentFiles.map(async (item: FileWithLabel) => {
           try {
             const bufferData = await fileToBuffer(item.file)
             console.log(`✅ Converted ${item.file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
@@ -622,12 +629,12 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       )
 
       // Filter out failed conversions
-      const validPdfAttachments = pdfAttachments.filter((attachment) => attachment !== null)
+      const validAttachments = attachments.filter((attachment) => attachment !== null)
 
-      if (validPdfAttachments.length > 0) {
+      if (validAttachments.length > 0) {
         const messageContent = [
           { type: "text" as const, text: basePrompt },
-          ...validPdfAttachments.map((attachment) => ({
+          ...validAttachments.map((attachment) => ({
             type: "file" as const,
             data: attachment!.data,
             mediaType: attachment!.mediaType,
@@ -645,10 +652,10 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           temperature: 0.1,
           maxOutputTokens: 4000, // Changed from max_tokens
         })
-        console.log(`✅ Successfully processed ${validPdfAttachments.length} PDF file(s) with Google AI`)
+        console.log(`✅ Successfully processed ${validAttachments.length} binary attachment file(s) with Google AI`)
       } else {
-        // Fallback to text-only if PDF conversion failed
-        console.log("⚠️ PDF conversion failed, falling back to text-only analysis")
+        // Fallback to text-only if binary attachment conversion failed
+        console.log("⚠️ Binary attachment conversion failed, falling back to text-only analysis")
         result = await generateText({
           model: google("gemini-1.5-flash"),
           prompt: basePrompt,
@@ -789,19 +796,20 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     const answer = answers[question.id]
     
     if (question.type === "tested") {
-      maxScore += question.weight;
+      maxScore += question.weight || 0; // Ensure weight is treated as number
       if (answer === "tested") {
-        totalScore += question.weight;
+        totalScore += question.weight || 0;
       }
     } else if (question.type === "boolean") {
-      maxScore += question.weight
-      totalScore += answer ? question.weight : 0
+      maxScore += question.weight || 0;
+      totalScore += answer ? (question.weight || 0) : 0
     } else if (question.type === "multiple" && question.options) {
-      maxScore += question.weight * 4
-      const optionIndex = question.options.indexOf(answer as string)
+      // For multiple choice, assign score based on position (e.g., first option is lowest risk)
+      // Assuming options are ordered from lowest risk to highest risk
+      maxScore += (question.weight || 0) * (question.options.length - 1); // Max score if highest risk option is chosen
+      const optionIndex = question.options.indexOf(answer as string);
       if (optionIndex !== -1) {
-        const scoreMultiplier = (question.options.length - 1 - optionIndex) / (question.options.length - 1)
-        totalScore += question.weight * scoreMultiplier * 4
+        totalScore += (question.weight || 0) * optionIndex;
       }
     } else if (question.type === "textarea") {
       // Textarea questions don't directly contribute to score, but indicate completeness
@@ -829,8 +837,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
   if (successfulProcessing > 0) {
     analysisNote += ` Successfully processed ${successfulProcessing} document(s).`
   }
-  if (pdfFiles.length > 0) {
-    analysisNote += ` ${pdfFiles.length} PDF file(s) analyzed using Google AI's native PDF capabilities.`
+  if (binaryAttachmentFiles.length > 0) {
+    analysisNote += ` ${binaryAttachmentFiles.length} binary attachment file(s) analyzed using Google AI's native capabilities.`
   }
   if (failedProcessing > 0) {
     analysisNote += ` ${failedProcessing} file(s) failed to process.`
@@ -859,7 +867,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       "Ensure document evidence directly supports all conclusions",
       "Consider uploading additional documentation for comprehensive analysis",
       "Prioritize uploading 'Primary' documents for best results, followed by '4th Party' documents.",
-      ...(unsupportedFilesWithLabels.length > 0 ? ["Convert unsupported files to PDF, TXT, or other supported formats"] : []),
+      ...(unsupportedFilesWithLabels.length > 0 ? ["Convert unsupported files to supported formats"] : []),
     ],
     riskScore,
     riskLevel,
