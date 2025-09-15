@@ -487,12 +487,20 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
 
     let rawAiResponseText = result.text;
 
-    // Attempt to strip markdown code block fences if present
-    if (rawAiResponseText.startsWith("```json")) {
-      rawAiResponseText = rawAiResponseText.substring(7); // Remove "```json\n"
-    }
-    if (rawAiResponseText.endsWith("```")) {
-      rawAiResponseText = rawAiResponseText.substring(0, rawAiResponseText.length - 3); // Remove "\n```"
+    // Robustly strip markdown code block fences
+    const jsonStart = rawAiResponseText.indexOf('{');
+    const jsonEnd = rawAiResponseText.lastIndexOf('}');
+
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        rawAiResponseText = rawAiResponseText.substring(jsonStart, jsonEnd + 1);
+    } else {
+        // Fallback if JSON structure isn't clearly delimited, try stripping common markdown
+        if (rawAiResponseText.startsWith("```json")) {
+            rawAiResponseText = rawAiResponseText.substring(7); // Remove "```json\n"
+        }
+        if (rawAiResponseText.endsWith("```")) {
+            rawAiResponseText = rawAiResponseText.substring(0, rawAiResponseText.length - 3); // Remove "\n```"
+        }
     }
     rawAiResponseText = rawAiResponseText.trim(); // Trim any remaining whitespace
 
@@ -602,9 +610,9 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
             answers[question.id] = "No directly relevant evidence found after comprehensive search.";
           }
 
-          confidenceScores[questionId] = 0.1; // Low confidence for conservative answer
-          reasoning[questionId] = `No directly relevant evidence found, defaulting to conservative answer. ${relevanceCheck.reason}`;
-          documentExcerpts[questionId] = [];
+          confidenceScores[question.id] = 0.1; // Low confidence for conservative answer
+          reasoning[question.id] = `No directly relevant evidence found, defaulting to conservative answer. ${relevanceCheck.reason}`;
+          documentExcerpts[question.id] = [];
         }
       });
     } catch (parseError) {
