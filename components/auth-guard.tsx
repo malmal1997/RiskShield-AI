@@ -66,6 +66,14 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       return;
     }
 
+    // NEW SCENARIO: User IS fully authenticated and APPROVED and tries to access the LANDING PAGE ('/')
+    if (isAuthenticated && isApproved && pathname === '/') {
+      console.log(`AuthGuard: Redirecting fully authenticated and approved user from landing page to /dashboard`);
+      setRedirecting(true);
+      router.replace('/dashboard');
+      return;
+    }
+
     // If none of the above redirect/block conditions are met, then the user is allowed to view the current page.
     setRedirecting(false);
     console.log("AuthGuard useEffect END: User is allowed to view this page.");
