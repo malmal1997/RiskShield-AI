@@ -43,6 +43,7 @@ export async function GET() {
 export async function POST() {
   try {
     console.log("Running sample document analysis test...")
+    console.log("Server: Invoking analyzeDocuments for sample analysis.") // Added log here
 
     // Sample security policy text for testing
     const sampleDocument = `
