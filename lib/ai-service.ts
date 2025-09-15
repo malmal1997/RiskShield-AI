@@ -364,6 +364,8 @@ CRITICAL INSTRUCTIONS:
 - For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.txt"), 'source_page_number' (if applicable and explicitly identifiable in the text, otherwise null), and 'source_label' ('Primary' or '4th Party').
 - If no directly relevant evidence is found after a comprehensive search of ALL documents, set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
 - When citing evidence, prioritize documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then prioritize documents labeled "4th Party".
+- **IMPORTANT CITATION RULE:** For the 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
+- **AVOID REPETITIVE CITATIONS:** Ensure that the 'excerpt' provided for each question is distinct and directly relevant to that specific question. Do not reuse the same generic excerpt across multiple questions unless it is genuinely the *only* relevant piece of evidence for each. If a question has no *new* relevant evidence, explicitly state 'No directly relevant evidence found after comprehensive search' rather than repeating a previous excerpt.
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions.
 
 DOCUMENT FILES PROVIDED FOR ANALYSIS:
@@ -397,7 +399,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
       "reasoning": "Explain how you arrived at the answer based on the document evidence or why a default was used. If no evidence, state 'No direct evidence found, defaulting to X'.",
       "source_file_name": null, // or "DocumentName.txt"
       "source_page_number": null,
-      "source_label": null // or 'Primary' or '4th Party'
+      "source_label": null // or '4th Party' (ONLY if the document was labeled '4th Party', otherwise null)
     }`).join(",\n    ")}
   ],
   "overall_analysis": "Concise overall analysis based on the documents.",
@@ -525,9 +527,9 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
         let aiAnswer = qr.answer;
         const aiExcerpt = qr.excerpt;
         const aiReasoning = qr.reasoning || "No specific reasoning provided by AI."; // Capture AI's reasoning
-        const aiFileName = qr.source_file_name;
-        const aiPageNumber = qr.source_page_number;
-        const aiLabel = qr.source_label;
+        let aiFileName = qr.source_file_name;
+        let aiPageNumber = qr.source_page_number;
+        let aiLabel = qr.source_label;
         const aiConfidence = qr.confidence || 0.5; // Use confidence from AI response
 
         console.log(
@@ -537,7 +539,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
         let excerpt = aiExcerpt || 'No directly relevant evidence found after comprehensive search';
         let fileName = aiFileName || "N/A";
         let pageNumber = aiPageNumber || undefined;
-        let label = aiLabel || 'Primary'; // Default to 'Primary' if not explicitly provided
+        let label = aiLabel || null; // Default to null for primary, as per new rule
 
         // Clean up fileName if AI incorrectly embeds label or page info
         const cleanupFileNameMatch = fileName.match(/^(.*?)(?:\s*-\s*(?:Page\s*\d+|Primary|4th Party))*\s*$/i);
@@ -592,7 +594,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
               fileName: fileName,
               label: label,
               excerpt: excerpt,
-              relevance: `Evidence found within ${fileName} (Label: ${label})`,
+              relevance: `Evidence found within ${fileName}${label ? ` (Label: ${label})` : ''}`,
               pageOrSection: "Document Content",
               pageNumber: pageNumber,
             },
