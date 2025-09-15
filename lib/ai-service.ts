@@ -186,127 +186,6 @@ function getGoogleAIMediaType(file: File): string {
   return "application/octet-stream"
 }
 
-// Enhanced cybersecurity concept mapping for better evidence validation
-const CYBERSECURITY_CONCEPTS = {
-  "penetration testing": [
-    "penetration test",
-    "pen test",
-    "pentest",
-    "security testing",
-    "vulnerability assessment",
-    "ethical hacking",
-    "red team",
-    "security audit",
-    "intrusion testing",
-    "security evaluation",
-    "vulnerability testing",
-  ],
-  "anti-malware": [
-    "antivirus",
-    "anti-virus",
-    "malware protection",
-    "endpoint protection",
-    "virus scanner",
-    "malware detection",
-    "threat protection",
-    "security software",
-  ],
-  "vulnerability scanning": [
-    "vulnerability scan",
-    "vulnerability scanning",
-    "security scan",
-    "network scan",
-    "system scan",
-    "security assessment",
-    "vulnerability assessment",
-    "automated scanning",
-    "security monitoring",
-    "vulnerability testing",
-    "security evaluation",
-    "vulnerability analysis",
-  ],
-  "disciplinary measures": [
-    "disciplinary action",
-    "penalties",
-    "sanctions",
-    "enforcement",
-    "consequences",
-    "violations",
-    "non-compliance",
-    "corrective action",
-    "punishment",
-    "disciplinary procedures",
-  ],
-  "incident response": [
-    "incident response",
-    "security incident",
-    "breach response",
-    "emergency response",
-    "incident handling",
-    "incident management",
-    "security breach",
-    "cyber incident",
-  ],
-  "policy review": [
-    "policy review",
-    "policy update",
-    "policy revision",
-    "annual review",
-    "policy maintenance",
-    "policy evaluation",
-    "policy assessment",
-    "document review",
-  ],
-  "access control": [
-    "access control",
-    "user access",
-    "authentication",
-    "authorization",
-    "permissions",
-    "access management",
-    "identity management",
-    "user privileges",
-  ],
-  encryption: [
-    "encryption",
-    "encrypted",
-    "cryptographic",
-    "data protection",
-    "secure transmission",
-    "data at rest",
-    "data in transit",
-    "cryptography",
-  ],
-  backup: [
-    "backup",
-    "data backup",
-    "backup procedures",
-    "recovery",
-    "disaster recovery",
-    "business continuity",
-    "data restoration",
-    "backup strategy",
-  ],
-  training: [
-    "training",
-    "awareness",
-    "education",
-    "security training",
-    "staff training",
-    "employee training",
-    "security awareness",
-    "cybersecurity training",
-  ],
-  "multi-factor authentication": [
-    "multi-factor authentication",
-    "mfa",
-    "2fa",
-    "two-factor authentication",
-    "strong authentication",
-    "second factor",
-  ],
-}
-
 // Enhanced semantic relevance checking
 function checkSemanticRelevance(
   question: string,
@@ -490,17 +369,17 @@ ${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index 
 
 ${documentContent}
 
-ASSESSMENT QUESTIONS AND EXPECTED ANSWER FORMAT:
+ASSESSMENT QUESTIONS AND DETAILED ANSWERING INSTRUCTIONS:
 ${questions.map((q: Question, idx: number) => {
   let formatHint = '';
   if (q.type === 'boolean') {
-    formatHint = 'Expected: true or false';
+    formatHint = 'Expected: true or false. Search for explicit affirmative (e.g., "is encrypted", "is required", "we do") or negative (e.g., "no encryption", "not required", "we do not") statements. If the document explicitly states the presence of the control, answer `true`. If it explicitly states absence, answer `false`. If no information is found, default to `false`.';
   } else if (q.type === 'multiple' && q.options) {
-    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}`;
+    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. Find the exact matching frequency or description. If multiple apply, choose the most specific or highest frequency mentioned. If no information is found, default to the first option in the list.`;
   } else if (q.type === 'tested') {
-    formatHint = 'Expected: "tested" or "not_tested"';
+    formatHint = 'Expected: "tested" or "not_tested". Look for evidence of testing activities or explicit statements about testing status. If no information is found, default to "not_tested".';
   } else if (q.type === 'textarea') {
-    formatHint = 'Expected: "Detailed text response"';
+    formatHint = 'Expected: "Detailed text response". Summarize the relevant information from the documents in a concise paragraph. If no information is found, state "No directly relevant evidence found after comprehensive search."';
   }
   return `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""}) - ${formatHint}`;
 }).join("\n")}
@@ -511,7 +390,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
     ${questions.map((q: Question) => `
     {
       "id": "${q.id}",
-      "answer": ${q.type === "boolean" ? 'false' : (q.type === "multiple" ? '""' : (q.type === "tested" ? '""' : '""'))}, // Placeholder for AI to fill
+      "answer": ${q.type === "boolean" ? 'false' : (q.type === "multiple" || q.type === "tested" ? '""' : '""')}, // Placeholder for AI to fill
       "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. If no relevant evidence, state 'No directly relevant evidence found after comprehensive search'.",
       "source_file_name": null, // or "DocumentName.txt"
       "source_page_number": null,
@@ -634,6 +513,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         const aiFileName = qr.source_file_name;
         const aiPageNumber = qr.source_page_number;
         const aiLabel = qr.source_label;
+        const aiConfidence = qr.confidence || 0.5; // Use confidence from AI response
 
         console.log(
           `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Excerpt present=${!!aiExcerpt}`,
@@ -685,8 +565,8 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         // Determine final answer, confidence, and reasoning
         if (relevanceCheck.isRelevant && hasActualExcerpt) {
           answers[questionId] = aiAnswer;
-          confidenceScores[questionId] = relevanceCheck.confidence; // Use relevance check confidence
-          reasoning[questionId] = `Answer based on relevant evidence: "${excerpt}" from ${fileName}.`;
+          confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence); // Use AI's confidence, capped by relevance check
+          reasoning[questionId] = qr.reasoning || "Evidence found and validated as relevant";
 
           if (excerpt.length > 500) {
               excerpt = excerpt.substring(0, 500) + '...';
