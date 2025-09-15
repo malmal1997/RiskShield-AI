@@ -386,7 +386,7 @@ function AnalyticsContent() {
                           </div>
                           <span className="font-medium">{feature}</span>
                         </div>
-                        <Badge variant="outline">{interactions} interactions</Badge>
+                        <Badge variant="outline">{interactions as number} interactions</Badge>
                       </div>
                     ))}
                   </div>
@@ -433,7 +433,7 @@ function AnalyticsContent() {
                         </div>
                         <span className="font-medium">{path}</span>
                       </div>
-                      <Badge variant="outline">{views} views</Badge>
+                      <Badge variant="outline">{views as number} views</Badge>
                     </div>
                   ))}
                 </div>

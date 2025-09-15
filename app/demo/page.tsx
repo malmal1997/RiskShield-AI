@@ -102,8 +102,9 @@ export default function InteractiveDemo() {
                 <p className="text-3xl font-bold text-orange-600">3</p>
                 <p className="text-xs text-gray-500">Require attention</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="border border-gray-200">
           <CardContent className="p-6">
