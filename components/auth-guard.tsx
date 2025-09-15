@@ -25,7 +25,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
-    console.log(`AuthGuard useEffect START: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}, pathname=${pathname}`);
+    console.log(`AuthGuard useEffect START: pathname=${pathname}, loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}`);
 
     if (loading) {
       setRedirecting(false);
@@ -37,41 +37,46 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     const isAuthenticated = !!user || isDemo;
     const isApproved = !!profile && !!role && !!organization; // User is fully approved if profile, role, AND organization are present
     const isAuthPage = ['/auth/login', '/auth/register', '/auth/forgot-password'].includes(pathname);
-    const isPublicPath = publicPaths.includes(pathname); // Includes '/'
 
-    // 1. If user is authenticated (real user, not demo) but NOT APPROVED:
-    //    Always redirect to login page to show "pending approval" message,
-    //    unless they are already on an auth page.
-    if (user && !isDemo && !isApproved && !isAuthPage) {
-      console.log(`AuthGuard: User ${user.email} is authenticated but NOT APPROVED. Redirecting to /auth/login.`);
-      setRedirecting(true);
-      router.replace('/auth/login');
-      return;
+    // Determine target path for redirection
+    let redirectTo: string | null = null;
+
+    // 1. If user is authenticated (real user or demo) AND on the public landing page ('/'):
+    //    Always redirect to dashboard. This is the highest priority for authenticated users.
+    if (isAuthenticated && pathname === '/') {
+      redirectTo = '/dashboard';
+      console.log(`AuthGuard: Authenticated user on landing page. Setting redirect to ${redirectTo}.`);
     }
-
-    // 2. If user is FULLY APPROVED (authenticated and approved):
-    //    If they are on a public path (like '/') or an auth page, redirect to dashboard.
-    if (isAuthenticated && isApproved && (isPublicPath || isAuthPage)) {
-      console.log(`AuthGuard: User ${user?.email} is FULLY APPROVED. Redirecting from ${pathname} to /dashboard.`);
-      setRedirecting(true);
-      router.replace('/dashboard');
-      return;
+    // 2. If user is authenticated (real user, not demo) but NOT APPROVED:
+    //    Redirect to login page to show "pending approval" message, unless already on an auth page.
+    else if (user && !isDemo && !isApproved && !isAuthPage) {
+      redirectTo = '/auth/login';
+      console.log(`AuthGuard: User ${user.email} is authenticated but NOT APPROVED. Setting redirect to ${redirectTo}.`);
     }
-
-    // 3. If user is NOT AUTHENTICATED (real user or demo) and tries to access a PROTECTED page:
+    // 3. If user is FULLY APPROVED (authenticated and approved) AND on an auth page:
+    //    Redirect to dashboard.
+    else if (isAuthenticated && isApproved && isAuthPage) {
+      redirectTo = '/dashboard';
+      console.log(`AuthGuard: User ${user?.email} is FULLY APPROVED and on an auth page. Setting redirect to ${redirectTo}.`);
+    }
+    // 4. If user is NOT AUTHENTICATED and tries to access a PROTECTED page:
     //    Redirect to login page.
-    if (!isAuthenticated && !isPublicPath && !allowPreview) {
-      console.log(`AuthGuard: User is NOT AUTHENTICATED. Redirecting from protected ${pathname} to /auth/login.`);
-      setRedirecting(true);
-      router.replace('/auth/login');
-      return;
+    else if (!isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
+      redirectTo = '/auth/login';
+      console.log(`AuthGuard: User is NOT AUTHENTICATED. Setting redirect to ${redirectTo}.`);
     }
 
-    // 4. If none of the above conditions trigger a redirect, allow access to the current page.
-    console.log(`AuthGuard: User is allowed to view ${pathname}.`);
-    setRedirecting(false);
+    // Perform redirection if a target path is determined and it's different from the current path
+    if (redirectTo && pathname !== redirectTo) {
+      setRedirecting(true);
+      console.log(`AuthGuard: Performing router.replace(${redirectTo}) from ${pathname}.`);
+      router.replace(redirectTo);
+    } else {
+      setRedirecting(false);
+      console.log(`AuthGuard: No redirection needed for ${pathname}.`);
+    }
 
-  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router, signOut]);
+  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router]);
 
   const handleDemoLogin = () => {
     console.log("AuthGuard: handleDemoLogin called.");
@@ -109,9 +114,6 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       </div>
     );
   };
-
-  // The pending approval message is now handled by the LoginPage component
-  // when the AuthGuard redirects unapproved users there.
 
   if (loading || redirecting) {
     console.log("AuthGuard: Assigning loading state content.");
