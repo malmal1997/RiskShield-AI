@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { MainNavigation } from "@/components/main-navigation"
 import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Shield, ArrowLeft } from "lucide-react" // Added ArrowLeft
 import { getAssessments, createAssessment, deleteAssessment } from "@/lib/assessment-service"
 import type { Assessment, AssessmentResponse } from "@/lib/supabase"
@@ -455,7 +454,6 @@ ${assessmentLink}
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <MainNavigation /> {/* Removed userEmail and onSignOut props */}
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
@@ -473,9 +471,6 @@ ${assessmentLink}
       previewMessage="Preview Mode: Sign up to send real vendor assessments and manage your portfolio"
     >
       <div className="min-h-screen bg-white">
-        {/* Navigation */}
-        <MainNavigation /> {/* Removed userEmail and onSignOut props */}
-
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
