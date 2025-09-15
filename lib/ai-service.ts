@@ -558,7 +558,7 @@ export async function analyzeDocuments(
   const basePrompt = `You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions. Your task is to analyze the provided documents and answer specific assessment questions.
 
 CRITICAL INSTRUCTIONS:
-- YOU MUST THOROUGHLY ANALYZE ALL PROVIDED DOCUMENTS. This includes both the text content provided directly in the prompt AND any binary files attached (e.g., PDFs, DOCX, XLSX). Use your advanced document processing capabilities to extract and understand the content of ALL attached files.
+- YOU MUST THOROUGHLY ANALYZE ALL PROVIDED DOCUMENTS. This includes both the text content provided directly in the prompt AND any binary files attached (e.g., PDFs, DOCX, XLSX, PPTX). Use your advanced document processing capabilities to extract and understand the content of ALL attached files.
 - BASE YOUR ANSWERS SOLELY AND EXCLUSIVELY ON THE INFORMATION DIRECTLY AND SPECIFICALLY FOUND WITHIN THE PROVIDED DOCUMENTS. DO NOT use external knowledge, make assumptions, or infer information not explicitly stated.
 - For each question, if relevant evidence is found, provide the EXACT QUOTE from the document in the 'excerpt' field. The quote should be verbatim and should NOT include any source information (like file name or page number).
 - For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if applicable and identifiable, otherwise null), and 'source_label' ('4th Party' or null if 'Primary').
@@ -577,13 +577,13 @@ ${questions.map((q: Question, idx: number) => `${idx + 1}. ID: ${q.id} - ${q.que
 Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., \`\`\`json) or conversational text outside the JSON. Ensure all property names are double-quoted.
 {
   "answers": {
-    ${questions.map((q: Question) => `"${q.id}": ${q.type === "boolean" ? '"Yes" or "No"' : '"your_answer"'}`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": ${q.type === "boolean" ? 'true or false' : '"your_answer"'}`).join(",\n    ")}
   },
   "confidence": {
     ${questions.map((q: Question) => `"${q.id}": 0.8`).join(",\n    ")}
   },
   "reasoning": {
-    ${questions.map((q: Question) => `"${q.id}": "explanation with DIRECTLY RELEVANT evidence from documents or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+    ${questions.map((q: Question) => `"${q.id}": "Concise explanation of the answer based on evidence, or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
   },
   "evidence_details": {
     ${questions.map((q: Question) => `
