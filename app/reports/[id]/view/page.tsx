@@ -196,7 +196,7 @@ export default function ReportViewPage() {
             {questions?.map((question: any, index: number) => (
               <div key={question.id} className="border p-4 rounded-md bg-white shadow-sm">
                 <h3 className="font-semibold text-gray-900 mb-2 whitespace-pre-wrap">
-                  {index + 1}. {question.question}
+                  {index + 1}. {question.question_text}
                 </h3>
                 <p className="text-sm text-gray-700 ml-4 whitespace-pre-wrap">
                   <strong>Answer:</strong>{" "}
@@ -274,6 +274,8 @@ export default function ReportViewPage() {
             {answers && Object.keys(answers).length > 0 ? Object.entries(answers).map(([questionId, answer]: [string, any]) => (
               <div key={questionId} className="border p-4 rounded-md bg-white shadow-sm">
                 <h3 className="font-semibold text-gray-900 mb-2 whitespace-pre-wrap">
+                  {/* Note: Original question text for manual assessments is not stored with responses. */}
+                  {/* Displaying a formatted version of the question ID as a placeholder. */}
                   {questionId.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                 </h3>
                 <p className="text-sm text-gray-700 ml-4 whitespace-pre-wrap">
