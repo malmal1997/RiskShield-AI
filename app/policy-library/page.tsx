@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Fragment } from "react" // Import Fragment
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -544,7 +544,7 @@ function PolicyLibraryContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <Fragment> {/* Use Fragment as the root element */}
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-blue-50 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -736,7 +736,7 @@ function PolicyLibraryContent() {
             <div className="text-center py-12">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No policies found</h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-700 mb-4">
                 {searchTerm || statusFilter !== "all"
                   ? "Try adjusting your search or filter criteria."
                   : "Get started by creating your first policy."}
@@ -1080,7 +1080,6 @@ function PolicyLibraryContent() {
             </div>
           </div>
         </footer>
-      </div>
-    </AuthGuard>
+    </Fragment>
   )
 }
