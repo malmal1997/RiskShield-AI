@@ -18,17 +18,14 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, allowPreview = false, previewMessage }: AuthGuardProps) {
-  const { user, loading, isDemo, profile, organization, role, signOut } = useAuth() // Added organization
+  const { user, loading, isDemo, profile, organization, role, signOut } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
   const [redirecting, setRedirecting] = useState(false);
-  const [showPendingApprovalMessage, setShowPendingApprovalMessage] = useState(false);
 
   useEffect(() => {
     console.log(`AuthGuard useEffect START: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}, pathname=${pathname}`);
-
-    setShowPendingApprovalMessage(false); // Reset on each effect run
 
     if (loading) {
       setRedirecting(false);
@@ -39,46 +36,42 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
     const isAuthenticated = !!user || isDemo;
     const isApproved = !!profile && !!role && !!organization; // User is fully approved if profile, role, AND organization are present
-    const isPublicPath = publicPaths.includes(pathname);
+    const isAuthPage = ['/auth/login', '/auth/register', '/auth/forgot-password'].includes(pathname);
+    const isPublicPath = publicPaths.includes(pathname); // Includes '/'
 
-    // Scenario 1: User is NOT authenticated (or demo) and tries to access a PROTECTED page
-    if (!isAuthenticated && !isPublicPath && !allowPreview) {
-      console.log(`AuthGuard: Redirecting unauthenticated user from ${pathname} to /auth/login`);
+    // 1. If user is authenticated (real user, not demo) but NOT APPROVED:
+    //    Always redirect to login page to show "pending approval" message,
+    //    unless they are already on an auth page.
+    if (user && !isDemo && !isApproved && !isAuthPage) {
+      console.log(`AuthGuard: User ${user.email} is authenticated but NOT APPROVED. Redirecting to /auth/login.`);
       setRedirecting(true);
       router.replace('/auth/login');
       return;
-    } 
-    
-    // Scenario 2: User IS authenticated (Supabase user, not demo) but NOT APPROVED (no profile/role/organization)
-    // This check applies to protected pages. If they are on login/register, they should be allowed to stay there.
-    if (user && !isDemo && !isApproved && !isPublicPath && pathname !== '/auth/login' && pathname !== '/auth/register') {
-      console.log(`AuthGuard: User ${user.email} is authenticated but not approved. Setting showPendingApprovalMessage to true.`);
-      setShowPendingApprovalMessage(true); // Set state to show message
-      setRedirecting(false);
-      return;
     }
 
-    // Scenario 3: User IS fully authenticated and APPROVED (has profile/role/organization) and tries to access an AUTH PAGE (login/register/forgot)
-    if (isAuthenticated && isApproved && (pathname === '/auth/login' || pathname === '/auth/register' || pathname === '/auth/forgot-password')) {
-      console.log(`AuthGuard: Redirecting fully authenticated and approved user from ${pathname} to /dashboard`);
+    // 2. If user is FULLY APPROVED (authenticated and approved):
+    //    If they are on a public path (like '/') or an auth page, redirect to dashboard.
+    if (isAuthenticated && isApproved && (isPublicPath || isAuthPage)) {
+      console.log(`AuthGuard: User ${user?.email} is FULLY APPROVED. Redirecting from ${pathname} to /dashboard.`);
       setRedirecting(true);
       router.replace('/dashboard');
       return;
     }
 
-    // NEW SCENARIO: User IS fully authenticated and APPROVED and tries to access the LANDING PAGE ('/')
-    if (isAuthenticated && isApproved && pathname === '/') {
-      console.log(`AuthGuard: Redirecting fully authenticated and approved user from landing page to /dashboard`);
+    // 3. If user is NOT AUTHENTICATED (real user or demo) and tries to access a PROTECTED page:
+    //    Redirect to login page.
+    if (!isAuthenticated && !isPublicPath && !allowPreview) {
+      console.log(`AuthGuard: User is NOT AUTHENTICATED. Redirecting from protected ${pathname} to /auth/login.`);
       setRedirecting(true);
-      router.replace('/dashboard');
+      router.replace('/auth/login');
       return;
     }
 
-    // If none of the above redirect/block conditions are met, then the user is allowed to view the current page.
+    // 4. If none of the above conditions trigger a redirect, allow access to the current page.
+    console.log(`AuthGuard: User is allowed to view ${pathname}.`);
     setRedirecting(false);
-    console.log("AuthGuard useEffect END: User is allowed to view this page.");
 
-  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router, signOut]); // Added organization to dependencies
+  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router, signOut]);
 
   const handleDemoLogin = () => {
     console.log("AuthGuard: handleDemoLogin called.");
@@ -117,42 +110,12 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     );
   };
 
-  const renderPendingApprovalStateContent = () => {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <Clock className="h-16 w-16 text-yellow-500 mx-auto" />
-                <h2 className="text-2xl font-bold text-gray-900">Account Pending Approval</h2>
-                <p className="text-gray-600">
-                  Your account ({user?.email}) is currently pending review by our administrators. You will receive an email notification once your account has been approved.
-                </p>
-                <div className="pt-4">
-                  <Button className="w-full" onClick={signOut}>
-                    Sign Out
-                  </Button>
-                  <a href="/auth/login">
-                    <Button variant="outline" className="w-full mt-2">
-                      Go to Login Page
-                    </Button>
-                  </a>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  };
+  // The pending approval message is now handled by the LoginPage component
+  // when the AuthGuard redirects unapproved users there.
 
   if (loading || redirecting) {
     console.log("AuthGuard: Assigning loading state content.");
     contentToRender = renderLoadingStateContent();
-  } else if (showPendingApprovalMessage && user && !isDemo && (!profile || !role || !organization)) { // Ensure all three are checked
-    console.log("AuthGuard: Assigning pending approval state content.");
-    contentToRender = renderPendingApprovalStateContent();
   } else {
     console.log("AuthGuard: Assigning children content.");
     contentToRender = <>{children}</>;

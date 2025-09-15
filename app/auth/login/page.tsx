@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [showPendingApproval, setShowPendingApproval] = useState(false); // New state for pending approval
   const router = useRouter()
-  const { signIn, user, profile, role, loading, signOut, refreshProfile, isDemo } = useAuth() // Get user, profile, role, loading from useAuth
+  const { signIn, user, profile, role, organization, loading, signOut, refreshProfile, isDemo } = useAuth() // Get user, profile, role, loading from useAuth
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,10 +50,13 @@ export default function LoginPage() {
 
   // Effect to check user status after AuthContext has loaded
   useEffect(() => {
-    console.log(`Login Page useEffect: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}`);
+    console.log(`Login Page useEffect: loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}, organization=${organization?.name}`);
     if (!loading && user && !isDemo) { // Only check for non-demo users
-      if (!profile && !role) {
-        // User is authenticated in Supabase, but no profile/role means pending approval
+      // A user is considered "approved" if they have a profile, a role, AND an organization.
+      const isApproved = !!profile && !!role && !!organization; // Use the same definition as AuthGuard
+
+      if (!isApproved) {
+        // User is authenticated in Supabase, but not fully approved
         console.log(`Login Page: User ${user.email} is authenticated but not approved. Showing pending message.`);
         setShowPendingApproval(true);
         setError("Your account is pending approval. Please wait for an administrator to approve your registration.");
@@ -63,7 +66,7 @@ export default function LoginPage() {
         router.replace('/dashboard');
       }
     }
-  }, [loading, user, isDemo, profile, role, router]);
+  }, [loading, user, isDemo, profile, role, organization, router]); // Added organization to dependencies
 
   const handleDemoLogin = () => {
     localStorage.setItem("demo_session", JSON.stringify({ user: { id: "demo-user-id", email: "demo@riskguard.ai", name: "Demo User" }, organization: { id: "demo-org-id", name: "RiskGuard Demo Organization", plan: "enterprise" }, role: "admin", loginTime: new Date().toISOString() }));
