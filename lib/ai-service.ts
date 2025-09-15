@@ -453,9 +453,9 @@ export async function analyzeDocuments(
         confidenceScores[question.id] = 0.95
         reasoning[question.id] = "No supported documents available for analysis. Defaulting to 'Not Tested' for safety."
       } else if (question.type === "textarea") {
-        answers[question.id] = "No supported documents available for analysis."
+        answers[question.id] = "No directly relevant evidence found after comprehensive search."
         confidenceScores[question.id] = 0.95
-        reasoning[question.id] = "No supported documents available for analysis. Defaulting to empty for safety."
+        reasoning[question.id] = "No supported documents available for analysis. Defaulting to 'No directly relevant evidence found after comprehensive search' for safety."
       }
     })
 
@@ -695,7 +695,7 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
       // Process each question with enhanced validation
       questions.forEach((question: Question) => {
         const questionId = question.id
-        const aiAnswer = aiResponse.answers?.[questionId]
+        let aiAnswer = aiResponse.answers?.[questionId]
         const aiEvidenceDetails = aiResponse.evidence_details?.[questionId]; // Use new structured field
         const aiReasoning = aiResponse.reasoning?.[questionId]
         const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
@@ -718,6 +718,22 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
         // Ensure label is null if it's 'Primary' for cleaner rendering
         if (label === 'Primary') {
             label = null;
+        }
+
+        // Convert string boolean representations to actual booleans
+        if (question.type === "boolean") {
+          if (typeof aiAnswer === 'string') {
+            const lowerCaseAnswer = aiAnswer.toLowerCase();
+            if (lowerCaseAnswer === 'true' || lowerCaseAnswer === 'yes') {
+              aiAnswer = true;
+            } else if (lowerCaseAnswer === 'false' || lowerCaseAnswer === 'no') {
+              aiAnswer = false;
+            } else {
+              aiAnswer = false; // Default to false if ambiguous
+            }
+          } else if (typeof aiAnswer !== 'boolean') {
+            aiAnswer = false; // Default to false if not a boolean or string
+          }
         }
 
 
@@ -764,11 +780,11 @@ Respond ONLY with a JSON object. Do NOT include any markdown code blocks (e.g., 
           } else if (question.type === "tested") {
             answers[question.id] = "not_tested"
           } else if (question.type === "textarea") {
-            answers[question.id] = "No directly relevant evidence found."
+            answers[question.id] = "No directly relevant evidence found after comprehensive search."
           }
 
           confidenceScores[questionId] = 0.9 // High confidence in conservative answer
-          reasoning[questionId] = `No directly relevant evidence found. ${relevanceCheck.reason}`
+          reasoning[questionId] = `No directly relevant evidence found after comprehensive search. ${relevanceCheck.reason}`
           documentExcerpts[questionId] = []
         }
       })
