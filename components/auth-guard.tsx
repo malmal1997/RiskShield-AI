@@ -4,7 +4,7 @@ import type React from "react"
 import { useAuth } from "./auth-context"
 import { Button } from "@/components/ui/button"
 import { Shield, Play, Clock } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect } from "react" // Removed useState for redirecting
 import { useRouter, usePathname } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -22,45 +22,37 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const router = useRouter()
   const pathname = usePathname()
 
-  const [redirecting, setRedirecting] = useState(false);
-
   useEffect(() => {
     console.log(`AuthGuard useEffect START: pathname=${pathname}, loading=${loading}, user=${user?.email}, profile=${profile?.first_name}, role=${role?.role}, isDemo=${isDemo}`);
 
     if (loading) {
-      setRedirecting(false);
-      console.log("AuthGuard useEffect: Still loading, returning.");
-      return; // Still loading auth state, do nothing yet
+      console.log("AuthGuard useEffect: Still loading auth state, returning.");
+      return;
     }
-    console.log("AuthGuard useEffect: Loading is false, proceeding with checks.");
+    console.log("AuthGuard useEffect: Auth state loaded, proceeding with checks.");
 
     const isAuthenticated = !!user || isDemo;
-    const isApproved = !!profile && !!role && !!organization; // User is fully approved if profile, role, AND organization are present
+    const isApproved = !!profile && !!role && !!organization;
     const isAuthPage = ['/auth/login', '/auth/register', '/auth/forgot-password'].includes(pathname);
 
-    // Determine target path for redirection
     let redirectTo: string | null = null;
 
     // 1. If user is authenticated (real user or demo) AND on the public landing page ('/'):
-    //    Always redirect to dashboard. This is the highest priority for authenticated users.
     if (isAuthenticated && pathname === '/') {
       redirectTo = '/dashboard';
       console.log(`AuthGuard: Authenticated user on landing page. Setting redirect to ${redirectTo}.`);
     }
     // 2. If user is authenticated (real user, not demo) but NOT APPROVED:
-    //    Redirect to login page to show "pending approval" message, unless already on an auth page.
     else if (user && !isDemo && !isApproved && !isAuthPage) {
       redirectTo = '/auth/login';
       console.log(`AuthGuard: User ${user.email} is authenticated but NOT APPROVED. Setting redirect to ${redirectTo}.`);
     }
     // 3. If user is FULLY APPROVED (authenticated and approved) AND on an auth page:
-    //    Redirect to dashboard.
     else if (isAuthenticated && isApproved && isAuthPage) {
       redirectTo = '/dashboard';
       console.log(`AuthGuard: User ${user?.email} is FULLY APPROVED and on an auth page. Setting redirect to ${redirectTo}.`);
     }
     // 4. If user is NOT AUTHENTICATED and tries to access a PROTECTED page:
-    //    Redirect to login page.
     else if (!isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
       redirectTo = '/auth/login';
       console.log(`AuthGuard: User is NOT AUTHENTICATED. Setting redirect to ${redirectTo}.`);
@@ -68,60 +60,58 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
     // Perform redirection if a target path is determined and it's different from the current path
     if (redirectTo && pathname !== redirectTo) {
-      setRedirecting(true);
-      console.log(`AuthGuard: Performing router.replace(${redirectTo}) from ${pathname}.`);
+      console.log(`AuthGuard: Initiating router.replace(${redirectTo}) from ${pathname}.`);
       router.replace(redirectTo);
     } else {
-      setRedirecting(false);
       console.log(`AuthGuard: No redirection needed for ${pathname}.`);
     }
 
   }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router]);
 
-  const handleDemoLogin = () => {
-    console.log("AuthGuard: handleDemoLogin called.");
-    localStorage.setItem(
-      "demo_session",
-      JSON.stringify({
-        user: {
-          id: "demo-user-id",
-          email: "demo@riskguard.ai",
-          name: "Demo User",
-        },
-        organization: {
-          id: "demo-org-id",
-          name: "RiskGuard Demo Organization",
-          plan: "enterprise",
-        },
-        role: "admin",
-        loginTime: new Date().toISOString(),
-      }),
-    );
-    window.location.href = "/dashboard"; 
-  };
-
-  let contentToRender: React.ReactNode = null;
-
-  const renderLoadingStateContent = () => {
+  // Render logic:
+  // If still loading auth state, show a loading spinner.
+  if (loading) {
+    console.log("AuthGuard: Rendering loading state.");
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">
-            {loading ? "Loading authentication..." : "Redirecting..."}
-          </p>
+          <p className="mt-2 text-gray-600">Loading authentication...</p>
         </div>
       </div>
     );
-  };
-
-  if (loading || redirecting) {
-    console.log("AuthGuard: Assigning loading state content.");
-    contentToRender = renderLoadingStateContent();
-  } else {
-    console.log("AuthGuard: Assigning children content.");
-    contentToRender = <>{children}</>;
   }
 
-  return contentToRender;
+  // Determine if a redirect is pending based on current state and pathname
+  const isAuthenticated = !!user || isDemo;
+  const isApproved = !!profile && !!role && !!organization;
+  const isAuthPage = ['/auth/login', '/auth/register', '/auth/forgot-password'].includes(pathname);
+
+  let isRedirectPending = false;
+  if (isAuthenticated && pathname === '/') {
+    isRedirectPending = true;
+  } else if (user && !isDemo && !isApproved && !isAuthPage) {
+    isRedirectPending = true;
+  } else if (isAuthenticated && isApproved && isAuthPage) {
+    isRedirectPending = true;
+  } else if (!isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
+    isRedirectPending = true;
+  }
+
+  // If a redirect is pending, show a redirecting message and suppress children rendering.
+  if (isRedirectPending) {
+    console.log(`AuthGuard: Suppressing children render for ${pathname} due to pending redirect.`);
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If no loading and no redirect is pending, render children.
+  console.log("AuthGuard: Rendering children.");
+  return <>{children}</>;
 }
