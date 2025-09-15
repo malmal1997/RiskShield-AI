@@ -4,6 +4,9 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import {
   Shield,
@@ -20,33 +23,33 @@ import {
   User,
   ArrowLeft,
   Building2,
-  CheckCircle2,
+  CheckCircle2, // Corrected import to CheckCircle2
   Download,
   X,
-  ArrowRight,
-  Upload,
-  AlertCircle,
-  Check,
-  Save,
-  Info,
-  FileCheck,
+  ArrowRight, // Added ArrowRight import
+  Upload, // Added Upload import
+  AlertCircle, // Added AlertCircle import
+  Check, // Added Check import
+  Save, // Added Save import
+  Info, // Added Info import
+  FileCheck, // Added FileCheck import
   Loader2,
   Copy,
   Edit3,
   Calendar, // Added Calendar import
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Label as ShadcnLabel } from "@/components/ui/label" // Renamed Label to avoid conflict
+import { Textarea as ShadcnTextarea } from "@/components/ui/textarea" // Renamed Textarea to avoid conflict
 import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
 import Link from "next/link"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useAuth } from "@/components/auth-context"
-import { useToast } from "@/components/ui/use-toast"
-import { saveAiAssessmentReport, getAssessmentTemplates, getTemplateQuestions } from "@/lib/assessment-service"
+import { Input as ShadcnInput } from "@/components/ui/input" // Renamed Input to avoid conflict
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Import Select components
+import { useAuth } from "@/components/auth-context" // Import useAuth
+import { useToast } from "@/components/ui/use-toast" // Import useToast
+import { saveAiAssessmentReport, getAssessmentTemplates, getTemplateQuestions } from "@/lib/assessment-service" // Import the new service function
 import type { AssessmentTemplate, TemplateQuestion } from "@/lib/supabase";
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation" // Import useRouter
 
 // Assessment categories and questions (now default/built-in templates)
 const builtInAssessmentCategories = [
@@ -92,6 +95,353 @@ const builtInAssessmentCategories = [
         question: "Do you have an incident response plan in place?",
         type: "boolean" as const,
         weight: 9,
+      },
+      {
+        id: "cyb_1",
+        category: "Incident Response",
+        question: "Have you experienced a data breach or cybersecurity incident in the last two years?",
+        type: "boolean" as const,
+        weight: 10,
+        required: true,
+      },
+      {
+        id: "cyb_2",
+        category: "Governance",
+        question: "Does your organization have cybersecurity executive oversight?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_3",
+        category: "Threat Management",
+        question: "Do you actively monitor for evolving threats and vulnerabilities?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_4",
+        category: "Security Training",
+        question: "Do you provide phishing education to your employees?",
+        type: "boolean" as const,
+        weight: 7,
+        required: true,
+      },
+      {
+        id: "cyb_5",
+        category: "Security Training",
+        question: "Do you provide general cybersecurity employee training?",
+        type: "boolean" as const,
+        weight: 7,
+        required: true,
+      },
+      {
+        id: "cyb_6",
+        category: "Security Training",
+        question: "Do you assess cybersecurity staff competency?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_7",
+        category: "Human Resources",
+        question: "Do staff sign NDA/Confidentiality Agreements?",
+        type: "boolean" as const,
+        weight: 7,
+        required: true,
+      },
+      {
+        id: "cyb_8",
+        category: "Client Management",
+        question: "Do you define client cybersecurity responsibilities?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_9",
+        category: "Change Management",
+        question: "Do you have change management restrictions in place?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_10",
+        category: "Patch Management",
+        question: "How often are software and firmware updates applied?",
+        type: "multiple" as const,
+        options: ["Never", "Annually", "Quarterly", "Monthly", "Continuously"],
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_11",
+        category: "Access Control",
+        question: "Is access authorization formally managed?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_12",
+        category: "Configuration Management",
+        question: "Do you use standardized configuration management?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_13",
+        category: "Access Control",
+        question: "Do you implement privileged access management?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_14",
+        category: "Authentication",
+        question: "Do you use MFA (Multi-Factor Authentication)?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_15",
+        category: "Endpoint Security",
+        question: "Do you have remote device management capabilities?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_16",
+        category: "Data Protection",
+        question: "Do you have encryption key management procedures?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_17",
+        category: "Data Protection",
+        question: "Is data encrypted at rest?",
+        type: "boolean" as const,
+        weight: 10,
+        required: true,
+      },
+      {
+        id: "cyb_18",
+        category: "Data Protection",
+        question: "Is data encrypted in transit?",
+        type: "boolean" as const,
+        weight: 10,
+        required: true,
+      },
+      {
+        id: "cyb_19",
+        category: "Data Protection",
+        question: "Do you have secure backup storage?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_20",
+        category: "Data Protection",
+        question: "Do you practice data segregation?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_21",
+        category: "Asset Management",
+        question: "Do you have procedures for electronic asset disposal?",
+        type: "boolean" as const,
+        weight: 7,
+        required: true,
+      },
+      {
+        id: "cyb_22",
+        category: "Risk Management",
+        question: "Do you have evidence of cybersecurity insurance?",
+        type: "boolean" as const,
+        weight: 7,
+        required: true,
+      },
+      {
+        id: "cyb_23",
+        category: "Threat Management",
+        question: "Do you have ransomware protection in place?",
+        type: "boolean" as const,
+        weight: 10,
+        required: true,
+      },
+      {
+        id: "cyb_24",
+        category: "Application Security",
+        question: "Do you follow secure application development/acquisition practices?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_25",
+        category: "Policy Management",
+        question: "Do you have documented cybersecurity policies/practices?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_26",
+        category: "Application Security",
+        question: "Do you secure web service accounts and APIs?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_27",
+        category: "Application Security",
+        question: "Do you ensure secure deployment of applications?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_28",
+        category: "Monitoring",
+        question: "Do you perform user activity monitoring?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_29",
+        category: "Monitoring",
+        question: "Do you perform network performance monitoring?",
+        type: "boolean" as const,
+        weight: 7,
+        required: true,
+      },
+      {
+        id: "cyb_30",
+        category: "Physical Security",
+        question: "Do you conduct physical security monitoring/review?",
+        type: "boolean" as const,
+        weight: 7,
+        required: true,
+      },
+      {
+        id: "cyb_31",
+        category: "Endpoint Security",
+        question: "Do you have email protection measures?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_32",
+        category: "Network Security",
+        question: "Do you have wireless management policies?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_33",
+        category: "Security Testing",
+        question: "How frequently do you conduct network security testing?",
+        type: "multiple" as const,
+        options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_34",
+        category: "Third-Party Risk",
+        question: "Do you manage third-party connections securely?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_35",
+        category: "Incident Response",
+        question: "Do you have a formal incident response process?",
+        type: "boolean" as const,
+        weight: 10,
+        required: true,
+      },
+      {
+        id: "cyb_36",
+        category: "Incident Response",
+        question: "Do you have procedures for incident internal notifications?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_37",
+        category: "Incident Response",
+        question: "Do you have procedures for incident external notifications?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_38",
+        category: "Vulnerability Management",
+        question: "How frequently do you perform cybersecurity risk vulnerability remediation?",
+        type: "multiple" as const,
+        options: ["Never", "Annually", "Quarterly", "Monthly", "Continuously"],
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_39",
+        category: "Cloud Security",
+        question: "Is confidential data housed in cloud-based systems?",
+        type: "boolean" as const,
+        weight: 8,
+        required: true,
+      },
+      {
+        id: "cyb_40",
+        category: "Data Privacy",
+        question: "Is confidential data shared offshore?",
+        type: "boolean" as const,
+        weight: 10,
+        required: true,
+      },
+      {
+        id: "cyb_41",
+        category: "Third-Party Risk",
+        question: "Are sensitive activities or critical operations outsourced?",
+        type: "boolean" as const,
+        weight: 9,
+        required: true,
+      },
+      {
+        id: "cyb_42",
+        category: "Third-Party Risk",
+        question: "Do subcontractors access NPI (Non-Public Information)?",
+        type: "boolean" as const,
+        weight: 10,
+        required: true,
+      },
+      {
+        id: "cyb_43",
+        category: "Third-Party Risk",
+        question: "Have subcontractors (noted above) had a Data Breach or Information Security Incident within the last two (2) years?",
+        type: "boolean" as const,
+        weight: 10,
+        required: true,
       },
     ],
   },
