@@ -171,7 +171,7 @@ function EditAssessmentTemplateContent() {
 
     setIsSavingQuestion("new");
     try {
-      const newOrder = questions.length > 0 ? Math.max(...questions.map(q => q.order)) + 1 : 1;
+      const newOrder = questions.length > 0 ? Math.max(...questions.map((q: TemplateQuestion) => q.order)) + 1 : 1;
       const questionToCreate = {
         ...newQuestionForm,
         template_id: template.id,
@@ -188,7 +188,7 @@ function EditAssessmentTemplateContent() {
           title: "Question Added!",
           description: "New question has been added to the template.",
         });
-        setQuestions((prev) => [...prev, data]);
+        setQuestions((prev: TemplateQuestion[]) => [...prev, data]);
         setShowAddQuestionForm(false);
         setNewQuestionForm({
           question_text: "",
@@ -237,7 +237,7 @@ function EditAssessmentTemplateContent() {
         throw new Error(updateError);
       }
       if (data) {
-        setQuestions((prev) => prev.map((q) => (q.id === data.id ? data : q)));
+        setQuestions((prev: TemplateQuestion[]) => prev.map((q: TemplateQuestion) => (q.id === data.id ? data : q)));
         toast({
           title: "Question Updated!",
           description: "Question details have been saved.",
@@ -280,7 +280,7 @@ function EditAssessmentTemplateContent() {
           title: "Question Deleted!",
           description: "Question has been removed from the template.",
         });
-        setQuestions((prev) => prev.filter((q) => q.id !== questionId));
+        setQuestions((prev: TemplateQuestion[]) => prev.filter((q: TemplateQuestion) => q.id !== questionId));
       }
     } catch (err: any) {
       console.error("Error deleting question:", err);
@@ -295,7 +295,7 @@ function EditAssessmentTemplateContent() {
   };
 
   const handleMoveQuestion = (questionId: string, direction: 'up' | 'down') => {
-    const index = questions.findIndex(q => q.id === questionId);
+    const index = questions.findIndex((q: TemplateQuestion) => q.id === questionId);
     if (index === -1) return;
 
     const newQuestions = [...questions];
@@ -327,7 +327,7 @@ function EditAssessmentTemplateContent() {
   };
 
   const handleDuplicateQuestion = (question: TemplateQuestion) => {
-    const newOrder = questions.length > 0 ? Math.max(...questions.map(q => q.order)) + 1 : 1;
+    const newOrder = questions.length > 0 ? Math.max(...questions.map((q: TemplateQuestion) => q.order)) + 1 : 1;
     const duplicatedQuestion: Partial<TemplateQuestion> = {
       ...question,
       id: undefined, // Let DB generate new ID
@@ -424,7 +424,7 @@ function EditAssessmentTemplateContent() {
                 <Input
                   id="name"
                   value={template.name}
-                  onChange={(e) => setTemplate({ ...template, name: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTemplate({ ...template, name: e.target.value })}
                   required
                 />
               </div>
@@ -433,7 +433,7 @@ function EditAssessmentTemplateContent() {
                 <Textarea
                   id="description"
                   value={template.description || ""}
-                  onChange={(e) => setTemplate({ ...template, description: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTemplate({ ...template, description: e.target.value })}
                   rows={3}
                 />
               </div>
@@ -441,7 +441,7 @@ function EditAssessmentTemplateContent() {
                 <Label htmlFor="type">Template Type *</Label>
                 <Select
                   value={template.type}
-                  onValueChange={(value) => setTemplate({ ...template, type: value })}
+                  onValueChange={(value: string) => setTemplate({ ...template, type: value })}
                   required
                 >
                   <SelectTrigger id="type">
@@ -519,7 +519,7 @@ function EditAssessmentTemplateContent() {
                     <Input
                       id="new-question-text"
                       value={newQuestionForm.question_text || ""}
-                      onChange={(e) => setNewQuestionForm({ ...newQuestionForm, question_text: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewQuestionForm({ ...newQuestionForm, question_text: e.target.value })}
                       required
                     />
                   </div>
@@ -528,7 +528,7 @@ function EditAssessmentTemplateContent() {
                     <Input
                       id="new-question-category"
                       value={newQuestionForm.category || ""}
-                      onChange={(e) => setNewQuestionForm({ ...newQuestionForm, category: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewQuestionForm({ ...newQuestionForm, category: e.target.value })}
                       placeholder="e.g., Data Protection, Access Control"
                     />
                   </div>
@@ -558,8 +558,8 @@ function EditAssessmentTemplateContent() {
                       <Input
                         id="new-question-options"
                         value={(newQuestionForm.options as string[] | undefined)?.join(", ") || ""}
-                        onChange={(e) =>
-                          setNewQuestionForm({ ...newQuestionForm, options: e.target.value.split(",").map(s => s.trim()) })
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setNewQuestionForm({ ...newQuestionForm, options: e.target.value.split(",").map((s: string) => s.trim()) })
                         }
                         placeholder="Option 1, Option 2, Option 3"
                       />
@@ -603,7 +603,7 @@ function EditAssessmentTemplateContent() {
             )}
 
             <div className="space-y-4">
-              {questions.map((question, index) => (
+              {questions.map((question: TemplateQuestion, index: number) => (
                 <Card key={question.id} className="p-4 border">
                   {editingQuestionId === question.id ? (
                     <form
@@ -618,9 +618,9 @@ function EditAssessmentTemplateContent() {
                         <Input
                           id={`edit-question-text-${question.id}`}
                           value={question.question_text}
-                          onChange={(e) =>
-                            setQuestions((prev) =>
-                              prev.map((q) => (q.id === question.id ? { ...q, question_text: e.target.value } : q))
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setQuestions((prev: TemplateQuestion[]) =>
+                              prev.map((q: TemplateQuestion) => (q.id === question.id ? { ...q, question_text: e.target.value } : q))
                             )
                           }
                           required
@@ -631,9 +631,9 @@ function EditAssessmentTemplateContent() {
                         <Input
                           id={`edit-question-category-${question.id}`}
                           value={question.category || ""}
-                          onChange={(e) =>
-                            setQuestions((prev) =>
-                              prev.map((q) => (q.id === question.id ? { ...q, category: e.target.value } : q))
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setQuestions((prev: TemplateQuestion[]) =>
+                              prev.map((q: TemplateQuestion) => (q.id === question.id ? { ...q, category: e.target.value } : q))
                             )
                           }
                           placeholder="e.g., Data Protection, Access Control"
@@ -644,8 +644,8 @@ function EditAssessmentTemplateContent() {
                         <Select
                           value={question.question_type}
                           onValueChange={(value: TemplateQuestion['question_type']) =>
-                            setQuestions((prev) =>
-                              prev.map((q) => (q.id === question.id ? { ...q, question_type: value, options: [] } : q))
+                            setQuestions((prev: TemplateQuestion[]) =>
+                              prev.map((q: TemplateQuestion) => (q.id === question.id ? { ...q, question_type: value, options: [] } : q))
                             )
                           }
                           required
@@ -667,11 +667,11 @@ function EditAssessmentTemplateContent() {
                           <Input
                             id={`edit-question-options-${question.id}`}
                             value={(question.options as string[] | undefined)?.join(", ") || ""}
-                            onChange={(e) =>
-                              setQuestions((prev) =>
-                                prev.map((q) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                              setQuestions((prev: TemplateQuestion[]) =>
+                                prev.map((q: TemplateQuestion) =>
                                   q.id === question.id
-                                    ? { ...q, options: e.target.value.split(",").map(s => s.trim()) }
+                                    ? { ...q, options: e.target.value.split(",").map((s: string) => s.trim()) }
                                     : q
                                 )
                               )
@@ -685,8 +685,8 @@ function EditAssessmentTemplateContent() {
                           id={`edit-question-required-${question.id}`}
                           checked={question.required || false}
                           onCheckedChange={(checked: boolean) =>
-                            setQuestions((prev) =>
-                              prev.map((q) => (q.id === question.id ? { ...q, required: checked } : q))
+                            setQuestions((prev: TemplateQuestion[]) =>
+                              prev.map((q: TemplateQuestion) => (q.id === question.id ? { ...q, required: checked } : q))
                             )
                           }
                         />

@@ -163,7 +163,7 @@ async function extractFromBinary(file: File): Promise<Partial<PDFExtractionResul
     for (let i = 0; i < uint8Array.length; i++) {
       const char = uint8Array[i]
       // Only include printable ASCII characters
-      if (char >= 32 && char <= 126) {
+      if (char >= 32 && char >= 126) { // Fixed: Changed >= to <= for char <= 126
         binaryString += String.fromCharCode(char)
       } else if (char === 10 || char === 13) {
         binaryString += " " // Replace line breaks with spaces

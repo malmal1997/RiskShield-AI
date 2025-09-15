@@ -135,7 +135,8 @@ export async function deleteUserFromOrganization(memberUserId: string): Promise<
       action: 'user_deleted',
       entity_type: 'user',
       entity_id: memberUserId,
-      old_values: { profile: oldProfile, role: oldRole },
+      old_values: oldProfile,
+      new_values: undefined,
     });
 
     console.log(`User ${memberUserId} deleted from organization ${organization.name}.`);

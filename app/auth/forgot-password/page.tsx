@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
                   type="email"
                   placeholder="your.email@bank.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   required
                 />
               </div>

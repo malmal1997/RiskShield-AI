@@ -4,7 +4,9 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Building, BarChart3, Bell, Settings, CheckCircle, TrendingUp, Eye, Play, Pause, RotateCcw, ArrowLeft } from "lucide-react" // Added ArrowLeft
+import {
+  Shield, Building, BarChart3, Bell, Settings, CheckCircle, TrendingUp, Eye, Play, Pause, RotateCcw, ArrowLeft,
+} from "lucide-react"
 import Link from "next/link"
 
 export default function DemoFeaturesPage() {

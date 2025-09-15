@@ -173,7 +173,7 @@ function DashboardContent() {
   const handleMarkAllNotificationsRead = async () => {
     if (!user) return
     await markAllNotificationsAsRead()
-    setNotifications((prev) => prev?.map((n) => ({ ...n, read_at: new Date().toISOString() })) || [])
+    setNotifications((prev: Notification[]) => prev?.map((n: Notification) => ({ ...n, read_at: new Date().toISOString() })) || [])
   }
 
   const handleViewReport = (report: CombinedReport) => {
@@ -376,7 +376,7 @@ function DashboardContent() {
                     <div className="flex items-center justify-between">
                       <CardTitle>Live Risk Trend</CardTitle>
                       <div className="flex space-x-2">
-                        {["7d", "30d", "90d", "1y"].map((period) => (
+                        {["7d", "30d", "90d", "1y"].map((period: string) => (
                           <Button
                             key={period}
                             variant={timeframe === period ? "default" : "outline"}
@@ -471,7 +471,7 @@ function DashboardContent() {
                             payload ? `${payload.level}: ${payload.count}` : ''
                           }
                         >
-                          {riskMetrics.riskDistribution.map((entry, index) => (
+                          {riskMetrics.riskDistribution.map((entry: { level: string; count: number }, index: number) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
@@ -545,7 +545,7 @@ function DashboardContent() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {vendorMetrics.industryBreakdown.map((item, index) => (
+                      {vendorMetrics.industryBreakdown.map((item: { industry: string; count: number }, index: number) => (
                         <div key={index} className="flex items-center justify-between">
                           <span className="text-sm text-gray-600">{item.industry}</span>
                           <div className="flex items-center space-x-2">
@@ -615,7 +615,7 @@ function DashboardContent() {
                   <CardContent>
                     {combinedReports.length > 0 ? (
                       <div className="space-y-4">
-                        {combinedReports.map((report) => (
+                        {combinedReports.map((report: CombinedReport) => (
                           <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
                             <div>
                               <h3 className="font-semibold text-gray-900">{report.title}</h3>

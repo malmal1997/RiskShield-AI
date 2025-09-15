@@ -31,6 +31,7 @@ import Link from "next/link"
 import { useAuth } from "@/components/auth-context" // Import useAuth
 import { useToast } from "@/components/ui/use-toast" // Import useToast
 import type { Policy } from "@/lib/supabase" // Import Policy type
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Added Select imports
 
 const policyTypes = [
   {
@@ -280,34 +281,36 @@ export default function PolicyGenerator() {
                       <Input
                         id="companyName"
                         value={formData.companyName}
-                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, companyName: e.target.value })}
                         placeholder="Your Organization Name"
                         required
                       />
                     </div>
                     <div>
                       <Label htmlFor="institutionType">Institution Type *</Label>
-                      <select
-                        id="institutionType"
+                      <Select
                         value={formData.institutionType}
-                        onChange={(e) => setFormData({ ...formData, institutionType: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onValueChange={(value: string) => setFormData({ ...formData, institutionType: value })}
                         required
                       >
-                        <option value="">Select type</option>
-                        <option value="Commercial Bank">Commercial Bank</option>
-                        <option value="Credit Union">Credit Union</option>
-                        <option value="Investment Firm">Investment Firm</option>
-                        <option value="Fintech Company">Fintech Company</option>
-                        <option value="Other Financial Institution">Other Financial Institution</option>
-                      </select>
+                        <SelectTrigger id="institutionType">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Commercial Bank">Commercial Bank</SelectItem>
+                          <SelectItem value="Credit Union">Credit Union</SelectItem>
+                          <SelectItem value="Investment Firm">Investment Firm</SelectItem>
+                          <SelectItem value="Fintech Company">Fintech Company</SelectItem>
+                          <SelectItem value="Other Financial Institution">Other Financial Institution</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
                       <Label htmlFor="employeeCount">Number of Employees (Optional)</Label>
                       <Input
                         id="employeeCount"
                         value={formData.employeeCount}
-                        onChange={(e) => setFormData({ ...formData, employeeCount: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, employeeCount: e.target.value })}
                         placeholder="e.g., 100-500"
                       />
                     </div>
@@ -316,7 +319,7 @@ export default function PolicyGenerator() {
                       <Input
                         id="assets"
                         value={formData.assets}
-                        onChange={(e) => setFormData({ ...formData, assets: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, assets: e.target.value })}
                         placeholder="e.g., $1 Billion"
                       />
                     </div>

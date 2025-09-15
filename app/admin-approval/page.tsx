@@ -109,7 +109,7 @@ function AdminApprovalContent() {
         })
       }
     } catch (err: any) {
-      console.error("Error approving registration:", err)
+      console.error("Error approving registration:", err);
       toast({
         variant: "destructive",
         title: "Approval Failed",
@@ -190,7 +190,7 @@ function AdminApprovalContent() {
 
         {pendingRegistrations.length > 0 && (
           <div className="grid grid-cols-1 gap-6">
-            {pendingRegistrations.map((reg) => (
+            {pendingRegistrations.map((reg: PendingRegistration) => (
               <Card key={reg.id} className="border-l-4 border-l-yellow-500">
                 <CardHeader>
                   <div className="flex items-center justify-between">

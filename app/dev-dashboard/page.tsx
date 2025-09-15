@@ -131,14 +131,14 @@ function DevDashboardContent() {
     if (!isDeveloper) return
 
     const interval = setInterval(() => {
-      setSystemMetrics((prev) => ({
+      setSystemMetrics((prev: typeof systemMetrics) => ({
         activeUsers: Math.max(1, prev.activeUsers + Math.floor(Math.random() * 5) - 2),
         systemLoad: Math.max(5, Math.min(95, prev.systemLoad + Math.floor(Math.random() * 10) - 5)),
         responseTime: Math.max(50, Math.min(500, prev.responseTime + Math.floor(Math.random() * 20) - 10)),
         uptime: Math.max(95, Math.min(100, prev.uptime + (Math.random() - 0.5) * 0.1)),
       }))
 
-      setDbMetrics((prev) => ({
+      setDbMetrics((prev: typeof dbMetrics) => ({
         connections: Math.max(1, prev.connections + Math.floor(Math.random() * 3) - 1),
         queryTime: Math.max(10, Math.min(200, prev.queryTime + Math.floor(Math.random() * 8) - 4)),
         cacheHitRatio: Math.max(50, Math.min(100, prev.cacheHitRatio + Math.floor(Math.random() * 4) - 2)),
@@ -263,7 +263,7 @@ function DevDashboardContent() {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-medium">System Performance</h3>
                   <div className="flex space-x-2">
-                    {["6h", "24h", "7d"].map((period) => (
+                    {["6h", "24h", "7d"].map((period: string) => (
                       <Button
                         key={period}
                         variant={timeframe === period ? "default" : "outline"}

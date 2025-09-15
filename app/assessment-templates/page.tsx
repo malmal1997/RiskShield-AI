@@ -83,7 +83,7 @@ function AssessmentTemplatesContent() {
 
     if (searchTerm) {
       filtered = filtered.filter(
-        (template) =>
+        (template: AssessmentTemplate) =>
           template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           template.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           template.type.toLowerCase().includes(searchTerm.toLowerCase())
@@ -91,7 +91,7 @@ function AssessmentTemplatesContent() {
     }
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter((template) => template.status === statusFilter);
+      filtered = filtered.filter((template: AssessmentTemplate) => template.status === statusFilter);
     }
 
     setFilteredTemplates(filtered);
@@ -216,7 +216,7 @@ function AssessmentTemplatesContent() {
                   type="text"
                   placeholder="Search templates..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -225,7 +225,7 @@ function AssessmentTemplatesContent() {
                   <Filter className="h-4 w-4 text-gray-600" />
                   <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStatusFilter(e.target.value)}
                     className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="all">All Status</option>
@@ -261,7 +261,7 @@ function AssessmentTemplatesContent() {
 
         {filteredTemplates.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTemplates.map((template) => (
+            {filteredTemplates.map((template: AssessmentTemplate) => (
               <Card key={template.id} className="border-l-4 border-l-blue-500">
                 <CardHeader>
                   <div className="flex items-center justify-between">

@@ -56,7 +56,7 @@ export default function InteractiveDemo() {
     setIsPlaying(true)
     // Simulate progress
     const interval = setInterval(() => {
-      setProgress((prev) => {
+      setProgress((prev: number) => {
         if (prev >= 100) {
           clearInterval(interval)
           setIsPlaying(false)
@@ -102,9 +102,8 @@ export default function InteractiveDemo() {
                 <p className="text-3xl font-bold text-orange-600">3</p>
                 <p className="text-xs text-gray-500">Require attention</p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
         <Card className="border border-gray-200">
           <CardContent className="p-6">
@@ -439,10 +438,10 @@ export default function InteractiveDemo() {
               <p className="text-sm text-gray-600">{demoSteps[currentStep - 1]?.description}</p>
             </div>
             <div className="mt-6 flex justify-between">
-              <Button onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))} disabled={currentStep === 1}>
+              <Button onClick={() => setCurrentStep((prev: number) => Math.max(1, prev - 1))} disabled={currentStep === 1}>
                 Previous
               </Button>
-              <Button onClick={() => setCurrentStep(prev => Math.min(demoSteps.length, prev + 1))} disabled={currentStep === demoSteps.length}>
+              <Button onClick={() => setCurrentStep((prev: number) => Math.min(demoSteps.length, prev + 1))} disabled={currentStep === demoSteps.length}>
                 Next
               </Button>
             </div>

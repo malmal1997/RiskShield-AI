@@ -75,7 +75,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -129,14 +129,14 @@ export default function RegisterPage() {
                   id="institutionName"
                   placeholder="First National Bank"
                   value={formData.institutionName}
-                  onChange={(e) => handleInputChange("institutionName", e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("institutionName", e.target.value)}
                   required
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="institutionType">Institution Type *</Label>
-                <Select onValueChange={(value) => handleInputChange("institutionType", value)} required>
+                <Select onValueChange={(value: string) => handleInputChange("institutionType", value)} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select institution type" />
                   </SelectTrigger>
@@ -157,7 +157,7 @@ export default function RegisterPage() {
                     id="contactFirstName"
                     placeholder="John"
                     value={formData.contactFirstName}
-                    onChange={(e) => handleInputChange("contactFirstName", e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("contactFirstName", e.target.value)}
                     required
                   />
                 </div>
@@ -167,7 +167,7 @@ export default function RegisterPage() {
                     id="contactLastName"
                     placeholder="Smith"
                     value={formData.contactLastName}
-                    onChange={(e) => handleInputChange("contactLastName", e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("contactLastName", e.target.value)}
                     required
                   />
                 </div>
@@ -180,7 +180,7 @@ export default function RegisterPage() {
                   type="email"
                   placeholder="john.smith@bank.com"
                   value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("email", e.target.value)}
                   required
                 />
               </div>
@@ -192,7 +192,7 @@ export default function RegisterPage() {
                   type="tel"
                   placeholder="(555) 123-4567"
                   value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phone", e.target.value)}
                   required
                 />
               </div>
@@ -205,7 +205,7 @@ export default function RegisterPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a secure password"
                     value={formData.password}
-                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("password", e.target.value)}
                     required
                   />
                   <Button
@@ -232,7 +232,7 @@ export default function RegisterPage() {
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("confirmPassword", e.target.value)}
                     required
                   />
                   <Button

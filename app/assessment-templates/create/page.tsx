@@ -148,7 +148,7 @@ function CreateAssessmentTemplateContent() {
                 <Input
                   id="name"
                   value={templateForm.name}
-                  onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTemplateForm({ ...templateForm, name: e.target.value })}
                   placeholder="e.g., Annual Cybersecurity Review"
                   required
                 />
@@ -158,7 +158,7 @@ function CreateAssessmentTemplateContent() {
                 <Textarea
                   id="description"
                   value={templateForm.description}
-                  onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTemplateForm({ ...templateForm, description: e.target.value })}
                   placeholder="A brief description of what this template assesses."
                   rows={3}
                 />
@@ -167,7 +167,7 @@ function CreateAssessmentTemplateContent() {
                 <Label htmlFor="type">Template Type *</Label>
                 <Select
                   value={templateForm.type}
-                  onValueChange={(value) => setTemplateForm({ ...templateForm, type: value })}
+                  onValueChange={(value: string) => setTemplateForm({ ...templateForm, type: value })}
                   required
                 >
                   <SelectTrigger id="type">
