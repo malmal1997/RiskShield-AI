@@ -367,6 +367,7 @@ CRITICAL INSTRUCTIONS:
 - **IMPORTANT CITATION RULE:** For the 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
 - **AVOID REPETITIVE CITATIONS:** Ensure that the 'excerpt' provided for each question is distinct and directly relevant to that specific question. Do not reuse the same generic excerpt across multiple questions unless it is genuinely the *only* relevant piece of evidence for each. If a question has no *new* relevant evidence, explicitly state 'No directly relevant evidence found after comprehensive search' rather than repeating a previous excerpt.
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions.
+- **STRICT RELEVANCE:** The evidence provided in the 'excerpt' MUST directly and specifically answer the question. Do not provide loosely related information or general statements if they do not directly address the question's core. If no such direct evidence exists, use the 'No directly relevant evidence found' fallback.
 
 DOCUMENT FILES PROVIDED FOR ANALYSIS:
 ${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
