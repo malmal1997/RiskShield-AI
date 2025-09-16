@@ -367,12 +367,10 @@ CRITICAL INSTRUCTIONS:
 - **IMPORTANT CITATION RULE:** For the 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
 - **AVOID REPETITIVE CITATIONS:** Ensure that the 'excerpt' provided for each question is distinct and directly relevant to that specific question. Do not reuse the same generic excerpt across multiple questions unless it is genuinely the *only* relevant piece of evidence for each. If a question has no *new* relevant evidence, explicitly state 'No directly relevant evidence found after comprehensive search' rather than repeating a previous excerpt.
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions.
-- **STRICT RELEVANCE:** The evidence provided in the 'excerpt' MUST directly and specifically address the core subject and action of the question. Do not provide loosely related information or general statements if they do not directly address the question's core. If no such direct evidence exists, explicitly state 'No directly relevant evidence found after comprehensive search' rather than repeating a previous excerpt.
-- **ABSOLUTE PROHIBITION ON GENERIC EVIDENCE FOR SPECIFIC QUESTIONS:**
-  - For a question about 'equipment maintenance', you MUST NOT cite a general statement about 'annual risk assessments'.
-  - For a question about 'BCM training', you MUST NOT cite a general statement about 'secure development lifecycles'.
-  - For a question about 'incident response procedures', you MUST NOT cite a general statement about 'overall risk management'.
-  - The excerpt MUST be a direct, specific answer to the question, not a broad, loosely related statement. If no such direct evidence exists, use the 'No directly relevant evidence found after comprehensive search' fallback.
+- **STRICT RELEVANCE - ABSOLUTE PROHIBITION ON GENERIC EVIDENCE FOR SPECIFIC QUESTIONS:**
+  - The evidence provided in the 'excerpt' MUST directly and specifically address the core subject and action of the question. Do not provide loosely related information or general statements if they do not directly address the question's core.
+  - For example, if the question is "How often do you conduct BCM training for employees?", you MUST NOT cite a general statement about "annual risk assessments" or "secure development lifecycles". The excerpt MUST specifically mention "BCM training" or "business continuity training" and its frequency.
+  - If no such direct, specific evidence exists, explicitly state 'No directly relevant evidence found after comprehensive search' rather than providing a loosely related or generic statement.
 
 DOCUMENT FILES PROVIDED FOR ANALYSIS:
 ${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
