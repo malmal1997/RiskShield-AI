@@ -2584,11 +2584,13 @@ export default function AIAssessmentPage() {
 
                 <Card className="mb-8 border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50">
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Upload className="h-6 w-6 text-blue-600" />
-                      <span className="text-blue-900">Document Upload</span>
+                    <div className="flex items-center justify-between"> {/* Added wrapper div */}
+                      <CardTitle className="flex items-center space-x-2">
+                        <Upload className="h-6 w-6 text-blue-600" />
+                        <span className="text-blue-900">Document Upload</span>
+                      </CardTitle>
                       <Badge className="bg-green-100 text-green-700 text-xs">AI-POWERED</Badge>
-                    </CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-6">
