@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
@@ -189,7 +187,7 @@ function ReportsContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {reportTemplates.map((template) => (
+              {reportTemplates.map((template: { id: string; name: string; description: string; frequency: string; lastGenerated: string; }) => (
                 <div key={template.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div>
                     <h3 className="font-semibold">{template.name}</h3>
@@ -217,7 +215,7 @@ function ReportsContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {riskDistributionData.map((item, index) => (
+              {riskDistributionData.map((item: { name: string; value: number; color: string; }, index: number) => (
                 <div key={item.name} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full" style={{ backgroundColor: item.color }} />
@@ -260,7 +258,7 @@ function ReportsContent() {
                 </tr>
               </thead>
               <tbody>
-                {vendorsByIndustry.map((item, index) => (
+                {vendorsByIndustry.map((item: { industry: string; count: number; riskScore: number; }, index: number) => (
                   <tr key={index} className="border-b">
                     <td className="py-3 px-4 font-medium">{item.industry}</td>
                     <td className="py-3 px-4">{item.count}</td>

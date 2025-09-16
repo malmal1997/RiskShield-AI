@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -1925,7 +1923,7 @@ export default function AIAssessmentPage() {
           setCurrentQuestions([]);
         } else {
           setCurrentQuestions(data || []);
-          const selectedTemplate = customTemplates.find(t => t.id === selectedTemplateId);
+          const selectedTemplate = customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId);
           if (selectedTemplate?.type === "soc-compliance") { // Check if it's the SOC template
             setCurrentStep("soc-info");
           } else {
@@ -1971,12 +1969,12 @@ export default function AIAssessmentPage() {
   }
 
   const handleRemoveFile = (indexToRemove: number) => {
-    setUploadedFiles((prevFiles) => prevFiles.filter((_, index) => index !== indexToRemove))
+    setUploadedFiles((prevFiles: UploadedFileWithLabel[]) => prevFiles.filter((_, index) => index !== indexToRemove))
   }
 
   const handleFileLabelChange = (index: number, label: 'Primary' | '4th Party') => {
-    setUploadedFiles(prevFiles => 
-      prevFiles.map((item, i) => 
+    setUploadedFiles((prevFiles: UploadedFileWithLabel[]) =>
+      prevFiles.map((item: UploadedFileWithLabel, i: number) =>
         i === index ? { ...item, label } : item
       )
     );
@@ -1998,12 +1996,12 @@ export default function AIAssessmentPage() {
 
     try {
       const formData = new FormData();
-      uploadedFiles.forEach((item) => {
+      uploadedFiles.forEach((item: UploadedFileWithLabel) => {
         formData.append('files', item.file);
       });
-      formData.append('labels', JSON.stringify(uploadedFiles.map(item => item.label)));
+      formData.append('labels', JSON.stringify(uploadedFiles.map((item: UploadedFileWithLabel) => item.label)));
       formData.append('questions', JSON.stringify(currentQuestions));
-      formData.append('assessmentType', (customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"));
+      formData.append('assessmentType', (customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"));
 
       const response = await fetch("/api/ai-assessment/analyze", {
         method: "POST",
@@ -2030,7 +2028,7 @@ export default function AIAssessmentPage() {
   }
 
   const handleAnswerChange = (questionId: string, value: any) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }))
+    setAnswers((prev: Record<string, any>) => ({ ...prev, [questionId]: value }))
   }
 
   const handleSOCInfoComplete = () => {
@@ -2073,11 +2071,11 @@ export default function AIAssessmentPage() {
         description: "Your AI assessment report is being saved to your profile.",
       });
 
-      const reportTitle = `${(customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment")} AI Assessment`;
+      const reportTitle = `${(customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment")} AI Assessment`;
       const reportSummary = analysisResults.overallAnalysis.substring(0, 250) + "..."; // Truncate for summary
 
       const savedReport = await saveAiAssessmentReport({
-        assessmentType: (customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"),
+        assessmentType: (customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"),
         reportTitle: reportTitle,
         riskScore: riskScore,
         riskLevel: riskLevel,
@@ -2088,7 +2086,7 @@ export default function AIAssessmentPage() {
           questions: currentQuestions,
           socInfo: socInfo, // Include SOC info if available
         },
-        uploadedDocumentsMetadata: uploadedFiles.map(item => ({
+        uploadedDocumentsMetadata: uploadedFiles.map((item: UploadedFileWithLabel) => ({
           fileName: item.file.name,
           fileSize: item.file.size,
           fileType: item.file.type,
@@ -2730,7 +2728,6 @@ export default function AIAssessmentPage() {
 
                 <Card>
                   <CardHeader>
-                    {/* MODIFIED START */}
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center space-x-2">
                         <Bot className="h-5 w-5" />
@@ -2738,11 +2735,10 @@ export default function AIAssessmentPage() {
                       </CardTitle>
                       {!isReportSaved && analysisResults.confidenceScores && (
                         <Badge className="bg-green-100 text-green-700">
-                          Confidence: {Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
+                          Confidence: {Math.round(Object.values(analysisResults.confidenceScores as Record<string, number>).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
                         </Badge>
                       )}
                     </div>
-                    {/* MODIFIED END */}
                     <CardDescription>
                       Review the AI's answers and make any necessary adjustments.
                     </CardDescription>
@@ -2826,13 +2822,13 @@ export default function AIAssessmentPage() {
                                     ? answers[question.id]
                                     : "Other"
                                 }
-                                onChange={(e) => {
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                                   const value = e.target.value;
                                   if (value === "Other") {
-                                    setShowOtherInput(prev => ({ ...prev, [question.id]: true }));
+                                    setShowOtherInput((prev: Record<string, boolean>) => ({ ...prev, [question.id]: true }));
                                     handleAnswerChange(question.id, ""); // Clear answer when "Other" is selected
                                   } else {
-                                    setShowOtherInput(prev => ({ ...prev, [question.id]: false }));
+                                    setShowOtherInput((prev: Record<string, boolean>) => ({ ...prev, [question.id]: false }));
                                     handleAnswerChange(question.id, value);
                                   }
                                 }}

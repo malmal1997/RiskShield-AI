@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { getAiAssessmentReports, getAssessments } from '@/lib/assessment-service';
@@ -7,6 +5,7 @@ import type { AiAssessmentReport, Assessment, AssessmentResponse } from '@/lib/s
 import { Button } from '@/components/ui/button';
 import { RefreshCw, ArrowLeft, Printer } from 'lucide-react';
 import { useAuth } from '@/components/auth-context';
+import { Badge } from '@/components/ui/badge'; // Import Badge component
 
 type ReportType = 'ai' | 'manual';
 
@@ -181,7 +180,7 @@ export default function ReportViewPage() {
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-3">Uploaded Documents</h2>
             <ul className="list-disc pl-5 text-sm text-gray-700 bg-gray-50 p-4 rounded-md">
-              {uploadedDocumentsMetadata.map((doc, index) => (
+              {uploadedDocumentsMetadata.map((doc: any, index: number) => (
                 <li key={index} className="whitespace-pre-wrap">
                   {doc.fileName} ({(doc.fileSize / 1024 / 1024).toFixed(2)} MB) - Label: {doc.label || 'Primary'}
                 </li>

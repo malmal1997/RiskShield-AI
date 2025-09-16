@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 
 import { useState, useEffect } from "react"
@@ -73,7 +71,7 @@ const policyTypes = [
     id: "operational",
     name: "Operational Risk Policy",
     description:
-      "Framework for identifying, assessing, monitoring, and managing operational risks to ensure safe and sound banking operations.",
+      "F`ramework for identifying, assessing, monitoring, and managing operational risks to ensure safe and sound banking operations.",
     features: ["Process Controls", "System Failures", "Human Error", "External Fraud"],
   },
 ]
