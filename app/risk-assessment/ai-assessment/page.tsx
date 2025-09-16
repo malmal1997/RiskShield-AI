@@ -900,10 +900,10 @@ const assessmentCategories: BuiltInAssessmentCategory[] = [
     ],
   },
   {
-    id: "data-privacy",
-    name: "Data Privacy Assessment",
+    id: "infrastructure-security-privacy",
+    name: "Infrastructure Security & Privacy Controls Assessment (ISPCA)",
     description: "Assess your organization's data privacy controls and regulatory compliance",
-    icon: Lock,
+    icon: Server, // Changed icon to Server
     questions: [
       {
         id: "dp1",
