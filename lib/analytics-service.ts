@@ -247,23 +247,14 @@ function generateRiskTrend(assessments: any[], timeframe: string) {
   return trend
 }
 
-function calculateComplianceScore(assessments: Array<{ status: string; risk_score: number | null }>): number {
-  const completedAssessmentsWithScores = assessments.filter(
-    (a) => a.status === "completed" && a.risk_score !== null
-  );
+function calculateComplianceScore(assessments: any[]): number {
+  // Simplified compliance score calculation
+  const completedAssessments = assessments.filter((a) => a.status === "completed")
+  const totalAssessments = assessments.length
 
-  if (completedAssessmentsWithScores.length === 0) {
-    return 0;
-  }
+  if (totalAssessments === 0) return 0
 
-  const totalRiskScore = completedAssessmentsWithScores.reduce(
-    (sum, a) => sum + (a.risk_score || 0),
-    0
-  );
-
-  // The risk_score is already a value from 0-100 where 100 is good (low risk).
-  // So, averaging these scores directly gives a compliance percentage.
-  return Math.round(totalRiskScore / completedAssessmentsWithScores.length);
+  return Math.round((completedAssessments.length / totalAssessments) * 100)
 }
 
 // Export data for reports

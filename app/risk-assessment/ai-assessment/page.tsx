@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -1971,12 +1971,12 @@ export default function AIAssessmentPage() {
   }
 
   const handleRemoveFile = (indexToRemove: number) => {
-    setUploadedFiles((prevFiles: UploadedFileWithLabel[]) => prevFiles.filter((_, index) => index !== indexToRemove))
+    setUploadedFiles((prevFiles) => prevFiles.filter((_, index) => index !== indexToRemove))
   }
 
   const handleFileLabelChange = (index: number, label: 'Primary' | '4th Party') => {
-    setUploadedFiles((prevFiles: UploadedFileWithLabel[]) =>
-      prevFiles.map((item: UploadedFileWithLabel, i: number) =>
+    setUploadedFiles(prevFiles => 
+      prevFiles.map((item, i) => 
         i === index ? { ...item, label } : item
       )
     );
@@ -1998,10 +1998,10 @@ export default function AIAssessmentPage() {
 
     try {
       const formData = new FormData();
-      uploadedFiles.forEach((item: UploadedFileWithLabel) => {
+      uploadedFiles.forEach((item) => {
         formData.append('files', item.file);
       });
-      formData.append('labels', JSON.stringify(uploadedFiles.map((item: UploadedFileWithLabel) => item.label)));
+      formData.append('labels', JSON.stringify(uploadedFiles.map(item => item.label)));
       formData.append('questions', JSON.stringify(currentQuestions));
       formData.append('assessmentType', (customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"));
 
@@ -2030,7 +2030,7 @@ export default function AIAssessmentPage() {
   }
 
   const handleAnswerChange = (questionId: string, value: any) => {
-    setAnswers((prev: Record<string, any>) => ({ ...prev, [questionId]: value }))
+    setAnswers((prev) => ({ ...prev, [questionId]: value }))
   }
 
   const handleSOCInfoComplete = () => {
@@ -2088,7 +2088,7 @@ export default function AIAssessmentPage() {
           questions: currentQuestions,
           socInfo: socInfo, // Include SOC info if available
         },
-        uploadedDocumentsMetadata: uploadedFiles.map((item: UploadedFileWithLabel) => ({
+        uploadedDocumentsMetadata: uploadedFiles.map(item => ({
           fileName: item.file.name,
           fileSize: item.file.size,
           fileType: item.file.type,
@@ -2216,7 +2216,7 @@ export default function AIAssessmentPage() {
         </section>
 
         {/* Progress Bar */}
-        <div className="bg-white border-b border-gray-200">
+        <div className="bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="py-4">
               <div className="flex items-center justify-between mb-2">
@@ -2730,17 +2730,15 @@ export default function AIAssessmentPage() {
 
                 <Card>
                   <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center space-x-2">
-                        <Bot className="h-5 w-5" />
-                        <span>AI-Suggested Responses</span>
-                      </CardTitle>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Bot className="h-5 w-5" />
+                      <span>AI-Suggested Responses</span>
                       {!isReportSaved && analysisResults.confidenceScores && (
                         <Badge className="bg-green-100 text-green-700">
-                          Confidence: {Math.round(Object.values(analysisResults.confidenceScores as Record<string, number>).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
+                          Confidence: {Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
                         </Badge>
                       )}
-                    </div>
+                    </CardTitle>
                     <CardDescription>
                       Review the AI's answers and make any necessary adjustments.
                     </CardDescription>
@@ -2824,13 +2822,13 @@ export default function AIAssessmentPage() {
                                     ? answers[question.id]
                                     : "Other"
                                 }
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                                onChange={(e) => {
                                   const value = e.target.value;
                                   if (value === "Other") {
-                                    setShowOtherInput((prev: Record<string, boolean>) => ({ ...prev, [question.id]: true }));
+                                    setShowOtherInput(prev => ({ ...prev, [question.id]: true }));
                                     handleAnswerChange(question.id, ""); // Clear answer when "Other" is selected
                                   } else {
-                                    setShowOtherInput((prev: Record<string, boolean>) => ({ ...prev, [question.id]: false }));
+                                    setShowOtherInput(prev => ({ ...prev, [question.id]: false }));
                                     handleAnswerChange(question.id, value);
                                   }
                                 }}

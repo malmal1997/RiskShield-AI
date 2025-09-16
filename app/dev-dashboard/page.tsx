@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -99,12 +101,7 @@ function DevDashboardContent() {
   const [timeframe, setTimeframe] = useState("24h")
 
   // System metrics state
-  const [systemMetrics, setSystemMetrics] = useState<{
-    activeUsers: number
-    systemLoad: number
-    responseTime: number
-    uptime: number
-  }>({
+  const [systemMetrics, setSystemMetrics] = useState({
     activeUsers: 37,
     systemLoad: 45,
     responseTime: 138,
@@ -112,12 +109,7 @@ function DevDashboardContent() {
   })
 
   // Database metrics state
-  const [dbMetrics, setDbMetrics] = useState<{
-    connections: number
-    queryTime: number
-    cacheHitRatio: number
-    size: number
-  }>({
+  const [dbMetrics, setDbMetrics] = useState({
     connections: 24,
     queryTime: 45,
     cacheHitRatio: 82,
@@ -125,11 +117,7 @@ function DevDashboardContent() {
   })
 
   // Error counts
-  const [errorCounts, setErrorCounts] = useState<{
-    critical: number
-    warning: number
-    info: number
-  }>({
+  const [errorCounts, setErrorCounts] = useState({
     critical: 2,
     warning: 8,
     info: 15,

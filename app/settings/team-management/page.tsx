@@ -62,7 +62,7 @@ function TeamManagementContent() {
     role: "viewer" as OrganizationMember['role_name'],
   });
 
-  const isAdmin = role?.role === "admin" || isDemo; // Demo users are considered admin for navigation purposes
+  const isAdmin = role?.role === "admin" || isDemo; // Demo users are considered admin for this page
 
   const loadMembers = async () => {
     if (!isAdmin) {
@@ -317,7 +317,7 @@ function TeamManagementContent() {
 
         {members.length > 0 && (
           <div className="grid grid-cols-1 gap-6">
-            {members.map((member: OrganizationMember) => (
+            {members.map((member) => (
               <Card key={member.user_id} className="border-l-4 border-l-blue-500">
                 <CardHeader>
                   <div className="flex items-center justify-between">

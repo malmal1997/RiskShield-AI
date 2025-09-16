@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, Fragment } from "react" // Import Fragment
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -114,7 +116,7 @@ function PolicyLibraryContent() {
 
     if (searchTerm) {
       filtered = filtered.filter(
-        (policy: Policy) =>
+        (policy) =>
           policy.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           policy.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           policy.description?.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -122,7 +124,7 @@ function PolicyLibraryContent() {
     }
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter((policy: Policy) => policy.status === statusFilter);
+      filtered = filtered.filter((policy) => policy.status === statusFilter);
     }
 
     setFilteredPolicies(filtered);
@@ -503,10 +505,10 @@ function PolicyLibraryContent() {
 
   const getPolicyStats = () => {
     const total = policies.length;
-    const approved = policies.filter((p: Policy) => p.status === "approved").length;
-    const drafts = policies.filter((p: Policy) => p.status === "draft").length;
-    const expired = policies.filter((p: Policy) => p.status === "expired").length;
-    const pendingReview = policies.filter((p: Policy) => p.status === "pending_review").length;
+    const approved = policies.filter((p) => p.status === "approved").length;
+    const drafts = policies.filter((p) => p.status === "draft").length;
+    const expired = policies.filter((p) => p.status === "expired").length;
+    const pendingReview = policies.filter((p) => p.status === "pending_review").length;
 
     return { total, approved, drafts, expired, pendingReview };
   };
@@ -658,7 +660,7 @@ function PolicyLibraryContent() {
 
           {/* Policies Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPolicies.map((policy: Policy) => (
+            {filteredPolicies.map((policy) => (
               <Card key={policy.id} className="border border-gray-200 hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -844,7 +846,7 @@ function PolicyLibraryContent() {
               <div className="flex space-x-2 mb-2 sm:mb-0">
                 <Button variant="outline" onClick={() => handleDownloadPolicy(selectedPolicy)}>
                   <Download className="mr-2 h-4 w-4" />
-                  Download HTML
+                  Download
                 </Button>
                 <Button variant="outline" onClick={() => handleLoadVersions(selectedPolicy.id)}>
                   <History className="mr-2 h-4 w-4" />
@@ -914,7 +916,7 @@ function PolicyLibraryContent() {
             <div className="flex-1 overflow-y-auto py-4 pr-4 -mr-4">
               {policyVersions.length > 0 ? (
                 <div className="space-y-4">
-                  {policyVersions.map((version: PolicyVersion) => (
+                  {policyVersions.map((version) => (
                     <Card key={version.id} className="border-l-4 border-l-gray-300">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-2">

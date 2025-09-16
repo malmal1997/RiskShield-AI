@@ -595,7 +595,7 @@ function SettingsContent() {
                     </div>
                     <Switch
                       checked={notificationPrefs.email_assessments}
-                      onCheckedChange={(checked: boolean) =>
+                      onCheckedChange={(checked) =>
                         setNotificationPrefs({ ...notificationPrefs, email_assessments: checked })
                       }
                     />
@@ -608,7 +608,7 @@ function SettingsContent() {
                     </div>
                     <Switch
                       checked={notificationPrefs.email_reports}
-                      onCheckedChange={(checked: boolean) =>
+                      onCheckedChange={(checked) =>
                         setNotificationPrefs({ ...notificationPrefs, email_reports: checked })
                       }
                     />
@@ -621,7 +621,7 @@ function SettingsContent() {
                     </div>
                     <Switch
                       checked={notificationPrefs.email_alerts}
-                      onCheckedChange={(checked: boolean) =>
+                      onCheckedChange={(checked) =>
                         setNotificationPrefs({ ...notificationPrefs, email_alerts: checked })
                       }
                     />
@@ -634,7 +634,7 @@ function SettingsContent() {
                     </div>
                     <Switch
                       checked={notificationPrefs.push_notifications}
-                      onCheckedChange={(checked: boolean) =>
+                      onCheckedChange={(checked) =>
                         setNotificationPrefs({ ...notificationPrefs, push_notifications: checked })
                       }
                     />
@@ -647,7 +647,7 @@ function SettingsContent() {
                     </div>
                     <Switch
                       checked={notificationPrefs.sms_alerts}
-                      onCheckedChange={(checked: boolean) => setNotificationPrefs({ ...notificationPrefs, sms_alerts: checked })}
+                      onCheckedChange={(checked) => setNotificationPrefs({ ...notificationPrefs, sms_alerts: checked })}
                     />
                   </div>
                 </div>
@@ -835,58 +835,56 @@ function SettingsContent() {
                   </div>
                 )}
 
-                {!loading && integrations.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {integrations.map((integration: Integration) => (
-                      <Card key={integration.id} className="border">
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center space-x-3">
-                              <span className="text-2xl">
-                                {integration.integration_name === "Slack" && "💬"}
-                                {integration.integration_name === "Jira" && "📋"}
-                                {integration.integration_name === "Microsoft Teams" && "👥"}
-                                {integration.integration_name === "ServiceNow" && "🔧"}
-                                {integration.integration_name === "Salesforce" && "☁️"}
-                                {integration.integration_name === "Webhook" && "🔗"}
-                                {!["Slack", "Jira", "Microsoft Teams", "ServiceNow", "Salesforce", "Webhook"].includes(integration.integration_name) && "🔌"}
-                              </span>
-                              <div>
-                                <h3 className="font-medium">{integration.integration_name}</h3>
-                                <p className="text-sm text-gray-600">
-                                  Status:{" "}
-                                  <Badge variant="outline" className={integration.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                                    {integration.status}
-                                  </Badge>
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex space-x-2">
-                              <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditIntegration(integration)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                className="flex-1"
-                                onClick={() => handleDeleteIntegration(integration.id)}
-                                disabled={isDeletingIntegration === integration.id}
-                              >
-                                {isDeletingIntegration === integration.id ? (
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                )}
-                                Delete
-                              </Button>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {integrations.map((integration) => (
+                    <Card key={integration.id} className="border">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <span className="text-2xl">
+                              {integration.integration_name === "Slack" && "💬"}
+                              {integration.integration_name === "Jira" && "📋"}
+                              {integration.integration_name === "Microsoft Teams" && "👥"}
+                              {integration.integration_name === "ServiceNow" && "🔧"}
+                              {integration.integration_name === "Salesforce" && "☁️"}
+                              {integration.integration_name === "Webhook" && "🔗"}
+                              {!["Slack", "Jira", "Microsoft Teams", "ServiceNow", "Salesforce", "Webhook"].includes(integration.integration_name) && "🔌"}
+                            </span>
+                            <div>
+                              <h3 className="font-medium">{integration.integration_name}</h3>
+                              <p className="text-sm text-gray-600">
+                                Status:{" "}
+                                <Badge variant="outline" className={integration.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                                  {integration.status}
+                                </Badge>
+                              </p>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditIntegration(integration)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleDeleteIntegration(integration.id)}
+                            disabled={isDeletingIntegration === integration.id}
+                          >
+                            {isDeletingIntegration === integration.id ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="mr-2 h-4 w-4" />
+                            )}
+                            Delete
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

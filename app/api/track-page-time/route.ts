@@ -11,7 +11,8 @@ export async function POST(request: NextRequest) {
       .update({ time_on_page: timeOnPage })
       .eq("session_id", sessionId)
       .eq("page_path", pagePath)
-      .order("created_at", { ascending: false }) // Order by created_at to get the most recent entry
+      .is("time_on_page", null)
+      .order("created_at", { ascending: false })
       .limit(1)
 
     return NextResponse.json({ success: true })
