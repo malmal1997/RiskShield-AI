@@ -295,7 +295,7 @@ export async function analyzeDocuments(
     const testResult = await generateText({
       model: google("gemini-1.5-flash"),
       prompt: "Reply with 'OK' if you can read this.",
-      maxOutputTokens: 10, // Changed from max_tokens
+      maxOutputTokens: 10,
       temperature: 0.1,
     })
 
@@ -353,6 +353,7 @@ export async function analyzeDocuments(
   }
 
   const basePrompt = `YOUR SOLE TASK IS TO EXTRACT ANSWERS DIRECTLY AND EXCLUSIVELY FROM THE PROVIDED DOCUMENTS. DO NOT GUESS. DO NOT USE EXTERNAL KNOWLEDGE.
+ENSURE EACH QUESTION IS ANSWERED INDIVIDUALLY AND UNIQUELY BASED ON THE MOST DIRECTLY RELEVANT EVIDENCE.
 
 You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions. Your task is to analyze the provided documents and answer specific assessment questions.
 
@@ -400,12 +401,12 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
     ${questions.map((q: Question) => `
     {
       "id": "${q.id}",
-      "answer": ${q.type === "boolean" ? 'false' : (q.type === "multiple" || q.type === "tested" ? '""' : '""')}, // Placeholder for AI to fill
-      "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. If no relevant evidence, state 'No directly relevant evidence found after comprehensive search'.",
-      "reasoning": "Explain how you arrived at the answer based on the document evidence or why a default was used. If no evidence, state 'No direct evidence found, defaulting to X'.",
-      "source_file_name": null, // or "DocumentName.txt"
-      "source_page_number": null,
-      "source_label": null // or '4th Party' (ONLY if the document was labeled '4th Party', otherwise null)
+      "answer": null, // AI MUST fill this with the specific answer for this question, using null as a placeholder for the AI to explicitly fill
+      "excerpt": null, // AI MUST fill this with the specific excerpt for this question, using null as a placeholder for the AI to explicitly fill
+      "reasoning": null, // AI MUST fill this with specific reasoning for this question, using null as a placeholder for the AI to explicitly fill
+      "source_file_name": null, // AI MUST fill this with the specific source file name for this question
+      "source_page_number": null, // AI MUST fill this with the specific source page number for this question
+      "source_label": null // AI MUST fill this with the specific source label for this question
     }`).join(",\n    ")}
   ],
   "overall_analysis": "Concise overall analysis based on the documents.",
@@ -467,7 +468,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
             },
           ],
           temperature: 0.1,
-          maxOutputTokens: 4000, // Changed from max_tokens
+          maxOutputTokens: 4000,
         })
         console.log(`✅ Successfully processed ${validAttachments.length} binary attachment file(s) with Google AI`)
       } else {
@@ -477,7 +478,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
           model: google("gemini-1.5-flash"),
           prompt: basePrompt,
           temperature: 0.1,
-          maxOutputTokens: 4000, // Changed from max_tokens
+          maxOutputTokens: 4000,
         })
       }
     } else {
@@ -486,7 +487,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
         model: google("gemini-1.5-flash"),
         prompt: basePrompt,
         temperature: 0.1,
-        maxOutputTokens: 4000, // Changed from max_tokens
+        maxOutputTokens: 4000,
       })
     }
 
@@ -524,19 +525,19 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
       // Process each question with enhanced validation
       aiResponse.question_responses.forEach((qr: any) => { // Iterate through the new structure
         const questionId = qr.id;
-        const question = questions.find(q => q.id === questionId);
+        const question = questions.find((q: Question) => q.id === questionId); // Explicitly type q
         if (!question) {
           console.warn(`Question with ID ${questionId} not found in original questions array.`);
           return;
         }
 
         let aiAnswer = qr.answer;
-        const aiExcerpt = qr.excerpt;
-        const aiReasoning = qr.reasoning || "No specific reasoning provided by AI."; // Capture AI's reasoning
+        let aiExcerpt = qr.excerpt;
+        let aiReasoning = qr.reasoning || "No specific reasoning provided by AI."; // Capture AI's reasoning
         let aiFileName = qr.source_file_name;
         let aiPageNumber = qr.source_page_number;
         let aiLabel = qr.source_label;
-        const aiConfidence = qr.confidence || 0.5; // Use confidence from AI response
+        const aiConfidence = qr.confidence || 0.5; // Use confidence from AI response, default to 0.5
 
         console.log(
           `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Excerpt present=${!!aiExcerpt}`,
@@ -557,21 +558,33 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
             label = null;
         }
 
-        // Convert string boolean representations to actual booleans
+        // --- Robust Type Coercion for Answers ---
+        let finalAnswer: boolean | string | string[] = "N/A"; // Default to "N/A" string
         if (question.type === "boolean") {
           if (typeof aiAnswer === 'string') {
             const lowerCaseAnswer = aiAnswer.toLowerCase();
-            if (lowerCaseAnswer === 'true' || lowerCaseAnswer === 'yes') {
-              aiAnswer = true;
-            } else if (lowerCaseAnswer === 'false' || lowerCaseAnswer === 'no') {
-              aiAnswer = false;
-            } else {
-              aiAnswer = false; // Default to false if ambiguous
-            }
-          } else if (typeof aiAnswer !== 'boolean') {
-            aiAnswer = false; // Default to false if not a boolean or string
+            finalAnswer = (lowerCaseAnswer === 'true' || lowerCaseAnswer === 'yes');
+          } else if (typeof aiAnswer === 'boolean') {
+            finalAnswer = aiAnswer;
+          } else {
+            finalAnswer = false; // Default for boolean if AI provides unexpected type
+          }
+        } else if (question.type === "multiple" || question.type === "tested") {
+          if (typeof aiAnswer === 'string') {
+            finalAnswer = aiAnswer;
+          } else if (Array.isArray(aiAnswer)) {
+            finalAnswer = aiAnswer.join(', '); // Convert array to string for single-select multiple
+          } else {
+            finalAnswer = question.options?.[0] || "N/A"; // Default to first option or N/A
+          }
+        } else if (question.type === "textarea") {
+          if (typeof aiAnswer === 'string') {
+            finalAnswer = aiAnswer;
+          } else {
+            finalAnswer = "No directly relevant evidence found after comprehensive search."; // Default for textarea
           }
         }
+        // --- End Type Coercion ---
 
 
         // Perform semantic relevance check only if an actual excerpt is provided
@@ -587,7 +600,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
 
         // Determine final answer, confidence, and reasoning
         if (relevanceCheck.isRelevant && hasActualExcerpt) {
-          answers[questionId] = aiAnswer;
+          answers[questionId] = finalAnswer;
           confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence); // Use AI's confidence, capped by relevance check
           reasoning[questionId] = aiReasoning; // Use AI's reasoning
           
@@ -608,6 +621,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
         } else {
           console.log(`❌ Question ${questionId}: Evidence rejected or not provided - ${relevanceCheck.reason}`);
 
+          // Apply conservative defaults if no relevant evidence or relevance check failed
           if (question.type === "boolean") {
             answers[question.id] = false;
           } else if (question.options && question.options.length > 0) {
@@ -656,9 +670,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
       totalScore += answer ? (question.weight || 0) : 0
     } else if (question.type === "multiple" && question.options) {
       // For multiple choice, assign score based on position (e.g., first option is lowest risk)
-      // Assuming options are ordered from lowest risk to highest risk
-      // The scoring logic here needs to be inverted if options are from lowest to highest risk
-      // Let's assume options are ordered from most conservative (lowest risk) to least conservative (highest risk)
+      // Assuming options are ordered from most conservative (lowest risk) to least conservative (highest risk)
       // So, "Never" (index 0) is lowest risk, "Annually" (index 3) is higher risk.
       // The current sample questions have options like ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually", "Quarterly", "Monthly", "Continuously"]
       // For "How often do you conduct penetration testing?", "Annually" is a good answer, not "Never".
@@ -766,7 +778,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
       const result = await generateText({
         model: google("gemini-1.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
-        maxOutputTokens: 10, // Changed from max_tokens
+        maxOutputTokens: 10,
         temperature: 0.1,
       })
       results.google = result.text.toLowerCase().includes("ok")
