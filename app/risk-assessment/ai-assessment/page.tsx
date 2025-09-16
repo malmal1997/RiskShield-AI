@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react" // Added useRef
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -1833,7 +1833,6 @@ interface AnalysisResult {
     fileSize: number
     fileType: string
     processingMethod: string
-    label?: 'Primary' | '4th Party';
   }>
 }
 
@@ -1846,6 +1845,8 @@ export default function AIAssessmentPage() {
   const { user, isDemo } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+  const isMounted = useRef(false); // Ref to track if component is mounted
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<
@@ -1881,11 +1882,17 @@ export default function AIAssessmentPage() {
   const [customTemplates, setCustomTemplates] = useState<AssessmentTemplate[]>([]);
   const [currentQuestions, setCurrentQuestions] = useState<TemplateQuestion[]>([]);
 
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     // Check for pre-selected category from main risk assessment page
     const preSelectedCategory = localStorage.getItem("selectedAssessmentCategory")
-    if (preSelectedCategory) {
+    if (isMounted.current && preSelectedCategory) {
       setSelectedCategory(preSelectedCategory)
       if (preSelectedCategory === "soc-compliance") {
         setCurrentStep("soc-info")
@@ -1898,8 +1905,10 @@ export default function AIAssessmentPage() {
 
   useEffect(() => {
     async function fetchTemplates() {
+      if (!isMounted.current) return;
       if (user) {
         const { data, error } = await getAssessmentTemplates();
+        if (!isMounted.current) return;
         if (error) {
           console.error("Failed to fetch custom templates:", error);
           toast({
@@ -1917,15 +1926,17 @@ export default function AIAssessmentPage() {
 
   useEffect(() => {
     async function loadQuestions() {
+      if (!isMounted.current) return;
       if (selectedTemplateId) {
         const { data, error } = await getTemplateQuestions(selectedTemplateId);
+        if (!isMounted.current) return;
         if (error) {
           console.error("Failed to load template questions:", error);
           setError("Failed to load questions for the selected template.");
           setCurrentQuestions([]);
         } else {
           setCurrentQuestions(data || []);
-          const selectedTemplate = customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId);
+          const selectedTemplate = customTemplates.find(t => t.id === selectedTemplateId);
           if (selectedTemplate?.type === "soc-compliance") { // Check if it's the SOC template
             setCurrentStep("soc-info");
           } else {
@@ -2003,12 +2014,14 @@ export default function AIAssessmentPage() {
       });
       formData.append('labels', JSON.stringify(uploadedFiles.map(item => item.label)));
       formData.append('questions', JSON.stringify(currentQuestions));
-      formData.append('assessmentType', (customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"));
+      formData.append('assessmentType', (customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"));
 
       const response = await fetch("/api/ai-assessment/analyze", {
         method: "POST",
         body: formData,
       });
+
+      if (!isMounted.current) return; // Check mount status after async operation
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -2023,9 +2036,13 @@ export default function AIAssessmentPage() {
       setCurrentStep("review-answers")
     } catch (err: any) {
       console.error("AI Analysis Failed:", err)
-      setError(err.message || "Failed to perform AI analysis. Please try again.")
+      if (isMounted.current) { // Check mount status before setting error
+        setError(err.message || "Failed to perform AI analysis. Please try again.")
+      }
     } finally {
-      setIsAnalyzing(false)
+      if (isMounted.current) { // Check mount status before setting loading
+        setIsAnalyzing(false)
+      }
     }
   }
 
@@ -2073,11 +2090,11 @@ export default function AIAssessmentPage() {
         description: "Your AI assessment report is being saved to your profile.",
       });
 
-      const reportTitle = `${(customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment")} AI Assessment`;
+      const reportTitle = `${(customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment")} AI Assessment`;
       const reportSummary = analysisResults.overallAnalysis.substring(0, 250) + "..."; // Truncate for summary
 
       const savedReport = await saveAiAssessmentReport({
-        assessmentType: (customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"),
+        assessmentType: (customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"),
         reportTitle: reportTitle,
         riskScore: riskScore,
         riskLevel: riskLevel,
@@ -2097,6 +2114,8 @@ export default function AIAssessmentPage() {
         socInfo: socInfo,
       });
 
+      if (!isMounted.current) return; // Check mount status after async operation
+
       if (savedReport) {
         setIsReportSaved(true);
         toast({
@@ -2107,13 +2126,17 @@ export default function AIAssessmentPage() {
       }
     } catch (err: any) {
       console.error("Error saving report:", err);
-      toast({
-        title: "Error Saving Report",
-        description: err.message || "Failed to save the report. Please try again.",
-        variant: "destructive",
-      });
+      if (isMounted.current) { // Check mount status before setting error
+        toast({
+          title: "Error Saving Report",
+          description: err.message || "Failed to save the report. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
-      setIsSavingReport(false); // Set saving state to false
+      if (isMounted.current) { // Check mount status before setting loading
+        setIsSavingReport(false);
+      }
     }
   };
 
@@ -2216,7 +2239,7 @@ export default function AIAssessmentPage() {
         </section>
 
         {/* Progress Bar */}
-        <div className="bg-white">
+        <div className="bg-white border-b border-gray-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="py-4">
               <div className="flex items-center justify-between mb-2">
