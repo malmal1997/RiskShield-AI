@@ -14,14 +14,14 @@ interface PageViewData {
   sessionId: string
   pagePath: string
   pageTitle?: string
-  timeOnPage?: number
+  timeOnPage?: number | null // Allow null
 }
 
 interface FeatureInteractionData {
   sessionId: string
   featureName: string
   actionType: string
-  featureData?: any
+  featureData?: any | null // Allow null
 }
 
 interface LeadData {
@@ -120,6 +120,7 @@ class UsageTracker {
         sessionId: this.sessionId,
         pagePath,
         pageTitle: pageTitle || document.title,
+        timeOnPage: null, // Explicitly set to null on initial insert
       }
 
       await supabaseClient.from("page_views").insert(pageViewData)
@@ -139,7 +140,7 @@ class UsageTracker {
         sessionId: this.sessionId,
         featureName,
         actionType,
-        featureData,
+        featureData: featureData === undefined ? null : featureData, // Explicitly set to null if undefined
       }
 
       await supabaseClient.from("feature_interactions").insert(interactionData)
