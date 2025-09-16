@@ -2,7 +2,7 @@ import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
 
 export interface DocumentAnalysisResult {
-  answers: Record<string, boolean | string | string[]> // Added string[] to answers type
+  answers: Record<string, boolean | string | string[]>
   confidenceScores: Record<string, number>
   reasoning: Record<string, string>
   overallAnalysis: string
@@ -23,7 +23,7 @@ export interface DocumentAnalysisResult {
       quote?: string
       pageNumber?: number
       lineNumber?: number
-      label?: 'Primary' | '4th Party'; // Added label to excerpt
+      label?: 'Primary' | '4th Party';
     }>
   >
   directUploadResults?: Array<{
@@ -32,7 +32,7 @@ export interface DocumentAnalysisResult {
     fileSize: number
     fileType: string
     processingMethod: string
-    label?: 'Primary' | '4th Party'; // Added label to direct upload results
+    label?: 'Primary' | '4th Party';
   }>
 }
 
@@ -42,7 +42,7 @@ interface Question {
   type: "boolean" | "multiple" | "tested" | "textarea"
   options?: string[]
   weight: number
-  category?: string; // Added category
+  category?: string;
 }
 
 interface FileWithLabel {
@@ -295,7 +295,7 @@ export async function analyzeDocuments(
     const testResult = await generateText({
       model: google("gemini-1.5-flash"),
       prompt: "Reply with 'OK' if you can read this.",
-      maxOutputTokens: 10, // Changed from max_tokens
+      maxOutputTokens: 10,
       temperature: 0.1,
     })
 
@@ -333,319 +333,219 @@ export async function analyzeDocuments(
     }
   }
 
-  // Create comprehensive prompt for Google AI
-  let documentContent = ""
+  // Prepare binary file parts once outside the question loop
+  const binaryFileParts = await Promise.all(binaryAttachmentFiles.map(async (attachment) => ({
+    type: "file" as const,
+    data: Buffer.from(await attachment.file.arrayBuffer()), // Convert ArrayBuffer to Node.js Buffer
+    mediaType: getGoogleAIMediaType(attachment.file),
+  })));
 
-  // Add text file content
-  if (textFiles.length > 0) {
-    documentContent += "TEXT DOCUMENTS (extracted content):\n"
-    textFiles.forEach(({ file, label, text }) => {
-      documentContent += `\n=== DOCUMENT: ${file.name} (Label: ${label}) ===\n${text}\n`
-    })
-  }
+  const fileReferences = supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n");
 
-  // Add binary attachment file references
-  if (binaryAttachmentFiles.length > 0) {
-    documentContent += "\nBINARY ATTACHED DOCUMENTS:\n"
-    binaryAttachmentFiles.forEach((item) => {
-      documentContent += `\n=== ATTACHED DOCUMENT: ${item.file.name} (Label: ${item.label}) ===\n[This document has been uploaded as a binary attachment and will be analyzed directly by the AI]\n`
-    })
-  }
+  const allAnswers: Record<string, boolean | string | string[]> = {};
+  const allConfidenceScores: Record<string, number> = {};
+  const allReasoning: Record<string, string> = {};
+  const allDocumentExcerpts: Record<string, Array<any>> = {};
 
-  const basePrompt = `YOUR SOLE TASK IS TO EXTRACT ANSWERS DIRECTLY AND EXCLUSIVELY FROM THE PROVIDED DOCUMENTS. DO NOT GUESS. DO NOT USE EXTERNAL KNOWLEDGE.
+  for (const question of questions) { // Start of the loop for individual questions
+    console.log(`🧠 Processing individual question: ${question.id} - ${question.question}`);
 
-You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions. Your task is to analyze the provided documents and answer specific assessment questions.
+    // Create comprehensive prompt for Google AI for each question
+    let documentContentForQuestion = "" // Use a new variable for content specific to this question
 
-CRITICAL INSTRUCTIONS:
-- YOU MUST THOROUGHLY ANALYZE ALL PROVIDED DOCUMENTS. This includes both the text content provided directly in the prompt AND any binary files attached (e.g., PDFs, DOCX, XLSX, PPTX). Use your advanced document processing capabilities to extract and understand the content of ALL attached files.
-- BASE YOUR ANSWERS SOLELY AND EXCLUSIVELY ON THE INFORMATION DIRECTLY AND SPECIFICALLY FOUND WITHIN THE PROVIDED DOCUMENTS. DO NOT use external knowledge, make assumptions, or infer information not explicitly stated.
-- For each question, provide the MOST ACCURATE ANSWER based on the evidence.
-- For each question, if relevant evidence is found, provide the EXACT QUOTE from the document in the 'excerpt' field. The quote should be verbatim and should NOT include any source information (like file name or page number).
-- For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.txt"), 'source_page_number' (if applicable and explicitly identifiable in the text, otherwise null), and 'source_label' ('Primary' or '4th Party').
-- If no directly relevant evidence is found after a comprehensive search of ALL documents, set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
-- When citing evidence, prioritize documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then prioritize documents labeled "4th Party".
-- **IMPORTANT CITATION RULE:** For the 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
-- **AVOID REPETITIVE CITATIONS:** Ensure that the 'excerpt' provided for each question is distinct and directly relevant to that specific question. Do not reuse the same generic excerpt across multiple questions unless it is genuinely the *only* relevant piece of evidence for each. If a question has no *new* relevant evidence, explicitly state 'No directly relevant evidence found after comprehensive search' rather than repeating a previous excerpt.
-- Pay special attention to technical sections, appendices, and detailed procedure descriptions.
-- **STRICT RELEVANCE - ABSOLUTE PROHIBITION ON GENERIC EVIDENCE FOR SPECIFIC QUESTIONS:**
-  - The evidence provided in the 'excerpt' MUST directly and specifically address the core subject and action of the question. Do not provide loosely related information or general statements if they do not directly address the question's core.
-  - For example, if the question is "How often do you conduct BCM training for employees?", you MUST NOT cite a general statement about "annual risk assessments" or "secure development lifecycles". The excerpt MUST specifically mention "BCM training" or "business continuity training" and its frequency.
-  - If no such direct, specific evidence exists, explicitly state 'No directly relevant evidence found after comprehensive search' rather than providing a loosely related or generic statement.
-
-DOCUMENT FILES PROVIDED FOR ANALYSIS:
-${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
-
-${documentContent}
-
-ASSESSMENT QUESTIONS AND DETAILED ANSWERING INSTRUCTIONS:
-${questions.map((q: Question, idx: number) => {
-  let formatHint = '';
-  if (q.type === 'boolean') {
-    formatHint = 'Expected: true or false. FIRST, search for explicit affirmative (e.g., "is encrypted", "is required", "we do") or negative (e.g., "no encryption", "not required", "we do not") statements. If an explicit affirmative statement is found, answer `true`. If an explicit negative statement is found, answer `false`. ONLY IF NO EXPLICIT STATEMENT (AFFIRMATIVE OR NEGATIVE) IS FOUND, default to `false`.';
-  } else if (q.type === 'multiple' && q.options) {
-    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. FIRST, find the exact option or a clear equivalent in the documents. If found, use that option. ONLY IF NO CLEAR MATCH IS FOUND, default to the first option in the list ("${q.options[0]}").`;
-  } else if (q.type === 'tested') {
-    formatHint = 'Expected: "tested" or "not_tested". FIRST, look for evidence of testing activities or explicit statements about testing status. If no information is found, default to "not_tested".';
-  } else if (q.type === 'textarea') {
-    formatHint = 'Expected: "Detailed text response". Summarize the relevant information from the documents in a concise paragraph. If no information is found, state "No directly relevant evidence found after comprehensive search."';
-  }
-  return `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""}) - ${formatHint}`;
-}).join("\n")}
-
-YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT BEFORE OR AFTER THE JSON. DO NOT WRAP THE JSON IN MARKDOWN CODE BLOCKS (e.g., \`\`\`json). ENSURE ALL PROPERTY NAMES ARE DOUBLE-QUOTED.
-{
-  "question_responses": [
-    ${questions.map((q: Question) => `
-    {
-      "id": "${q.id}",
-      "answer": ${q.type === "boolean" ? 'false' : (q.type === "multiple" || q.type === "tested" ? '""' : '""')}, // Placeholder for AI to fill
-      "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. If no relevant evidence, state 'No directly relevant evidence found after comprehensive search'.",
-      "reasoning": "Explain how you arrived at the answer based on the document evidence or why a default was used. If no evidence, state 'No direct evidence found, defaulting to X'.",
-      "source_file_name": null, // or "DocumentName.txt"
-      "source_page_number": null,
-      "source_label": null // or '4th Party' (ONLY if the document was labeled '4th Party', otherwise null)
-    }`).join(",\n    ")}
-  ],
-  "overall_analysis": "Concise overall analysis based on the documents.",
-  "risk_factors": ["Factor 1", "Factor 2"],
-  "recommendations": ["Recommendation 1", "Recommendation 2"]
-}`
-
-  // Process questions with Google AI - include binary attachment files if present
-  const answers: Record<string, boolean | string | string[]> = {}
-  const confidenceScores: Record<string, number> = {}
-  const reasoning: Record<string, string> = {}
-  const documentExcerpts: Record<string, Array<any>> = {}
-
-  try {
-    console.log("🧠 Processing documents with Google AI (including binary attachments)...")
-
-    let result;
-
-    if (binaryAttachmentFiles.length > 0) {
-      console.log(`📄 Sending ${binaryAttachmentFiles.length} binary attachment file(s) directly to Google AI...`)
-
-      const attachments = await Promise.all(
-        binaryAttachmentFiles.map(async (item: FileWithLabel) => {
-          try {
-            const bufferData = await fileToBuffer(item.file)
-            console.log(`✅ Converted ${item.file.name} to buffer (${Math.round(bufferData.byteLength / 1024)}KB)`)
-            return {
-              name: item.file.name,
-              data: bufferData,
-              mediaType: getGoogleAIMediaType(item.file),
-              label: item.label, // Include label here
-            }
-          } catch (error) {
-            console.error(`❌ Failed to convert ${item.file.name} to buffer:`, error)
-            return null
-          }
-        }),
-      )
-
-      // Filter out failed conversions
-      const validAttachments = attachments.filter((attachment) => attachment !== null)
-
-      if (validAttachments.length > 0) {
-        const messageContent = [
-          { type: "text" as const, text: basePrompt },
-          ...validAttachments.map((attachment) => ({
-            type: "file" as const,
-            data: attachment!.data,
-            mediaType: attachment!.mediaType,
-          })),
-        ]
-
-        result = await generateText({
-          model: google("gemini-1.5-flash"),
-          messages: [
-            {
-              role: "user" as const,
-              content: messageContent,
-            },
-          ],
-          temperature: 0.1,
-          maxOutputTokens: 4000, // Changed from max_tokens
-        })
-        console.log(`✅ Successfully processed ${validAttachments.length} binary attachment file(s) with Google AI`)
-      } else {
-        // Fallback to text-only if binary attachment conversion failed
-        console.log("⚠️ Binary attachment conversion failed, falling back to text-only analysis")
-        result = await generateText({
-          model: google("gemini-1.5-flash"),
-          prompt: basePrompt,
-          temperature: 0.1,
-          maxOutputTokens: 4000, // Changed from max_tokens
-        })
-      }
-    } else {
-      // Text-only analysis
-      result = await generateText({
-        model: google("gemini-1.5-flash"),
-        prompt: basePrompt,
-        temperature: 0.1,
-        maxOutputTokens: 4000, // Changed from max_tokens
+    // Add text file content
+    if (textFiles.length > 0) {
+      documentContentForQuestion += "TEXT DOCUMENTS (extracted content):\n"
+      textFiles.forEach(({ file, label, text }) => {
+        documentContentForQuestion += `\n=== DOCUMENT: ${file.name} (Label: ${label}) ===\n${text}\n`
       })
     }
 
-    console.log(`📝 Google AI response received (${result.text.length} characters)`)
-    console.log(`🔍 Raw AI response text: ${result.text.substring(0, 500)}...`) // Log raw response
-
-    let rawAiResponseText = result.text;
-
-    // Robustly strip markdown code block fences
-    const jsonStart = rawAiResponseText.indexOf('{');
-    const jsonEnd = rawAiResponseText.lastIndexOf('}');
-
-    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-        rawAiResponseText = rawAiResponseText.substring(jsonStart, jsonEnd + 1);
-    } else {
-        // Fallback if JSON structure isn't clearly delimited, try stripping common markdown
-        if (rawAiResponseText.startsWith("```json")) {
-            rawAiResponseText = rawAiResponseText.substring(7); // Remove "```json\n"
-        }
-        if (rawAiResponseText.endsWith("```")) {
-            rawAiResponseText = rawAiResponseText.substring(0, rawAiResponseText.length - 3); // Remove "\n```"
-        }
+    // Add binary attachment file references
+    if (binaryAttachmentFiles.length > 0) {
+      documentContentForQuestion += "\nBINARY ATTACHED DOCUMENTS:\n"
+      binaryAttachmentFiles.forEach((item) => {
+        documentContentForQuestion += `\n=== ATTACHED DOCUMENT: ${item.file.name} (Label: ${item.label}) ===\n[This document has been uploaded as a binary attachment and will be analyzed directly by the AI]\n`
+      })
     }
-    rawAiResponseText = rawAiResponseText.trim(); // Trim any remaining whitespace
 
-    // Log the exact string before parsing
-    console.log("Attempting to parse JSON string:\n", rawAiResponseText);
+    const individualQuestionPrompt = `
+    YOUR SOLE TASK IS TO EXTRACT THE ANSWER DIRECTLY AND EXCLUSIVELY FROM THE PROVIDED DOCUMENTS FOR THE FOLLOWING QUESTION. DO NOT GUESS. DO NOT USE EXTERNAL KNOWLEDGE.
 
-    // Parse AI response
-    try {
-      const aiResponse = JSON.parse(rawAiResponseText)
-      console.log(`✅ Successfully parsed AI response JSON`)
-      console.log("Parsed AI response object:", aiResponse); // Log parsed object
+    You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions.
 
-      // Process each question with enhanced validation
-      aiResponse.question_responses.forEach((qr: any) => { // Iterate through the new structure
-        const questionId = qr.id;
-        const question = questions.find(q => q.id === questionId);
-        if (!question) {
-          console.warn(`Question with ID ${questionId} not found in original questions array.`);
-          return;
-        }
+    CRITICAL INSTRUCTIONS:
+    - THOROUGHLY ANALYZE ALL PROVIDED DOCUMENTS (text content and attached binary files).
+    - BASE YOUR ANSWER SOLELY AND EXCLUSIVELY ON INFORMATION DIRECTLY AND SPECIFICALLY FOUND WITHIN THE DOCUMENTS.
+    - For the question below, provide the MOST ACCURATE ANSWER based on the evidence.
+    - If relevant evidence is found, provide the EXACT QUOTE from the document in the 'excerpt' field. The quote should be verbatim and should NOT include any source information.
+    - For EVERY excerpt, you MUST provide the 'source_file_name', 'source_page_number' (if applicable and explicitly identifiable, otherwise null), and 'source_label' ('Primary' or '4th Party').
+    - If no directly relevant evidence is found after a comprehensive search of ALL documents, set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
+    - Prioritize "Primary" documents for evidence. If none, use "4th Party".
+    - **IMPORTANT CITATION RULE:** For 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party'. Otherwise, set to null.
+    - **STRICT RELEVANCE:** The 'excerpt' MUST directly and specifically address the core subject and action of the question. No loosely related or generic statements.
 
-        let aiAnswer = qr.answer;
-        const aiExcerpt = qr.excerpt;
-        const aiReasoning = qr.reasoning || "No specific reasoning provided by AI."; // Capture AI's reasoning
-        let aiFileName = qr.source_file_name;
-        let aiPageNumber = qr.source_page_number;
-        let aiLabel = qr.source_label;
-        const aiConfidence = qr.confidence || 0.5; // Use confidence from AI response
+    DOCUMENT FILES PROVIDED FOR ANALYSIS:
+    ${fileReferences}
 
-        console.log(
-          `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Excerpt present=${!!aiExcerpt}`,
-        )
+    ${documentContentForQuestion}
 
-        let excerpt = aiExcerpt || 'No directly relevant evidence found after comprehensive search';
-        let fileName = aiFileName || "N/A";
-        let pageNumber = aiPageNumber || undefined;
-        let label = aiLabel || null; // Default to null for primary, as per new rule
+    QUESTION:
+    ID: ${question.id} - ${question.question} (Type: ${question.type}${question.options ? `, Options: ${question.options.join(", ")}` : ""})
+    ${(() => {
+        if (question.type === 'boolean') return 'Expected: true or false. Default to `false` if no explicit statement is found.';
+        if (question.type === 'multiple' && question.options) return `Expected one of: ${question.options.map(opt => `"${opt}"`).join(", ")}. Default to "${question.options[0]}" if no clear match is found.`;
+        if (question.type === 'tested') return 'Expected: "tested" or "not_tested". Default to "not_tested" if no information is found.';
+        if (question.type === 'textarea') return 'Expected: "Detailed text response". Summarize relevant information. Default to "No directly relevant evidence found after comprehensive search." if no information is found.';
+        return '';
+    })()}
 
-        // Clean up fileName if AI incorrectly embeds label or page info
-        const cleanupFileNameMatch = fileName.match(/^(.*?)(?:\s*-\s*(?:Page\s*\d+|Primary|4th Party))*\s*$/i);
-        if (cleanupFileNameMatch && cleanupFileNameMatch[1]) {
-            fileName = cleanupFileNameMatch[1].trim();
-        }
-        // Ensure label is null if it's 'Primary' for cleaner rendering
-        if (label === 'Primary') {
-            label = null;
-        }
+    YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT BEFORE OR AFTER THE JSON. DO NOT WRAP THE JSON IN MARKDOWN CODE BLOCKS. ENSURE ALL PROPERTY NAMES ARE DOUBLE-QUOTED.
+    {
+      "id": "${question.id}",
+      "answer": ${question.type === "boolean" ? 'false' : (question.type === "multiple" || question.type === "tested" ? '""' : '""')},
+      "excerpt": "exact quote from documents that SPECIFICALLY addresses this question topic. If no relevant evidence, state 'No directly relevant evidence found after comprehensive search'.",
+      "reasoning": "Explain how you arrived at the answer based on the document evidence or why a default was used. If no evidence, state 'No direct evidence found, defaulting to X'.",
+      "source_file_name": null,
+      "source_page_number": null,
+      "source_label": null
+    }
+    `;
 
-        // Convert string boolean representations to actual booleans
-        if (question.type === "boolean") {
-          if (typeof aiAnswer === 'string') {
-            const lowerCaseAnswer = aiAnswer.toLowerCase();
-            if (lowerCaseAnswer === 'true' || lowerCaseAnswer === 'yes') {
-              aiAnswer = true;
-            } else if (lowerCaseAnswer === 'false' || lowerCaseAnswer === 'no') {
-              aiAnswer = false;
-            } else {
-              aiAnswer = false; // Default to false if ambiguous
-            }
-          } else if (typeof aiAnswer !== 'boolean') {
-            aiAnswer = false; // Default to false if not a boolean or string
-          }
-        }
+    try { // This try block is for the generateText call for each question
+      const messageContent = [
+        { type: "text" as const, text: individualQuestionPrompt },
+        ...binaryFileParts, // Use the pre-processed binary file parts
+      ];
 
-
-        // Perform semantic relevance check only if an actual excerpt is provided
-        const hasActualExcerpt = excerpt !== 'No directly relevant evidence found after comprehensive search' && excerpt.length > 20;
-        let relevanceCheck = { isRelevant: false, confidence: 0.1, reason: "No evidence found in documents" };
-
-        if (hasActualExcerpt) {
-          relevanceCheck = checkSemanticRelevance(question.question, excerpt);
-          console.log(
-            `🎯 Relevance check for ${questionId}: ${relevanceCheck.isRelevant ? "RELEVANT" : "NOT RELEVANT"} - ${relevanceCheck.reason}`,
-          );
-        }
-
-        // Determine final answer, confidence, and reasoning
-        if (relevanceCheck.isRelevant && hasActualExcerpt) {
-          answers[questionId] = aiAnswer;
-          confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence); // Use AI's confidence, capped by relevance check
-          reasoning[questionId] = aiReasoning; // Use AI's reasoning
-          
-          if (excerpt.length > 500) {
-              excerpt = excerpt.substring(0, 500) + '...';
-          }
-          
-          documentExcerpts[questionId] = [
-            {
-              fileName: fileName,
-              label: label,
-              excerpt: excerpt,
-              relevance: `Evidence found within ${fileName}${label ? ` (Label: ${label})` : ''}`,
-              pageOrSection: "Document Content",
-              pageNumber: pageNumber,
-            },
-          ];
-        } else {
-          console.log(`❌ Question ${questionId}: Evidence rejected or not provided - ${relevanceCheck.reason}`);
-
-          if (question.type === "boolean") {
-            answers[question.id] = false;
-          } else if (question.options && question.options.length > 0) {
-            answers[question.id] = question.options[0]; // Most conservative option
-          } else if (question.type === "tested") {
-            answers[question.id] = "not_tested";
-          } else if (question.type === "textarea") {
-            answers[question.id] = "No directly relevant evidence found after comprehensive search.";
-          }
-
-          confidenceScores[question.id] = 0.1; // Low confidence for conservative answer
-          reasoning[question.id] = `No directly relevant evidence found, defaulting to conservative answer. ${relevanceCheck.reason}`;
-          documentExcerpts[question.id] = [];
-        }
+      const result = await generateText({
+        model: google("gemini-1.5-flash"),
+        messages: [
+          {
+            role: "user" as const,
+            content: messageContent,
+          },
+        ],
+        temperature: 0.1,
+        maxOutputTokens: 1000, // Limit output tokens for individual question
       });
-    } catch (parseError) {
-      console.error("❌ Failed to parse AI response JSON:", parseError)
-      console.log("Raw AI response (after stripping markdown):", rawAiResponseText)
-      throw new Error("Invalid AI response format - JSON parsing failed")
-    }
-  } catch (error) {
-    console.error("❌ Google AI processing failed:", error)
-    // Fallback to conservative answers
-    questions.forEach((question: Question) => {
-      answers[question.id] = question.type === "boolean" ? false : question.options?.[0] || "Never"
-      confidenceScores[question.id] = 0.1
-      reasoning[question.id] = `AI analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
-      documentExcerpts[question.id] = []
-    })
-  }
 
-  // Calculate risk score
+      let rawAiResponseText = result.text;
+      const jsonStart = rawAiResponseText.indexOf('{');
+      const jsonEnd = rawAiResponseText.lastIndexOf('}');
+
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+          rawAiResponseText = rawAiResponseText.substring(jsonStart, jsonEnd + 1);
+      } else {
+          if (rawAiResponseText.startsWith("```json")) {
+              rawAiResponseText = rawAiResponseText.substring(7);
+          }
+          if (rawAiResponseText.endsWith("```")) {
+              rawAiResponseText = rawAiResponseText.substring(0, rawAiResponseText.length - 3);
+          }
+      }
+      rawAiResponseText = rawAiResponseText.trim();
+
+      const aiResponse = JSON.parse(rawAiResponseText);
+      console.log(`✅ Parsed AI response for ${question.id}:`, aiResponse);
+
+      let aiAnswer = aiResponse.answer;
+      const aiExcerpt = aiResponse.excerpt;
+      const aiReasoning = aiResponse.reasoning || "No specific reasoning provided by AI.";
+      let aiFileName = aiResponse.source_file_name;
+      let aiPageNumber = aiResponse.source_page_number;
+      let aiLabel = aiResponse.source_label;
+      const aiConfidence = aiResponse.confidence || 0.5;
+
+      let excerpt = aiExcerpt || 'No directly relevant evidence found after comprehensive search';
+      let fileName = aiFileName || "N/A";
+      let pageNumber = aiPageNumber || undefined;
+      let label = aiLabel || null;
+
+      const cleanupFileNameMatch = fileName.match(/^(.*?)(?:\s*-\s*(?:Page\s*\d+|Primary|4th Party))*\s*$/i);
+      if (cleanupFileNameMatch && cleanupFileNameMatch[1]) {
+          fileName = cleanupFileNameMatch[1].trim();
+      }
+      if (label === 'Primary') {
+          label = null;
+      }
+
+      if (question.type === "boolean") {
+        if (typeof aiAnswer === 'string') {
+          const lowerCaseAnswer = aiAnswer.toLowerCase();
+          if (lowerCaseAnswer === 'true' || lowerCaseAnswer === 'yes') {
+            aiAnswer = true;
+          } else if (lowerCaseAnswer === 'false' || lowerCaseAnswer === 'no') {
+            aiAnswer = false;
+          } else {
+            aiAnswer = false;
+          }
+        } else if (typeof aiAnswer !== 'boolean') {
+          aiAnswer = false;
+        }
+      }
+
+      const hasActualExcerpt = excerpt !== 'No directly relevant evidence found after comprehensive search' && excerpt.length > 20;
+      let relevanceCheck = { isRelevant: false, confidence: 0.1, reason: "No evidence found in documents" };
+
+      if (hasActualExcerpt) {
+        relevanceCheck = checkSemanticRelevance(question.question, excerpt);
+      }
+
+      if (relevanceCheck.isRelevant && hasActualExcerpt) {
+        allAnswers[question.id] = aiAnswer;
+        allConfidenceScores[question.id] = Math.min(aiConfidence, relevanceCheck.confidence);
+        allReasoning[question.id] = aiReasoning;
+        
+        if (excerpt.length > 500) {
+            excerpt = excerpt.substring(0, 500) + '...';
+        }
+        
+        allDocumentExcerpts[question.id] = [
+          {
+            fileName: fileName,
+            label: label,
+            excerpt: excerpt,
+            relevance: `Evidence found within ${fileName}${label ? ` (Label: ${label})` : ''}`,
+            pageOrSection: "Document Content",
+            pageNumber: pageNumber,
+          },
+        ];
+      } else {
+        console.log(`❌ Question ${question.id}: Evidence rejected or not provided - ${relevanceCheck.reason}`);
+
+        if (question.type === "boolean") {
+          allAnswers[question.id] = false;
+        } else if (question.options && question.options.length > 0) {
+          allAnswers[question.id] = question.options[0];
+        } else if (question.type === "tested") {
+          allAnswers[question.id] = "not_tested";
+        } else if (question.type === "textarea") {
+          allAnswers[question.id] = "No directly relevant evidence found after comprehensive search.";
+        }
+
+        allConfidenceScores[question.id] = 0.1;
+        allReasoning[question.id] = `No directly relevant evidence found, defaulting to conservative answer. ${relevanceCheck.reason}`;
+        allDocumentExcerpts[question.id] = [];
+      }
+    } catch (error: any) { // Catch block for individual question processing
+      console.error(`❌ Error processing question ${question.id}:`, error);
+      allAnswers[question.id] = question.type === "boolean" ? false : question.options?.[0] || "Never";
+      allConfidenceScores[question.id] = 0.1;
+      allReasoning[question.id] = `AI analysis failed for this question: ${error instanceof Error ? error.message : "Unknown error"}`;
+      allDocumentExcerpts[question.id] = [];
+    }
+  } // End of for loop for questions
+
+  // Calculate overall risk score (these lines were outside the function or loop)
   let totalScore = 0
   let maxScore = 0
 
   questions.forEach((question: Question) => {
-    const answer = answers[question.id]
+    const answer = allAnswers[question.id]
     
     if (question.type === "tested") {
-      maxScore += question.weight || 0; // Ensure weight is treated as number
+      maxScore += question.weight || 0;
       if (answer === "tested") {
         totalScore += question.weight || 0;
       }
@@ -653,37 +553,20 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
       maxScore += question.weight || 0;
       totalScore += answer ? (question.weight || 0) : 0
     } else if (question.type === "multiple" && question.options) {
-      // For multiple choice, assign score based on position (e.g., first option is lowest risk)
-      // Assuming options are ordered from lowest risk to highest risk
-      // The scoring logic here needs to be inverted if options are from lowest to highest risk
-      // Let's assume options are ordered from most conservative (lowest risk) to least conservative (highest risk)
-      // So, "Never" (index 0) is lowest risk, "Annually" (index 3) is higher risk.
-      // The current sample questions have options like ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually", "Quarterly", "Monthly", "Continuously"]
-      // For "How often do you conduct penetration testing?", "Annually" is a good answer, not "Never".
-      // So, the scoring should be: higher index = higher score (better answer).
-      
       const optionIndex = question.options.indexOf(answer as string);
       if (optionIndex !== -1) {
-        // Score based on how "good" the option is. Higher index means better for frequency questions.
-        // Max score for a multiple choice question is (question.weight * (options.length - 1))
-        // For example, if options are 5, index 4 (last option) is best.
         totalScore += (question.weight || 0) * optionIndex;
       }
       maxScore += (question.weight || 0) * (question.options.length - 1);
 
     } else if (question.type === "textarea") {
-      // Textarea questions don't directly contribute to score, but indicate completeness
-      // For now, we'll just ensure they are answered to contribute to completeness, not risk score
       if (answer && (answer as string).length > 0 && !(answer as string).includes("No directly relevant evidence found")) {
-        // If there's an answer, give a small boost or mark as complete
-        // This part is subjective and can be refined based on desired scoring
-        totalScore += (question.weight || 1) * 0.5; // Small boost for having an "answer"
-        maxScore += (question.weight || 1) * 0.5; // Max possible for textarea if answered
+        totalScore += (question.weight || 1) * 0.5;
+        maxScore += (question.weight || 1) * 0.5;
       }
     }
   })
 
-  // Normalize score to 0-100 range
   let riskScore = 0;
   if (maxScore > 0) {
     riskScore = Math.round((totalScore / maxScore) * 100);
@@ -695,30 +578,30 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
   else if (riskScore >= 25) riskLevel = "Medium-High"
 
   // Generate analysis summary
-  const successfulProcessing = processingResults.filter((r) => r.success).length
-  const failedProcessing = processingResults.filter((r) => !r.success).length
+  const successfulProcessing = processingResults.filter((r: { success: boolean }) => r.success).length
+  const failedProcessing = processingResults.filter((r: { success: boolean }) => !r.success).length
 
-  let analysisNote = `Analysis completed using Google AI with direct document processing.`
+  let overallAnalysis = `Analysis completed using Google AI with direct document processing.`
   if (successfulProcessing > 0) {
-    analysisNote += ` Successfully processed ${successfulProcessing} document(s).`
+    overallAnalysis += ` Successfully processed ${successfulProcessing} document(s).`
   }
   if (binaryAttachmentFiles.length > 0) {
-    analysisNote += ` ${binaryAttachmentFiles.length} binary attachment file(s) analyzed using Google AI's native capabilities.`
+    overallAnalysis += ` ${binaryAttachmentFiles.length} binary attachment file(s) analyzed using Google AI's native capabilities.`
   }
   if (failedProcessing > 0) {
-    analysisNote += ` ${failedProcessing} file(s) failed to process.`
+    overallAnalysis += ` ${failedProcessing} file(s) failed to process.`
   }
   if (unsupportedFilesWithLabels.length > 0) {
-    analysisNote += ` ${unsupportedFilesWithLabels.length} file(s) in unsupported formats were skipped.`
+    overallAnalysis += ` ${unsupportedFilesWithLabels.length} file(s) in unsupported formats were skipped.`
   }
 
   console.log(`✅ Google AI analysis completed. Risk score: ${riskScore}, Risk level: ${riskLevel}`)
 
   return {
-    answers,
-    confidenceScores,
-    reasoning,
-    overallAnalysis: analysisNote,
+    answers: allAnswers,
+    confidenceScores: allConfidenceScores,
+    reasoning: allReasoning,
+    overallAnalysis: overallAnalysis,
     riskFactors: [
       "Analysis based on direct Google AI document processing",
       "Conservative approach taken where evidence was unclear or missing",
@@ -739,7 +622,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
     analysisDate: new Date().toISOString(),
     documentsAnalyzed: filesWithLabels.length,
     aiProvider: "Google AI (Gemini 1.5 Flash) with Direct Document Processing",
-    documentExcerpts,
+    documentExcerpts: allDocumentExcerpts,
     directUploadResults: filesWithLabels.map((item: FileWithLabel) => {
       const result = processingResults.find((r) => r.fileName === item.file.name)
       return {
@@ -764,7 +647,7 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
       const result = await generateText({
         model: google("gemini-1.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
-        maxOutputTokens: 10, // Changed from max_tokens
+        maxOutputTokens: 10,
         temperature: 0.1,
       })
       results.google = result.text.toLowerCase().includes("ok")
