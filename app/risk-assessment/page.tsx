@@ -1833,6 +1833,7 @@ interface AnalysisResult {
     fileSize: number
     fileType: string
     processingMethod: string
+    label?: 'Primary' | '4th Party';
   }>
 }
 
@@ -2729,15 +2730,19 @@ export default function AIAssessmentPage() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Bot className="h-5 w-5" />
-                      <span>AI-Suggested Responses</span>
+                    {/* MODIFIED START */}
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Bot className="h-5 w-5" />
+                        <span>AI-Suggested Responses</span>
+                      </CardTitle>
                       {!isReportSaved && analysisResults.confidenceScores && (
                         <Badge className="bg-green-100 text-green-700">
                           Confidence: {Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
                         </Badge>
                       )}
-                    </CardTitle>
+                    </div>
+                    {/* MODIFIED END */}
                     <CardDescription>
                       Review the AI's answers and make any necessary adjustments.
                     </CardDescription>

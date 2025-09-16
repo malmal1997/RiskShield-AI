@@ -190,7 +190,6 @@ class UsageTracker {
         .update({ time_on_page: timeOnPage })
         .eq("session_id", this.sessionId)
         .eq("page_path", pagePath)
-        .is("time_on_page", null)
         .order("created_at", { ascending: false })
         .limit(1)
     } catch (error) {
