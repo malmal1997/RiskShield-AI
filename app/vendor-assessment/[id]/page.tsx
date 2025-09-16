@@ -825,6 +825,47 @@ function VendorAssessmentComponent() {
     return ((currentStep + 1) / totalSteps) * 100
   }
 
+  // Helper function to render the evidence citation
+  const renderEvidenceCitation = (excerptData: any) => {
+    if (!excerptData || excerptData.excerpt === 'No directly relevant evidence found after comprehensive search') {
+      return 'No directly relevant evidence found after comprehensive search.';
+    }
+
+    let citationParts: string[] = [];
+    const fileName = excerptData.fileName;
+    const pageNumber = excerptData.pageNumber;
+    const label = excerptData.label; // This will be '4th Party' or null
+
+    if (fileName && String(fileName).trim() !== '' && fileName !== 'N/A') {
+      citationParts.push(`"${fileName}"`);
+    }
+
+    // Explicitly add page number or 'N/A'
+    if (pageNumber != null && String(pageNumber).trim() !== '') {
+      citationParts.push(`Page: ${pageNumber}`);
+    } else {
+      citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing
+    }
+
+    if (label === '4th Party') {
+      citationParts.push('4th Party');
+    }
+
+    // Filter out any potentially empty or null parts before joining
+    const filteredParts = citationParts.filter(part => part && String(part).trim() !== ''); // Ensure parts are non-empty strings
+
+    // The excerpt is always the first part of the return string
+    const excerptText = `"${excerptData.excerpt}"`;
+
+    if (filteredParts.length === 0) {
+      return excerptText;
+    }
+
+    // Join parts for the citation, ensuring the excerpt is first
+    return `${excerptText} (from ${filteredParts.join(' - ')})`;
+  };
+
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -1253,7 +1294,7 @@ function VendorAssessmentComponent() {
                           {question.required && <span className="text-red-500 text-sm">*</span>}
                           {analysisResults.confidenceScores?.[question.id] !== undefined && (
                             <Badge className="bg-blue-100 text-blue-700 text-xs">
-                              AI Confidence: {Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
+                              Confidence: {Math.round(Object.values(analysisResults.confidenceScores as Record<string, number>).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores as Record<string, number>).length * 100)}%
                             </Badge>
                           )}
                         </div>
@@ -1334,7 +1375,6 @@ function VendorAssessmentComponent() {
                             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                             placeholder="Provide your detailed response here..."
                             rows={4}
-                            className="mt-2"
                           />
                         )}
                       </div>
@@ -1345,9 +1385,9 @@ function VendorAssessmentComponent() {
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Back to Upload
                     </Button>
-                    <Button onClick={handleFinalSubmit} disabled={!analysisResults}>
-                      Review AI Answers
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button onClick={handleSubmit} disabled={!analysisResults}>
+                      <FileCheck className="mr-2 h-4 w-4" />
+                      Submit Assessment
                     </Button>
                   </div>
                 </CardContent>
@@ -1384,7 +1424,7 @@ function VendorAssessmentComponent() {
                       {question.type === "radio" && (
                         <RadioGroup
                           value={answers[question.id] || ""}
-                          onValueChange={(value) => handleAnswerChange(question.id, value)}
+                          onValueChange={(value: string) => handleAnswerChange(question.id, value)}
                           className="space-y-2"
                         >
                           {question.options.map((option: string) => ( // Explicitly type option
@@ -1405,7 +1445,7 @@ function VendorAssessmentComponent() {
                               <Checkbox
                                 id={`${question.id}-${option}`}
                                 checked={answers[question.id]?.includes(option) || false}
-                                onCheckedChange={(checked) => {
+                                onCheckedChange={(checked: boolean) => {
                                   const currentAnswers = answers[question.id] || []
                                   if (checked) {
                                     handleAnswerChange(question.id, [...currentAnswers, option])
@@ -1559,8 +1599,8 @@ function VendorAssessmentComponent() {
             </div>
           </div>
         </footer>
-      </div>
-    </AuthGuard>
+      </main> {/* Closing main tag */}
+    </div>
   )
 }
 
