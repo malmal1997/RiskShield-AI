@@ -177,7 +177,7 @@ export default function SystemStatusPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold">Overall System Health</h3>
+                  <h3 className="text-lg font-medium">Overall System Health</h3>
                   <p className="text-gray-600">
                     {operationalCount} of {systemComponents.length} services operational
                   </p>

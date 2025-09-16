@@ -48,7 +48,7 @@ interface UIAssessment {
 
 // Assessment questions by type
 const getAssessmentQuestions = (type: string) => {
-  const questionSets = {
+  const questionSets: Record<string, any[]> = { // Explicitly type questionSets
     "Cybersecurity Assessment": [
       {
         id: "cyber_1",
@@ -661,7 +661,7 @@ function VendorAssessmentComponent() {
   }, [currentStep, answers, vendorInfo, assessment, isSubmitted, assessmentId])
 
   const handleAnswerChange = (questionId: string, value: any) => {
-    setAnswers((prev) => ({
+    setAnswers((prev: Record<string, any>) => ({
       ...prev,
       [questionId]: value,
     }))
@@ -692,13 +692,13 @@ function VendorAssessmentComponent() {
 
   const handleNext = () => {
     if (currentStep < Math.ceil(questions.length / 2)) {
-      setCurrentStep((prev) => prev + 1)
+      setCurrentStep((prev: number) => prev + 1)
     }
   }
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1)
+      setCurrentStep((prev: number) => prev - 1)
     }
   }
 
@@ -1125,7 +1125,7 @@ function VendorAssessmentComponent() {
                     {uploadedFiles.length > 0 && (
                       <div className="mt-4 space-y-2">
                         <h5 className="font-medium text-blue-900">Uploaded Files ({uploadedFiles.length}):</h5>
-                        {uploadedFiles.map((file, index) => (
+                        {uploadedFiles.map((file: File, index: number) => (
                           <div
                             key={index}
                             className="flex items-center justify-between p-3 bg-white border border-blue-200 rounded"
@@ -1154,7 +1154,7 @@ function VendorAssessmentComponent() {
                       setError(null);
                       try {
                         const formData = new FormData();
-                        uploadedFiles.forEach(file => formData.append('files', file));
+                        uploadedFiles.forEach((file: File) => formData.append('files', file));
                         formData.append('questions', JSON.stringify(questions));
                         formData.append('assessmentType', assessment.assessmentType);
 
@@ -1253,7 +1253,7 @@ function VendorAssessmentComponent() {
                           {question.required && <span className="text-red-500 text-sm">*</span>}
                           {analysisResults.confidenceScores?.[question.id] !== undefined && (
                             <Badge className="bg-blue-100 text-blue-700 text-xs">
-                              AI Confidence: {Math.round(analysisResults.confidenceScores[question.id] * 100)}%
+                              AI Confidence: {Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
                             </Badge>
                           )}
                         </div>
@@ -1279,7 +1279,7 @@ function VendorAssessmentComponent() {
                           analysisResults.documentExcerpts[question.id].length > 0 && (
                             <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded">
                               <Info className="inline h-3 w-3 mr-1" />
-                              <strong>Evidence:</strong> {analysisResults.documentExcerpts[question.id][0].excerpt}
+                              <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0])}
                             </div>
                           )}
                       </div>
@@ -1320,7 +1320,7 @@ function VendorAssessmentComponent() {
                             className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
                           >
                             <option value="">Select an option</option>
-                            {question.options?.map((option: string) => ( // Explicitly type option
+                            {question.options?.map((option: string) => (
                               <option key={option} value={option}>
                                 {option}
                               </option>
@@ -1345,9 +1345,9 @@ function VendorAssessmentComponent() {
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Back to Upload
                     </Button>
-                    <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 text-white">
-                      <FileCheck className="mr-2 h-4 w-4" />
-                      Submit Assessment
+                    <Button onClick={handleFinalSubmit} disabled={!analysisResults}>
+                      Review AI Answers
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -1459,8 +1459,108 @@ function VendorAssessmentComponent() {
             )}
           </div>
         </section>
-      </main>
-    </div>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div>
+                <div className="flex items-center space-x-2 mb-4">
+                  <Shield className="h-6 w-6 text-blue-400" />
+                  <span className="text-lg font-bold">RiskShield AI</span>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
+                  risks.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Platform</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Risk Assessment
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Compliance Monitoring
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Policy Generator
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Policy Library
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Support</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Help Center
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Contact Support
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Status Page
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Company</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      About Us
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Careers
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Terms of Service
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
+              <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </AuthGuard>
   )
 }
 

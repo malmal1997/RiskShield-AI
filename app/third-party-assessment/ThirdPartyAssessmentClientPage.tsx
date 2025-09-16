@@ -112,7 +112,7 @@ const ThirdPartyAssessmentClientPage = () => {
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
@@ -125,7 +125,7 @@ const ThirdPartyAssessmentClientPage = () => {
             <FormField
               control={form.control}
               name="email"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
@@ -138,7 +138,7 @@ const ThirdPartyAssessmentClientPage = () => {
             <FormField
               control={form.control}
               name="company"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem>
                   <FormLabel>Company</FormLabel>
                   <FormControl>
@@ -152,7 +152,7 @@ const ThirdPartyAssessmentClientPage = () => {
             <FormField
               control={form.control}
               name="dataBreachIncidentResponsePlan"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
@@ -168,7 +168,7 @@ const ThirdPartyAssessmentClientPage = () => {
             <FormField
               control={form.control}
               name="encryptionInTransitAndAtRest"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
@@ -184,7 +184,7 @@ const ThirdPartyAssessmentClientPage = () => {
             <FormField
               control={form.control}
               name="regularSecurityAssessments"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
@@ -200,7 +200,7 @@ const ThirdPartyAssessmentClientPage = () => {
             <FormField
               control={form.control}
               name="accessControlsAndAuthentication"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
@@ -216,7 +216,7 @@ const ThirdPartyAssessmentClientPage = () => {
             <FormField
               control={form.control}
               name="vendorRiskManagementProgram"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
@@ -232,7 +232,7 @@ const ThirdPartyAssessmentClientPage = () => {
             <FormField
               control={form.control}
               name="assessmentData"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem>
                   <FormLabel>Additional Notes</FormLabel>
                   <FormControl>

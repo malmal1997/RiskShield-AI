@@ -165,11 +165,11 @@ function RiskCenterContent() {
     },
   ]
 
-  const handleSendReminder = (vendor: any) => {
+  const handleSendReminder = (vendor: RiskItem | OverdueAssessment) => {
     alert(`Reminder sent to ${vendor.contactEmail}`)
   }
 
-  const handleEscalate = (vendor: any) => {
+  const handleEscalate = (vendor: RiskItem | OverdueAssessment) => {
     alert(`Escalation initiated for ${vendor.vendorName}`)
   }
 
@@ -315,7 +315,7 @@ function RiskCenterContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {highRiskVendors.map((vendor) => (
+                    {highRiskVendors.map((vendor: RiskItem) => (
                       <div key={vendor.id} className="border border-red-200 rounded-lg p-6 bg-red-50">
                         <div className="flex items-start justify-between">
                           <div className="flex items-start space-x-4">
@@ -323,7 +323,7 @@ function RiskCenterContent() {
                               <AvatarFallback className="bg-red-100 text-red-600">
                                 {vendor.vendorName
                                   .split(" ")
-                                  .map((n) => n[0])
+                                  .map((n: string) => n[0])
                                   .join("")
                                   .slice(0, 2)}
                               </AvatarFallback>
@@ -357,7 +357,7 @@ function RiskCenterContent() {
                               <div className="mb-4">
                                 <p className="text-sm font-medium text-gray-900 mb-2">Critical Issues:</p>
                                 <div className="flex flex-wrap gap-2">
-                                  {vendor.issues.map((issue, index) => (
+                                  {vendor.issues.map((issue: string, index: number) => (
                                     <Badge key={index} variant="destructive" className="text-xs">
                                       {issue}
                                     </Badge>
@@ -416,7 +416,7 @@ function RiskCenterContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {overdueAssessments.map((assessment) => (
+                    {overdueAssessments.map((assessment: OverdueAssessment) => (
                       <div key={assessment.id} className="border border-orange-200 rounded-lg p-6 bg-orange-50">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
@@ -481,7 +481,7 @@ function RiskCenterContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {pendingReviews.map((review) => (
+                    {pendingReviews.map((review: PendingReview) => (
                       <div key={review.id} className="border border-blue-200 rounded-lg p-6 bg-blue-50">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -503,7 +503,7 @@ function RiskCenterContent() {
                               <div>
                                 <p className="text-sm font-medium text-gray-900 mb-2">Key Findings:</p>
                                 <div className="space-y-1">
-                                  {review.keyFindings.map((finding, index) => (
+                                  {review.keyFindings.map((finding: string, index: number) => (
                                     <p key={index} className="text-sm text-gray-600">
                                       • {finding}
                                     </p>
