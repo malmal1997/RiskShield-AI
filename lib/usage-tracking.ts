@@ -69,8 +69,8 @@ class UsageTracker {
   }
 
   private async initializeSession() {
-    if (!this.sessionId) {
-      console.warn("Skipping session initialization: Missing sessionId.");
+    if (!this.sessionId || this.sessionId.trim() === '') {
+      console.warn("Skipping session initialization: Missing or invalid sessionId.");
       return;
     }
     try {
@@ -107,7 +107,7 @@ class UsageTracker {
   async trackPageView(pagePath: string, pageTitle?: string) {
     // Ensure pagePath is a non-empty string
     const validatedPagePath = pagePath?.trim();
-    if (!this.sessionId || !validatedPagePath) {
+    if (!this.sessionId || this.sessionId.trim() === '' || !validatedPagePath || validatedPagePath.trim() === '') {
       console.warn("Skipping page view tracking: Missing sessionId or valid pagePath.", { sessionId: this.sessionId, pagePath });
       return;
     }
@@ -142,7 +142,7 @@ class UsageTracker {
     // Ensure featureName and actionType are non-empty strings
     const validatedFeatureName = featureName?.trim();
     const validatedActionType = actionType?.trim();
-    if (!this.sessionId || !validatedFeatureName || !validatedActionType) {
+    if (!this.sessionId || this.sessionId.trim() === '' || !validatedFeatureName || validatedFeatureName.trim() === '' || !validatedActionType || validatedActionType.trim() === '') {
       console.warn("Skipping feature interaction tracking: Missing sessionId, valid featureName, or valid actionType.", { sessionId: this.sessionId, featureName, actionType });
       return;
     }
@@ -166,8 +166,8 @@ class UsageTracker {
   }
 
   async trackLead(leadData: Omit<LeadData, "sessionId">) {
-    if (!this.sessionId) {
-      console.warn("Skipping lead tracking: Missing sessionId.", { sessionId: this.sessionId });
+    if (!this.sessionId || this.sessionId.trim() === '') {
+      console.warn("Skipping lead tracking: Missing or invalid sessionId.", { sessionId: this.sessionId });
       return;
     }
     try {
@@ -185,7 +185,7 @@ class UsageTracker {
   }
 
   async markUserConverted(userId: string) {
-    if (!this.sessionId || !userId) {
+    if (!this.sessionId || this.sessionId.trim() === '' || !userId || userId.trim() === '') {
       console.warn("Skipping user conversion tracking: Missing sessionId or userId.", { sessionId: this.sessionId, userId });
       return;
     }
@@ -206,7 +206,7 @@ class UsageTracker {
 
   private async updatePageTime(pagePath: string, timeOnPage: number) {
     const validatedPagePath = pagePath?.trim();
-    if (!this.sessionId || !validatedPagePath) {
+    if (!this.sessionId || this.sessionId.trim() === '' || !validatedPagePath || validatedPagePath.trim() === '') {
       console.warn("Skipping page time update: Missing sessionId or valid pagePath.", { sessionId: this.sessionId, pagePath });
       return;
     }
@@ -225,8 +225,8 @@ class UsageTracker {
   }
 
   private async updateSessionActivity() {
-    if (!this.sessionId) {
-      console.warn("Skipping session activity update: Missing sessionId.", { sessionId: this.sessionId });
+    if (!this.sessionId || this.sessionId.trim() === '') {
+      console.warn("Skipping session activity update: Missing or invalid sessionId.", { sessionId: this.sessionId });
       return;
     }
     try {
@@ -263,7 +263,7 @@ class UsageTracker {
   private setupUnloadTracking() {
     window.addEventListener("beforeunload", () => {
       // Final update on page unload
-      if (this.currentPage && this.pageStartTime && this.sessionId) { // Ensure sessionId is present
+      if (this.currentPage && this.pageStartTime && this.sessionId && this.sessionId.trim() !== '') { // Ensure sessionId is present and valid
         const timeOnPage = Math.round((Date.now() - this.pageStartTime) / 1000)
         // Use sendBeacon for reliable tracking on unload
         const data = JSON.stringify({

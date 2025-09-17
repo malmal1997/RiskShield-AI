@@ -10,16 +10,16 @@ export async function POST(request: NextRequest) {
 
     // Validate incoming data more strictly
     if (!sessionId || typeof sessionId !== 'string' || sessionId.trim() === '') {
-      console.error("Validation Error: Missing or invalid sessionId in track-page-time payload.");
+      console.error("Validation Error: Missing or invalid sessionId in track-page-time payload. Payload:", data);
       return NextResponse.json({ error: "Missing or invalid sessionId" }, { status: 400 });
     }
     if (!pagePath || typeof pagePath !== 'string' || pagePath.trim() === '') {
-      console.error("Validation Error: Missing or invalid pagePath in track-page-time payload.");
+      console.error("Validation Error: Missing or invalid pagePath in track-page-time payload. Payload:", data);
       return NextResponse.json({ error: "Missing or invalid pagePath" }, { status: 400 });
     }
     // timeOnPage can be null or undefined, but if present, should be a number
     if (timeOnPage !== undefined && timeOnPage !== null && typeof timeOnPage !== 'number') {
-      console.warn("Validation Warning: Invalid timeOnPage type, expected number or null/undefined.", { timeOnPage });
+      console.warn("Validation Warning: Invalid timeOnPage type, expected number or null/undefined. Payload:", data);
       // We can still proceed if other fields are valid, but log a warning
     }
 

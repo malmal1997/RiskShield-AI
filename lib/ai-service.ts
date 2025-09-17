@@ -204,7 +204,8 @@ function checkSemanticRelevance(
   }
 
   // Tokenize and filter common stopwords
-  const tokenize = (text: string) => text.split(/\s+/).filter(word => word.length > 2);
+  const stopWords = new Set(['a', 'an', 'the', 'is', 'are', 'was', 'were', 'and', 'or', 'but', 'for', 'nor', 'so', 'yet', 'at', 'by', 'in', 'of', 'on', 'to', 'with', 'from', 'about', 'above', 'after', 'among', 'around', 'as', 'before', 'behind', 'below', 'beneath', 'beside', 'between', 'beyond', 'during', 'except', 'inside', 'into', 'like', 'near', 'off', 'onto', 'out', 'outside', 'over', 'past', 'through', 'under', 'up', 'upon', 'versus', 'within', 'without']);
+  const tokenize = (text: string) => text.split(/\s+/).filter(word => word.length > 2 && !stopWords.has(word));
   const questionTokens = new Set(tokenize(questionLower));
   const excerptTokens = new Set(tokenize(excerptLower));
 
@@ -217,19 +218,28 @@ function checkSemanticRelevance(
 
   const overlapRatio = overlapCount / questionTokens.size;
 
-  // Adjust threshold for relevance
-  if (overlapRatio > 0.2) { // Lowered threshold slightly to be more inclusive
+  // Adjust threshold for relevance - be more permissive
+  if (overlapRatio > 0.1) { // Even a small overlap can indicate relevance
     return {
       isRelevant: true,
-      confidence: 0.6 + (overlapRatio * 0.3), // Adjusted confidence scaling
-      reason: `Moderate to high keyword overlap (${(overlapRatio * 100).toFixed(0)}%) between question and excerpt.`,
+      confidence: 0.5 + (overlapRatio * 0.4), // Scale confidence based on overlap
+      reason: `Keyword overlap (${(overlapRatio * 100).toFixed(0)}%) between question and excerpt.`,
+    };
+  }
+
+  // If no significant overlap, but excerpt is long and contains some keywords, give it a chance
+  if (excerpt.length > 100 && overlapCount > 0) {
+    return {
+      isRelevant: true,
+      confidence: 0.4,
+      reason: "Some keywords found in a longer excerpt, suggesting potential indirect relevance.",
     };
   }
 
   return {
     isRelevant: false,
-    confidence: 0.2, // Slightly higher base confidence for non-overlap but still low
-    reason: "Low keyword overlap between question and excerpt, suggesting indirect relevance or insufficient detail.",
+    confidence: 0.2,
+    reason: "Low keyword overlap and/or short excerpt, suggesting insufficient direct relevance.",
   };
 }
 
@@ -379,19 +389,16 @@ export async function analyzeDocuments(
 
   const basePrompt = `You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments. Your task is to analyze the provided documents and answer specific assessment questions.
 
-**Your primary goal is to find direct, verifiable evidence within the documents to answer each question.**
-
 **RULES FOR ANSWERING:**
-1.  **EVIDENCE FIRST:** For each question, search ALL provided documents (including attached binary files) for a direct quote that answers the question.
-2.  **EXACT QUOTE:** If direct evidence is found, provide the EXACT, VERBATIM quote in the 'excerpt' field. The quote MUST directly and clearly answer the question.
+1.  **EVIDENCE ONLY:** Answer each question *only* using information directly found in the provided documents (including attached binary files). Do NOT use external knowledge or make assumptions.
+2.  **DIRECT QUOTE:** If you find a direct, verifiable quote that answers a question, provide that EXACT, VERBATIM quote in the 'excerpt' field.
 3.  **SOURCE CITATION:** For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if explicitly identifiable, otherwise null), and 'source_label' ('Primary' or '4th Party').
-4.  **NO INFERENCE/EXTERNAL KNOWLEDGE:** Do NOT use any information outside the provided documents. Do NOT make assumptions.
-5.  **"NO EVIDENCE" FALLBACK:** If, after a thorough search of ALL documents, NO DIRECT, VERIFIABLE EVIDENCE is found (meaning no specific quote directly answers the question), then:
+4.  **NO EVIDENCE FALLBACK:** If, after a thorough search of ALL documents, NO DIRECT, VERIFIABLE EVIDENCE is found (meaning no specific quote directly answers the question), then:
     *   Set 'excerpt' to "No directly relevant evidence found after comprehensive search".
     *   Set 'source_file_name', 'source_page_number', 'source_label' to null.
     *   Set 'answer' to the conservative default specified in the question's instructions.
-6.  **PRIORITIZE "Primary" DOCUMENTS:** When multiple relevant excerpts exist, prioritize those from documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then use evidence from "4th Party" documents.
-7.  **"4th Party" LABEL:** For 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
+5.  **PRIORITIZE "Primary" DOCUMENTS:** When multiple relevant excerpts exist, prioritize those from documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then use evidence from "4th Party" documents.
+6.  **"4th Party" LABEL:** For 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
 
 DOCUMENT FILES PROVIDED FOR ANALYSIS:
 ${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
