@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { getAiAssessmentReports, getAssessments } from '@/lib/assessment-service';
 import type { AiAssessmentReport, Assessment, AssessmentResponse } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, ArrowLeft, Printer } from 'lucide-react';
+import { RefreshCw, ArrowLeft, Printer, Info } from 'lucide-react'; // Added Info import
 import { useAuth } from '@/components/auth-context';
 
 type ReportType = 'ai' | 'manual';
@@ -89,12 +89,12 @@ export default function ReportViewPage() {
         return 'No directly relevant evidence found after comprehensive search.';
       }
 
-      let citationParts = [];
+      let citationParts: string[] = [];
       const fileName = excerptData.fileName;
       const pageNumber = excerptData.pageNumber;
-      const label = excerptData.label;
+      const label = excerptData.label; // This will be '4th Party' or null
 
-      if (fileName && fileName.trim() !== '' && fileName !== 'N/A') {
+      if (fileName && String(fileName).trim() !== '' && fileName !== 'N/A') {
         citationParts.push(`"${fileName}"`);
       }
 
@@ -109,11 +109,18 @@ export default function ReportViewPage() {
         citationParts.push('4th Party');
       }
 
-      if (citationParts.length === 0) {
-        return `"${excerptData.excerpt}"`; // Only excerpt if no source info
+      // Filter out any potentially empty or null parts before joining
+      const filteredParts = citationParts.filter(part => part && String(part).trim() !== ''); // Ensure parts are non-empty strings
+
+      // The excerpt is always the first part of the return string
+      const excerptText = `"${excerptData.excerpt}"`;
+
+      if (filteredParts.length === 0) {
+        return excerptText;
       }
 
-      return `"${excerptData.excerpt}" (from ${citationParts.join(' - ')})`;
+      // Join parts for the citation, ensuring the excerpt is first
+      return `${excerptText} (from ${filteredParts.join(' - ')})`;
     };
 
     return (
@@ -209,6 +216,7 @@ export default function ReportViewPage() {
                 {/* Removed AI Confidence display */}
                 {analysisResults?.documentExcerpts?.[question.id] && analysisResults.documentExcerpts[question.id].length > 0 && (
                   <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-100 border border-gray-200 rounded whitespace-pre-wrap">
+                    <Info className="inline h-3 w-3 mr-1" />
                     <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0])}
                   </div>
                 )}
@@ -271,7 +279,7 @@ export default function ReportViewPage() {
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-3">Assessment Answers</h2>
           <div className="space-y-4">
-            {answers && Object.keys(answers).length > 0 ? Object.entries(answers).map(([questionId, answer]: [string, any]) => (
+            {answers && Object.keys(answers).length > 0 ? Object.entries(answers).map(([questionId, answer]: [string, any]) => ( // Explicitly type questionId and answer
               <div key={questionId} className="border p-4 rounded-md bg-white shadow-sm">
                 <h3 className="font-semibold text-gray-900 mb-2 whitespace-pre-wrap">
                   {/* Note: Original question text for manual assessments is not stored with responses. */}

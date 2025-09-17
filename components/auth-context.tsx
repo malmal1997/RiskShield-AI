@@ -105,12 +105,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           error: userError,
         } = await supabaseClient.auth.getUser();
 
-        if (userError || !fetchedUser) {
-          console.log("AuthContext: No Supabase user found or error fetching user. Clearing auth state.");
+        if (userError) { // Only check for userError, fetchedUser might be null if no session
+          console.error("AuthContext: Supabase auth.getUser() error:", userError.message);
           clearAuthState(); // This sets loading=false
           return; 
         }
         currentUser = fetchedUser;
+        if (!currentUser) { // If no user, clear state
+          console.log("AuthContext: No Supabase user found after auth.getUser(). Clearing auth state.");
+          clearAuthState(); // This sets loading=false
+          return;
+        }
         console.log("AuthContext: User from getUser():", currentUser?.email);
       }
 
