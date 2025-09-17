@@ -69,6 +69,10 @@ class UsageTracker {
   }
 
   private async initializeSession() {
+    if (!this.sessionId) {
+      console.warn("Skipping session initialization: Missing sessionId.");
+      return;
+    }
     try {
       const urlParams = new URLSearchParams(window.location.search)
 
@@ -80,9 +84,6 @@ class UsageTracker {
         utmMedium: urlParams.get("utm_medium") || undefined,
         utmCampaign: urlParams.get("utm_campaign") || undefined,
       }
-
-      // Try to get IP address (this would need a service in production)
-      // For now, we'll skip IP tracking to avoid external dependencies
 
       await supabaseClient.from("preview_sessions").upsert(
         {
@@ -104,8 +105,10 @@ class UsageTracker {
   }
 
   async trackPageView(pagePath: string, pageTitle?: string) {
-    if (!this.sessionId || !pagePath) {
-      console.warn("Skipping page view tracking: Missing sessionId or pagePath.", { sessionId: this.sessionId, pagePath });
+    // Ensure pagePath is a non-empty string
+    const validatedPagePath = pagePath?.trim();
+    if (!this.sessionId || !validatedPagePath) {
+      console.warn("Skipping page view tracking: Missing sessionId or valid pagePath.", { sessionId: this.sessionId, pagePath });
       return;
     }
     try {
@@ -116,13 +119,13 @@ class UsageTracker {
       }
 
       // Start tracking new page
-      this.currentPage = pagePath
+      this.currentPage = validatedPagePath; // Use validated path
       this.pageStartTime = Date.now()
       this.lastActivity = Date.now()
 
       const pageViewData: PageViewData = {
         sessionId: this.sessionId,
-        pagePath,
+        pagePath: validatedPagePath,
         pageTitle: pageTitle || document.title,
       }
 
@@ -136,8 +139,11 @@ class UsageTracker {
   }
 
   async trackFeatureInteraction(featureName: string, actionType: string, featureData?: any) {
-    if (!this.sessionId || !featureName || !actionType) {
-      console.warn("Skipping feature interaction tracking: Missing sessionId, featureName, or actionType.", { sessionId: this.sessionId, featureName, actionType });
+    // Ensure featureName and actionType are non-empty strings
+    const validatedFeatureName = featureName?.trim();
+    const validatedActionType = actionType?.trim();
+    if (!this.sessionId || !validatedFeatureName || !validatedActionType) {
+      console.warn("Skipping feature interaction tracking: Missing sessionId, valid featureName, or valid actionType.", { sessionId: this.sessionId, featureName, actionType });
       return;
     }
     try {
@@ -145,8 +151,8 @@ class UsageTracker {
 
       const interactionData: FeatureInteractionData = {
         sessionId: this.sessionId,
-        featureName,
-        actionType,
+        featureName: validatedFeatureName,
+        actionType: validatedActionType,
         featureData,
       }
 
@@ -199,8 +205,9 @@ class UsageTracker {
   }
 
   private async updatePageTime(pagePath: string, timeOnPage: number) {
-    if (!this.sessionId || !pagePath) {
-      console.warn("Skipping page time update: Missing sessionId or pagePath.", { sessionId: this.sessionId, pagePath });
+    const validatedPagePath = pagePath?.trim();
+    if (!this.sessionId || !validatedPagePath) {
+      console.warn("Skipping page time update: Missing sessionId or valid pagePath.", { sessionId: this.sessionId, pagePath });
       return;
     }
     try {
@@ -208,7 +215,7 @@ class UsageTracker {
         .from("page_views")
         .update({ time_on_page: timeOnPage })
         .eq("session_id", this.sessionId)
-        .eq("page_path", pagePath)
+        .eq("page_path", validatedPagePath)
         .is("time_on_page", null)
         .order("created_at", { ascending: false })
         .limit(1)

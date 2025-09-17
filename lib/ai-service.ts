@@ -203,31 +203,33 @@ function checkSemanticRelevance(
     };
   }
 
-  // Simple keyword overlap check
-  const questionKeywords = new Set(questionLower.split(/\s+/).filter(word => word.length > 2));
-  const excerptKeywords = new Set(excerptLower.split(/\s+/).filter(word => word.length > 2));
+  // Tokenize and filter common stopwords
+  const tokenize = (text: string) => text.split(/\s+/).filter(word => word.length > 2);
+  const questionTokens = new Set(tokenize(questionLower));
+  const excerptTokens = new Set(tokenize(excerptLower));
 
   let overlapCount = 0;
-  questionKeywords.forEach(qWord => {
-    if (excerptKeywords.has(qWord)) {
+  questionTokens.forEach(qToken => {
+    if (excerptTokens.has(qToken)) {
       overlapCount++;
     }
   });
 
-  const overlapRatio = overlapCount / questionKeywords.size;
+  const overlapRatio = overlapCount / questionTokens.size;
 
-  if (overlapRatio > 0.3) { // Threshold for considering it relevant
+  // Adjust threshold for relevance
+  if (overlapRatio > 0.2) { // Lowered threshold slightly to be more inclusive
     return {
       isRelevant: true,
-      confidence: 0.7 + (overlapRatio * 0.2), // Higher overlap, higher confidence
-      reason: `Significant keyword overlap (${(overlapRatio * 100).toFixed(0)}%) between question and excerpt.`,
+      confidence: 0.6 + (overlapRatio * 0.3), // Adjusted confidence scaling
+      reason: `Moderate to high keyword overlap (${(overlapRatio * 100).toFixed(0)}%) between question and excerpt.`,
     };
   }
 
   return {
     isRelevant: false,
-    confidence: 0.3,
-    reason: "Low keyword overlap between question and excerpt, suggesting indirect relevance.",
+    confidence: 0.2, // Slightly higher base confidence for non-overlap but still low
+    reason: "Low keyword overlap between question and excerpt, suggesting indirect relevance or insufficient detail.",
   };
 }
 
@@ -375,33 +377,21 @@ export async function analyzeDocuments(
     })
   }
 
-  const basePrompt = `YOUR SOLE TASK IS TO EXTRACT ANSWERS DIRECTLY AND EXCLUSIVELY FROM THE PROVIDED DOCUMENTS. DO NOT GUESS. DO NOT USE EXTERNAL KNOWLEDGE. DO NOT INFER.
-ENSURE EACH QUESTION IS ANSWERED INDIVIDUALLY AND UNIQUELY BASED ON THE MOST DIRECTLY RELEVANT, VERIFIABLE EVIDENCE.
+  const basePrompt = `You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments. Your task is to analyze the provided documents and answer specific assessment questions.
 
-You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions. Your task is to analyze the provided documents and answer specific assessment questions.
+**Your primary goal is to find direct, verifiable evidence within the documents to answer each question.**
 
-ABSOLUTE RULES FOR ANSWERING:
-1.  **EVIDENCE IS PARAMOUNT:** Every answer MUST be directly supported by a VERIFIABLE QUOTE from the provided documents. If no such direct quote exists, you MUST state "No directly relevant evidence found after comprehensive search" for the 'excerpt' and default the 'answer' as specified below.
-2.  **NO INFERENCE OR EXTERNAL KNOWLEDGE:** Do NOT use any information outside the provided documents. Do NOT make logical inferences or assumptions.
-3.  **STRICT RELEVANCE FOR EXCERPTS:** An 'excerpt' is only valid if it is a VERBATIM, direct quote that, by itself, specifically and clearly addresses the question. If the text is only loosely related, provides background, or requires significant interpretation to answer the question, it is NOT a valid excerpt. In such cases, treat it as if no relevant evidence was found.
-4.  **DEFAULTING WHEN NO DIRECT EVIDENCE:** If 'excerpt' is set to "No directly relevant evidence found after comprehensive search", then the 'answer' MUST follow the conservative defaults outlined in each question's instructions.
-
-CRITICAL INSTRUCTIONS:
-- YOU MUST THOROUGHLY ANALYZE ALL PROVIDED DOCUMENTS. This includes both the text content provided directly in the prompt AND any binary files attached (e.g., PDFs, DOCX, XLSX, PPTX). Use your advanced document processing capabilities to extract and understand the content of ALL attached files.
-- For each question, provide the MOST ACCURATE ANSWER based on the evidence.
-- For each question, if relevant evidence is found, provide the EXACT QUOTE from the document in the 'excerpt' field. The quote should be verbatim and MUST directly and specifically answer the question.
-- For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.txt"), 'source_page_number' (if applicable and explicitly identifiable in the text, otherwise null), and 'source_label' ('Primary' or '4th Party').
-- If NO DIRECTLY RELEVANT EVIDENCE IS FOUND after a comprehensive search of ALL documents (meaning no specific quote directly answers the question), set 'excerpt' to 'No directly relevant evidence found after comprehensive search' and 'source_file_name', 'source_page_number', 'source_label' to null.
-- When citing evidence, prioritize documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then prioritize documents labeled "4th Party".
-- **IMPORTANT CITATION RULE:** For the 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
-- **AVOID REPETITIVE CITATIONS:** Ensure that the 'excerpt' provided for each question is distinct and directly relevant to that specific question. Do not reuse the same generic excerpt across multiple questions unless it is genuinely the *only* relevant piece of evidence for each. If a question has no *new* relevant evidence, explicitly state 'No directly relevant evidence found after comprehensive search' rather than repeating a previous excerpt.
-- Pay special attention to technical sections, appendices, and detailed procedure descriptions.
-- **ABSOLUTE PROHIBITION ON GENERIC EVIDENCE FOR SPECIFIC QUESTIONS:**
-  - For a question about 'equipment maintenance', you MUST NOT cite a general statement about 'annual risk assessments'.
-  - For a question about 'BCM training', you MUST NOT cite a general statement about 'secure development lifecycles'.
-  - For a question about 'incident response procedures', you MUST NOT cite a general statement about 'overall risk management'.
-  - The excerpt MUST be a direct, specific answer to the question, not a broad, loosely related statement. If no such direct evidence exists, use the 'No directly relevant evidence found after comprehensive search' fallback.
-  - For a question about 'penetration testing frequency', you MUST NOT cite a general statement about 'annual risk assessments' or 'secure development lifecycle'. The excerpt MUST explicitly mention 'penetration testing' and its frequency.
+**RULES FOR ANSWERING:**
+1.  **EVIDENCE FIRST:** For each question, search ALL provided documents (including attached binary files) for a direct quote that answers the question.
+2.  **EXACT QUOTE:** If direct evidence is found, provide the EXACT, VERBATIM quote in the 'excerpt' field. The quote MUST directly and clearly answer the question.
+3.  **SOURCE CITATION:** For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if explicitly identifiable, otherwise null), and 'source_label' ('Primary' or '4th Party').
+4.  **NO INFERENCE/EXTERNAL KNOWLEDGE:** Do NOT use any information outside the provided documents. Do NOT make assumptions.
+5.  **"NO EVIDENCE" FALLBACK:** If, after a thorough search of ALL documents, NO DIRECT, VERIFIABLE EVIDENCE is found (meaning no specific quote directly answers the question), then:
+    *   Set 'excerpt' to "No directly relevant evidence found after comprehensive search".
+    *   Set 'source_file_name', 'source_page_number', 'source_label' to null.
+    *   Set 'answer' to the conservative default specified in the question's instructions.
+6.  **PRIORITIZE "Primary" DOCUMENTS:** When multiple relevant excerpts exist, prioritize those from documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then use evidence from "4th Party" documents.
+7.  **"4th Party" LABEL:** For 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
 
 DOCUMENT FILES PROVIDED FOR ANALYSIS:
 ${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
@@ -412,13 +402,13 @@ ASSESSMENT QUESTIONS AND DETAILED ANSWERING INSTRUCTIONS:
 ${questions.map((q: Question, idx: number) => {
   let formatHint = '';
   if (q.type === 'boolean') {
-    formatHint = 'Expected: true or false. FIRST, search for explicit affirmative (e.g., "is encrypted", "is required", "we do") or negative (e.g., "no encryption", "not required", "we do not") statements. If an explicit affirmative statement is found, answer `true`. If an explicit negative statement is found, answer `false`. IF NO EXPLICIT STATEMENT (AFFIRMATIVE OR NEGATIVE) IS FOUND, AND \'excerpt\' IS "No directly relevant evidence found after comprehensive search", then default to `false`.';
+    formatHint = 'Expected: true or false. If direct evidence for "Yes" is found, answer `true`. If direct evidence for "No" is found, answer `false`. If NO DIRECT EVIDENCE is found, default to `false`.';
   } else if (q.type === 'multiple' && q.options) {
-    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. FIRST, find the exact option or a clear equivalent in the documents. If found, use that option. IF NO CLEAR MATCH IS FOUND, AND \'excerpt\' IS "No directly relevant evidence found after comprehensive search", then default to the first option in the list ("${q.options[0]}").`;
+    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. Find the exact option or clear equivalent. If NO DIRECT EVIDENCE is found, default to "${q.options[0]}".`;
   } else if (q.type === 'tested') {
-    formatHint = 'Expected: "tested" or "not_tested". FIRST, look for evidence of testing activities or explicit statements about testing status. If no information is found, AND \'excerpt\' IS "No directly relevant evidence found after comprehensive search", then default to "not_tested".';
+    formatHint = 'Expected: "tested" or "not_tested". If direct evidence of testing is found, answer "tested". If NO DIRECT EVIDENCE is found, default to "not_tested".';
   } else if (q.type === 'textarea') {
-    formatHint = 'Expected: "Detailed text response". Summarize the relevant information from the documents in a concise paragraph. IF NO INFORMATION IS FOUND, AND \'excerpt\' IS "No directly relevant evidence found after comprehensive search", then state "No directly relevant evidence found after comprehensive search."';
+    formatHint = 'Expected: "Detailed text response". Summarize relevant information. If NO DIRECT EVIDENCE is found, state "No directly relevant evidence found after comprehensive search."';
   }
   return `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""}) - ${formatHint}`;
 }).join("\n")}
