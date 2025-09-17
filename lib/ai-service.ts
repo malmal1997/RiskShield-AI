@@ -219,7 +219,10 @@ function checkSemanticRelevance(
   const overlapRatio = overlapCount / questionTokens.size;
 
   // Adjust threshold for relevance - be more permissive
-  if (overlapRatio > 0.1) { // Even a small overlap can indicate relevance
+  // Require at least 2 overlapping keywords for relevance, even if ratio is low
+  const MIN_OVERLAP_KEYWORDS = 2; 
+
+  if (overlapCount >= MIN_OVERLAP_KEYWORDS || overlapRatio > 0.1) { // Even a small overlap can indicate relevance
     return {
       isRelevant: true,
       confidence: 0.5 + (overlapRatio * 0.4), // Scale confidence based on overlap
@@ -389,11 +392,11 @@ export async function analyzeDocuments(
 
   const basePrompt = `You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments. Your task is to analyze the provided documents and answer specific assessment questions.
 
-**RULES FOR ANSWERING:**
-1.  **EVIDENCE ONLY:** Answer each question *only* using information directly found in the provided documents (including attached binary files). Do NOT use external knowledge or make assumptions.
+**CRITICAL RULES FOR ANSWERING (STRICTLY ADHERE TO THESE):**
+1.  **EVIDENCE REQUIRED:** For EVERY answer that is NOT a conservative default (e.g., 'true' for boolean, or a specific option for multiple choice), you MUST find and provide DIRECT, VERIFIABLE EVIDENCE from the provided documents (including attached binary files).
 2.  **DIRECT QUOTE:** If you find a direct, verifiable quote that answers a question, provide that EXACT, VERBATIM quote in the 'excerpt' field.
-3.  **SOURCE CITATION:** For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if explicitly identifiable, otherwise null), and 'source_label' ('Primary' or '4th Party').
-4.  **NO EVIDENCE FALLBACK:** If, after a thorough search of ALL documents, NO DIRECT, VERIFIABLE EVIDENCE is found (meaning no specific quote directly answers the question), then:
+3.  **COMPLETE CITATION:** For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if explicitly identifiable, otherwise null), and 'source_label' ('Primary' or '4th Party').
+4.  **NO EVIDENCE = CONSERVATIVE DEFAULT:** If, after a thorough search of ALL documents, NO DIRECT, VERIFIABLE EVIDENCE is found (meaning no specific quote directly answers the question), then:
     *   Set 'excerpt' to "No directly relevant evidence found after comprehensive search".
     *   Set 'source_file_name', 'source_page_number', 'source_label' to null.
     *   Set 'answer' to the conservative default specified in the question's instructions.
@@ -624,16 +627,36 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
         }
 
         // Determine final answer, confidence, and reasoning
-        if (relevanceCheck.isRelevant && hasActualExcerpt) {
-          answers[questionId] = finalAnswer;
-          confidenceScores[questionId] = Math.min(aiConfidence, relevanceCheck.confidence); // Use AI's confidence, capped by relevance check
-          reasoning[questionId] = aiReasoning; // Use AI's reasoning
+        // CRITICAL: If AI provides a non-conservative answer but no valid evidence, force to conservative default.
+        const isAiAnswerNonConservative = (question.type === "boolean" && finalAnswer === true) ||
+                                          (question.type === "multiple" && finalAnswer !== (question.options?.[0] || "N/A")) ||
+                                          (question.type === "tested" && finalAnswer === "tested") ||
+                                          (question.type === "textarea" && finalAnswer !== "No directly relevant evidence found after comprehensive search.");
+
+        if (isAiAnswerNonConservative && (!relevanceCheck.isRelevant || !hasActualExcerpt)) {
+          console.warn(`⚠️ Question ${questionId}: AI provided a non-conservative answer (${finalAnswer}) but without sufficient or relevant evidence. Forcing to conservative default.`);
+          if (question.type === "boolean") {
+            answers[question.id] = false;
+          } else if (question.options && question.options.length > 0) {
+            answers[question.id] = question.options[0]; // Most conservative option
+          } else if (question.type === "tested") {
+            answers[question.id] = "not_tested";
+          } else if (question.type === "textarea") {
+            answers[question.id] = "No directly relevant evidence found after comprehensive search.";
+          }
+          confidenceScores[question.id] = 0.05; // Very low confidence
+          reasoning[question.id] = `AI provided a non-conservative answer without sufficient evidence. Defaulted to conservative. Original AI reasoning: ${aiReasoning}`;
+          documentExcerpts[question.id] = []; // Clear any invalid excerpts
+        } else if (relevanceCheck.isRelevant && hasActualExcerpt) {
+          answers[question.id] = finalAnswer;
+          confidenceScores[question.id] = Math.min(aiConfidence, relevanceCheck.confidence); // Use AI's confidence, capped by relevance check
+          reasoning[question.id] = aiReasoning; // Use AI's reasoning
           
           if (excerpt.length > 500) {
               excerpt = excerpt.substring(0, 500) + '...';
           }
           
-          documentExcerpts[questionId] = [
+          documentExcerpts[question.id] = [
             {
               fileName: fileName,
               label: label,
