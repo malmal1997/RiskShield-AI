@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
+import { Checkbox } from "@/components/ui/checkbox" // Added Checkbox import
 import {
   Shield,
   FileText,
@@ -55,7 +56,7 @@ interface BuiltInQuestion {
   id: string;
   category: string;
   question: string;
-  type: "boolean" | "multiple" | "tested" | "textarea";
+  type: "boolean" | "multiple" | "tested" | "textarea" | "checkbox"; // Added "checkbox"
   options?: string[];
   weight?: number;
   required?: boolean;
@@ -1097,8 +1098,8 @@ const assessmentCategories: BuiltInAssessmentCategory[] = [
         id: "dp24",
         category: "Regulatory Compliance",
         question: "Which regulatory compliance/industry standards does your company follow?",
-        type: "multiple" as const,
-        options: ["None", "ISO 27001", "SOC 2", "HIPAA", "PCI DSS", "NIST"],
+        type: "checkbox",
+        options: ["ISO 27001", "SOC 2", "HIPAA", "PCI DSS", "NIST", "None"],
         required: true,
       },
       {
@@ -1795,7 +1796,7 @@ const assessmentCategories: BuiltInAssessmentCategory[] = [
 interface Question {
   id: string
   question: string
-  type: "boolean" | "multiple" | "tested" | "textarea"
+  type: "boolean" | "multiple" | "tested" | "textarea" | "checkbox" // Added "checkbox"
   options?: string[]
   weight?: number
   required?: boolean
@@ -1833,6 +1834,7 @@ interface AnalysisResult {
     fileSize: number
     fileType: string
     processingMethod: string
+    label?: 'Primary' | '4th Party';
   }>
 }
 
@@ -2183,10 +2185,10 @@ export default function AIAssessmentPage() {
     }
 
     // Explicitly add page number or 'N/A'
-    if (pageNumber != null && String(pageNumber).trim() !== '') {
+    if (pageNumber != null && String(pageNumber).trim() !== '' && pageNumber !== 'N/A') {
       citationParts.push(`Page: ${pageNumber}`);
     } else {
-      citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing
+      citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing or invalid
     }
 
     if (label === '4th Party') {
@@ -2914,6 +2916,32 @@ export default function AIAssessmentPage() {
                               className="mt-2"
                             />
                           )}
+                          {question.question_type === "checkbox" && (
+                            <div className="space-y-2 mt-2">
+                              {question.options?.map((option: string) => (
+                                <div key={option} className="flex items-center">
+                                  <Checkbox
+                                    id={`${question.id}-${option}`}
+                                    checked={answers[question.id]?.includes(option) || false}
+                                    onCheckedChange={(checked: boolean) => {
+                                      const currentAnswers = answers[question.id] || [];
+                                      if (checked) {
+                                        handleAnswerChange(question.id, [...currentAnswers, option]);
+                                      } else {
+                                        handleAnswerChange(
+                                          question.id,
+                                          currentAnswers.filter((item: string) => item !== option)
+                                        );
+                                      }
+                                    }}
+                                  />
+                                  <Label htmlFor={`${question.id}-${option}`} className="ml-2">
+                                    {option}
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -2986,7 +3014,7 @@ export default function AIAssessmentPage() {
                           </ul>
                         </div>
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                          <h3 className="font-semibold text-green-900 mb-2">Recommendations</h3>
+                          <h3 className="font-medium text-green-900 mb-2">Recommendations</h3>
                           <ul className="text-sm text-green-800 list-disc pl-5 space-y-1">
                             {analysisResults.recommendations.map((rec: string, index: number) => (
                               <li key={index}>{rec}</li>

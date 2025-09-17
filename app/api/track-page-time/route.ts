@@ -23,16 +23,43 @@ export async function POST(request: NextRequest) {
       // We can still proceed if other fields are valid, but log a warning
     }
 
-    await supabaseAdmin // Changed from supabaseClient to supabaseAdmin
+    // Check if a record exists for this session and page path that is still "open" (time_on_page is null)
+    const { data: existingPageView, error: selectError } = await supabaseAdmin
       .from("page_views")
-      .update({ time_on_page: timeOnPage })
+      .select("id")
       .eq("session_id", sessionId)
       .eq("page_path", pagePath)
       .is("time_on_page", null)
       .order("created_at", { ascending: false })
       .limit(1)
+      .single(); // Use single to expect one or zero records
 
-    console.log("Successfully updated page_views for session:", sessionId, "path:", pagePath);
+    if (selectError && selectError.code !== 'PGRST116') { // PGRST116 means no rows found
+      console.error("Supabase SELECT error in track-page-time:", selectError);
+      return NextResponse.json({ error: "Database query failed during select" }, { status: 500 });
+    }
+
+    if (existingPageView) {
+      // If an open page view exists, update it
+      const { error: updateError } = await supabaseAdmin
+        .from("page_views")
+        .update({ time_on_page: timeOnPage })
+        .eq("id", existingPageView.id); // Update by specific ID
+
+      if (updateError) {
+        console.error("Supabase UPDATE error in track-page-time:", updateError);
+        return NextResponse.json({ error: "Failed to update page time" }, { status: 500 });
+      }
+      console.log("Successfully updated page_views for session:", sessionId, "path:", pagePath);
+    } else {
+      // If no open page view, it might be a new page load or a missed initial insert.
+      // For now, we'll just log a warning. In a real app, you might want to insert a new record here
+      // or ensure the initial insert is more robust.
+      console.warn("No open page_view record found to update for session:", sessionId, "path:", pagePath);
+      // Optionally, insert a new record if this is a valid scenario for a new page view
+      // await supabaseAdmin.from("page_views").insert({ session_id: sessionId, page_path: pagePath, time_on_page: timeOnPage });
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error tracking page time:", error)

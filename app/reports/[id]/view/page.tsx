@@ -99,10 +99,10 @@ export default function ReportViewPage() {
       }
 
       // Explicitly add page number or 'N/A'
-      if (pageNumber != null && String(pageNumber).trim() !== '') {
+      if (pageNumber != null && String(pageNumber).trim() !== '' && pageNumber !== 'N/A') {
         citationParts.push(`Page: ${pageNumber}`);
       } else {
-        citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing
+        citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing or invalid
       }
 
       if (label === '4th Party') {
@@ -164,7 +164,7 @@ export default function ReportViewPage() {
           <h2 className="text-xl font-semibold text-gray-800 mb-3">AI Analysis Summary</h2>
           <div className="bg-gray-50 p-4 rounded-md mb-4">
             <h3 className="font-medium text-gray-900 mb-2">Overall Analysis</h3>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{analysisResults?.overallAnalysis || 'N/A'}</p>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">{report.report_summary || 'N/A'}</p>
           </div>
           <div className="bg-red-50 p-4 rounded-md mb-4">
             <h3 className="font-medium text-red-900 mb-2">Identified Risk Factors</h3>

@@ -900,6 +900,46 @@ function VendorAssessmentComponent() {
 
   const currentQuestions = currentStep === 0 ? [] : questions.slice((currentStep - 1) * 2, currentStep * 2)
 
+  // Helper function to render the evidence citation
+  const renderEvidenceCitation = (excerptData: any) => {
+    if (!excerptData || excerptData.excerpt === 'No directly relevant evidence found after comprehensive search') {
+      return 'No directly relevant evidence found after comprehensive search.';
+    }
+
+    let citationParts: string[] = [];
+    const fileName = excerptData.fileName;
+    const pageNumber = excerptData.pageNumber;
+    const label = excerptData.label; // This will be '4th Party' or null
+
+    if (fileName && String(fileName).trim() !== '' && fileName !== 'N/A') {
+      citationParts.push(`"${fileName}"`);
+    }
+
+    // Explicitly add page number or 'N/A'
+    if (pageNumber != null && String(pageNumber).trim() !== '' && pageNumber !== 'N/A') {
+      citationParts.push(`Page: ${pageNumber}`);
+    } else {
+      citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing or invalid
+    }
+
+    if (label === '4th Party') {
+      citationParts.push('4th Party');
+    }
+
+    // Filter out any potentially empty or null parts before joining
+    const filteredParts = citationParts.filter(part => part && String(part).trim() !== ''); // Ensure parts are non-empty strings
+
+    // The excerpt is always the first part of the return string
+    const excerptText = `"${excerptData.excerpt}"`;
+
+    if (filteredParts.length === 0) {
+      return excerptText;
+    }
+
+    // Join parts for the citation, ensuring the excerpt is first
+    return `${excerptText} (from ${filteredParts.join(' - ')})`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -1279,7 +1319,7 @@ function VendorAssessmentComponent() {
                           analysisResults.documentExcerpts[question.id].length > 0 && (
                             <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded">
                               <Info className="inline h-3 w-3 mr-1" />
-                              <strong>Evidence:</strong> {analysisResults.documentExcerpts[question.id][0].excerpt}
+                              <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0])}
                             </div>
                           )}
                       </div>
@@ -1334,7 +1374,6 @@ function VendorAssessmentComponent() {
                             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                             placeholder="Provide your detailed response here..."
                             rows={4}
-                            className="mt-2"
                           />
                         )}
                       </div>
