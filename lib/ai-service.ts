@@ -352,14 +352,19 @@ export async function analyzeDocuments(
     })
   }
 
-  const basePrompt = `YOUR SOLE TASK IS TO EXTRACT ANSWERS DIRECTLY AND EXCLUSIVELY FROM THE PROVIDED DOCUMENTS. DO NOT GUESS. DO NOT USE EXTERNAL KNOWLEDGE.
-ENSURE EACH QUESTION IS ANSWERED INDIVIDUALLY AND UNIQUELY BASED ON THE MOST DIRECTLY RELEVANT EVIDENCE.
+  const basePrompt = `YOUR SOLE TASK IS TO EXTRACT ANSWERS DIRECTLY AND EXCLUSIVELY FROM THE PROVIDED DOCUMENTS. DO NOT GUESS. DO NOT USE EXTERNAL KNOWLEDGE. DO NOT INFER.
+ENSURE EACH QUESTION IS ANSWERED INDIVIDUALLY AND UNIQUELY BASED ON THE MOST DIRECTLY RELEVANT, VERIFIABLE EVIDENCE.
 
 You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions. Your task is to analyze the provided documents and answer specific assessment questions.
 
+ABSOLUTE RULES FOR ANSWERING:
+1.  **EVIDENCE IS PARAMOUNT:** Every answer MUST be directly supported by an EXACT QUOTE from the provided documents. If no such direct quote exists, you MUST state "No directly relevant evidence found after comprehensive search" for the 'excerpt' and default the 'answer' as specified below.
+2.  **NO INFERENCE OR EXTERNAL KNOWLEDGE:** Do NOT use any information outside the provided documents. Do NOT make logical inferences or assumptions.
+3.  **STRICT RELEVANCE FOR EXCERPTS:** An 'excerpt' is only valid if it is a VERBATIM, direct quote that, by itself, specifically and completely answers the question. If the text is only loosely related, provides background, or requires interpretation to answer the question, it is NOT a valid excerpt. In such cases, treat it as if no relevant evidence was found.
+4.  **DEFAULTING WHEN NO DIRECT EVIDENCE:** If 'excerpt' is set to "No directly relevant evidence found after comprehensive search", then the 'answer' MUST follow the conservative defaults outlined in each question's instructions.
+
 CRITICAL INSTRUCTIONS:
 - YOU MUST THOROUGHLY ANALYZE ALL PROVIDED DOCUMENTS. This includes both the text content provided directly in the prompt AND any binary files attached (e.g., PDFs, DOCX, XLSX, PPTX). Use your advanced document processing capabilities to extract and understand the content of ALL attached files.
-- BASE YOUR ANSWERS SOLELY AND EXCLUSIVELY ON THE INFORMATION DIRECTLY AND SPECIFICALLY FOUND WITHIN THE PROVIDED DOCUMENTS. DO NOT use external knowledge, make assumptions, or infer information not explicitly stated.
 - For each question, provide the MOST ACCURATE ANSWER based on the evidence.
 - For each question, if relevant evidence is found, provide the EXACT QUOTE from the document in the 'excerpt' field. The quote should be verbatim and MUST directly and specifically answer the question.
 - For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.txt"), 'source_page_number' (if applicable and explicitly identifiable in the text, otherwise null), and 'source_label' ('Primary' or '4th Party').
@@ -368,7 +373,6 @@ CRITICAL INSTRUCTIONS:
 - **IMPORTANT CITATION RULE:** For the 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
 - **AVOID REPETITIVE CITATIONS:** Ensure that the 'excerpt' provided for each question is distinct and directly relevant to that specific question. Do not reuse the same generic excerpt across multiple questions unless it is genuinely the *only* relevant piece of evidence for each. If a question has no *new* relevant evidence, explicitly state 'No directly relevant evidence found after comprehensive search' rather than repeating a previous excerpt.
 - Pay special attention to technical sections, appendices, and detailed procedure descriptions.
-- **STRICT RELEVANCE:** The evidence provided in the 'excerpt' MUST directly and specifically address the core subject and action of the question. Do not provide loosely related information or general statements if they do not directly address the question's core. If no such direct evidence exists, explicitly state 'No directly relevant evidence found after comprehensive search' rather than providing irrelevant information.
 - **ABSOLUTE PROHIBITION ON GENERIC EVIDENCE FOR SPECIFIC QUESTIONS:**
   - For a question about 'equipment maintenance', you MUST NOT cite a general statement about 'annual risk assessments'.
   - For a question about 'BCM training', you MUST NOT cite a general statement about 'secure development lifecycles'.
@@ -384,13 +388,13 @@ ASSESSMENT QUESTIONS AND DETAILED ANSWERING INSTRUCTIONS:
 ${questions.map((q: Question, idx: number) => {
   let formatHint = '';
   if (q.type === 'boolean') {
-    formatHint = 'Expected: true or false. FIRST, search for explicit affirmative (e.g., "is encrypted", "is required", "we do") or negative (e.g., "no encryption", "not required", "we do not") statements. If an explicit affirmative statement is found, answer `true`. If an explicit negative statement is found, answer `false`. ONLY IF NO EXPLICIT STATEMENT (AFFIRMATIVE OR NEGATIVE) IS FOUND, default to `false`.';
+    formatHint = 'Expected: true or false. FIRST, search for explicit affirmative (e.g., "is encrypted", "is required", "we do") or negative (e.g., "no encryption", "not required", "we do not") statements. If an explicit affirmative statement is found, answer `true`. If an explicit negative statement is found, answer `false`. IF NO EXPLICIT STATEMENT (AFFIRMATIVE OR NEGATIVE) IS FOUND, AND \'excerpt\' IS "No directly relevant evidence found after comprehensive search", then default to `false`.';
   } else if (q.type === 'multiple' && q.options) {
-    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. FIRST, find the exact option or a clear equivalent in the documents. If found, use that option. ONLY IF NO CLEAR MATCH IS FOUND, default to the first option in the list ("${q.options[0]}").`;
+    formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. FIRST, find the exact option or a clear equivalent in the documents. If found, use that option. IF NO CLEAR MATCH IS FOUND, AND \'excerpt\' IS "No directly relevant evidence found after comprehensive search", then default to the first option in the list ("${q.options[0]}").`;
   } else if (q.type === 'tested') {
-    formatHint = 'Expected: "tested" or "not_tested". FIRST, look for evidence of testing activities or explicit statements about testing status. If no information is found, default to "not_tested".';
+    formatHint = 'Expected: "tested" or "not_tested". FIRST, look for evidence of testing activities or explicit statements about testing status. If no information is found, AND \'excerpt\' IS "No directly relevant evidence found after comprehensive search", then default to "not_tested".';
   } else if (q.type === 'textarea') {
-    formatHint = 'Expected: "Detailed text response". Summarize the relevant information from the documents in a concise paragraph. If no information is found, state "No directly relevant evidence found after comprehensive search."';
+    formatHint = 'Expected: "Detailed text response". Summarize the relevant information from the documents in a concise paragraph. IF NO INFORMATION IS FOUND, AND \'excerpt\' IS "No directly relevant evidence found after comprehensive search", then state "No directly relevant evidence found after comprehensive search."';
   }
   return `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""}) - ${formatHint}`;
 }).join("\n")}
