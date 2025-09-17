@@ -378,6 +378,7 @@ CRITICAL INSTRUCTIONS:
   - For a question about 'BCM training', you MUST NOT cite a general statement about 'secure development lifecycles'.
   - For a question about 'incident response procedures', you MUST NOT cite a general statement about 'overall risk management'.
   - The excerpt MUST be a direct, specific answer to the question, not a broad, loosely related statement. If no such direct evidence exists, use the 'No directly relevant evidence found after comprehensive search' fallback.
+  - For a question about 'penetration testing frequency', you MUST NOT cite a general statement about 'annual risk assessments' or 'secure development lifecycle'. The excerpt MUST explicitly mention 'penetration testing' and its frequency.
 
 DOCUMENT FILES PROVIDED FOR ANALYSIS:
 ${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
