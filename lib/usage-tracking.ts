@@ -104,6 +104,10 @@ class UsageTracker {
   }
 
   async trackPageView(pagePath: string, pageTitle?: string) {
+    if (!this.sessionId || !pagePath) {
+      console.warn("Skipping page view tracking: Missing sessionId or pagePath.", { sessionId: this.sessionId, pagePath });
+      return;
+    }
     try {
       // Track time on previous page
       if (this.currentPage && this.pageStartTime) {
@@ -132,6 +136,10 @@ class UsageTracker {
   }
 
   async trackFeatureInteraction(featureName: string, actionType: string, featureData?: any) {
+    if (!this.sessionId || !featureName || !actionType) {
+      console.warn("Skipping feature interaction tracking: Missing sessionId, featureName, or actionType.", { sessionId: this.sessionId, featureName, actionType });
+      return;
+    }
     try {
       this.lastActivity = Date.now()
 
@@ -152,6 +160,10 @@ class UsageTracker {
   }
 
   async trackLead(leadData: Omit<LeadData, "sessionId">) {
+    if (!this.sessionId) {
+      console.warn("Skipping lead tracking: Missing sessionId.", { sessionId: this.sessionId });
+      return;
+    }
     try {
       const fullLeadData: LeadData = {
         sessionId: this.sessionId,
@@ -167,6 +179,10 @@ class UsageTracker {
   }
 
   async markUserConverted(userId: string) {
+    if (!this.sessionId || !userId) {
+      console.warn("Skipping user conversion tracking: Missing sessionId or userId.", { sessionId: this.sessionId, userId });
+      return;
+    }
     try {
       await supabaseClient
         .from("preview_sessions")
@@ -183,6 +199,10 @@ class UsageTracker {
   }
 
   private async updatePageTime(pagePath: string, timeOnPage: number) {
+    if (!this.sessionId || !pagePath) {
+      console.warn("Skipping page time update: Missing sessionId or pagePath.", { sessionId: this.sessionId, pagePath });
+      return;
+    }
     try {
       await supabaseClient
         .from("page_views")
@@ -198,6 +218,10 @@ class UsageTracker {
   }
 
   private async updateSessionActivity() {
+    if (!this.sessionId) {
+      console.warn("Skipping session activity update: Missing sessionId.", { sessionId: this.sessionId });
+      return;
+    }
     try {
       const totalTimeSpent = Math.round((Date.now() - this.startTime) / 1000)
 
@@ -232,7 +256,7 @@ class UsageTracker {
   private setupUnloadTracking() {
     window.addEventListener("beforeunload", () => {
       // Final update on page unload
-      if (this.currentPage && this.pageStartTime) {
+      if (this.currentPage && this.pageStartTime && this.sessionId) { // Ensure sessionId is present
         const timeOnPage = Math.round((Date.now() - this.pageStartTime) / 1000)
         // Use sendBeacon for reliable tracking on unload
         const data = JSON.stringify({

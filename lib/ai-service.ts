@@ -191,7 +191,10 @@ function checkSemanticRelevance(
   question: string,
   excerpt: string,
 ): { isRelevant: boolean; confidence: number; reason: string } {
+  const questionLower = question.toLowerCase();
   const excerptLower = excerpt.toLowerCase();
+
+  // If AI explicitly stated no relevant evidence, it's not relevant.
   if (excerptLower.includes("no directly relevant evidence found") || excerptLower.includes("no evidence found")) {
     return {
       isRelevant: false,
@@ -199,12 +202,32 @@ function checkSemanticRelevance(
       reason: "AI explicitly stated no relevant evidence found.",
     };
   }
-  // If AI provided an excerpt, for the purpose of this test, we assume it's relevant.
-  // The prompt is designed to make AI provide relevant excerpts.
+
+  // Simple keyword overlap check
+  const questionKeywords = new Set(questionLower.split(/\s+/).filter(word => word.length > 2));
+  const excerptKeywords = new Set(excerptLower.split(/\s+/).filter(word => word.length > 2));
+
+  let overlapCount = 0;
+  questionKeywords.forEach(qWord => {
+    if (excerptKeywords.has(qWord)) {
+      overlapCount++;
+    }
+  });
+
+  const overlapRatio = overlapCount / questionKeywords.size;
+
+  if (overlapRatio > 0.3) { // Threshold for considering it relevant
+    return {
+      isRelevant: true,
+      confidence: 0.7 + (overlapRatio * 0.2), // Higher overlap, higher confidence
+      reason: `Significant keyword overlap (${(overlapRatio * 100).toFixed(0)}%) between question and excerpt.`,
+    };
+  }
+
   return {
-    isRelevant: true,
-    confidence: 0.9, // High confidence if AI provided an excerpt
-    reason: "AI provided an excerpt, assumed relevant based on prompt instructions.",
+    isRelevant: false,
+    confidence: 0.3,
+    reason: "Low keyword overlap between question and excerpt, suggesting indirect relevance.",
   };
 }
 
@@ -358,9 +381,9 @@ ENSURE EACH QUESTION IS ANSWERED INDIVIDUALLY AND UNIQUELY BASED ON THE MOST DIR
 You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments for financial institutions. Your task is to analyze the provided documents and answer specific assessment questions.
 
 ABSOLUTE RULES FOR ANSWERING:
-1.  **EVIDENCE IS PARAMOUNT:** Every answer MUST be directly supported by an EXACT QUOTE from the provided documents. If no such direct quote exists, you MUST state "No directly relevant evidence found after comprehensive search" for the 'excerpt' and default the 'answer' as specified below.
+1.  **EVIDENCE IS PARAMOUNT:** Every answer MUST be directly supported by a VERIFIABLE QUOTE from the provided documents. If no such direct quote exists, you MUST state "No directly relevant evidence found after comprehensive search" for the 'excerpt' and default the 'answer' as specified below.
 2.  **NO INFERENCE OR EXTERNAL KNOWLEDGE:** Do NOT use any information outside the provided documents. Do NOT make logical inferences or assumptions.
-3.  **STRICT RELEVANCE FOR EXCERPTS:** An 'excerpt' is only valid if it is a VERBATIM, direct quote that, by itself, specifically and completely answers the question. If the text is only loosely related, provides background, or requires interpretation to answer the question, it is NOT a valid excerpt. In such cases, treat it as if no relevant evidence was found.
+3.  **STRICT RELEVANCE FOR EXCERPTS:** An 'excerpt' is only valid if it is a VERBATIM, direct quote that, by itself, specifically and clearly addresses the question. If the text is only loosely related, provides background, or requires significant interpretation to answer the question, it is NOT a valid excerpt. In such cases, treat it as if no relevant evidence was found.
 4.  **DEFAULTING WHEN NO DIRECT EVIDENCE:** If 'excerpt' is set to "No directly relevant evidence found after comprehensive search", then the 'answer' MUST follow the conservative defaults outlined in each question's instructions.
 
 CRITICAL INSTRUCTIONS:

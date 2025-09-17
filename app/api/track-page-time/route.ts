@@ -6,6 +6,11 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
     const { sessionId, pagePath, timeOnPage } = data
 
+    if (!sessionId || !pagePath) {
+      console.error("Error tracking page time: Missing sessionId or pagePath.", { sessionId, pagePath });
+      return NextResponse.json({ error: "Missing sessionId or pagePath" }, { status: 400 });
+    }
+
     await supabaseAdmin // Changed from supabaseClient to supabaseAdmin
       .from("page_views")
       .update({ time_on_page: timeOnPage })

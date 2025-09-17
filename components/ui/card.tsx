@@ -30,10 +30,10 @@ const CardHeader = React.forwardRef<
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<
-  HTMLParagraphElement, // Changed to HTMLParagraphElement for semantic correctness
-  React.HTMLAttributes<HTMLParagraphElement> // Changed to HTMLParagraphElement
+  HTMLHeadingElement, // Changed to HTMLHeadingElement for semantic correctness
+  React.HTMLAttributes<HTMLHeadingElement> // Changed to HTMLHeadingElement
 >(({ className, ...props }, ref) => (
-  <p // Changed to p tag
+  <h3 // Changed to h3 tag
     ref={ref}
     className={cn(
       "text-2xl font-semibold leading-none tracking-tight",
@@ -45,10 +45,10 @@ const CardTitle = React.forwardRef<
 CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<
-  HTMLParagraphElement, // Changed to HTMLParagraphElement for semantic correctness
-  React.HTMLAttributes<HTMLParagraphElement> // Changed to HTMLParagraphElement
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p // Changed to p tag
+  <p
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
