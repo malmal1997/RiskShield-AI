@@ -36,6 +36,7 @@ import {
   Pie,
   BarChart,
   Bar,
+  type PieLabelRenderProps, // Import PieLabelRenderProps
 } from "recharts"
 import { AuthGuard } from "@/components/auth-guard"
 import Link from "next/link"
@@ -467,8 +468,8 @@ function DashboardContent() {
                           cy="50%"
                           outerRadius={80}
                           fill="#8884d8"
-                          label={({ payload }: { payload?: { level: string; count: number } }) => 
-                            payload ? `${payload.level}: ${payload.count}` : ''
+                          label={({ payload }: PieLabelRenderProps) =>
+                            payload ? `${(payload as { level: string; count: number }).level}: ${(payload as { level: string; count: number }).count}` : ''
                           }
                         >
                           {riskMetrics.riskDistribution.map((entry: { level: string; count: number }, index: number) => (
@@ -570,206 +571,206 @@ function DashboardContent() {
                 <CardHeader>
                   <CardTitle>Vendor Management</CardTitle>
                   <CardDescription>Comprehensive vendor portfolio overview</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Vendor Insights Coming Soon</h3>
-                    <p className="text-gray-600 mb-4">Advanced vendor analytics and management tools</p>
-                    <Link href="/vendors">
-                      <Button className="bg-blue-600 hover:bg-blue-700">
-                        <Users className="mr-2 h-4 w-4" />
-                        Manage Vendors
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="compliance">
-              <Card className="border border-gray-200">
-                <CardHeader>
-                  <CardTitle>Compliance Dashboard</CardTitle>
-                  <CardDescription>Real-time compliance monitoring and reporting</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
-                      <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">Compliance Tracking</h3>
-                      <p className="text-gray-600">Advanced compliance monitoring features</p>
+                      <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Vendor Insights Coming Soon</h3>
+                      <p className="text-gray-600 mb-4">Advanced vendor analytics and management tools</p>
+                      <Link href="/vendors">
+                        <Button className="bg-blue-600 hover:bg-blue-700">
+                          <Users className="mr-2 h-4 w-4" />
+                          Manage Vendors
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              <TabsContent value="risk-reports">
+              <TabsContent value="compliance">
                 <Card className="border border-gray-200">
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <FileText className="h-5 w-5 text-blue-600" />
-                      <span>Your Risk Reports</span>
-                    </CardTitle>
-                    <CardDescription>All your generated risk assessment reports.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {combinedReports.length > 0 ? (
-                      <div className="space-y-4">
-                        {combinedReports.map((report: CombinedReport) => (
-                          <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
-                            <div>
-                              <h3 className="font-semibold text-gray-900">{report.title}</h3>
-                              <p className="text-sm text-gray-600">{report.type}</p>
-                              <div className="flex items-center space-x-2 mt-1">
-                                <Badge className={getRiskLevelColor(report.riskLevel)}>
-                                  {report.riskLevel} Risk
-                                </Badge>
-                                {report.riskScore !== null && (
-                                  <span className="text-sm text-gray-500">Score: {report.riskScore}/100</span>
-                                )}
+                    <CardTitle>Compliance Dashboard</CardTitle>
+                    <CardDescription>Real-time compliance monitoring and reporting</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8">
+                        <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">Compliance Tracking</h3>
+                        <p className="text-gray-600">Advanced compliance monitoring features</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="risk-reports">
+                  <Card className="border border-gray-200">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <FileText className="h-5 w-5 text-blue-600" />
+                        <span>Your Risk Reports</span>
+                      </CardTitle>
+                      <CardDescription>All your generated risk assessment reports.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {combinedReports.length > 0 ? (
+                        <div className="space-y-4">
+                          {combinedReports.map((report: CombinedReport) => (
+                            <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
+                              <div>
+                                <h3 className="font-semibold text-gray-900">{report.title}</h3>
+                                <p className="text-sm text-gray-600">{report.type}</p>
+                                <div className="flex items-center space-x-2 mt-1">
+                                  <Badge className={getRiskLevelColor(report.riskLevel)}>
+                                    {report.riskLevel} Risk
+                                  </Badge>
+                                  {report.riskScore !== null && (
+                                    <span className="text-sm text-gray-500">Score: {report.riskScore}/100</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm text-gray-600">
+                                  {report.reportType === 'ai' ? 'Analyzed' : 'Completed'}: {new Date(report.date).toLocaleDateString()}
+                                </p>
+                                <Button variant="outline" size="sm" className="mt-2" onClick={() => handleViewReport(report)}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View Report
+                                </Button>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-sm text-gray-600">
-                                {report.reportType === 'ai' ? 'Analyzed' : 'Completed'}: {new Date(report.date).toLocaleDateString()}
-                              </p>
-                              <Button variant="outline" size="sm" className="mt-2" onClick={() => handleViewReport(report)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Report
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Risk Reports Found</h3>
-                        <p className="text-gray-600 mb-4">
-                          Start an AI-powered assessment or complete a manual assessment to generate your first report.
-                        </p>
-                        <Link href="/risk-assessment/ai-assessment">
-                          <Button className="bg-blue-600 hover:bg-blue-700">
-                            <Bot className="mr-2 h-4 w-4" />
-                            Start AI Assessment
-                          </Button>
-                        </Link>
-                        <Link href="/third-party-assessment" className="ml-4">
-                          <Button variant="outline">
-                            <Send className="mr-2 h-4 w-4" />
-                            Send Manual Assessment
-                          </Button>
-                        </Link>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </section>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">No Risk Reports Found</h3>
+                          <p className="text-gray-600 mb-4">
+                            Start an AI-powered assessment or complete a manual assessment to generate your first report.
+                          </p>
+                          <Link href="/risk-assessment/ai-assessment">
+                            <Button className="bg-blue-600 hover:bg-blue-700">
+                              <Bot className="mr-2 h-4 w-4" />
+                              Start AI Assessment
+                            </Button>
+                          </Link>
+                          <Link href="/third-party-assessment" className="ml-4">
+                            <Button variant="outline">
+                              <Send className="mr-2 h-4 w-4" />
+                              Send Manual Assessment
+                            </Button>
+                          </Link>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </section>
 
-        <footer className="bg-gray-900 text-white py-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div>
-                <div className="flex items-center space-x-2 mb-4">
-                  <Shield className="h-6 w-6 text-blue-400" />
-                  <span className="text-lg font-bold">RiskShield AI</span>
+          <footer className="bg-gray-900 text-white py-16">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Shield className="h-6 w-6 text-blue-400" />
+                    <span className="text-lg font-bold">RiskShield AI</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">
+                    AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
+                    risks.
+                  </p>
                 </div>
-                <p className="text-gray-400 text-sm">
-                  AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
-                  risks.
-                </p>
+
+                <div>
+                  <h3 className="font-semibold mb-4">Platform</h3>
+                  <ul className="space-y-2 text-sm text-gray-400">
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Risk Assessment
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Compliance Monitoring
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Policy Generator
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Integrations
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-4">Support</h3>
+                  <ul className="space-y-2 text-sm text-gray-400">
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Documentation
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Help Center
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Contact Support
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Status Page
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-4">Company</h3>
+                  <ul className="space-y-2 text-sm text-gray-400">
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        About Us
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Careers
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Privacy Policy
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="hover:text-white">
+                        Terms of Service
+                      </a>
+                    </li>
+                  </ul>
+                </div>
               </div>
 
-              <div>
-                <h3 className="font-semibold mb-4">Platform</h3>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Risk Assessment
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Compliance Monitoring
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Policy Generator
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Integrations
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-4">Support</h3>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Documentation
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Help Center
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Contact Support
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Status Page
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-4">Company</h3>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      About Us
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Careers
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Privacy Policy
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white">
-                      Terms of Service
-                    </a>
-                  </li>
-                </ul>
+              <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
               </div>
             </div>
+          </footer>
 
-            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-              <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
-
-        {/* Removed: AI Report Detail Modal */}
-        {/* Removed: Manual Report Detail Modal */}
-      </div>
-  )
-}
+          {/* Removed: AI Report Detail Modal */}
+          {/* Removed: Manual Report Detail Modal */}
+        </div>
+    )
+  }

@@ -1,8 +1,8 @@
 "use server";
 
-import { supabaseAdmin } from "@/src/integrations/supabase/admin";
 import { getCurrentUserWithProfile, OrganizationMember, UserProfile, UserRole, logAuditEvent } from "@/lib/auth-service"; // Import logAuditEvent
 import { Resend } from 'resend';
+import { supabaseAdmin } from "@/src/integrations/supabase/admin"; // Import supabaseAdmin
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

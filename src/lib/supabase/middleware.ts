@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { CookieSerializeOptions } from 'cookie' // Import CookieSerializeOptions
+import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies' // Import RequestCookie
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -12,25 +13,26 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll: () => request.cookies.getAll(),
-        setAll: (cookiesToSet: Array<{ name: string; value: string; options: CookieSerializeOptions }>) => {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value, options))
+        get(name: string) {
+          return request.cookies.get(name)?.value
         },
-        // This is a new feature in Supabase SSR, ensuring cookies are set on the response
-        // for subsequent requests.
-        set: (name: string, value: string, options: CookieSerializeOptions) => {
-          request.cookies.set(name, value, options);
+        set(name: string, value: string, options: CookieSerializeOptions) {
+          // Update the request's cookies for subsequent middleware/server components
+          request.cookies.set({ name, value, ...options } as RequestCookie)
+          // Update the response's cookies to be sent to the client
           supabaseResponse = NextResponse.next({
             request,
-          });
-          supabaseResponse.cookies.set(name, value, options);
+          })
+          supabaseResponse.cookies.set({ name, value, ...options } as RequestCookie)
         },
-        remove: (name: string, options: CookieSerializeOptions) => {
-          request.cookies.delete(name, options);
+        remove(name: string, options: CookieSerializeOptions) {
+          // Remove from the request's cookies
+          request.cookies.set({ name, value: '', ...options } as RequestCookie)
+          // Remove from the response's cookies
           supabaseResponse = NextResponse.next({
             request,
-          });
-          supabaseResponse.cookies.set(name, '', options);
+          })
+          supabaseResponse.cookies.set({ name, value: '', ...options } as RequestCookie)
         },
       },
     }
