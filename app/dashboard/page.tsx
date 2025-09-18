@@ -25,7 +25,6 @@ import {
   Building, // Added Building icon for Manage Vendors
   Settings, // Added Settings icon for System Settings
   LifeBuoy, // Added LifeBuoy for Help & Support
-  Plus, // Added Plus icon
 } from "lucide-react"
 import {
   LineChart,
@@ -342,132 +341,7 @@ function DashboardContent() {
             </Card>
           </div>
 
-          {/* Main Actions - As per screenshot */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Send Assessment */}
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <Link href="/third-party-assessment">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Send className="h-5 w-5 text-blue-600" />
-                    <span>Send Vendor Assessment</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Send risk assessment invitations to your vendors and third-party partners
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create New Assessment
-                  </Button>
-                </CardContent>
-              </Link>
-            </Card>
-
-            {/* Manage Vendors */}
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <Link href="/vendors">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Users className="h-5 w-5 text-green-600" />
-                    <span>Manage Vendors</span>
-                  </CardTitle>
-                  <CardDescription>
-                    View and manage your vendor relationships, risk scores, and compliance status
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
-                    <Building className="mr-2 h-4 w-4" />
-                    View All Vendors
-                  </Button>
-                </CardContent>
-              </Link>
-            </Card>
-
-            {/* Analytics Dashboard */}
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <Link href="/analytics"> {/* Changed link to /analytics */}
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <BarChart3 className="h-5 w-5 text-purple-600" />
-                    <span>Analytics Dashboard</span>
-                  </CardTitle>
-                  <CardDescription>View real-time analytics, risk trends, and comprehensive reporting</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
-                    <BarChart3 className="mr-2 h-4 w-4" />
-                    View Analytics
-                  </Button>
-                </CardContent>
-              </Link>
-            </Card>
-
-            {/* System Settings */}
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <Link href="/settings">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Settings className="h-5 w-5 text-gray-600" />
-                    <span>System Settings</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Configure organization settings, user management, and system preferences
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Configure Settings
-                  </Button>
-                </CardContent>
-              </Link>
-            </Card>
-
-            {/* Generate Reports */}
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <Link href="/reports">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <FileText className="h-5 w-5 text-orange-600" />
-                    <span>Generate Reports</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Create comprehensive risk reports, compliance documentation, and audit trails
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
-                    <FileText className="mr-2 h-4 w-4" />
-                    View Reports
-                  </Button>
-                </CardContent>
-              </Link>
-            </Card>
-
-            {/* Help & Support */}
-            <Card className="hover:shadow-lg transition-shadow">
-              <Link href="#"> {/* Placeholder link for now */}
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <LifeBuoy className="h-5 w-5 text-blue-600" />
-                    <span>Help & Support</span>
-                  </CardTitle>
-                  <CardDescription>Access documentation, training materials, and technical support</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
-                    <LifeBuoy className="mr-2 h-4 w-4" />
-                    Get Support
-                  </Button>
-                </CardContent>
-              </Link>
-            </Card>
-          </div>
-
-          <Tabs defaultValue="overview" className="space-y-6 mt-8"> {/* Added mt-8 for spacing */}
+          <Tabs defaultValue="overview" className="space-y-6">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Live Overview</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
