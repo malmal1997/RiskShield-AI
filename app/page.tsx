@@ -17,14 +17,14 @@ export default function RiskGuardLanding() {
             <h1 className="text-4xl font-bold tracking-tight text-blue-600 sm:text-5xl md:text-6xl">
               AI-Powered Risk Assessment
               <br />
-              <span className="text-blue-600">for All Organizations</span>
+              <span className="text-blue-600">for Financial Institutions</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
               Comprehensive regulatory compliance solutions with advanced AI
               <br />
               analytics for cybersecurity, business continuity, and third-party risk
               <br />
-              management across all industries.
+              management tailored for the financial sector.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/auth/register">
@@ -56,26 +56,26 @@ export default function RiskGuardLanding() {
               <CardHeader>
                 <div className="flex items-center space-x-2">
                   <BarChart3 className="h-5 w-5 text-blue-600" />
-                  <CardTitle className="text-lg">Client Dashboard</CardTitle>
+                  <CardTitle className="text-lg">Financial Risk Dashboard</CardTitle>
                 </div>
                 <CardDescription>
-                  Monitor compliance status, track assessment progress, and receive real-time alerts on regulatory
-                  requirements.
+                  Gain real-time visibility into your institution's risk posture, track regulatory compliance across all
+                  departments, and monitor key performance indicators specific to financial operations.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Real-time compliance tracking</span>
+                    <span className="text-sm text-gray-600">Centralized risk overview</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Risk assessment overview</span>
+                    <span className="text-sm text-gray-600">Regulatory compliance dashboards</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Regulatory change notifications</span>
+                    <span className="text-sm text-gray-600">Operational risk monitoring</span>
                   </div>
                 </div>
               </CardContent>
@@ -86,25 +86,26 @@ export default function RiskGuardLanding() {
               <CardHeader>
                 <div className="flex items-center space-x-2">
                   <FileText className="h-5 w-5 text-blue-600" />
-                  <CardTitle className="text-lg">Assessment Questionnaire</CardTitle>
+                  <CardTitle className="text-lg">Financial Assessment Tools</CardTitle>
                 </div>
                 <CardDescription>
-                  Streamlined assessment tools covering cybersecurity, business continuity, and compliance requirements.
+                  Conduct comprehensive assessments for financial crime (AML/KYC), credit risk, market risk, and
+                  operational resilience, all aligned with industry best practices.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Cybersecurity questions</span>
+                    <span className="text-sm text-gray-600">AML/KYC risk assessments</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Business continuity risk audit</span>
+                    <span className="text-sm text-gray-600">Credit risk evaluations</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Compliance requirements</span>
+                    <span className="text-sm text-gray-600">Market risk analysis</span>
                   </div>
                 </div>
               </CardContent>
@@ -115,25 +116,26 @@ export default function RiskGuardLanding() {
               <CardHeader>
                 <div className="flex items-center space-x-2">
                   <TrendingUp className="h-5 w-5 text-blue-600" />
-                  <CardTitle className="text-lg">Risk Analysis Reports</CardTitle>
+                  <CardTitle className="text-lg">Regulatory & Risk Reports</CardTitle>
                 </div>
                 <CardDescription>
-                  Comprehensive automated reports with actionable recommendations and compliance verification.
+                  Generate automated reports for regulatory submissions (e.g., Basel III, Dodd-Frank), internal audit
+                  committees, and board-level risk reviews, complete with actionable insights.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Automated risk analysis</span>
+                    <span className="text-sm text-gray-600">Regulatory submission reports</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Comprehensive risk reports</span>
+                    <span className="text-sm text-gray-600">Internal audit documentation</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Actionable advisory statements</span>
+                    <span className="text-sm text-gray-600">Board-level risk summaries</span>
                   </div>
                 </div >
               </CardContent>
@@ -144,26 +146,26 @@ export default function RiskGuardLanding() {
               <CardHeader>
                 <div className="flex items-center space-x-2">
                   <BadgeCheck className="h-5 w-5 text-blue-600" />
-                  <CardTitle className="text-lg">Additional Certifications</CardTitle>
+                  <CardTitle className="text-lg">Financial Compliance Certifications</CardTitle>
                 </div>
                 <CardDescription>
-                  Accepts organizational assessments for SOC 2 Type II, ISO 27001, NIST, and other industry
-                  certifications
+                  Streamline preparation for critical financial certifications and frameworks such as PCI DSS, ISO
+                  27001, SOC 1/2, NIST, and FFIEC guidelines, ensuring robust security and compliance.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">SOC 2 comprehensive assessments</span>
+                    <span className="text-sm text-gray-600">PCI DSS compliance readiness</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">ISO 27001 compliance evaluation</span>
+                    <span className="text-sm text-gray-600">FFIEC examination support</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">NIST Framework alignment</span>
+                    <span className="text-sm text-gray-600">SOC 1/2 reporting assistance</span>
                   </div>
                 </div>
               </CardContent>
@@ -174,26 +176,26 @@ export default function RiskGuardLanding() {
               <CardHeader>
                 <div className="flex items-center space-x-2">
                   <Shield className="h-5 w-5 text-blue-600" />
-                  <CardTitle className="text-lg">Third-Party Risk Assessments</CardTitle>
+                  <CardTitle className="text-lg">Third-Party Financial Risk</CardTitle>
                 </div>
                 <CardDescription>
-                  Comprehensive vendor risk evaluation and monitoring with automated assessment distribution and
-                  tracking.
+                  Manage third-party vendor risks, including data processors, cloud providers, and fintech partners,
+                  with automated due diligence and continuous monitoring for financial supply chain integrity.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Vendor risk questionnaires</span>
+                    <span className="text-sm text-gray-600">Vendor due diligence automation</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Automated assessment distribution</span>
+                    <span className="text-sm text-gray-600">Cloud provider risk assessment</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Risk scoring and monitoring</span>
+                    <span className="text-sm text-gray-600">Fintech partner evaluation</span>
                   </div>
                 </div>
               </CardContent>
@@ -204,26 +206,26 @@ export default function RiskGuardLanding() {
               <CardHeader>
                 <div className="flex items-center space-x-2">
                   <FileText className="h-5 w-5 text-blue-600" />
-                  <CardTitle className="text-lg">Policy Generator/Manager</CardTitle>
+                  <CardTitle className="text-lg">Financial Policy Management</CardTitle>
                 </div>
                 <CardDescription>
-                  AI-powered policy creation and management system with regulatory compliance templates and version
-                  control.
+                  Leverage AI to generate and manage policies for data privacy (GLBA), cybersecurity, anti-money
+                  laundering, and business continuity, ensuring alignment with financial regulatory requirements.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">AI-powered policy generation</span>
+                    <span className="text-sm text-gray-600">GLBA privacy policy generation</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Regulatory compliance templates</span>
+                    <span className="text-sm text-gray-600">AML policy templates</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Version control and tracking</span>
+                    <span className="text-sm text-gray-600">Cybersecurity policy automation</span>
                   </div>
                 </div>
               </CardContent>
@@ -237,7 +239,7 @@ export default function RiskGuardLanding() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-blue-600">Get Started in 3 Simple Steps</h2>
-            <p className="mt-4 text-lg text-gray-600">Join hundreds of organizations already using RiskShield AI</p>
+            <p className="mt-4 text-lg text-gray-600">Join hundreds of financial institutions already using RiskShield AI</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -283,13 +285,13 @@ export default function RiskGuardLanding() {
       <section className="bg-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-blue-600">Trusted by Organizations Worldwide</h2>
+            <h2 className="text-3xl font-bold text-blue-600">Trusted by Financial Institutions Worldwide</h2>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600">500+</div>
-              <div className="text-sm text-gray-600 mt-2">Organizations served</div>
+              <div className="text-sm text-gray-600 mt-2">Financial Institutions served</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600">10,000+</div>
@@ -335,7 +337,7 @@ export default function RiskGuardLanding() {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Ready to Strengthen Your Risk Management?</h2>
             <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
-              Join hundreds of organizations using RiskShield AI to maintain compliance and mitigate risks with
+              Join hundreds of financial institutions using RiskShield AI to maintain compliance and mitigate risks with
               confidence.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -368,8 +370,8 @@ export default function RiskGuardLanding() {
                 <span className="text-lg font-bold">RiskShield AI</span>
               </div>
               <p className="text-gray-400 text-sm">
-                AI-powered risk assessment platform helping organizations maintain compliance and mitigate risks across
-                all industries.
+                AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
+                risks.
               </p>
             </div>
 

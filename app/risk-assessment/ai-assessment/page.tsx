@@ -2401,6 +2401,7 @@ export default function AIAssessmentPage() {
                     variant="ghost"
                     onClick={() => setCurrentStep("select-category")}
                     className="mb-6 hover:bg-blue-50"
+                    disabled={!canCreateAssessments}
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Category Selection
@@ -2691,369 +2692,550 @@ export default function AIAssessmentPage() {
                                 disabled={!canCreateAssessments}
                               />
                               <label htmlFor="document-upload" className={`cursor-pointer ${!canCreateAssessments ? "cursor-not-allowed" : ""}`}>
-                               <dyad-problem-report summary="2 problems">
-<problem file="app/reports/page.tsx" line="95" column="9" code="2304">Cannot find name 'isDemo'.</problem>
-<problem file="app/reports/page.tsx" line="124" column="12" code="2304">Cannot find name 'RefreshCw'.</problem>
-</dyad-problem-report><think>**Analyzing the Compilation Failures**
+                                <Upload className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                                <p className="text-lg font-medium text-blue-900 mb-1">
+                                  Click to upload or drag and drop
+                                </p>
+                                <p className="text-sm text-blue-700">
+                                  PDF, DOC, DOCX, TXT, CSV, XLSX, PPT, PPTX up to 10MB each
+                                </p>
+                                <p className="text-xs text-blue-600 mt-2">
+                                  💡 Recommended: Security policies, SOC reports, compliance certificates, procedures
+                                </p>
+                              </label>
+                            </div>
 
-I've just been delving into the TypeScript errors cropping up in `app/reports/page.tsx`. Specifically, it seems the compiler is balking at an "isDemo" reference.  I've cross-referenced and confirmed that `isDemo` *should* be accessible through the `useAuth` hook. Seems the issue is with the way that hook is invoked, with `ReportsContent` being the point of concern.
+                            {uploadedFiles.length > 0 && (
+                              <div className="mt-4 space-y-2">
+                                <h5 className="font-medium text-blue-900">Uploaded Files ({uploadedFiles.length}):</h5>
+                                {uploadedFiles.map((item: UploadedFileWithLabel, index: number) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center justify-between p-3 bg-white border border-blue-200 rounded"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <FileText className="h-4 w-4 text-blue-600" />
+                                      <span className="text-sm text-gray-700">{item.file.name}</span>
+                                      <span className="text-xs text-gray-500">
+                                        ({(item.file.size / 1024 / 1024).toFixed(1)} MB)
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <Select
+                                        value={item.label}
+                                        onValueChange={(value: 'Primary' | '4th Party') => handleFileLabelChange(index, value)}
+                                        disabled={!canCreateAssessments}
+                                      >
+                                        <SelectTrigger className="w-[120px] h-8 text-xs">
+                                          <SelectValue placeholder="Select label" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="Primary">Primary</SelectItem>
+                                          <SelectItem value="4th Party">4th Party</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <Button variant="outline" size="sm" onClick={() => handleRemoveFile(index)} disabled={!canCreateAssessments}>
+                                        Remove
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
 
+                          {uploadedFiles.length > 0 && (
+                            <Button
+                              onClick={handleAnalyzeDocuments}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                              disabled={isAnalyzing || !canCreateAssessments}
+                            >
+                              {isAnalyzing ? (
+                                <>
+                                  <Clock className="mr-2 h-5 w-5 animate-spin" />
+                                  Analyzing Documents... This may take a few moments
+                                </>
+                              ) : (
+                                <>
+                                  <Bot className="mr-2 h-5 w-5" />
+                                  🚀 Analyze Documents with AI
+                                </>
+                              )}
+                            </Button>
+                          )}
 
-**Reviewing Code Scope**
+                          {error && (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-lg mt-4">
+                              <div className="flex items-center space-x-2">
+                                <AlertCircle className="h-5 w-5 text-red-600" />
+                                <p className="text-sm text-red-800">
+                                  <strong>Error:</strong> {error}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
-It appears the problem lies not in the destructuring, but in how `isDemo` is being accessed. The `generateReport` function, nested inside `ReportsContent`, *should* inherit `isDemo` from its parent scope. I'm focusing on why the TypeScript compiler can't "see" it. I will examine variable scoping within `ReportsContent` to ensure all necessary declarations and imports are present. Perhaps a subtle typo or a misplaced curly brace is preventing proper access.
-
-
-**Refining Scope Assumptions**
-
-I'm now revisiting the assumption that `generateReport` should inherently have access to `isDemo`. The structure of the code, as provided, strongly suggests this. I've re-examined the component's render function, and `generateReport` *is* being called within the direct scope. It is being called as part of a `button`'s `onClick` handler, and all indications are that closure should provide access to `isDemo`. Yet, the compiler persists with the "not found" error. I am digging into the build process, to ascertain if there is anything that could lead to this discrepancy. Perhaps it is a stale cache issue or misconfigured settings.
-
-
-**Confirming Variable Scope**
-
-I'm now revisiting the `isDemo` issue. While the structure *should* make it accessible, I'm going to add a console.log statement inside `ReportsContent` to definitively check the value of `isDemo` at render time, and verify that closure is behaving as expected. This will help determine if the problem is a build or environment issue rather than a logic flaw. Simultaneously, I'll review any potential for aliasing or shadowing of the `isDemo` variable within the scope of the component.
-
-
-**Correcting the Import Statements**
-
-I've determined that the `isDemo` issue stemmed from a missing destructuring in `ReportsContent`. That's now fixed. I also added `RefreshCw` to the import. Both should be resolved. I'm now testing these updates to confirm successful compilation and operation. I will check to make sure the app works as expected. I'm moving toward validating everything.
-
-
-</think>You're right to point those out! It looks like `isDemo` wasn't being destructured from `useAuth()` in `ReportsContent`, and `RefreshCw` was missing from the `lucide-react` import.
-
-I've made the following concise fixes in `app/reports/page.tsx`:
-
-1.  **`isDemo`**: Added `isDemo` to the destructuring of the `useAuth()` hook within the `ReportsContent` component.
-2.  **`RefreshCw`**: Added `RefreshCw` to the import statement from `lucide-react`.
-
-<dyad-write path="app/reports/page.tsx" description="Fixed TypeScript errors by importing RefreshCw and destructuring isDemo from useAuth.">
-"use client"
-
-import { useState, useEffect } from "react"
-import { AuthGuard } from "@/components/auth-guard"
-import { useAuth } from "@/components/auth-context"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BarChart3, TrendingUp, FileText, Download, Calendar, Filter, ArrowLeft, AlertTriangle, RefreshCw } from "lucide-react" // Added RefreshCw
-import Link from "next/link"
-
-const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
-
-export default function ReportsPage() {
-  return (
-    <AuthGuard>
-      <ReportsContent />
-    </AuthGuard>
-  )
-}
-
-function ReportsContent() {
-  const { user, profile, organization, loading: authLoading, hasPermission, isDemo } = useAuth() // Added isDemo
-  const [loading, setLoading] = useState(true)
-  const [selectedTimeframe, setSelectedTimeframe] = useState("30d")
-  const [error, setError] = useState<string | null>(null);
-
-  const canViewReports = hasPermission("view_reports");
-
-  // Mock report data
-  const reportTemplates = [
-    {
-      id: "1",
-      name: "Executive Risk Summary",
-      description: "High-level risk overview for executives",
-      type: "executive",
-      frequency: "monthly",
-      lastGenerated: "2025-01-15",
-      status: "active",
-    },
-    {
-      id: "2",
-      name: "Vendor Risk Assessment Report",
-      description: "Detailed vendor risk analysis",
-      type: "vendor",
-      frequency: "quarterly",
-      lastGenerated: "2025-01-10",
-      status: "active",
-    },
-    {
-      id: "3",
-      name: "Compliance Status Report",
-      description: "Regulatory compliance tracking",
-      type: "compliance",
-      frequency: "monthly",
-      lastGenerated: "2025-01-20",
-      status: "active",
-    },
-    {
-      id: "4",
-      name: "Security Metrics Dashboard",
-      description: "Security KPIs and metrics",
-      type: "security",
-      frequency: "weekly",
-      lastGenerated: "2025-01-22",
-      status: "active",
-    },
-  ]
-
-  const riskTrendData = [
-    { date: "2025-01-01", score: 75 },
-    { date: "2025-01-08", score: 78 },
-    { date: "2025-01-15", score: 72 },
-    { date: "2025-01-22", score: 80 },
-    { date: "2025-01-29", score: 77 },
-  ]
-
-  const riskDistributionData = [
-    { name: "Low", value: 45, color: "#10b981" },
-    { name: "Medium", value: 30, color: "#f59e0b" },
-    { name: "High", value: 20, color: "#ef4444" },
-    { name: "Critical", value: 5, color: "#dc2626" },
-  ]
-
-  const vendorsByIndustry = [
-    { industry: "Technology", count: 25, riskScore: 72 },
-    { industry: "Financial Services", count: 18, riskScore: 68 },
-    { industry: "Healthcare", count: 12, riskScore: 85 },
-    { industry: "Manufacturing", count: 15, riskScore: 74 },
-    { industry: "Retail", count: 8, riskScore: 69 },
-  ]
-
-  const generateReport = (reportId: string) => {
-    if (isDemo) {
-      alert("Preview Mode: Report generation is not available in preview mode. Please sign up for full access.");
-      return;
-    }
-    if (!canViewReports) { // Assuming generate also falls under view_reports or a new permission
-      alert("You do not have permission to generate reports.");
-      return;
-    }
-    setLoading(true)
-    // Simulate report generation
-    setTimeout(() => {
-      setLoading(false)
-      alert(`Report generated successfully!`)
-    }, 2000)
-  }
-
-  useEffect(() => {
-    if (!authLoading) {
-      if (!canViewReports) {
-        setError("You do not have permission to view reports.");
-      }
-      setLoading(false);
-    }
-  }, [authLoading, canViewReports]);
-
-  if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading reports...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8">
-          <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <Link href="/dashboard">
-            <Button>Return to Dashboard</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Page Header - Integrated header content here */}
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center space-x-4">
-          <Link href="/dashboard">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
-            <p className="text-gray-600 mt-2">Generate comprehensive risk reports and view analytics</p>
-          </div>
-        </div>
-        <div className="flex gap-4">
-          <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-              <SelectItem value="1y">Last year</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button>
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Reports</p>
-                <p className="text-2xl font-bold text-gray-900">24</p>
-              </div>
-              <FileText className="w-8 h-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Avg Risk Score</p>
-                <p className="text-2xl font-bold text-gray-900">76</p>
-              </div>
-              <BarChart3 className="w-8 h-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Risk Trend</p>
-                <p className="text-2xl font-bold text-gray-900">+5%</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Vendors</p>
-                <p className="text-2xl font-bold text-gray-900">78</p>
-              </div>
-              <Calendar className="w-8 h-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Report Templates */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Report Templates</CardTitle>
-            <CardDescription>Generate standardized reports</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {reportTemplates.map((template) => (
-                <div key={template.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <h3 className="font-semibold">{template.name}</h3>
-                    <p className="text-sm text-gray-600">{template.description}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="outline">{template.frequency}</Badge>
-                      <span className="text-xs text-gray-500">Last: {template.lastGenerated}</span>
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-2">
+                          <AlertCircle className="h-5 w-5 text-amber-600" />
+                          <p className="text-sm text-amber-800">
+                            <strong>Note:</strong> AI-generated responses are suggestions based on your documents.
+                            Please review and verify all answers before submission.
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <Button onClick={() => generateReport(template.id)} disabled={loading} size="sm">
-                    <Download className="w-4 h-4 mr-2" />
-                    Generate
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Step 4: Review AI-Generated Answers */}
+            {currentStep === "review-answers" && (selectedCategory || selectedTemplateId) && analysisResults && (
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setCurrentStep("upload-documents")}
+                    className="mb-6 hover:bg-blue-50"
+                    disabled={!canCreateAssessments}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Document Upload
                   </Button>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Risk Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Risk Distribution</CardTitle>
-            <CardDescription>Current risk levels across organization</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {riskDistributionData.map((item, index) => (
-                <div key={item.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="font-medium">{item.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="h-2 rounded-full"
-                        style={{
-                          width: `${item.value}%`,
-                          backgroundColor: item.color,
-                        }}
-                      />
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Review AI-Generated Answers</h2>
+                  <p className="text-lg text-gray-600">
+                    Selected: <span className="font-semibold text-blue-600">{(customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name)}</span>
+                  </p>
+                  <p className="text-gray-600 mt-2">
+                    The AI has analyzed your documents and provided suggested answers. Please review and edit as needed.
+                  </p>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between"> {/* Added wrapper div */}
+                      <CardTitle className="flex items-center space-x-2">
+                        <Bot className="h-5 w-5" />
+                        <span>AI-Suggested Responses</span>
+                      </CardTitle>
+                      {!isReportSaved && analysisResults.confidenceScores && (
+                        <Badge className="bg-green-100 text-green-700">
+                          Confidence: {Math.round(Object.values(analysisResults.confidenceScores).reduce((sum: number, val: number) => sum + val, 0) / Object.values(analysisResults.confidenceScores).length * 100)}%
+                        </Badge>
+                      )}
                     </div>
-                    <span className="text-sm font-medium w-8">{item.value}%</span>
+                    <CardDescription>
+                      Review the AI's answers and make any necessary adjustments.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+                    {currentQuestions.map((question: TemplateQuestion, index: number) => (
+                      <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
+                        <div>
+                          <div className="flex items-start space-x-2 mb-2">
+                            <Badge variant="outline" className="mt-1">
+                              {question.category}
+                            </Badge>
+                            {question.required && <span className="text-red-500 text-sm">*</span>}
+                            {!isReportSaved && analysisResults.confidenceScores?.[question.id] !== undefined && (
+                              <Badge className="bg-blue-100 text-blue-700 text-xs">
+                                AI Confidence: {Math.round(analysisResults.confidenceScores[question.id] * 100)}%
+                              </Badge>
+                            )}
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-900">
+                            {index + 1}. {question.question_text}
+                          </h3>
+                        </div>
+
+                        {/* AI Suggested Answer Display */}
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-sm text-blue-800 mb-2">
+                            <Bot className="inline h-4 w-4 mr-1" />
+                            AI Suggestion:
+                          </p>
+                          <p className="text-sm font-medium text-blue-900">
+                            {typeof analysisResults.answers[question.id] === "boolean"
+                              ? (analysisResults.answers[question.id] ? "Yes" : "No")
+                              : Array.isArray(analysisResults.answers[question.id])
+                                ? (analysisResults.answers[question.id] as string[]).join(", ")
+                                : analysisResults.answers[question.id] || "N/A"}
+                          </p>
+                          {analysisResults.documentExcerpts?.[question.id] &&
+                            analysisResults.documentExcerpts[question.id].length > 0 && (
+                              <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-50 border border-gray-100 rounded">
+                                <Info className="inline h-3 w-3 mr-1" />
+                                <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0])}
+                              </div>
+                            )}
+                        </div>
+
+                        {/* Editable Answer Field */}
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <Label htmlFor={`answer-${question.id}`} className="text-sm font-medium text-gray-700">
+                            Your Final Answer (Edit if needed)
+                          </Label>
+                          {question.question_type === "boolean" && (
+                            <div className="flex space-x-4 mt-2">
+                              <label className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`question-${question.id}`}
+                                  checked={answers[question.id] === true}
+                                  onChange={() => handleAnswerChange(question.id, true)}
+                                  className="mr-2"
+                                  disabled={!canCreateAssessments}
+                                />
+                                Yes
+                              </label>
+                              <label className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`question-${question.id}`}
+                                  checked={answers[question.id] === false}
+                                  onChange={() => handleAnswerChange(question.id, false)}
+                                  className="mr-2"
+                                  disabled={!canCreateAssessments}
+                                />
+                                No
+                              </label>
+                            </div>
+                          )}
+                          {question.question_type === "multiple" && (
+                            <>
+                              <select
+                                value={
+                                  (question.options?.includes(answers[question.id]) || !answers[question.id])
+                                    ? answers[question.id]
+                                    : "Other"
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === "Other") {
+                                    setShowOtherInput(prev => ({ ...prev, [question.id]: true }));
+                                    handleAnswerChange(question.id, ""); // Clear answer when "Other" is selected
+                                  } else {
+                                    setShowOtherInput(prev => ({ ...prev, [question.id]: false }));
+                                    handleAnswerChange(question.id, value);
+                                  }
+                                }}
+                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                                disabled={!canCreateAssessments}
+                              >
+                                <option value="">Select an option</option>
+                                {question.options?.map((option: string) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                                <option value="Other">Other (please specify)</option>
+                              </select>
+                              {showOtherInput[question.id] && (
+                                <Input
+                                  id={`other-answer-${question.id}`}
+                                  value={answers[question.id] || ""}
+                                  onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                                  placeholder="Please specify..."
+                                  className="mt-2"
+                                  disabled={!canCreateAssessments}
+                                />
+                              )}
+                            </>
+                          )}
+                          {question.question_type === "tested" && (
+                            <div className="flex space-x-4 mt-2">
+                              <label className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`question-${question.id}`}
+                                  checked={answers[question.id] === "tested"}
+                                  onChange={() => handleAnswerChange(question.id, "tested")}
+                                  className="mr-2"
+                                  disabled={!canCreateAssessments}
+                                />
+                                Tested
+                              </label>
+                              <label className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`question-${question.id}`}
+                                  checked={answers[question.id] === "not_tested"}
+                                  onChange={() => handleAnswerChange(question.id, "not_tested")}
+                                  className="mr-2"
+                                  disabled={!canCreateAssessments}
+                                />
+                                Not Tested
+                              </label>
+                            </div>
+                          )}
+                          {question.question_type === "textarea" && (
+                            <Textarea
+                              id={`answer-${question.id}`}
+                              value={answers[question.id] || ""}
+                              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                              placeholder="Provide your detailed response here..."
+                              rows={4}
+                              className="mt-2"
+                              disabled={!canCreateAssessments}
+                            />
+                          )}
+                          {question.question_type === "checkbox" && (
+                            <div className="space-y-2 mt-2">
+                              {question.options?.map((option: string) => (
+                                <div key={option} className="flex items-center">
+                                  <Checkbox
+                                    id={`${question.id}-${option}`}
+                                    checked={answers[question.id]?.includes(option) || false}
+                                    onCheckedChange={(checked: boolean) => {
+                                      const currentAnswers = answers[question.id] || [];
+                                      if (checked) {
+                                        handleAnswerChange(question.id, [...currentAnswers, option]);
+                                      } else {
+                                        handleAnswerChange(
+                                          question.id,
+                                          currentAnswers.filter((item: string) => item !== option)
+                                        );
+                                      }
+                                    }}
+                                    disabled={!canCreateAssessments}
+                                  />
+                                  <Label htmlFor={`${question.id}-${option}`} className="ml-2">
+                                    {option}
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <div className="mt-8 flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentStep("upload-documents")}
+                    className="hover:bg-gray-50"
+                    disabled={!canCreateAssessments}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Document Upload
+                  </Button>
+                  <Button onClick={handleFinalSubmit} className="bg-green-600 hover:bg-green-700 text-white" disabled={!canCreateAssessments}>
+                    <FileCheck className="mr-2 h-4 w-4" />
+                    Finalize Assessment
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 5: Results */}
+            {currentStep === "results" && (selectedCategory || selectedTemplateId) && analysisResults && (
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">AI Assessment Complete!</h2>
+                  <p className="text-lg text-gray-600">
+                    Your {(customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name)} risk assessment has been finalized.
+                  </p>
+                </div>
+
+                <div className="space-y-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Overall Risk Score</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <div className="text-5xl font-bold text-blue-600 mb-4">{riskScore}%</div>
+                      <Badge className={`text-lg px-4 py-2 ${getRiskLevelColor(riskLevel)}`}>
+                        {riskLevel} Risk
+                      </Badge>
+                      <p className="text-sm text-gray-600 mt-4">
+                        This score reflects your current posture based on the AI analysis and your review.
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>AI Analysis Summary</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <h3 className="font-semibold text-blue-900 mb-2">Overall Analysis</h3>
+                          <p className="text-sm text-blue-800">{analysisResults.overallAnalysis}</p>
+                          <p className="text-xs text-blue-700 mt-2">
+                            AI Provider: {analysisResults.aiProvider} | Documents Analyzed:{" "}
+                            {analysisResults.documentsAnalyzed}
+                          </p>
+                        </div>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                          <h3 className="font-semibold text-red-900 mb-2">Identified Risk Factors</h3>
+                          <ul className="text-sm text-red-800 list-disc pl-5 space-y-1">
+                            {analysisResults.riskFactors.map((factor: string, index: number) => (
+                              <li key={index} className="whitespace-pre-wrap">{factor}</li>
+                            )) || <li>No risk factors identified.</li>}
+                          </ul>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-md">
+                          <h3 className="font-medium text-green-900 mb-2">Recommendations</h3>
+                          <ul className="text-sm text-green-800 list-disc pl-5 space-y-1">
+                            {analysisResults.recommendations.map((rec: string, index: number) => (
+                              <li key={index} className="whitespace-pre-wrap">{rec}</li>
+                            )) || <li>No recommendations provided.</li>}
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentStep("review-answers")}
+                      className="hover:bg-gray-50"
+                      disabled={!canCreateAssessments}
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back to Review
+                    </Button>
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={handleSaveReport}
+                        className="bg-blue-600 hover:bg-blue-700"
+                        disabled={isSavingReport || isDemo || !canCreateAssessments}
+                      >
+                        {isSavingReport ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Save Report
+                          </>
+                        )}
+                      </Button>
+                      <Button onClick={() => handleViewFullReport(user?.id || 'demo-user-id')} className="bg-blue-600 hover:bg-blue-700" disabled={!canCreateAssessments}>
+                        <Download className="mr-2 h-4 w-4" />
+                        View Full Report
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Vendors by Industry */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Vendors by Industry</CardTitle>
-          <CardDescription>Risk assessment breakdown by industry sector</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4">Industry</th>
-                  <th className="text-left py-3 px-4">Vendor Count</th>
-                  <th className="text-left py-3 px-4">Avg Risk Score</th>
-                  <th className="text-left py-3 px-4">Risk Level</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vendorsByIndustry.map((item, index) => (
-                  <tr key={index} className="border-b">
-                    <td className="py-3 px-4 font-medium">{item.industry}</td>
-                    <td className="py-3 px-4">{item.count}</td>
-                    <td className="py-3 px-4">{item.riskScore}</td>
-                    <td className="py-3 px-4">
-                      <Badge
-                        variant={item.riskScore > 80 ? "destructive" : item.riskScore > 70 ? "default" : "secondary"}
-                      >
-                        {item.riskScore > 80 ? "High" : item.riskScore > 70 ? "Medium" : "Low"}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              </div>
+            )}
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div>
+                <div className="flex items-center space-x-2 mb-4">
+                  <Shield className="h-6 w-6 text-blue-400" />
+                  <span className="text-lg font-bold">RiskShield AI</span>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  AI-powered risk assessment platform helping financial institutions maintain compliance and mitigate
+                  risks.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Platform</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Risk Assessment
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Compliance Monitoring
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Policy Generator
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Policy Library
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Support</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Help Center
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Contact Support
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Status Page
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Company</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      About Us
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Careers
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Terms of Service
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
+              <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </AuthGuard>
   )
 }
