@@ -19,24 +19,24 @@ Welcome to RiskShield AI, an AI-powered platform designed to streamline risk ass
 
 ### 1. Clone the Repository
 
-```bash
+\`\`\`bash
 git clone [repository-url]
 cd RiskShield-AI
-```
+\`\`\`
 
 ### 2. Install Dependencies
 
 We use `pnpm` for package management.
 
-```bash
+\`\`\`bash
 pnpm install
-```
+\`\`\`
 
 ### 3. Environment Variables
 
 Create a `.env.local` file in the root of your project and add the following environment variables:
 
-```
+\`\`\`
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL="YOUR_SUPABASE_URL"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
@@ -51,7 +51,7 @@ RESEND_API_KEY="YOUR_RESEND_API_KEY"
 
 # Base URL for email links (e.g., your Vercel deployment URL)
 NEXT_PUBLIC_BASE_URL="http://localhost:3000"
-```
+\`\`\`
 
 **Important:**
 -   Replace `YOUR_SUPABASE_URL`, `YOUR_SUPABASE_ANON_KEY`, `YOUR_SUPABASE_SERVICE_ROLE_KEY` with your actual Supabase project credentials.
@@ -73,9 +73,9 @@ If you're setting up a new Supabase project, you'll need to run the SQL scripts 
 
 ### 5. Start the Development Server
 
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
