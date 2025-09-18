@@ -1,7 +1,17 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import type { CookieSerializeOptions } from 'cookie' // Import CookieSerializeOptions
-import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies' // Import RequestCookie
+import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies'
+
+// Define a local interface for CookieSerializeOptions
+interface CookieSerializeOptions {
+  domain?: string;
+  expires?: Date;
+  httpOnly?: boolean;
+  maxAge?: number;
+  path?: string;
+  sameSite?: 'lax' | 'strict' | 'none' | boolean;
+  secure?: boolean;
+}
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
