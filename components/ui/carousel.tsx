@@ -3,17 +3,17 @@
 import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
-  EmblaOptionsType, // Corrected import
-  EmblaPluginType,  // Corrected import
 } from "embla-carousel-react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button, type ButtonProps } from "@/components/ui/button"
 
-type CarouselOptions = EmblaOptionsType
+// Correctly infer EmblaOptionsType from the first argument of useEmblaCarousel
+type CarouselOptions = NonNullable<React.ComponentProps<typeof useEmblaCarousel>[0]>
 type CarouselApi = UseEmblaCarouselType[1]
-type CarouselPlugins = EmblaPluginType[]
+// Correctly infer EmblaPluginType from the second argument of useEmblaCarousel
+type CarouselPlugins = React.ComponentProps<typeof useEmblaCarousel>[1]
 
 type CarouselProps = {
   opts?: CarouselOptions
