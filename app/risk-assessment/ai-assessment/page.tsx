@@ -9,35 +9,35 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { Checkbox } from "@/components/ui/checkbox" // Added Checkbox import
-import {
-  Shield,
-  FileText,
-  BarChart3,
-  Eye,
-  Bot,
-  Clock,
-  Building,
-  Lock,
-  Server,
-  Send,
-  Users,
-  User,
-  ArrowLeft,
-  Building2,
-  CheckCircle2,
-  Download,
-  X,
-  ArrowRight,
-  Upload,
-  AlertCircle,
-  Check,
-  Save,
-  Info,
-  FileCheck,
-  Loader2,
-  Copy,
-  Edit3,
-  Calendar,
+import { 
+  Shield, 
+  FileText, 
+  BarChart3, 
+  Eye, 
+  Bot, 
+  Clock, 
+  Building, 
+  Lock, 
+  Server, 
+  Send, 
+  Users, 
+  User, 
+  ArrowLeft, 
+  Building2, 
+  CheckCircle2, 
+  Download, 
+  X, 
+  ArrowRight, 
+  Upload, 
+  AlertCircle, 
+  Check, 
+  Save, 
+  Info, 
+  FileCheck, 
+  Loader2, 
+  Copy, 
+  Edit3, 
+  Calendar, 
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { Label as ShadcnLabel } from "@/components/ui/label"
@@ -81,7 +81,7 @@ const assessmentCategories: BuiltInAssessmentCategory[] = [
       {
         id: "cs1",
         category: "Security Policies",
-        question: "Does your organization have a formal cybersecurity policy?",
+        question: "Does your organization have a formal information security policy?",
         type: "boolean" as const,
         weight: 10,
       },
@@ -2694,20 +2694,6 @@ export default function AIAssessmentPage() {
                                 </>
                               )}
                             </Button>
-                          )}
-
-                          {isAnalyzing && (
-                            <div className="p-4 bg-blue-100 border border-blue-300 rounded-lg">
-                              <div className="flex items-center space-x-3">
-                                <Clock className="h-5 w-5 text-blue-600 animate-spin" />
-                                <div>
-                                  <h4 className="font-semibold text-blue-900">AI Analysis in Progress</h4>
-                                  <p className="text-sm text-blue-800">
-                                    Processing {uploadedFiles.length} documents and generating assessment responses...
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
                           )}
 
                           {error && (

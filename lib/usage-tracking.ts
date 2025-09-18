@@ -281,18 +281,32 @@ class UsageTracker {
 
   // Convenience methods for common tracking scenarios
   async trackSignupAttempt(email?: string, source = "signup_form") {
-    await this.trackFeatureInteraction("signup", "attempt", { email, source })
-    if (email) {
+    // Validate email and source
+    const validatedEmail = email?.trim();
+    const validatedSource = source?.trim();
+    if (!validatedEmail && !validatedSource) {
+      console.warn("Skipping signup attempt tracking: Missing email and source.");
+      return;
+    }
+
+    await this.trackFeatureInteraction("signup", "attempt", { email: validatedEmail, source: validatedSource })
+    if (validatedEmail) {
       await this.trackLead({
-        email,
+        email: validatedEmail,
         interestLevel: "high",
-        leadSource: source,
+        leadSource: validatedSource || "signup_form",
         notes: "Attempted to sign up during preview",
       })
     }
   }
 
   async trackDemoRequest(contactInfo: any) {
+    // Basic validation for contactInfo
+    if (!contactInfo || Object.keys(contactInfo).length === 0) {
+      console.warn("Skipping demo request tracking: Empty contactInfo.");
+      return;
+    }
+
     await this.trackFeatureInteraction("demo", "request", contactInfo)
     await this.trackLead({
       ...contactInfo,
@@ -303,7 +317,13 @@ class UsageTracker {
   }
 
   async trackFeatureEngagement(feature: string, engagementLevel: "low" | "medium" | "high") {
-    await this.trackFeatureInteraction(feature, "engagement", { level: engagementLevel })
+    // Validate feature
+    const validatedFeature = feature?.trim();
+    if (!validatedFeature) {
+      console.warn("Skipping feature engagement tracking: Missing feature name.");
+      return;
+    }
+    await this.trackFeatureInteraction(validatedFeature, "engagement", { level: engagementLevel })
   }
 }
 

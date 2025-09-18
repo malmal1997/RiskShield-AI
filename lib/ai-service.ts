@@ -39,7 +39,7 @@ export interface DocumentAnalysisResult {
 interface Question {
   id: string
   question: string
-  type: "boolean" | "multiple" | "tested" | "textarea"
+  type: "boolean" | "multiple" | "tested" | "textarea" | "checkbox" // Added "checkbox"
   options?: string[]
   weight: number
   category?: string; // Added category
@@ -290,6 +290,10 @@ export async function analyzeDocuments(
         answers[question.id] = "No directly relevant evidence found after comprehensive search."
         confidenceScores[question.id] = 0.05 // Very low confidence for no evidence
         reasoning[question.id] = "No directly relevant evidence found after comprehensive search."
+      } else if (question.type === "checkbox") { // Handle checkbox default
+        answers[question.id] = []; // Default to empty array
+        confidenceScores[question.id] = 0.05;
+        reasoning[question.id] = "No directly relevant evidence found after comprehensive search. Defaulting to empty selection.";
       }
     })
 
@@ -393,7 +397,7 @@ export async function analyzeDocuments(
 
 **CRITICAL RULES FOR ANSWERING (STRICTLY ADHERE TO THESE):**
 1.  **ONLY OUTPUT JSON:** Your entire response MUST be a single, valid JSON object. DO NOT include any conversational text, markdown code block fences (e.g., \`\`\`json), or any other text before or after the JSON.
-2.  **EVIDENCE REQUIRED:** For EVERY answer that is NOT a conservative default (e.g., 'true' for boolean, or a specific option for multiple choice), you MUST find and provide DIRECT, VERIFIABLE EVIDENCE from the provided documents (including attached binary files).
+2.  **EVIDENCE REQUIRED FOR NON-CONSERVATIVE ANSWERS:** For EVERY answer that is NOT a conservative default (e.g., 'true' for boolean, or a specific option for multiple choice that is not the first/most conservative option), you MUST find and provide DIRECT, VERIFIABLE EVIDENCE from the provided documents (including attached binary files).
 3.  **DIRECT QUOTE:** If you find a direct, verifiable quote that answers a question, provide that EXACT, VERBATIM quote in the 'excerpt' field.
 4.  **COMPLETE CITATION:** For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if explicitly identifiable, otherwise null), and 'source_label' ('Primary' or '4th Party').
     *   **Example Citation:**
@@ -401,6 +405,7 @@ export async function analyzeDocuments(
         {
           "id": "example_question_id",
           "answer": true,
+          "confidence": 0.95,
           "excerpt": "All sensitive data must be encrypted using AES-256 encryption standards.",
           "reasoning": "The policy explicitly states the use of AES-256 encryption.",
           "source_file_name": "SecurityPolicy.pdf",
@@ -412,8 +417,10 @@ export async function analyzeDocuments(
     *   Set 'excerpt' to "No directly relevant evidence found after comprehensive search".
     *   Set 'source_file_name', 'source_page_number', 'source_label' to null.
     *   Set 'answer' to the conservative default specified in the question's instructions.
+    *   Set 'confidence' to 0.05.
 6.  **PRIORITIZE "Primary" DOCUMENTS:** When multiple relevant excerpts exist, prioritize those from documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then use evidence from "4th Party" documents.
 7.  **"4th Party" LABEL:** For 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
+8.  **CONFIDENCE SCORE:** For every answer, provide a 'confidence' score between 0.0 (no confidence) and 1.0 (absolute certainty) based on the strength and directness of the evidence.
 
 DOCUMENT FILES PROVIDED FOR ANALYSIS:
 ${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
@@ -431,6 +438,8 @@ ${questions.map((q: Question, idx: number) => {
     formatHint = 'Expected: "tested" or "not_tested". If direct evidence of testing is found, answer "tested". If NO DIRECT EVIDENCE is found, default to "not_tested".';
   } else if (q.type === 'textarea') {
     formatHint = 'Expected: "Detailed text response". Summarize relevant information. If NO DIRECT EVIDENCE is found, state "No directly relevant evidence found after comprehensive search."';
+  } else if (q.type === 'checkbox' && q.options) {
+    formatHint = `Expected: Array of selected options, e.g., ["${q.options[0]}", "${q.options[1]}"]. If NO DIRECT EVIDENCE is found, default to an empty array [].`;
   }
   return `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""}) - ${formatHint}`;
 }).join("\n")}
@@ -442,6 +451,7 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
     {
       "id": "${q.id}",
       "answer": null, // AI MUST fill this with the specific answer for this question, using null as a placeholder for the AI to explicitly fill
+      "confidence": null, // AI MUST fill this with a confidence score (0.0-1.0)
       "excerpt": null, // AI MUST fill this with the specific excerpt for this question, using null as a placeholder for the AI to explicitly fill
       "reasoning": null, // AI MUST fill this with specific reasoning for this question, using null as a placeholder for the AI to explicitly fill
       "source_file_name": null, // AI MUST fill this with the specific source file name for this question
@@ -562,12 +572,13 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
         }
 
         let aiAnswer = qr.answer;
+        let aiConfidence = qr.confidence || 0.5; // Use confidence from AI response, default to 0.5
         let aiExcerpt = qr.excerpt;
         let aiReasoning = qr.reasoning || "No specific reasoning provided by AI."; // Capture AI's reasoning
         let aiFileName = qr.source_file_name;
         let aiPageNumber = qr.source_page_number;
         let aiLabel = qr.source_label;
-        const aiConfidence = qr.confidence || 0.5; // Use confidence from AI response, default to 0.5
+        
 
         console.log(
           `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Excerpt present=${!!aiExcerpt}`,
@@ -613,6 +624,14 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
           } else {
             finalAnswer = "No directly relevant evidence found after comprehensive search."; // Default for textarea
           }
+        } else if (question.type === "checkbox") {
+          if (Array.isArray(aiAnswer)) {
+            finalAnswer = aiAnswer.filter(item => typeof item === 'string'); // Ensure array of strings
+          } else if (typeof aiAnswer === 'string') {
+            finalAnswer = aiAnswer.split(',').map(s => s.trim()).filter(s => s.length > 0);
+          } else {
+            finalAnswer = []; // Default to empty array
+          }
         }
         // --- End Type Coercion ---
 
@@ -633,11 +652,12 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
         const isAiAnswerNonConservative = (question.type === "boolean" && finalAnswer === true) ||
                                           (question.type === "multiple" && finalAnswer !== (question.options?.[0] || "N/A")) ||
                                           (question.type === "tested" && finalAnswer === "tested") ||
-                                          (question.type === "textarea" && finalAnswer !== "No directly relevant evidence found after comprehensive search.");
+                                          (question.type === "textarea" && finalAnswer !== "No directly relevant evidence found after comprehensive search.") ||
+                                          (question.type === "checkbox" && Array.isArray(finalAnswer) && finalAnswer.length > 0);
 
         // NEW: Strict enforcement of evidence for non-conservative answers
         if (isAiAnswerNonConservative && (!hasActualExcerpt || !relevanceCheck.isRelevant)) {
-          console.warn(`⚠️ Question ${questionId}: AI provided a non-conservative answer (${finalAnswer}) but without sufficient or relevant evidence. Forcing to conservative default.`);
+          console.warn(`⚠️ Question ${questionId}: AI provided a non-conservative answer (${JSON.stringify(finalAnswer)}) but without sufficient or relevant evidence. Forcing to conservative default.`);
           if (question.type === "boolean") {
             answers[question.id] = false;
           } else if (question.options && question.options.length > 0) {
@@ -646,6 +666,8 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
             answers[question.id] = "not_tested";
           } else if (question.type === "textarea") {
             answers[question.id] = "No directly relevant evidence found after comprehensive search.";
+          } else if (question.type === "checkbox") {
+            answers[question.id] = [];
           }
           confidenceScores[question.id] = 0.05; // Very low confidence
           reasoning[question.id] = `AI provided a non-conservative answer without sufficient evidence. Defaulted to conservative. Original AI reasoning: ${aiReasoning}`;
@@ -733,6 +755,12 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
         totalScore += (question.weight || 1) * 0.5; // Small boost for having an "answer"
         maxScore += (question.weight || 1) * 0.5; // Max possible for textarea if answered
       }
+    } else if (question.type === "checkbox" && question.options) {
+      // For checkbox, more selected options (if positive) could mean higher score
+      // Or, specific options are good/bad. For simplicity, let's say selecting more positive options is better.
+      const selectedCount = Array.isArray(answer) ? answer.length : 0;
+      totalScore += (question.weight || 0) * selectedCount;
+      maxScore += (question.weight || 0) * question.options.length;
     }
   })
 
