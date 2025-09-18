@@ -224,7 +224,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const hasPermission = useCallback((permission: keyof UserPermissions): boolean => {
     if (isDemo) return true; // Demo user has all permissions
     if (!role) return false;
-    if (role.role === "admin") return true; // Admin has all permissions
+    
+    // Consistently check the permissions object for all roles
     return role.permissions[permission] === true;
   }, [role, isDemo]);
 
