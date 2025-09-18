@@ -8,7 +8,9 @@ export function usePageTracking() {
   const pathname = usePathname()
 
   useEffect(() => {
-    trackPageView(pathname)
+    if (pathname) { // Add null check for pathname
+      trackPageView(pathname)
+    }
   }, [pathname])
 }
 

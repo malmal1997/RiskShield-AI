@@ -9,7 +9,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 
 // Paths that do NOT require authentication
-const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status', '/demo-features'];
+const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status', '/demo-features', '/about-us', '/careers', '/privacy-policy', '/terms-of-service']; // Added new public paths
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -33,7 +33,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
 
     const isAuthenticated = !!user || isDemo;
     const isApproved = !!profile && !!role && !!organization;
-    const isAuthPage = ['/auth/login', '/auth/register', '/auth/forgot-password'].includes(pathname);
+    const isAuthPage = pathname ? ['/auth/login', '/auth/register', '/auth/forgot-password'].includes(pathname) : false; // Null check for pathname
 
     let redirectTo: string | null = null;
 
@@ -53,7 +53,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       console.log(`AuthGuard: User ${user?.email} is FULLY APPROVED and on an auth page. Setting redirect to ${redirectTo}.`);
     }
     // 4. If user is NOT AUTHENTICATED and tries to access a PROTECTED page:
-    else if (!isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
+    else if (!isAuthenticated && pathname && !publicPaths.includes(pathname) && !allowPreview) { // Null check for pathname
       redirectTo = '/auth/login';
       console.log(`AuthGuard: User is NOT AUTHENTICATED. Setting redirect to ${redirectTo}.`);
     }
@@ -66,7 +66,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       console.log(`AuthGuard: No redirection needed for ${pathname}.`);
     }
 
-  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router]);
+  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router, signOut]);
 
   // Render logic:
   // If still loading auth state, show a loading spinner.
@@ -85,7 +85,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   // Determine if a redirect is pending based on current state and pathname
   const isAuthenticated = !!user || isDemo;
   const isApproved = !!profile && !!role && !!organization;
-  const isAuthPage = ['/auth/login', '/auth/register', '/auth/forgot-password'].includes(pathname);
+  const isAuthPage = pathname ? ['/auth/login', '/auth/register', '/auth/forgot-password'].includes(pathname) : false; // Null check for pathname
 
   let isRedirectPending = false;
   if (isAuthenticated && pathname === '/') {
@@ -94,7 +94,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     isRedirectPending = true;
   } else if (isAuthenticated && isApproved && isAuthPage) {
     isRedirectPending = true;
-  } else if (!isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
+  } else if (!isAuthenticated && pathname && !publicPaths.includes(pathname) && !allowPreview) { // Null check for pathname
     isRedirectPending = true;
   }
 

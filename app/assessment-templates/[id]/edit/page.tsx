@@ -52,7 +52,8 @@ function EditAssessmentTemplateContent() {
   const { role, loading: authLoading, isDemo } = useAuth();
   const { toast } = useToast();
 
-  const templateId = params.id as string;
+  // Add null check for params
+  const templateId = params?.id as string;
 
   const [template, setTemplate] = useState<AssessmentTemplate | null>(null);
   const [questions, setQuestions] = useState<TemplateQuestion[]>([]);
@@ -78,6 +79,12 @@ function EditAssessmentTemplateContent() {
   const loadTemplateData = async () => {
     if (!isAdmin) {
       setError("You do not have administrative privileges to view this page.");
+      setLoading(false);
+      return;
+    }
+
+    if (!templateId) { // Ensure templateId exists before fetching
+      setError("Template ID is missing.");
       setLoading(false);
       return;
     }
@@ -682,7 +689,7 @@ function EditAssessmentTemplateContent() {
                       )}
                       <div className="flex items-center space-x-2">
                         <Checkbox
-                          id={`edit-question-required-${question.id}`}
+                          id="edit-question-required"
                           checked={question.required || false}
                           onCheckedChange={(checked: boolean) =>
                             setQuestions((prev: TemplateQuestion[]) =>

@@ -55,6 +55,7 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
   const navigationItems = user ? filteredAuthenticatedNavigationItems : publicNavigationItems;
 
   const isActive = (href: string) => {
+    if (!pathname) return false; // Add null check for pathname
     if (href === "/" && pathname === "/") return true
     if (href !== "/" && pathname.startsWith(href)) return true
     return false

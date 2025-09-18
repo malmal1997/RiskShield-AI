@@ -10,10 +10,10 @@ import { cn } from "@/lib/utils"
 import { Button, type ButtonProps } from "@/components/ui/button"
 
 // Correctly infer EmblaOptionsType from the first argument of useEmblaCarousel
-type CarouselOptions = NonNullable<React.ComponentProps<typeof useEmblaCarousel>[0]>
+type CarouselOptions = NonNullable<Parameters<typeof useEmblaCarousel>[0]> // Corrected type inference
 type CarouselApi = UseEmblaCarouselType[1]
 // Correctly infer EmblaPluginType from the second argument of useEmblaCarousel
-type CarouselPlugins = React.ComponentProps<typeof useEmblaCarousel>[1]
+type CarouselPlugins = Parameters<typeof useEmblaCarousel>[1] // Corrected type inference
 
 type CarouselProps = {
   opts?: CarouselOptions

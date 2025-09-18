@@ -13,8 +13,10 @@ type ReportType = 'ai' | 'manual';
 export default function ReportViewPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const reportId = params.id as string;
-  const reportType = searchParams.get('type') as ReportType;
+  
+  // Add null checks for params and searchParams
+  const reportId = params?.id as string;
+  const reportType = searchParams?.get('type') as ReportType;
 
   const { user, loading: authLoading, isDemo } = useAuth();
   const [reportData, setReportData] = useState<AiAssessmentReport | (Assessment & { responses?: AssessmentResponse[] }) | null>(null);
@@ -30,6 +32,12 @@ export default function ReportViewPage() {
 
       setLoading(true);
       setError(null);
+
+      if (!reportId || !reportType) { // Ensure reportId and reportType exist
+        setError('Report ID or type is missing.');
+        setLoading(false);
+        return;
+      }
 
       try {
         if (reportType === 'ai') {
@@ -160,7 +168,6 @@ export default function ReportViewPage() {
             {socInfo.socDateAsOf && <p className="text-sm text-purple-700"><strong>SOC Date As Of:</strong> {new Date(socInfo.socDateAsOf).toLocaleDateString()}</p>}
             {socInfo.socStartDate && <p className="text-sm text-purple-700"><strong>Period:</strong> {new Date(socInfo.socStartDate).toLocaleDateString()} - {new Date(socInfo.socEndDate).toLocaleDateString()}</p>}
             {socInfo.testedStatus && <p className="text-sm text-purple-700"><strong>Testing Status:</strong> {socInfo.testedStatus}</p>}
-            {socInfo.subserviceOrganizations && <p className="text-sm text-purple-700"><strong>Subservice Orgs:</strong> {socInfo.subserviceOrganizations}</p>}
           </div>
         )}
 
