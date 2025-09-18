@@ -1,1 +1,32 @@
-DYAD_ATTACHMENT_7
+{
+  "rewrites": [
+    {
+      "source": "/api/track-page-time",
+      "destination": "/api/track-page-time"
+    },
+    {
+      "source": "/api/ai-assessment/analyze",
+      "destination": "/api/ai-assessment/analyze"
+    },
+    {
+      "source": "/api/ai-assessment/test",
+      "destination": "/api/ai-assessment/test"
+    },
+    {
+      "source": "/api/ai-assessment/debug",
+      "destination": "/api/ai-assessment/debug"
+    },
+    {
+      "source": "/api/notify-assessment-completion",
+      "destination": "/api/notify-assessment-completion"
+    },
+    {
+      "source": "/api/resend-webhook",
+      "destination": "/api/resend-webhook"
+    },
+    {
+      "source": "/api/admin-actions/create-and-approve-admin",
+      "destination": "/api/admin-actions/create-and-approve-admin"
+    }
+  ]
+}
