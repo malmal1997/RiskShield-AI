@@ -62,8 +62,8 @@ export const DefaultRolePermissions: Record<UserRole['role'], UserPermissions> =
     access_dev_dashboard: true,
   },
   manager: {
-    view_dashboard: true,
-    view_analytics: true,
+    view_dashboard: false, // Restricted to admin
+    view_analytics: false, // Restricted to admin
     view_reports: true,
     view_notifications: true,
     view_vendors: true,
@@ -84,8 +84,8 @@ export const DefaultRolePermissions: Record<UserRole['role'], UserPermissions> =
     access_dev_dashboard: false,
   },
   analyst: {
-    view_dashboard: true,
-    view_analytics: true,
+    view_dashboard: false, // Restricted to admin
+    view_analytics: false, // Restricted to admin
     view_reports: true,
     view_notifications: true,
     view_vendors: true,
@@ -106,8 +106,8 @@ export const DefaultRolePermissions: Record<UserRole['role'], UserPermissions> =
     access_dev_dashboard: false,
   },
   viewer: {
-    view_dashboard: true,
-    view_analytics: false,
+    view_dashboard: false, // Restricted to admin
+    view_analytics: false, // Restricted to admin
     view_reports: true,
     view_notifications: true,
     view_vendors: true,
