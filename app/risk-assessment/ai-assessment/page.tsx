@@ -2031,6 +2031,13 @@ export default function AIAssessmentPage() {
       }
 
       const result: AnalysisResult = await response.json();
+      
+      // --- Client-side Debugging ---
+      console.log("Client: Raw analysis result from API:", result);
+      console.log("Client: Analysis results.answers:", result.answers);
+      console.log("Client: Analysis results.documentExcerpts:", result.documentExcerpts);
+      // --- End Client-side Debugging ---
+
       setAnalysisResults(result)
       setAnswers(result.answers) // Pre-fill answers with AI suggestions
       setRiskScore(result.riskScore)
@@ -3014,7 +3021,7 @@ export default function AIAssessmentPage() {
                           </ul>
                         </div>
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                          <h3 className="font-medium text-green-900 mb-2">Recommendations</h3>
+                          <h3 className="font-semibold text-green-900 mb-2">Recommendations</h3>
                           <ul className="text-sm text-green-800 list-disc pl-5 space-y-1">
                             {analysisResults.recommendations.map((rec: string, index: number) => (
                               <li key={index}>{rec}</li>

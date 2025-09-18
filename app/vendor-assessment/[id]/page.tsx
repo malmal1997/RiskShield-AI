@@ -26,6 +26,7 @@ import {
   FileCheck, // Added FileCheck
 } from "lucide-react" // Added ArrowRight, ArrowLeft, Info, FileCheck
 import { getAssessmentById, submitAssessmentResponse } from "@/lib/assessment-service"
+import { AuthGuard } from "@/components/auth-guard" // Added AuthGuard import
 
 console.log("🔍 Environment check:", {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? "✅ Set" : "❌ Missing",
@@ -1349,27 +1350,124 @@ function VendorAssessmentComponent() {
                                 onChange={() => handleAnswerChange(question.id, false)}
                                 className="mr-2"
                               />
-                              No
-                            </label>
+                                No
+                              </label>
+                            </div>
+                          )}
+                          {question.type === "multiple" && (
+                            <select
+                              value={answers[question.id] || ""}
+                              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                            >
+                              <option value="">Select an option</option>
+                              {question.options?.map((option: string) => ( // Explicitly type option
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {question.type === "textarea" && (
+                            <Textarea
+                              id={`answer-${question.id}`}
+                              value={answers[question.id] || ""}
+                              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                              placeholder="Provide your detailed response here..."
+                              rows={4}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex justify-between pt-4 border-t border-gray-100">
+                      <Button variant="outline" onClick={() => setShowReviewStep(false)}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Upload
+                      </Button>
+                      <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 text-white">
+                        <FileCheck className="mr-2 h-4 w-4" />
+                        Submit Assessment
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Manual Assessment Flow */}
+              {!isAiPoweredAssessment && currentStep > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <FileText className="h-5 w-5 text-blue-600" />
+                      <span>Assessment Questions</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Please answer the following questions about your organization's practices.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+                    {currentQuestions.map((question: any, index: number) => ( // Explicitly type question
+                      <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
+                        <div>
+                          <div className="flex items-start space-x-2 mb-2">
+                            <Badge variant="outline" className="mt-1">
+                              {question.category}
+                            </Badge>
+                            {question.required && <span className="text-red-500 text-sm">*</span>}
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-900">
+                            {(currentStep - 1) * 2 + index + 1}. {question.question}
+                          </h3>
+                        </div>
+
+                        {question.type === "radio" && (
+                          <RadioGroup
+                            value={answers[question.id] || ""}
+                            onValueChange={(value) => handleAnswerChange(question.id, value)}
+                            className="space-y-2"
+                          >
+                            {question.options.map((option: string) => ( // Explicitly type option
+                              <div key={option} className="flex items-center">
+                                <RadioGroupItem value={option} id={`${question.id}-${option}`} />
+                                <Label htmlFor={`${question.id}-${option}`} className="ml-2">
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        )}
+
+                        {question.type === "checkbox" && (
+                          <div className="space-y-2">
+                            {question.options.map((option: string) => ( // Explicitly type option
+                              <div key={option} className="flex items-center">
+                                <Checkbox
+                                  id={`${question.id}-${option}`}
+                                  checked={answers[question.id]?.includes(option) || false}
+                                  onCheckedChange={(checked) => {
+                                    const currentAnswers = answers[question.id] || []
+                                    if (checked) {
+                                      handleAnswerChange(question.id, [...currentAnswers, option])
+                                    } else {
+                                      handleAnswerChange(
+                                        question.id,
+                                        currentAnswers.filter((item: string) => item !== option), // Explicitly type item
+                                      )
+                                    }
+                                  }}
+                                />
+                                <Label htmlFor={`${question.id}-${option}`} className="ml-2">
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
                           </div>
                         )}
-                        {question.type === "multiple" && (
-                          <select
-                            value={answers[question.id] || ""}
-                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                          >
-                            <option value="">Select an option</option>
-                            {question.options?.map((option: string) => ( // Explicitly type option
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                        )}
+
                         {question.type === "textarea" && (
                           <Textarea
-                            id={`answer-${question.id}`}
+                            id={question.id}
                             value={answers[question.id] || ""}
                             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                             placeholder="Provide your detailed response here..."
@@ -1377,135 +1475,42 @@ function VendorAssessmentComponent() {
                           />
                         )}
                       </div>
-                    </div>
-                  ))}
-                  <div className="flex justify-between pt-4 border-t border-gray-100">
-                    <Button variant="outline" onClick={() => setShowReviewStep(false)}>
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Upload
-                    </Button>
-                    <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 text-white">
-                      <FileCheck className="mr-2 h-4 w-4" />
-                      Submit Assessment
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                    ))}
 
-            {/* Manual Assessment Flow */}
-            {!isAiPoweredAssessment && currentStep > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <FileText className="h-5 w-5 text-blue-600" />
-                    <span>Assessment Questions</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Please answer the following questions about your organization's practices.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-8">
-                  {currentQuestions.map((question: any, index: number) => ( // Explicitly type question
-                    <div key={question.id} className="space-y-4 border-b pb-6 last:border-b-0 last:pb-0">
-                      <div>
-                        <div className="flex items-start space-x-2 mb-2">
-                          <Badge variant="outline" className="mt-1">
-                            {question.category}
-                          </Badge>
-                          {question.required && <span className="text-red-500 text-sm">*</span>}
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {(currentStep - 1) * 2 + index + 1}. {question.question}
-                        </h3>
-                      </div>
-
-                      {question.type === "radio" && (
-                        <RadioGroup
-                          value={answers[question.id] || ""}
-                          onValueChange={(value) => handleAnswerChange(question.id, value)}
-                          className="space-y-2"
-                        >
-                          {question.options.map((option: string) => ( // Explicitly type option
-                            <div key={option} className="flex items-center">
-                              <RadioGroupItem value={option} id={`${question.id}-${option}`} />
-                              <Label htmlFor={`${question.id}-${option}`} className="ml-2">
-                                {option}
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      )}
-
-                      {question.type === "checkbox" && (
-                        <div className="space-y-2">
-                          {question.options.map((option: string) => ( // Explicitly type option
-                            <div key={option} className="flex items-center">
-                              <Checkbox
-                                id={`${question.id}-${option}`}
-                                checked={answers[question.id]?.includes(option) || false}
-                                onCheckedChange={(checked) => {
-                                  const currentAnswers = answers[question.id] || []
-                                  if (checked) {
-                                    handleAnswerChange(question.id, [...currentAnswers, option])
-                                  } else {
-                                    handleAnswerChange(
-                                      question.id,
-                                      currentAnswers.filter((item: string) => item !== option), // Explicitly type item
-                                    )
-                                  }
-                                }}
-                              />
-                              <Label htmlFor={`${question.id}-${option}`} className="ml-2">
-                                {option}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {question.type === "textarea" && (
-                        <Textarea
-                          id={question.id}
-                          value={answers[question.id] || ""}
-                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                          placeholder="Provide your detailed response here..."
-                          rows={4}
-                        />
+                    <div className="flex justify-between pt-4 border-t border-gray-100">
+                      <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Previous
+                      </Button>
+                      {currentStep < Math.ceil(questions.length / 2) ? (
+                        <Button onClick={handleNext} disabled={!isStepComplete(currentStep)}>
+                          Next
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button onClick={handleSubmit} disabled={!isStepComplete(currentStep)}>
+                          <FileCheck className="mr-2 h-4 w-4" />
+                          Submit Assessment
+                        </Button>
                       )}
                     </div>
-                  ))}
-
-                  <div className="flex justify-between pt-4 border-t border-gray-100">
-                    <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Previous
-                    </Button>
-                    {currentStep < Math.ceil(questions.length / 2) ? (
-                      <Button onClick={handleNext} disabled={!isStepComplete(currentStep)}>
-                        Next
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    ) : (
-                      <Button onClick={handleSubmit} disabled={!isStepComplete(currentStep)}>
-                        <FileCheck className="mr-2 h-4 w-4" />
-                        Submit Assessment
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </section>
-      </main>
-    </div>
-  )
-}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </section>
+        </main>
+      </div>
+    )
+  }
 
 export default function VendorAssessment() {
   try {
-    return <VendorAssessmentComponent />
+    return (
+      <AuthGuard>
+        <VendorAssessmentComponent />
+      </AuthGuard>
+    )
   } catch (error: any) { // Explicitly type error
     console.error("Component error:", error)
     return (

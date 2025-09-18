@@ -218,19 +218,19 @@ function checkSemanticRelevance(
 
   const overlapRatio = overlapCount / questionTokens.size;
 
-  // Require at least 3 overlapping keywords for relevance, or a higher ratio
-  const MIN_OVERLAP_KEYWORDS = 3; 
+  // Require at least 2 overlapping keywords for relevance
+  const MIN_OVERLAP_KEYWORDS = 2; 
 
-  if (overlapCount >= MIN_OVERLAP_KEYWORDS || overlapRatio > 0.2) { // Increased ratio threshold
+  if (overlapCount >= MIN_OVERLAP_KEYWORDS || overlapRatio > 0.15) { // Slightly relaxed ratio threshold
     return {
       isRelevant: true,
       confidence: 0.6 + (overlapRatio * 0.3), // Scale confidence based on overlap
-      reason: `Strong keyword overlap (${(overlapRatio * 100).toFixed(0)}%) between question and excerpt.`,
+      reason: `Keyword overlap (${(overlapRatio * 100).toFixed(0)}%) between question and excerpt.`,
     };
   }
 
   // If no significant overlap, but excerpt is long and contains some keywords, give it a chance
-  if (excerpt.length > 150 && overlapCount >= 1) { // Longer excerpt and at least one keyword
+  if (excerpt.length > 100 && overlapCount >= 1) { // Longer excerpt and at least one keyword
     return {
       isRelevant: true,
       confidence: 0.3,
@@ -392,9 +392,10 @@ export async function analyzeDocuments(
   const basePrompt = `You are a highly intelligent and meticulous cybersecurity expert specializing in risk assessments. Your task is to analyze the provided documents and answer specific assessment questions.
 
 **CRITICAL RULES FOR ANSWERING (STRICTLY ADHERE TO THESE):**
-1.  **EVIDENCE REQUIRED:** For EVERY answer that is NOT a conservative default (e.g., 'true' for boolean, or a specific option for multiple choice), you MUST find and provide DIRECT, VERIFIABLE EVIDENCE from the provided documents (including attached binary files).
-2.  **DIRECT QUOTE:** If you find a direct, verifiable quote that answers a question, provide that EXACT, VERBATIM quote in the 'excerpt' field.
-3.  **COMPLETE CITATION:** For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if explicitly identifiable, otherwise null), and 'source_label' ('Primary' or '4th Party').
+1.  **ONLY OUTPUT JSON:** Your entire response MUST be a single, valid JSON object. DO NOT include any conversational text, markdown code block fences (e.g., \`\`\`json), or any other text before or after the JSON.
+2.  **EVIDENCE REQUIRED:** For EVERY answer that is NOT a conservative default (e.g., 'true' for boolean, or a specific option for multiple choice), you MUST find and provide DIRECT, VERIFIABLE EVIDENCE from the provided documents (including attached binary files).
+3.  **DIRECT QUOTE:** If you find a direct, verifiable quote that answers a question, provide that EXACT, VERBATIM quote in the 'excerpt' field.
+4.  **COMPLETE CITATION:** For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if explicitly identifiable, otherwise null), and 'source_label' ('Primary' or '4th Party').
     *   **Example Citation:**
         \`\`\`json
         {
@@ -407,12 +408,12 @@ export async function analyzeDocuments(
           "source_label": "Primary"
         }
         \`\`\`
-4.  **NO EVIDENCE = CONSERVATIVE DEFAULT:** If, after a thorough search of ALL documents, NO DIRECT, VERIFIABLE EVIDENCE is found (meaning no specific quote directly answers the question), then:
+5.  **NO EVIDENCE = CONSERVATIVE DEFAULT:** If, after a thorough search of ALL documents, NO DIRECT, VERIFIABLE EVIDENCE is found (meaning no specific quote directly answers the question), then:
     *   Set 'excerpt' to "No directly relevant evidence found after comprehensive search".
     *   Set 'source_file_name', 'source_page_number', 'source_label' to null.
     *   Set 'answer' to the conservative default specified in the question's instructions.
-5.  **PRIORITIZE "Primary" DOCUMENTS:** When multiple relevant excerpts exist, prioritize those from documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then use evidence from "4th Party" documents.
-6.  **"4th Party" LABEL:** For 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
+6.  **PRIORITIZE "Primary" DOCUMENTS:** When multiple relevant excerpts exist, prioritize those from documents labeled "Primary". If no relevant evidence is found in "Primary" documents, then use evidence from "4th Party" documents.
+7.  **"4th Party" LABEL:** For 'source_label', ONLY include '4th Party' if the document was explicitly labeled as '4th Party' during upload. If the document was labeled 'Primary' or had no specific label, set 'source_label' to null.
 
 DOCUMENT FILES PROVIDED FOR ANALYSIS:
 ${supportedFilesWithLabels.map((item: FileWithLabel, index: number) => `${index + 1}. ${item.file.name} (Label: ${item.label}, Type: ${getGoogleAIMediaType(item.file)})`).join("\n")}
@@ -535,20 +536,10 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
 
     let rawAiResponseText = result.text;
 
-    // Robustly strip markdown code block fences
-    const jsonStart = rawAiResponseText.indexOf('{');
-    const jsonEnd = rawAiResponseText.lastIndexOf('}');
-
-    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-        rawAiResponseText = rawAiResponseText.substring(jsonStart, jsonEnd + 1);
-    } else {
-        // Fallback if JSON structure isn't clearly delimited, try stripping common markdown
-        if (rawAiResponseText.startsWith("```json")) {
-            rawAiResponseText = rawAiResponseText.substring(7); // Remove "```json\n"
-        }
-        if (rawAiResponseText.endsWith("```")) {
-            rawAiResponseText = rawAiResponseText.substring(0, rawAiResponseText.length - 3); // Remove "\n```"
-        }
+    // Aggressive JSON cleaning: Remove any leading/trailing text or markdown fences
+    const cleanJsonMatch = rawAiResponseText.match(/```json\n([\s\S]*?)\n```|({[\s\S]*})/);
+    if (cleanJsonMatch) {
+        rawAiResponseText = cleanJsonMatch[1] || cleanJsonMatch[2];
     }
     rawAiResponseText = rawAiResponseText.trim(); // Trim any remaining whitespace
 
@@ -645,8 +636,8 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
                                           (question.type === "textarea" && finalAnswer !== "No directly relevant evidence found after comprehensive search.");
 
         // NEW: Strict enforcement of evidence for non-conservative answers
-        if (isAiAnswerNonConservative && (!hasActualExcerpt || !relevanceCheck.isRelevant || !fileName || fileName === "N/A")) {
-          console.warn(`⚠️ Question ${questionId}: AI provided a non-conservative answer (${finalAnswer}) but without sufficient, relevant, or properly cited evidence. Forcing to conservative default.`);
+        if (isAiAnswerNonConservative && (!hasActualExcerpt || !relevanceCheck.isRelevant)) {
+          console.warn(`⚠️ Question ${questionId}: AI provided a non-conservative answer (${finalAnswer}) but without sufficient or relevant evidence. Forcing to conservative default.`);
           if (question.type === "boolean") {
             answers[question.id] = false;
           } else if (question.options && question.options.length > 0) {
@@ -657,9 +648,9 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
             answers[question.id] = "No directly relevant evidence found after comprehensive search.";
           }
           confidenceScores[question.id] = 0.05; // Very low confidence
-          reasoning[question.id] = `AI provided a non-conservative answer without sufficient, relevant, or properly cited evidence. Defaulted to conservative. Original AI reasoning: ${aiReasoning}`;
+          reasoning[question.id] = `AI provided a non-conservative answer without sufficient evidence. Defaulted to conservative. Original AI reasoning: ${aiReasoning}`;
           documentExcerpts[question.id] = []; // Clear any invalid excerpts
-        } else if (relevanceCheck.isRelevant && hasActualExcerpt) {
+        } else { // If relevant excerpt is found OR answer is conservative
           answers[question.id] = finalAnswer;
           confidenceScores[question.id] = Math.min(aiConfidence, relevanceCheck.confidence); // Use AI's confidence, capped by relevance check
           reasoning[question.id] = aiReasoning; // Use AI's reasoning
@@ -668,33 +659,21 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
               excerpt = excerpt.substring(0, 500) + '...';
           }
           
-          documentExcerpts[question.id] = [
-            {
-              fileName: fileName,
-              label: label,
-              excerpt: excerpt,
-              relevance: `Evidence found within ${fileName}${label ? ` (Label: ${label})` : ''}`,
-              pageOrSection: "Document Content",
-              pageNumber: pageNumber,
-            },
-          ];
-        } else {
-          console.log(`❌ Question ${questionId}: Evidence rejected or not provided - ${relevanceCheck.reason}`);
-
-          // Apply conservative defaults if no relevant evidence or relevance check failed
-          if (question.type === "boolean") {
-            answers[question.id] = false;
-          } else if (question.options && question.options.length > 0) {
-            answers[question.id] = question.options[0]; // Most conservative option
-          } else if (question.type === "tested") {
-            answers[question.id] = "not_tested";
-          } else if (question.type === "textarea") {
-            answers[question.id] = "No directly relevant evidence found after comprehensive search.";
+          // Only add excerpt if it's not the "no evidence found" placeholder
+          if (hasActualExcerpt) {
+            documentExcerpts[question.id] = [
+              {
+                fileName: fileName,
+                label: label,
+                excerpt: excerpt,
+                relevance: `Evidence found within ${fileName}${label ? ` (Label: ${label})` : ''}`,
+                pageOrSection: "Document Content",
+                pageNumber: pageNumber,
+              },
+            ];
+          } else {
+            documentExcerpts[question.id] = []; // Ensure it's empty if no actual excerpt
           }
-
-          confidenceScores[question.id] = 0.1; // Low confidence for conservative answer
-          reasoning[question.id] = `No directly relevant evidence found, defaulting to conservative answer. ${relevanceCheck.reason}`;
-          documentExcerpts[question.id] = [];
         }
       });
     } catch (parseError) {
