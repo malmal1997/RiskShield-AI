@@ -61,7 +61,7 @@ export default function PolicyLibrary() {
 }
 
 function PolicyLibraryContent() {
-  const { user, loading: authLoading, isDemo, hasPermission } = useAuth()
+  const { user, role, loading: authLoading, isDemo } = useAuth()
   const { toast } = useToast()
 
   const [policies, setPolicies] = useState<Policy[]>([])
@@ -81,15 +81,11 @@ function PolicyLibraryContent() {
   const [newVersionContent, setNewVersionContent] = useState<string>("");
   const [newVersionNumber, setNewVersionNumber] = useState<string>("");
 
-  const canViewPolicies = hasPermission("view_policies");
-  const canManagePolicies = hasPermission("manage_policies");
-  const canApprovePolicies = hasPermission("approve_policies");
-  const canCreatePolicies = hasPermission("create_policies");
+  const isAdmin = role?.role === "admin" || isDemo;
 
   const loadPolicies = async () => {
-    if (!canViewPolicies) {
+    if (!user && !isDemo) {
       setLoading(false);
-      setError("You do not have permission to view policies.");
       return;
     }
 
@@ -113,7 +109,7 @@ function PolicyLibraryContent() {
     if (!authLoading) {
       loadPolicies();
     }
-  }, [authLoading, canViewPolicies]);
+  }, [authLoading, user, isDemo]);
 
   useEffect(() => {
     let filtered = policies;
@@ -275,14 +271,6 @@ function PolicyLibraryContent() {
       });
       return;
     }
-    if (!canManagePolicies) {
-      toast({
-        title: "Permission Denied",
-        description: "You do not have permission to delete policies.",
-        variant: "destructive",
-      });
-      return;
-    }
     if (!confirm("Are you sure you want to delete this policy? This action cannot be undone.")) {
       return;
     }
@@ -321,10 +309,10 @@ function PolicyLibraryContent() {
       });
       return;
     }
-    if (!canApprovePolicies) {
+    if (!isAdmin) {
       toast({
         title: "Permission Denied",
-        description: "You do not have permission to approve policies.",
+        description: "Only administrators can approve policies.",
         variant: "destructive",
       });
       return;
@@ -365,10 +353,10 @@ function PolicyLibraryContent() {
       });
       return;
     }
-    if (!canApprovePolicies) {
+    if (!isAdmin) {
       toast({
         title: "Permission Denied",
-        description: "You do not have permission to reject policies.",
+        description: "Only administrators can reject policies.",
         variant: "destructive",
       });
       return;
@@ -405,14 +393,6 @@ function PolicyLibraryContent() {
       toast({
         title: "Preview Mode",
         description: "Requesting review is not available in preview mode. Please sign up for full access.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!canManagePolicies) {
-      toast({
-        title: "Permission Denied",
-        description: "You do not have permission to request policy reviews.",
         variant: "destructive",
       });
       return;
@@ -454,14 +434,6 @@ function PolicyLibraryContent() {
       });
       return;
     }
-    if (!canViewPolicies) {
-      toast({
-        title: "Permission Denied",
-        description: "You do not have permission to view policy versions.",
-        variant: "destructive",
-      });
-      return;
-    }
     try {
       const { data, error: versionsError } = await getPolicyVersions(policyId);
       if (versionsError) {
@@ -484,14 +456,6 @@ function PolicyLibraryContent() {
       toast({
         title: "Preview Mode",
         description: "Creating new versions is not available in preview mode. Please sign up for full access.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!canManagePolicies) {
-      toast({
-        title: "Permission Denied",
-        description: "You do not have permission to create new policy versions.",
         variant: "destructive",
       });
       return;
@@ -606,14 +570,12 @@ function PolicyLibraryContent() {
               status, review dates, and maintain compliance documentation.
             </p>
             <div className="mt-8">
-              {canCreatePolicies && (
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
-                  <a href="/policy-generator">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create New Policy
-                  </a>
-                </Button>
-              )}
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
+                <a href="/policy-generator">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create New Policy
+                </a>
+              </Button>
             </div>
           </div>
         </div>
@@ -748,27 +710,21 @@ function PolicyLibraryContent() {
                       v{policy.current_version}
                     </Badge>
                     <div className="flex space-x-2">
-                      {canViewPolicies && (
-                        <Button variant="outline" size="sm" onClick={() => handleViewPolicy(policy)}>
-                          <Eye className="h-3 w-3" />
-                        </Button>
-                      )}
-                      {canViewPolicies && (
-                        <Button variant="outline" size="sm" onClick={() => handleDownloadPolicy(policy)}>
-                          <Download className="h-3 w-3" />
-                        </Button>
-                      )}
-                      {canManagePolicies && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeletePolicy(policy.id)}
-                          className="text-red-600 hover:text-red-700"
-                          disabled={isDeleting}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      )}
+                      <Button variant="outline" size="sm" onClick={() => handleViewPolicy(policy)}>
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleDownloadPolicy(policy)}>
+                        <Download className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeletePolicy(policy.id)}
+                        className="text-red-600 hover:text-red-700"
+                        disabled={isDeleting}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -785,14 +741,12 @@ function PolicyLibraryContent() {
                   ? "Try adjusting your search or filter criteria."
                   : "Get started by creating your first policy."}
               </p>
-              {canCreatePolicies && (
-                <Button className="bg-blue-600 hover:bg-blue-700" asChild>
-                  <a href="/policy-generator">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create New Policy
-                  </a>
-                </Button>
-              )}
+              <Button className="bg-blue-600 hover:bg-blue-700" asChild>
+                <a href="/policy-generator">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create New Policy
+                </a>
+              </Button>
             </div>
           )}
         </div>
@@ -890,29 +844,23 @@ function PolicyLibraryContent() {
             </div>
             <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2 pt-4 border-t">
               <div className="flex space-x-2 mb-2 sm:mb-0">
-                {canViewPolicies && (
-                  <Button variant="outline" onClick={() => handleDownloadPolicy(selectedPolicy)}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
-                )}
-                {canViewPolicies && (
-                  <Button variant="outline" onClick={() => handleLoadVersions(selectedPolicy.id)}>
-                    <History className="mr-2 h-4 w-4" />
-                    View Versions
-                  </Button>
-                )}
-                {canManagePolicies && (
-                  <Button variant="outline" asChild>
-                    <Link href={`/policy-editor/${selectedPolicy.id}`}>
-                      <Edit3 className="mr-2 h-4 w-4" />
-                      Edit
-                    </Link>
-                  </Button>
-                )}
+                <Button variant="outline" onClick={() => handleDownloadPolicy(selectedPolicy)}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+                <Button variant="outline" onClick={() => handleLoadVersions(selectedPolicy.id)}>
+                  <History className="mr-2 h-4 w-4" />
+                  View Versions
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href={`/policy-editor/${selectedPolicy.id}`}>
+                    <Edit3 className="mr-2 h-4 w-4" />
+                    Edit
+                  </Link>
+                </Button>
               </div>
               <div className="flex space-x-2">
-                {canApprovePolicies && selectedPolicy.approval_status === 'pending_review' && (
+                {isAdmin && selectedPolicy.approval_status === 'pending_review' && (
                   <>
                     <Button
                       className="bg-green-600 hover:bg-green-700"
@@ -932,22 +880,20 @@ function PolicyLibraryContent() {
                     </Button>
                   </>
                 )}
-                {canManagePolicies && selectedPolicy.approval_status === 'draft' && (
+                {selectedPolicy.approval_status === 'draft' && (
                   <Button onClick={() => handleRequestReview(selectedPolicy.id)}>
                     <Clock className="mr-2 h-4 w-4" />
                     Request Review
                   </Button>
                 )}
-                {canManagePolicies && (
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleDeletePolicy(selectedPolicy.id)}
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                    Delete
-                  </Button>
-                )}
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDeletePolicy(selectedPolicy.id)}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                  Delete
+                </Button>
               </div>
             </DialogFooter>
           </DialogContent>
@@ -982,12 +928,10 @@ function PolicyLibraryContent() {
                         <p className="text-sm text-gray-700">
                           Created by: {version.created_by || "System"}
                         </p>
-                        {canViewPolicies && (
-                          <Button variant="outline" size="sm" className="mt-3">
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Content
-                          </Button>
-                        )}
+                        <Button variant="outline" size="sm" className="mt-3">
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Content
+                        </Button>
                       </CardContent>
                     </Card>
                   ))}
@@ -996,39 +940,35 @@ function PolicyLibraryContent() {
                 <p className="text-center text-gray-600">No previous versions found.</p>
               )}
               <Separator className="my-6" />
-              {canManagePolicies && (
-                <>
-                  <h3 className="text-lg font-semibold mb-4">Create New Version</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="new-version-number">New Version Number</Label>
-                      <Input
-                        id="new-version-number"
-                        value={newVersionNumber}
-                        onChange={(e) => setNewVersionNumber(e.target.value)}
-                        placeholder="e.g., 1.1, 2.0"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="new-version-content">New Version Content (JSON)</Label>
-                      <Textarea
-                        id="new-version-content"
-                        value={newVersionContent}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewVersionContent(e.target.value)}
-                        rows={10}
-                        placeholder="Paste the full JSON content of the new policy version here."
-                      />
-                    </div>
-                    <Button
-                      onClick={handleCreateNewVersion}
-                      disabled={isSavingVersion || !newVersionContent || !newVersionNumber}
-                    >
-                      {isSavingVersion ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                      Create & Set as Current
-                    </Button>
-                  </div>
-                </>
-              )}
+              <h3 className="text-lg font-semibold mb-4">Create New Version</h3>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="new-version-number">New Version Number</Label>
+                  <Input
+                    id="new-version-number"
+                    value={newVersionNumber}
+                    onChange={(e) => setNewVersionNumber(e.target.value)}
+                    placeholder="e.g., 1.1, 2.0"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="new-version-content">New Version Content (JSON)</Label>
+                  <Textarea
+                    id="new-version-content"
+                    value={newVersionContent}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewVersionContent(e.target.value)}
+                    rows={10}
+                    placeholder="Paste the full JSON content of the new policy version here."
+                  />
+                </div>
+                <Button
+                  onClick={handleCreateNewVersion}
+                  disabled={isSavingVersion || !newVersionContent || !newVersionNumber}
+                >
+                  {isSavingVersion ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                  Create & Set as Current
+                </Button>
+              </div>
             </div>
             <DialogFooter>
               <DialogClose asChild>

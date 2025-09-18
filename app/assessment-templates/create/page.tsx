@@ -32,7 +32,7 @@ export default function CreateAssessmentTemplatePage() {
 }
 
 function CreateAssessmentTemplateContent() {
-  const { loading: authLoading, isDemo, hasPermission } = useAuth();
+  const { role, loading: authLoading, isDemo } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -45,7 +45,7 @@ function CreateAssessmentTemplateContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canManageTemplates = hasPermission("manage_assessment_templates");
+  const isAdmin = role?.role === "admin" || isDemo;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,14 +53,6 @@ function CreateAssessmentTemplateContent() {
       toast({
         title: "Preview Mode",
         description: "Template creation is not available in preview mode. Please sign up for full access.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!canManageTemplates) {
-      toast({
-        title: "Permission Denied",
-        description: "You do not have permission to create assessment templates.",
         variant: "destructive",
       });
       return;
@@ -99,7 +91,7 @@ function CreateAssessmentTemplateContent() {
     );
   }
 
-  if (!canManageTemplates) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8">

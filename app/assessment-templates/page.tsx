@@ -36,7 +36,7 @@ export default function AssessmentTemplatesPage() {
 }
 
 function AssessmentTemplatesContent() {
-  const { user, loading: authLoading, isDemo, hasPermission } = useAuth();
+  const { user, role, loading: authLoading, isDemo } = useAuth();
   const { toast } = useToast();
 
   const [templates, setTemplates] = useState<AssessmentTemplate[]>([]);
@@ -47,12 +47,11 @@ function AssessmentTemplatesContent() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  const canManageTemplates = hasPermission("manage_assessment_templates");
-  const canViewTemplates = hasPermission("view_assessments"); // Assuming view_assessments allows viewing templates
+  const isAdmin = role?.role === "admin" || isDemo;
 
   const loadTemplates = async () => {
-    if (!canViewTemplates) {
-      setError("You do not have permission to view assessment templates.");
+    if (!isAdmin) {
+      setError("You do not have administrative privileges to view this page.");
       setLoading(false);
       return;
     }
@@ -77,7 +76,7 @@ function AssessmentTemplatesContent() {
     if (!authLoading) {
       loadTemplates();
     }
-  }, [authLoading, canViewTemplates]);
+  }, [authLoading, isAdmin]);
 
   useEffect(() => {
     let filtered = templates;
@@ -103,14 +102,6 @@ function AssessmentTemplatesContent() {
       toast({
         title: "Preview Mode",
         description: "Template deletion is not available in preview mode. Please sign up for full access.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!canManageTemplates) {
-      toast({
-        title: "Permission Denied",
-        description: "You do not have permission to delete assessment templates.",
         variant: "destructive",
       });
       return;
@@ -168,13 +159,13 @@ function AssessmentTemplatesContent() {
     );
   }
 
-  if (error) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8">
           <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
           <Link href="/dashboard">
             <Button>Return to Dashboard</Button>
           </Link>
@@ -199,15 +190,22 @@ function AssessmentTemplatesContent() {
               <p className="mt-2 text-gray-600">Create and manage custom assessment templates for your organization.</p>
             </div>
           </div>
-          {canManageTemplates && (
-            <Link href="/assessment-templates/create">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Create New Template
-              </Button>
-            </Link>
-          )}
+          <Link href="/assessment-templates/create">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Template
+            </Button>
+          </Link>
         </div>
+
+        {error && (
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <CardContent className="p-4 flex items-center space-x-3 text-red-800">
+              <AlertTriangle className="h-5 w-5" />
+              <p className="font-medium">{error}</p>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="mb-6">
           <CardContent className="p-6">
@@ -251,14 +249,12 @@ function AssessmentTemplatesContent() {
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h2 className="text-xl font-bold text-gray-900 mb-2">No Assessment Templates Found</h2>
               <p className="text-gray-600">Create your first custom assessment template.</p>
-              {canManageTemplates && (
-                <Link href="/assessment-templates/create">
-                  <Button className="mt-4">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create New Template
-                  </Button>
-                </Link>
-              )}
+              <Link href="/assessment-templates/create">
+                <Button className="mt-4">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create New Template
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         )}
@@ -284,29 +280,25 @@ function AssessmentTemplatesContent() {
                     <span>Created: {new Date(template.created_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex justify-end space-x-2 pt-4 border-t border-gray-100">
-                    {canManageTemplates && (
-                      <Link href={`/assessment-templates/${template.id}/edit`}>
-                        <Button variant="outline" size="sm">
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </Button>
-                      </Link>
-                    )}
-                    {canManageTemplates && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteTemplate(template.id)}
-                        disabled={isDeleting === template.id}
-                      >
-                        {isDeleting === template.id ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="mr-2 h-4 w-4" />
-                        )}
-                        Delete
+                    <Link href={`/assessment-templates/${template.id}/edit`}>
+                      <Button variant="outline" size="sm">
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
                       </Button>
-                    )}
+                    </Link>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteTemplate(template.id)}
+                      disabled={isDeleting === template.id}
+                    >
+                      {isDeleting === template.id ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="mr-2 h-4 w-4" />
+                      )}
+                      Delete
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

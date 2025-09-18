@@ -21,17 +21,8 @@ import {
   ArrowLeft, // Added ArrowLeft for back button
 } from "lucide-react"
 import Link from "next/link"
-import { AuthGuard } from "@/components/auth-guard" // Import AuthGuard
 
 export default function SystemStatusPage() {
-  return (
-    <AuthGuard permission="view_system_status"> {/* Added permission prop */}
-      <SystemStatusContent />
-    </AuthGuard>
-  )
-}
-
-function SystemStatusContent() {
   const [loading, setLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState(new Date())
 

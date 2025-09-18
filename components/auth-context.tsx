@@ -4,7 +4,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState, useCallback } from "react"
 import { supabaseClient } from "@/lib/supabase-client"
 import type { User, Session } from "@supabase/supabase-js"
-import { getCurrentUserWithProfile, DefaultRolePermissions, UserPermissions } from "@/lib/auth-service" // Import UserPermissions
+import { getCurrentUserWithProfile } from "@/lib/auth-service"
 
 interface DemoUser {
   id: string
@@ -35,7 +35,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
   refreshProfile: (sessionFromListener?: Session | null) => Promise<void>
-  hasPermission: (permission: keyof UserPermissions) => boolean // Updated to use keyof UserPermissions
+  hasPermission: (permission: string) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -72,8 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const session: DemoSession = JSON.parse(demoSession)
         setUser(session.user)
         setOrganization(session.organization)
-        // For demo, assign admin permissions
-        setRole({ role: session.role, permissions: DefaultRolePermissions['admin'] }) 
+        setRole({ role: session.role, permissions: { all: true } })
         setProfile({
           first_name: "Demo",
           last_name: "User",
@@ -221,12 +220,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const hasPermission = useCallback((permission: keyof UserPermissions): boolean => {
-    if (isDemo) return true; // Demo user has all permissions
+  const hasPermission = useCallback((permission: string): boolean => {
     if (!role) return false;
-    
-    // Consistently check the permissions object for all roles
-    return role.permissions[permission] === true;
+    if (role.role === "admin" || isDemo) return true;
+    return role.permissions && (role.permissions[permission] === true || role.permissions.all === true);
   }, [role, isDemo]);
 
   const value = {

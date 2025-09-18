@@ -104,16 +104,8 @@ export async function getRiskAnalytics(timeframe = "30d"): Promise<RiskMetrics> 
 
     // 3. Combine and normalize the data
     const allAssessments = [
-      ...(thirdPartyAssessments || []).map(a => ({ 
-          ...a, 
-          status: a.status || 'pending', // Ensure status is set
-          risk_score: a.risk_score || 0 // Default risk_score to 0 if null for compliance calculation
-      })), 
-      ...(aiAssessments || []).map(a => ({ 
-          ...a, 
-          status: 'completed', // AI reports are always 'completed' once saved
-          risk_score: a.risk_score || 0 // Default risk_score to 0 if null
-      })) 
+      ...(thirdPartyAssessments || []).map(a => ({ ...a, status: a.status || 'completed' })), // Assume third-party assessments are 'completed' if they have a risk score
+      ...(aiAssessments || []).map(a => ({ ...a, status: 'completed' })) // AI reports are always 'completed' once saved
     ];
 
     console.log(`getRiskAnalytics: Combined total assessments: ${allAssessments.length}`);
@@ -256,32 +248,13 @@ function generateRiskTrend(assessments: any[], timeframe: string) {
 }
 
 function calculateComplianceScore(assessments: any[]): number {
-  if (assessments.length === 0) return 0;
+  // Simplified compliance score calculation
+  const completedAssessments = assessments.filter((a) => a.status === "completed")
+  const totalAssessments = assessments.length
 
-  let totalScoreSum = 0;
-  let totalAssessmentsCount = 0;
+  if (totalAssessments === 0) return 0
 
-  assessments.forEach(assessment => {
-    // Only consider assessments that have a risk_score (meaning they are at least partially evaluated)
-    // For non-completed assessments, or those with null risk_score, they contribute 0 to the sum
-    // but still count towards the total number of assessments that *should* be compliant.
-    if (assessment.status === "completed" && assessment.risk_score !== null) {
-      totalScoreSum += assessment.risk_score;
-    } else {
-      // For pending/in-progress/overdue or assessments without a score, they contribute 0 to the positive score
-      // but still count as an assessment that needs to be compliant.
-      totalScoreSum += 0; // Explicitly add 0
-    }
-    totalAssessmentsCount++; // Count all assessments, whether completed or not
-  });
-
-  if (totalAssessmentsCount === 0) return 0;
-
-  // The compliance score is the average of all (completed with score + non-completed with 0) assessments
-  // This means pending/overdue assessments will drag the score down.
-  const rawComplianceScore = totalScoreSum / totalAssessmentsCount;
-
-  return Math.round(rawComplianceScore);
+  return Math.round((completedAssessments.length / totalAssessments) * 100)
 }
 
 // Export data for reports

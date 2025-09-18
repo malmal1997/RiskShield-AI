@@ -583,7 +583,6 @@ export type Database = {
           id: string
           logo_url: string | null
           name: string
-          require_admin_signature: boolean | null
           settings: Json | null
           slug: string
           subscription_plan: string
@@ -597,7 +596,6 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name: string
-          require_admin_signature?: boolean | null
           settings?: Json | null
           slug: string
           subscription_plan?: string
@@ -611,7 +609,6 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name?: string
-          require_admin_signature?: boolean | null
           settings?: Json | null
           slug?: string
           subscription_plan?: string
@@ -1104,7 +1101,7 @@ export type Database = {
           category: string | null
           created_at: string
           id: string
-          options: string[] | null
+          options: string[] | null // Changed from Json | null
           order: number
           question_text: string
           question_type: string
@@ -1117,7 +1114,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           id?: string
-          options?: string[] | null
+          options?: string[] | null // Changed from Json | null
           order: number
           question_text: string
           question_type: string
@@ -1130,7 +1127,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           id?: string
-          options?: string[] | null
+          options?: string[] | null // Changed from Json | null
           order?: number
           question_text?: string
           question_type?: string
@@ -1384,7 +1381,7 @@ export type Tables<
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[PublicTableNameOrOptions extends { schema: keyof Database } ? TableName : never] extends {
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -1407,7 +1404,7 @@ export type TablesInsert<
     ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][PublicTableNameOrOptions extends { schema: keyof Database } ? TableName : never] extends {
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -1428,7 +1425,7 @@ export type TablesUpdate<
     ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][PublicTableNameOrOptions extends { schema: keyof Database } ? TableName : never] extends {
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U

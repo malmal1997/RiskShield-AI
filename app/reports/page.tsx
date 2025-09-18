@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BarChart3, TrendingUp, FileText, Download, Calendar, Filter, ArrowLeft, AlertTriangle, RefreshCw } from "lucide-react"
+import { BarChart3, TrendingUp, FileText, Download, Calendar, Filter, ArrowLeft } from "lucide-react" // Added ArrowLeft
 import Link from "next/link"
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
@@ -21,12 +21,9 @@ export default function ReportsPage() {
 }
 
 function ReportsContent() {
-  const { user, profile, organization, loading: authLoading, hasPermission, isDemo } = useAuth()
-  const [loading, setLoading] = useState(true)
+  const { user, profile, organization } = useAuth()
+  const [loading, setLoading] = useState(false)
   const [selectedTimeframe, setSelectedTimeframe] = useState("30d")
-  const [error, setError] = useState<string | null>(null);
-
-  const canViewReports = hasPermission("view_reports");
 
   // Mock report data
   const reportTemplates = [
@@ -92,55 +89,12 @@ function ReportsContent() {
   ]
 
   const generateReport = (reportId: string) => {
-    if (isDemo) {
-      alert("Preview Mode: Report generation is not available in preview mode. Please sign up for full access.");
-      return;
-    }
-    if (!canViewReports) {
-      alert("You do not have permission to generate reports.");
-      return;
-    }
     setLoading(true)
     // Simulate report generation
     setTimeout(() => {
       setLoading(false)
       alert(`Report generated successfully!`)
     }, 2000)
-  }
-
-  useEffect(() => {
-    if (!authLoading) {
-      if (!canViewReports) {
-        setError("You do not have permission to view reports.");
-      }
-      setLoading(false);
-    }
-  }, [authLoading, canViewReports]);
-
-  if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading reports...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8">
-          <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <Link href="/dashboard">
-            <Button>Return to Dashboard</Button>
-          </Link>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -265,9 +219,9 @@ function ReportsContent() {
             <div className="space-y-4">
               {riskDistributionData.map((item, index) => (
                 <div key={item.name} className="flex items-center justify-between">
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="font-medium ml-3">{item.name}</span>
+                    <span className="font-medium">{item.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-24 bg-gray-200 rounded-full h-2">

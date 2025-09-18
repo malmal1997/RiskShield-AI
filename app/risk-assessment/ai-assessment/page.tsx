@@ -38,7 +38,6 @@ import {
   Copy, 
   Edit3, 
   Calendar, 
-  AlertTriangle, // Added AlertTriangle
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { Label as ShadcnLabel } from "@/components/ui/label"
@@ -1845,7 +1844,7 @@ interface UploadedFileWithLabel {
 }
 
 export default function AIAssessmentPage() {
-  const { user, isDemo, hasPermission } = useAuth();
+  const { user, isDemo } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   const isMounted = useRef(false); // Ref to track if component is mounted
@@ -1884,8 +1883,6 @@ export default function AIAssessmentPage() {
   const [showOtherInput, setShowOtherInput] = useState<Record<string, boolean>>({});
   const [customTemplates, setCustomTemplates] = useState<AssessmentTemplate[]>([]);
   const [currentQuestions, setCurrentQuestions] = useState<TemplateQuestion[]>([]);
-
-  const canCreateAssessments = hasPermission("create_assessments");
 
   useEffect(() => {
     isMounted.current = true;
@@ -1999,14 +1996,6 @@ export default function AIAssessmentPage() {
   };
 
   const handleAnalyzeDocuments = async () => {
-    if (!canCreateAssessments) {
-      toast({
-        title: "Permission Denied",
-        description: "You do not have permission to perform AI analysis.",
-        variant: "destructive",
-      });
-      return;
-    }
     if (!selectedCategory && !selectedTemplateId) {
       setError("Please select an assessment category or template.")
       return
@@ -2089,14 +2078,6 @@ export default function AIAssessmentPage() {
       toast({
         title: "Preview Mode",
         description: "Reports cannot be saved in preview mode. Please sign up for full access.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!canCreateAssessments) {
-      toast({
-        title: "Permission Denied",
-        description: "You do not have permission to save AI assessment reports.",
         variant: "destructive",
       });
       return;
@@ -2235,21 +2216,6 @@ export default function AIAssessmentPage() {
     return `${excerptText} (from ${filteredParts.join(' - ')})`;
   };
 
-  if (!canCreateAssessments && !isDemo) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8">
-          <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-6">You do not have permission to create AI assessments.</p>
-          <Link href="/dashboard">
-            <Button>Return to Dashboard</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <AuthGuard
       allowPreview={true}
@@ -2313,18 +2279,10 @@ export default function AIAssessmentPage() {
                     return (
                       <Card
                         key={category.id}
-                        className={`relative group hover:shadow-lg transition-shadow cursor-pointer ${!canCreateAssessments ? "opacity-50 cursor-not-allowed" : ""}`}
+                        className="relative group hover:shadow-lg transition-shadow cursor-pointer"
                         onClick={() => {
-                          if (canCreateAssessments) {
-                            setSelectedCategory(category.id)
-                            setSelectedTemplateId(null); // Clear custom template selection
-                          } else {
-                            toast({
-                              title: "Permission Denied",
-                              description: "You do not have permission to create AI assessments.",
-                              variant: "destructive",
-                            });
-                          }
+                          setSelectedCategory(category.id)
+                          setSelectedTemplateId(null); // Clear custom template selection
                         }}
                       >
                         <CardHeader>
@@ -2339,7 +2297,7 @@ export default function AIAssessmentPage() {
                         </CardHeader>
                         <CardContent>
                           <CardDescription className="mb-4">{category.description}</CardDescription>
-                          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={!canCreateAssessments}>
+                          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                             <Bot className="mr-2 h-4 w-4" />
                             Select for AI Analysis
                           </Button>
@@ -2354,18 +2312,10 @@ export default function AIAssessmentPage() {
                     return (
                       <Card
                         key={template.id}
-                        className={`relative group hover:shadow-lg transition-shadow cursor-pointer border-purple-300 bg-purple-50 ${!canCreateAssessments ? "opacity-50 cursor-not-allowed" : ""}`}
+                        className="relative group hover:shadow-lg transition-shadow cursor-pointer border-purple-300 bg-purple-50"
                         onClick={() => {
-                          if (canCreateAssessments) {
-                            setSelectedTemplateId(template.id);
-                            setSelectedCategory(null); // Clear built-in category selection
-                          } else {
-                            toast({
-                              title: "Permission Denied",
-                              description: "You do not have permission to create AI assessments.",
-                              variant: "destructive",
-                            });
-                          }
+                          setSelectedTemplateId(template.id);
+                          setSelectedCategory(null); // Clear built-in category selection
                         }}
                       >
                         <CardHeader>
@@ -2381,7 +2331,7 @@ export default function AIAssessmentPage() {
                         <CardContent>
                           <CardDescription className="mb-4">{template.description}</CardDescription>
                           <Badge className="bg-purple-200 text-purple-800 mb-2">Custom Template</Badge>
-                          <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white" disabled={!canCreateAssessments}>
+                          <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
                             <Bot className="mr-2 h-4 w-4" />
                             Select for AI Analysis
                           </Button>
@@ -2401,7 +2351,6 @@ export default function AIAssessmentPage() {
                     variant="ghost"
                     onClick={() => setCurrentStep("select-category")}
                     className="mb-6 hover:bg-blue-50"
-                    disabled={!canCreateAssessments}
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Category Selection
@@ -2435,7 +2384,6 @@ export default function AIAssessmentPage() {
                           onChange={(e) => setSocInfo({ ...socInfo, socType: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           required
-                          disabled={!canCreateAssessments}
                         >
                           <option value="">Select SOC Type</option>
                           <option value="SOC 1">SOC 1 - Internal Controls over Financial Reporting</option>
@@ -2454,7 +2402,6 @@ export default function AIAssessmentPage() {
                             onChange={(e) => setSocInfo({ ...socInfo, reportType: e.target.value })}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
-                            disabled={!canCreateAssessments}
                           >
                             <option value="">Select Report Type</option>
                             <option value="Type 1">Type 1 - Design and Implementation</option>
@@ -2473,7 +2420,6 @@ export default function AIAssessmentPage() {
                           onChange={(e) => setSocInfo({ ...socInfo, auditor: e.target.value })}
                           placeholder="Enter auditor or CPA firm name"
                           className="focus:ring-2 focus:ring-blue-500"
-                          disabled={!canCreateAssessments}
                         />
                       </div>
                       <div>
@@ -2483,7 +2429,6 @@ export default function AIAssessmentPage() {
                           value={socInfo.auditorOpinion}
                           onChange={(e) => setSocInfo({ ...socInfo, auditorOpinion: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          disabled={!canCreateAssessments}
                         >
                           <option value="">Select Opinion</option>
                           <option value="Unqualified">Unqualified</option>
@@ -2503,7 +2448,6 @@ export default function AIAssessmentPage() {
                           value={socInfo.auditorOpinionDate}
                           onChange={(e) => setSocInfo({ ...socInfo, auditorOpinionDate: e.target.value })}
                           className="focus:ring-2 focus:ring-blue-500"
-                          disabled={!canCreateAssessments}
                         />
                       </div>
                       {socInfo.socType &&
@@ -2517,7 +2461,6 @@ export default function AIAssessmentPage() {
                               value={socInfo.socDateAsOf}
                               onChange={(e) => setSocInfo({ ...socInfo, socDateAsOf: e.target.value })}
                               className="focus:ring-2 focus:ring-blue-500"
-                              disabled={!canCreateAssessments}
                             />
                           </div>
                         ) : (
@@ -2530,7 +2473,6 @@ export default function AIAssessmentPage() {
                                 value={socInfo.socStartDate}
                                 onChange={(e) => setSocInfo({ ...socInfo, socStartDate: e.target.value })}
                                 className="focus:ring-2 focus:ring-blue-500"
-                                disabled={!canCreateAssessments}
                               />
                             </div>
                             <div>
@@ -2541,7 +2483,6 @@ export default function AIAssessmentPage() {
                                 value={socInfo.socEndDate}
                                 onChange={(e) => setSocInfo({ ...socInfo, socEndDate: e.target.value })}
                                 className="focus:ring-2 focus:ring-blue-500"
-                                disabled={!canCreateAssessments}
                               />
                             </div>
                           </>
@@ -2556,7 +2497,6 @@ export default function AIAssessmentPage() {
                           value={socInfo.testedStatus}
                           onChange={(e) => setSocInfo({ ...socInfo, testedStatus: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          disabled={!canCreateAssessments}
                         >
                           <option value="">Select Testing Status</option>
                           <option value="Tested">Tested</option>
@@ -2575,7 +2515,6 @@ export default function AIAssessmentPage() {
                           onChange={(e) => setSocInfo({ ...socInfo, companyName: e.target.value })}
                           placeholder="Enter your company name"
                           required
-                          disabled={!canCreateAssessments}
                         />
                       </div>
                       <div>
@@ -2586,7 +2525,6 @@ export default function AIAssessmentPage() {
                           onChange={(e) => setSocInfo({ ...socInfo, productService: e.target.value })}
                           placeholder="Enter the product or service"
                           required
-                          disabled={!canCreateAssessments}
                         />
                       </div>
                     </div>
@@ -2599,7 +2537,6 @@ export default function AIAssessmentPage() {
                         onChange={(e) => setSocInfo({ ...socInfo, subserviceOrganizations: e.target.value })}
                         placeholder="List any subservice organizations and their roles (e.g., cloud providers, data centers)..."
                         rows={3}
-                        disabled={!canCreateAssessments}
                       />
                     </div>
 
@@ -2609,7 +2546,6 @@ export default function AIAssessmentPage() {
                         variant="outline"
                         onClick={() => setCurrentStep("select-category")}
                         className="flex items-center"
-                        disabled={!canCreateAssessments}
                       >
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back
@@ -2618,7 +2554,6 @@ export default function AIAssessmentPage() {
                         type="button"
                         onClick={handleSOCInfoComplete}
                         className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
-                        disabled={!canCreateAssessments}
                       >
                         Continue to Document Upload
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -2639,7 +2574,6 @@ export default function AIAssessmentPage() {
                       setCurrentStep((selectedCategory === "soc-compliance" || customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.type === "soc-compliance") ? "soc-info" : "select-category")
                     }
                     className="mb-6 hover:bg-blue-50"
-                    disabled={!canCreateAssessments}
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to {(selectedCategory === "soc-compliance" || customTemplates.find((t: AssessmentTemplate) => t.id === selectedTemplateId)?.type === "soc-compliance") ? "SOC Information" : "Category Selection"}
@@ -2681,7 +2615,7 @@ export default function AIAssessmentPage() {
                             <Label htmlFor="document-upload" className="text-sm font-medium text-gray-700">
                               Upload Supporting Documents
                             </Label>
-                            <div className={`mt-2 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors bg-blue-25 ${!canCreateAssessments ? "opacity-50 cursor-not-allowed" : ""}`}>
+                            <div className="mt-2 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors bg-blue-25">
                               <input
                                 id="document-upload"
                                 type="file"
@@ -2689,9 +2623,8 @@ export default function AIAssessmentPage() {
                                 accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.ppt,.pptx"
                                 onChange={handleFileChange}
                                 className="hidden"
-                                disabled={!canCreateAssessments}
                               />
-                              <label htmlFor="document-upload" className={`cursor-pointer ${!canCreateAssessments ? "cursor-not-allowed" : ""}`}>
+                              <label htmlFor="document-upload" className="cursor-pointer">
                                 <Upload className="h-12 w-12 text-blue-400 mx-auto mb-3" />
                                 <p className="text-lg font-medium text-blue-900 mb-1">
                                   Click to upload or drag and drop
@@ -2724,7 +2657,6 @@ export default function AIAssessmentPage() {
                                       <Select
                                         value={item.label}
                                         onValueChange={(value: 'Primary' | '4th Party') => handleFileLabelChange(index, value)}
-                                        disabled={!canCreateAssessments}
                                       >
                                         <SelectTrigger className="w-[120px] h-8 text-xs">
                                           <SelectValue placeholder="Select label" />
@@ -2734,7 +2666,7 @@ export default function AIAssessmentPage() {
                                           <SelectItem value="4th Party">4th Party</SelectItem>
                                         </SelectContent>
                                       </Select>
-                                      <Button variant="outline" size="sm" onClick={() => handleRemoveFile(index)} disabled={!canCreateAssessments}>
+                                      <Button variant="outline" size="sm" onClick={() => handleRemoveFile(index)}>
                                         Remove
                                       </Button>
                                     </div>
@@ -2748,7 +2680,7 @@ export default function AIAssessmentPage() {
                             <Button
                               onClick={handleAnalyzeDocuments}
                               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
-                              disabled={isAnalyzing || !canCreateAssessments}
+                              disabled={isAnalyzing}
                             >
                               {isAnalyzing ? (
                                 <>
@@ -2800,7 +2732,6 @@ export default function AIAssessmentPage() {
                     variant="ghost"
                     onClick={() => setCurrentStep("upload-documents")}
                     className="mb-6 hover:bg-blue-50"
-                    disabled={!canCreateAssessments}
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Document Upload
@@ -2890,7 +2821,6 @@ export default function AIAssessmentPage() {
                                   checked={answers[question.id] === true}
                                   onChange={() => handleAnswerChange(question.id, true)}
                                   className="mr-2"
-                                  disabled={!canCreateAssessments}
                                 />
                                 Yes
                               </label>
@@ -2901,7 +2831,6 @@ export default function AIAssessmentPage() {
                                   checked={answers[question.id] === false}
                                   onChange={() => handleAnswerChange(question.id, false)}
                                   className="mr-2"
-                                  disabled={!canCreateAssessments}
                                 />
                                 No
                               </label>
@@ -2926,7 +2855,6 @@ export default function AIAssessmentPage() {
                                   }
                                 }}
                                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                                disabled={!canCreateAssessments}
                               >
                                 <option value="">Select an option</option>
                                 {question.options?.map((option: string) => (
@@ -2943,7 +2871,6 @@ export default function AIAssessmentPage() {
                                   onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                                   placeholder="Please specify..."
                                   className="mt-2"
-                                  disabled={!canCreateAssessments}
                                 />
                               )}
                             </>
@@ -2957,7 +2884,6 @@ export default function AIAssessmentPage() {
                                   checked={answers[question.id] === "tested"}
                                   onChange={() => handleAnswerChange(question.id, "tested")}
                                   className="mr-2"
-                                  disabled={!canCreateAssessments}
                                 />
                                 Tested
                               </label>
@@ -2968,7 +2894,6 @@ export default function AIAssessmentPage() {
                                   checked={answers[question.id] === "not_tested"}
                                   onChange={() => handleAnswerChange(question.id, "not_tested")}
                                   className="mr-2"
-                                  disabled={!canCreateAssessments}
                                 />
                                 Not Tested
                               </label>
@@ -2982,7 +2907,6 @@ export default function AIAssessmentPage() {
                               placeholder="Provide your detailed response here..."
                               rows={4}
                               className="mt-2"
-                              disabled={!canCreateAssessments}
                             />
                           )}
                           {question.question_type === "checkbox" && (
@@ -3003,7 +2927,6 @@ export default function AIAssessmentPage() {
                                         );
                                       }
                                     }}
-                                    disabled={!canCreateAssessments}
                                   />
                                   <Label htmlFor={`${question.id}-${option}`} className="ml-2">
                                     {option}
@@ -3023,12 +2946,11 @@ export default function AIAssessmentPage() {
                     variant="outline"
                     onClick={() => setCurrentStep("upload-documents")}
                     className="hover:bg-gray-50"
-                    disabled={!canCreateAssessments}
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Document Upload
                   </Button>
-                  <Button onClick={handleFinalSubmit} className="bg-green-600 hover:bg-green-700 text-white" disabled={!canCreateAssessments}>
+                  <Button onClick={handleFinalSubmit} className="bg-green-600 hover:bg-green-700 text-white">
                     <FileCheck className="mr-2 h-4 w-4" />
                     Finalize Assessment
                   </Button>
@@ -3080,16 +3002,16 @@ export default function AIAssessmentPage() {
                           <h3 className="font-semibold text-red-900 mb-2">Identified Risk Factors</h3>
                           <ul className="text-sm text-red-800 list-disc pl-5 space-y-1">
                             {analysisResults.riskFactors.map((factor: string, index: number) => (
-                              <li key={index} className="whitespace-pre-wrap">{factor}</li>
-                            )) || <li>No risk factors identified.</li>}
+                              <li key={index}>{factor}</li>
+                            ))}
                           </ul>
                         </div>
-                        <div className="bg-green-50 p-4 rounded-md">
-                          <h3 className="font-medium text-green-900 mb-2">Recommendations</h3>
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                          <h3 className="font-semibold text-green-900 mb-2">Recommendations</h3>
                           <ul className="text-sm text-green-800 list-disc pl-5 space-y-1">
                             {analysisResults.recommendations.map((rec: string, index: number) => (
-                              <li key={index} className="whitespace-pre-wrap">{rec}</li>
-                            )) || <li>No recommendations provided.</li>}
+                              <li key={index}>{rec}</li>
+                            ))}
                           </ul>
                         </div>
                       </div>
@@ -3101,7 +3023,6 @@ export default function AIAssessmentPage() {
                       variant="outline"
                       onClick={() => setCurrentStep("review-answers")}
                       className="hover:bg-gray-50"
-                      disabled={!canCreateAssessments}
                     >
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Back to Review
@@ -3110,7 +3031,7 @@ export default function AIAssessmentPage() {
                       <Button
                         onClick={handleSaveReport}
                         className="bg-blue-600 hover:bg-blue-700"
-                        disabled={isSavingReport || isDemo || !canCreateAssessments}
+                        disabled={isSavingReport || isDemo}
                       >
                         {isSavingReport ? (
                           <>
@@ -3124,7 +3045,7 @@ export default function AIAssessmentPage() {
                           </>
                         )}
                       </Button>
-                      <Button onClick={() => handleViewFullReport(user?.id || 'demo-user-id')} className="bg-blue-600 hover:bg-blue-700" disabled={!canCreateAssessments}>
+                      <Button onClick={() => handleViewFullReport(user?.id || 'demo-user-id')} className="bg-blue-600 hover:bg-blue-700">
                         <Download className="mr-2 h-4 w-4" />
                         View Full Report
                       </Button>

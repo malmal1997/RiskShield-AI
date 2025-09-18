@@ -5,11 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, Eye, Clock, MousePointer, TrendingUp, Mail, Phone, Building, RefreshCw, AlertTriangle } from "lucide-react"
+import { Users, Eye, Clock, MousePointer, TrendingUp, Mail, Phone, Building, RefreshCw } from "lucide-react"
 import { supabaseClient } from "@/lib/supabase-client"
 import { AuthGuard } from "@/components/auth-guard"
-import { useAuth } from "@/components/auth-context"
-import Link from "next/link"
 
 interface AnalyticsData {
   sessions: any[]
@@ -43,30 +41,17 @@ const defaultAnalyticsData: AnalyticsData = {
 
 export default function AnalyticsPage() {
   return (
-    <AuthGuard permission="view_analytics"> {/* Added permission prop */}
+    <AuthGuard>
       <AnalyticsContent />
     </AuthGuard>
   )
 }
 
 function AnalyticsContent() {
-  const { user, loading: authLoading, hasPermission } = useAuth();
   const [data, setData] = useState<AnalyticsData>(defaultAnalyticsData)
   const [timeframe, setTimeframe] = useState("7d")
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const canViewAnalytics = hasPermission("view_analytics");
 
   const loadAnalytics = async () => {
-    if (!canViewAnalytics) {
-      setError("You do not have permission to view analytics.");
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
     try {
       // Calculate date range
       const endDate = new Date()
@@ -137,20 +122,15 @@ function AnalyticsContent() {
           conversionRate: Math.round(conversionRate * 100) / 100,
         },
       })
-    } catch (err) {
-      console.error("Error loading analytics:", err)
-      setError(err instanceof Error ? err.message : "Unknown error loading analytics.");
+    } catch (error) {
+      console.error("Error loading analytics:", error)
       setData(defaultAnalyticsData); // Reset to default on error
-    } finally {
-      setLoading(false);
     }
   }
 
   useEffect(() => {
-    if (!authLoading) {
-      loadAnalytics()
-    }
-  }, [timeframe, authLoading, canViewAnalytics])
+    loadAnalytics()
+  }, [timeframe])
 
   const formatTime = (seconds: number) => {
     if (seconds < 60) return `${seconds}s`
@@ -188,32 +168,6 @@ function AnalyticsContent() {
       .sort(([, a], [, b]) => (b as number) - (a as number)) // Explicitly cast a and b to number
       .slice(0, 10)
       .map(([feature, interactions]) => ({ feature, interactions }))
-  }
-
-  if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading analytics...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8">
-          <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <Link href="/dashboard">
-            <Button>Return to Dashboard</Button>
-          </Link>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -469,25 +423,25 @@ function AnalyticsContent() {
                 <CardTitle>Page Analytics</CardTitle>
                 <CardDescription>Most visited pages and engagement</CardDescription>
               </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {getTopPages().map(({ path, views }, index) => (
-                      <div key={path} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 bg-green-100 text-green-600 rounded text-xs flex items-center justify-center font-medium">
-                            {index + 1}
-                          </div>
-                          <span className="font-medium">{path}</span>
+              <CardContent>
+                <div className="space-y-3">
+                  {getTopPages().map(({ path, views }, index) => (
+                    <div key={path} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-6 h-6 bg-green-100 text-green-600 rounded text-xs flex items-center justify-center font-medium">
+                          {index + 1}
                         </div>
-                        <Badge variant="outline">{views as number} views</Badge>
+                        <span className="font-medium">{path}</span>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+                      <Badge variant="outline">{views as number} views</Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-    )
-  }
+    </div>
+  )
+}

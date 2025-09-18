@@ -35,17 +35,17 @@ export default function AdminApprovalPage() {
 }
 
 function AdminApprovalContent() {
-  const { user, profile, role, loading: authLoading, isDemo, hasPermission } = useAuth() // Get isDemo and hasPermission
+  const { user, profile, role, loading: authLoading, isDemo } = useAuth() // Get isDemo
   const [pendingRegistrations, setPendingRegistrations] = useState<PendingRegistration[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isApproving, setIsApproving] = useState<string | null>(null) // Stores ID of registration being approved
   const { toast } = useToast()
 
-  const canReviewRegistrations = hasPermission("review_registrations");
+  const isAdmin = role?.role === "admin"
 
   const loadRegistrations = async () => {
-    if (!canReviewRegistrations) {
+    if (!isAdmin) {
       setError("You do not have administrative privileges to view this page.")
       setLoading(false)
       return
@@ -72,7 +72,7 @@ function AdminApprovalContent() {
     if (!authLoading) {
       loadRegistrations()
     }
-  }, [authLoading, canReviewRegistrations])
+  }, [authLoading, isAdmin])
 
   const handleApprove = async (registrationId: string) => {
     // Pass null for adminUserId if in demo mode, as demo user ID is not a valid UUID
@@ -131,7 +131,7 @@ function AdminApprovalContent() {
     )
   }
 
-  if (!canReviewRegistrations) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8">

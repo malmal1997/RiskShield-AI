@@ -89,14 +89,14 @@ const logsData = [
 
 export default function DevDashboardPage() {
   return (
-    <AuthGuard permission="access_dev_dashboard"> {/* Added permission prop */}
+    <AuthGuard>
       <DevDashboardContent />
     </AuthGuard>
   )
 }
 
 function DevDashboardContent() {
-  const { user, profile, hasPermission } = useAuth()
+  const { user, profile, role, signOut } = useAuth()
   const [loading, setLoading] = useState(false)
   const [timeframe, setTimeframe] = useState("24h")
 
@@ -123,11 +123,12 @@ function DevDashboardContent() {
     info: 15,
   })
 
-  const canAccessDevDashboard = hasPermission("access_dev_dashboard");
+  // Check if user has developer role
+  const isDeveloper = role?.role === "admin" || (role?.permissions && role.permissions.developer === true)
 
   // Simulate real-time updates
   useEffect(() => {
-    if (!canAccessDevDashboard) return
+    if (!isDeveloper) return
 
     const interval = setInterval(() => {
       setSystemMetrics((prev: typeof systemMetrics) => ({
@@ -146,7 +147,7 @@ function DevDashboardContent() {
     }, 3000)
 
     return () => clearInterval(interval)
-  }, [canAccessDevDashboard])
+  }, [isDeveloper])
 
   const handleRefresh = () => {
     setLoading(true)
@@ -156,7 +157,7 @@ function DevDashboardContent() {
   }
 
   // If not a developer, show access denied
-  if (!canAccessDevDashboard) {
+  if (!isDeveloper) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8">

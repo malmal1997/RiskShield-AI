@@ -8,17 +8,8 @@ import {
   Shield, Building, BarChart3, Bell, Settings, CheckCircle, TrendingUp, Eye, Play, Pause, RotateCcw, ArrowLeft,
 } from "lucide-react"
 import Link from "next/link"
-import { AuthGuard } from "@/components/auth-guard" // Import AuthGuard
 
 export default function DemoFeaturesPage() {
-  return (
-    <AuthGuard permission="view_demo_features"> {/* Added permission prop */}
-      <DemoFeaturesContent />
-    </AuthGuard>
-  )
-}
-
-function DemoFeaturesContent() {
   const [activeDemo, setActiveDemo] = useState<string | null>(null)
 
   const demoFeatures = [

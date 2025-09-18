@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/src/integrations/supabase/admin";
 import { approveRegistration } from "@/app/admin-approval/actions";
-import { DefaultRolePermissions } from "@/lib/auth-service"; // Import DefaultRolePermissions
 
 export async function POST() {
   try {

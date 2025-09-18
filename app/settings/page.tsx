@@ -33,7 +33,7 @@ import {
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
-import { updateUserProfile, updateOrganizationSettings } from "@/lib/auth-service"
+import { updateUserProfile } from "@/lib/auth-service"
 import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link"
 import { getIntegrations, createIntegration, updateIntegration, deleteIntegration } from "@/lib/integration-service"; // Import integration services
@@ -54,7 +54,7 @@ export default function SettingsPage() {
 }
 
 function SettingsContent() {
-  const { user, profile, organization, role, refreshProfile, isDemo, loading: authLoading, hasPermission } = useAuth()
+  const { user, profile, organization, role, refreshProfile, isDemo, loading: authLoading } = useAuth()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
@@ -73,7 +73,6 @@ function SettingsContent() {
     name: organization?.name || "",
     domain: organization?.domain || "",
     settings: organization?.settings || {},
-    require_admin_signature: organization?.require_admin_signature || false, // New state for the setting
   })
 
   // Notification preferences
@@ -119,7 +118,6 @@ function SettingsContent() {
         name: organization.name || "",
         domain: organization.domain || "",
         settings: organization.settings || {},
-        require_admin_signature: organization.require_admin_signature || false, // Initialize new setting
       })
     }
   }, [profile, organization])
@@ -177,34 +175,6 @@ function SettingsContent() {
       setLoading(false)
     }
   }
-
-  const handleOrganizationSettingsUpdate = async () => {
-    if (isDemo) {
-      toast({
-        title: "Preview Mode",
-        description: "Organization settings cannot be updated in preview mode. Please sign up for full access.",
-        variant: "destructive",
-      });
-      return;
-    }
-    try {
-      setLoading(true);
-      await updateOrganizationSettings(orgForm);
-      await refreshProfile(); // Refresh to get updated organization data
-      toast({
-        title: "Organization settings updated",
-        description: "Your organization's settings have been updated successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to update organization settings. Please try again.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleIntegrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -327,8 +297,7 @@ function SettingsContent() {
   ]
 
   const isOrgAdmin = role?.role === "admin";
-  // Super admin is now defined by having the 'review_registrations' permission
-  const isSuperAdmin = hasPermission("review_registrations");
+  const isSuperAdmin = isOrgAdmin && user?.email === SUPER_ADMIN_EMAIL;
 
   // If not an admin and not in demo mode, deny access to the entire page
   if (!authLoading && !isOrgAdmin && !isDemo) {
@@ -553,42 +522,6 @@ function SettingsContent() {
                     </p>
                   </div>
                 )}
-
-                <Separator />
-
-                {/* New Setting: Require Admin E-Signature */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="require_admin_signature">Require Admin E-Signature</Label>
-                    <p className="text-sm text-gray-600">
-                      Require an administrator's e-signature for final approval of policies and risk assessments.
-                    </p>
-                  </div>
-                  <Switch
-                    id="require_admin_signature"
-                    checked={orgForm.require_admin_signature}
-                    onCheckedChange={(checked) =>
-                      setOrgForm({ ...orgForm, require_admin_signature: checked })
-                    }
-                    disabled={!isOrgAdmin || isDemo} // Only admins can change this setting
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <Button onClick={handleOrganizationSettingsUpdate} disabled={loading || !isOrgAdmin || isDemo}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Organization Settings
-                      </>
-                    )}
-                  </Button>
-                </div>
               </CardContent>
             </Card>
 
@@ -617,7 +550,7 @@ function SettingsContent() {
                 </Card>
 
                 {/* Admin Approval Card - Only visible to the designated super admin */}
-                {isSuperAdmin && ( // Now uses hasPermission("review_registrations")
+                {(isSuperAdmin || isDemo) && ( // Keep isDemo for preview mode functionality
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center space-x-2">
