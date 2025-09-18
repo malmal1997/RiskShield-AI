@@ -84,7 +84,7 @@ export default function ReportViewPage() {
     const uploadedDocumentsMetadata = report.uploaded_documents_metadata as any[] || [];
 
     // Helper function to render the evidence citation
-    const renderEvidenceCitation = (excerptData: any) => {
+    const renderEvidenceCitation = (excerptData: any, confidence: number | undefined) => {
       if (!excerptData || excerptData.excerpt === 'No directly relevant evidence found after comprehensive search') {
         return 'No directly relevant evidence found after comprehensive search.';
       }
@@ -107,6 +107,10 @@ export default function ReportViewPage() {
 
       if (label === '4th Party') {
         citationParts.push('4th Party');
+      }
+      
+      if (confidence !== undefined) {
+        citationParts.push(`Confidence: ${Math.round(confidence * 100)}%`);
       }
 
       // Filter out any potentially empty or null parts before joining
@@ -213,11 +217,15 @@ export default function ReportViewPage() {
                       ? (answers[question.id] as string[]).join(", ")
                       : answers?.[question.id] || "N/A"}
                 </p>
-                {/* Removed AI Confidence display */}
+                {analysisResults?.confidenceScores?.[question.id] !== undefined && (
+                  <p className="text-xs text-gray-600 ml-4 mt-1">
+                    <strong>AI Confidence:</strong> {Math.round(analysisResults.confidenceScores[question.id] * 100)}%
+                  </p>
+                )}
                 {analysisResults?.documentExcerpts?.[question.id] && analysisResults.documentExcerpts[question.id].length > 0 && (
                   <div className="mt-3 text-xs text-gray-700 italic ml-4 p-2 bg-gray-100 border border-gray-200 rounded whitespace-pre-wrap">
                     <Info className="inline h-3 w-3 mr-1" />
-                    <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0])}
+                    <strong>Evidence:</strong> {renderEvidenceCitation(analysisResults.documentExcerpts[question.id][0], analysisResults.confidenceScores?.[question.id])}
                   </div>
                 )}
               </div>

@@ -397,9 +397,11 @@ export async function analyzeDocuments(
 
 **CRITICAL RULES FOR ANSWERING (STRICTLY ADHERE TO THESE):**
 1.  **ONLY OUTPUT JSON:** Your entire response MUST be a single, valid JSON object. DO NOT include any conversational text, markdown code block fences (e.g., \`\`\`json), or any other text before or after the JSON.
-2.  **EVIDENCE REQUIRED FOR NON-CONSERVATIVE ANSWERS:** For EVERY answer that is NOT a conservative default (e.g., 'true' for boolean, or a specific option for multiple choice that is not the first/most conservative option), you MUST find and provide DIRECT, VERIFIABLE EVIDENCE from the provided documents (including attached binary files).
+2.  **MANDATORY EVIDENCE FOR NON-CONSERVATIVE ANSWERS:** For EVERY answer that is NOT a conservative default (e.g., 'true' for boolean, or a specific option for multiple choice that is not the first/most conservative option), you MUST find and provide DIRECT, VERIFIABLE EVIDENCE from the provided documents (including attached binary files).
+    *   **IF NO DIRECT, VERIFIABLE EVIDENCE IS FOUND FOR A NON-CONSERVATIVE ANSWER, YOU MUST REVERT TO THE CONSERVATIVE DEFAULT FOR THAT QUESTION.**
 3.  **DIRECT QUOTE:** If you find a direct, verifiable quote that answers a question, provide that EXACT, VERBATIM quote in the 'excerpt' field.
 4.  **COMPLETE CITATION:** For EVERY excerpt, you MUST provide the 'source_file_name' (e.g., "DocumentName.pdf"), 'source_page_number' (if explicitly identifiable, otherwise null), and 'source_label' ('Primary' or '4th Party').
+    *   **For PDF documents, ALWAYS attempt to find a 'source_page_number'. If a page number cannot be explicitly identified, set 'source_page_number' to null.**
     *   **Example Citation:**
         \`\`\`json
         {
@@ -430,18 +432,32 @@ ${documentContent}
 ASSESSMENT QUESTIONS AND DETAILED ANSWERING INSTRUCTIONS:
 ${questions.map((q: Question, idx: number) => {
   let formatHint = '';
+  let conservativeDefault: boolean | string | string[] = false; // Default for boolean
+  let scoringExplanation = '';
+
   if (q.type === 'boolean') {
     formatHint = 'Expected: true or false. If direct evidence for "Yes" is found, answer `true`. If direct evidence for "No" is found, answer `false`. If NO DIRECT EVIDENCE is found, default to `false`.';
+    conservativeDefault = false;
+    scoringExplanation = 'Score is 0 for `false`, `question.weight` for `true`.';
   } else if (q.type === 'multiple' && q.options) {
     formatHint = `Expected one of: ${q.options.map(opt => `"${opt}"`).join(", ")}. Find the exact option or clear equivalent. If NO DIRECT EVIDENCE is found, default to "${q.options[0]}".`;
+    conservativeDefault = q.options[0];
+    // Scoring: Higher index means better for frequency questions (e.g., "Continuously" > "Never")
+    scoringExplanation = `Score is (index of selected option) * (question.weight / (options.length - 1)). Max score for this question is ${q.weight * (q.options.length - 1)}.`;
   } else if (q.type === 'tested') {
     formatHint = 'Expected: "tested" or "not_tested". If direct evidence of testing is found, answer "tested". If NO DIRECT EVIDENCE is found, default to "not_tested".';
+    conservativeDefault = "not_tested";
+    scoringExplanation = 'Score is 0 for "not_tested", `question.weight` for "tested".';
   } else if (q.type === 'textarea') {
     formatHint = 'Expected: "Detailed text response". Summarize relevant information. If NO DIRECT EVIDENCE is found, state "No directly relevant evidence found after comprehensive search."';
+    conservativeDefault = "No directly relevant evidence found after comprehensive search.";
+    scoringExplanation = 'Score is 0 if conservative default, `question.weight * 0.5` if a meaningful answer is provided.';
   } else if (q.type === 'checkbox' && q.options) {
     formatHint = `Expected: Array of selected options, e.g., ["${q.options[0]}", "${q.options[1]}"]. If NO DIRECT EVIDENCE is found, default to an empty array [].`;
+    conservativeDefault = [];
+    scoringExplanation = 'Score is (number of selected options) * (question.weight / options.length). Max score for this question is `question.weight`.';
   }
-  return `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""}) - ${formatHint}`;
+  return `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""}) - ${formatHint} Scoring: ${scoringExplanation}`;
 }).join("\n")}
 
 YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT BEFORE OR AFTER THE JSON. DO NOT WRAP THE JSON IN MARKDOWN CODE BLOCKS (e.g., \`\`\`json). ENSURE ALL PROPERTY NAMES ARE DOUBLE-QUOTED.
@@ -720,47 +736,40 @@ YOUR FINAL RESPONSE MUST BE A SINGLE, VALID JSON OBJECT. DO NOT INCLUDE ANY TEXT
 
   questions.forEach((question: Question) => {
     const answer = answers[question.id]
-    
+    const weight = question.weight || 1; // Default weight to 1 if not specified
+
     if (question.type === "tested") {
-      maxScore += question.weight || 0; // Ensure weight is treated as number
+      maxScore += weight;
       if (answer === "tested") {
-        totalScore += question.weight || 0;
+        totalScore += weight;
       }
     } else if (question.type === "boolean") {
-      maxScore += question.weight || 0;
-      totalScore += answer ? (question.weight || 0) : 0
+      maxScore += weight;
+      totalScore += answer ? weight : 0;
     } else if (question.type === "multiple" && question.options) {
-      // For multiple choice, assign score based on position (e.g., first option is lowest risk)
-      // Assuming options are ordered from most conservative (lowest risk) to least conservative (highest risk)
-      // So, "Never" (index 0) is lowest risk, "Annually" (index 3) is higher risk.
-      // The current sample questions have options like ["Never", "Every 3+ years", "Every 2 years", "Annually", "Semi-annually", "Quarterly", "Monthly", "Continuously"]
-      // For "How often do you conduct penetration testing?", "Annually" is a good answer, not "Never".
-      // So, the scoring should be: higher index = higher score (better answer).
-      
+      // Scoring for multiple choice: higher index options are generally "better" for frequency/maturity questions
+      // e.g., "Continuously" > "Monthly" > "Annually" > "Never"
       const optionIndex = question.options.indexOf(answer as string);
       if (optionIndex !== -1) {
-        // Score based on how "good" the option is. Higher index means better for frequency questions.
-        // Max score for a multiple choice question is (question.weight * (options.length - 1))
-        // For example, if options are 5, index 4 (last option) is best.
-        totalScore += (question.weight || 0) * optionIndex;
+        // Scale score based on option's position. Max score for this question is `weight`.
+        // If there are N options, index goes from 0 to N-1.
+        // Score = weight * (optionIndex / (N-1))
+        totalScore += weight * (optionIndex / (question.options.length - 1));
       }
-      maxScore += (question.weight || 0) * (question.options.length - 1);
-
+      maxScore += weight; // Max possible score for this question
     } else if (question.type === "textarea") {
-      // Textarea questions don't directly contribute to score, but indicate completeness
-      // For now, we'll just ensure they are answered to contribute to completeness, not risk score
+      // Textarea questions contribute to score if a meaningful answer is provided
       if (answer && (answer as string).length > 0 && !(answer as string).includes("No directly relevant evidence found")) {
-        // If there's an answer, give a small boost or mark as complete
-        // This part is subjective and can be refined based on desired scoring
-        totalScore += (question.weight || 1) * 0.5; // Small boost for having an "answer"
-        maxScore += (question.weight || 1) * 0.5; // Max possible for textarea if answered
+        totalScore += weight * 0.5; // Give half weight for a meaningful answer
       }
+      maxScore += weight * 0.5; // Max possible for textarea if answered meaningfully
     } else if (question.type === "checkbox" && question.options) {
-      // For checkbox, more selected options (if positive) could mean higher score
-      // Or, specific options are good/bad. For simplicity, let's say selecting more positive options is better.
+      // For checkbox, score based on the number of selected options, relative to total options
       const selectedCount = Array.isArray(answer) ? answer.length : 0;
-      totalScore += (question.weight || 0) * selectedCount;
-      maxScore += (question.weight || 0) * question.options.length;
+      if (question.options.length > 0) {
+        totalScore += weight * (selectedCount / question.options.length);
+      }
+      maxScore += weight; // Max possible score for this question
     }
   })
 
