@@ -18,10 +18,54 @@ import {
   Cog,
   LifeBuoy,
   AlertTriangle, // Added AlertTriangle
+  ShoppingCart, // Icon for Retail
+  Factory, // Icon for Manufacturing
+  HeartPulse, // Icon for Healthcare
+  Banknote, // Icon for Banks
 } from "lucide-react"
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel" // Import Carousel components
 
 export default function SolutionsPage() {
   const [activeTab, setActiveTab] = useState("core")
+
+  const industrySolutions = [
+    {
+      id: "retail",
+      name: "Retail",
+      description: "Managing cybersecurity and operational risks for e-commerce and brick-and-mortar retailers.",
+      icon: ShoppingCart,
+    },
+    {
+      id: "manufacturing",
+      name: "Manufacturing",
+      description: "Supply chain risk, operational technology security, and compliance for manufacturers.",
+      icon: Factory,
+    },
+    {
+      id: "healthcare",
+      name: "Healthcare",
+      description: "Specialized risk management solutions for healthcare organizations to ensure HIPAA compliance and data security.",
+      icon: HeartPulse,
+    },
+    {
+      id: "banks",
+      name: "Banks",
+      description: "Comprehensive solutions for banks to streamline regulatory compliance and manage operational risks.",
+      icon: Banknote,
+    },
+    {
+      id: "tech",
+      name: "Technology",
+      description: "Addressing unique cybersecurity and compliance challenges for software and IT service providers.",
+      icon: Server,
+    },
+    {
+      id: "government",
+      name: "Government",
+      description: "Ensuring compliance with government regulations and protecting sensitive public data.",
+      icon: Building,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -430,6 +474,53 @@ export default function SolutionsPage() {
         </div>
       </section>
 
+      {/* Industry-Specific Solutions */}
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900">Industry-Specific Solutions</h2>
+            <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+              Tailored risk management solutions for different types of institutions.
+            </p>
+          </div>
+
+          <Carousel
+            opts={{
+              align: "start",
+            }}
+            className="w-full max-w-5xl mx-auto"
+          >
+            <CarouselContent className="-ml-4">
+              {industrySolutions.map((solution, index) => {
+                const IconComponent = solution.icon;
+                return (
+                  <CarouselItem key={solution.id} className="md:basis-1/2 lg:basis-1/3 pl-4">
+                    <Card className="h-full border border-gray-200 hover:shadow-lg transition-shadow">
+                      <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                        <div className="p-3 bg-blue-100 rounded-full mb-4">
+                          <IconComponent className="h-8 w-8 text-blue-600" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{solution.name}</h3>
+                        <p className="text-sm text-gray-600 mb-4">{solution.description}</p>
+                        <Button
+                          variant="ghost"
+                          className="mt-auto p-0 h-auto text-blue-600 hover:text-blue-800 hover:bg-transparent"
+                        >
+                          <span>Learn more</span>
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious className="left-0 -translate-x-full" />
+            <CarouselNext className="right-0 translate-x-full" />
+          </Carousel>
+        </div>
+      </section>
+
       {/* Platform Dashboard Preview */}
       <section className="bg-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -644,30 +735,30 @@ export default function SolutionsPage() {
                     About Us
                   </a>
                 </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white">
-                    Terms of Service
-                  </a>
-                </li>
-              </ul>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Careers
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="hover:text-white">
+                      Terms of Service
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
+              <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
             </div>
           </div>
-
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2025 RiskShield AI. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+        </footer>
     </div>
   )
 }
