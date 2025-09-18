@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Shield, ArrowLeft } from "lucide-react" // Added ArrowLeft
-import { getAssessments, createAssessment, deleteAssessment } from "@/lib/assessment-service"
+import { Send, Users, Plus, Eye, Download, CheckCircle, Copy, Trash2, Building, RefreshCw, Shield, ArrowLeft, Loader2 } from "lucide-react" // Added ArrowLeft, Loader2
+import { getAssessments, createAssessment, deleteAssessment, approveAssessmentByAdmin } from "@/lib/assessment-service"
 import type { Assessment, AssessmentResponse } from "@/lib/supabase"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
@@ -56,7 +56,7 @@ interface UIAssessment extends Omit<Assessment, 'vendor_name' | 'vendor_email' |
 }
 
 export default function ThirdPartyAssessment() {
-  const { user, isDemo } = useAuth()
+  const { user, isDemo, role, organization } = useAuth() // Added organization here
   const [isPreviewMode, setIsPreviewMode] = useState(false)
 
   // Check if user is in preview mode
@@ -92,6 +92,9 @@ export default function ThirdPartyAssessment() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [debugInfo, setDebugInfo] = useState<string>("")
+  const [isApprovingAssessment, setIsApprovingAssessment] = useState<string | null>(null); // Track which assessment is being approved
+
+  const isAdmin = role?.role === "admin" || isDemo;
 
   // Load assessments from Supabase
   const loadAssessments = async () => {
@@ -117,9 +120,9 @@ export default function ThirdPartyAssessment() {
         riskScore: assessment.risk_score,
         riskLevel: assessment.risk_level || "pending",
         customMessage: assessment.custom_message,
-        responses: (assessment as any).assessment_responses?.[0] || null, // Access nested responses
-        completedVendorInfo: (assessment as any).assessment_responses?.[0]?.vendor_info || null,
-        assessmentAnswers: (assessment as any).assessment_responses?.[0]?.answers || null,
+        responses: (assessment as any).responses?.[0] || null, // Access nested responses
+        completedVendorInfo: (assessment as any).responses?.[0]?.vendor_info || null,
+        assessmentAnswers: (assessment as any).responses?.[0]?.answers || null,
       }));
 
       console.log("✅ Transformed assessment data:", transformedData)
@@ -192,6 +195,33 @@ export default function ThirdPartyAssessment() {
           },
           completedVendorInfo: { companyName: "Preview Analytics", contactName: "John Smith", email: "preview@analytics.com" },
           assessmentAnswers: { privacy_1: ["Names and contact information"], privacy_6: true },
+        },
+        {
+          id: "demo-assessment-3",
+          user_id: "demo-user-id",
+          organization_id: "demo-org-id",
+          company_size: "1-10 employees",
+          vendorName: "Pending Review Corp",
+          vendorEmail: "pending@corp.com",
+          contactPerson: "Alice Brown",
+          assessmentType: "Business Continuity Assessment",
+          status: "pending_admin_review", // New status for demo
+          sentDate: "2024-02-01T11:00:00Z",
+          completedDate: "2024-02-05T16:00:00Z",
+          dueDate: "2024-03-01T23:59:59Z",
+          riskScore: 65,
+          riskLevel: "medium",
+          customMessage: "This assessment is awaiting admin review.",
+          created_at: "2024-02-01T11:00:00Z",
+          updated_at: "2024-02-05T16:00:00Z",
+          responses: {
+            id: 2,
+            vendor_info: { companyName: "Pending Review Corp", contactName: "Alice Brown", email: "pending@corp.com" },
+            answers: { bc_1: true, bc_2: "Annually" },
+            submitted_at: "2024-02-05T16:00:00Z",
+          },
+          completedVendorInfo: { companyName: "Pending Review Corp", contactName: "Alice Brown", email: "pending@corp.com" },
+          assessmentAnswers: { bc_1: true, bc_2: "Annually" },
         },
       ]);
       setIsLoading(false);
@@ -389,6 +419,37 @@ ${assessmentLink}
     }
   }
 
+  const handleApproveAssessment = async (assessmentId: string) => {
+    if (isPreviewMode) {
+      alert("Preview Mode: Sign up to approve assessments.")
+      return;
+    }
+    if (!isAdmin) {
+      alert("You do not have permission to approve assessments.");
+      return;
+    }
+    if (!confirm("Are you sure you want to approve this assessment?")) {
+      return;
+    }
+
+    setIsApprovingAssessment(assessmentId);
+    try {
+      const { success, error } = await approveAssessmentByAdmin(assessmentId, user?.id || '');
+      if (error) {
+        throw new Error(error);
+      }
+      if (success) {
+        alert("Assessment approved successfully!");
+        await loadAssessments(); // Refresh the list
+      }
+    } catch (error: any) {
+      console.error("Error approving assessment:", error);
+      alert(`Failed to approve assessment: ${error.message || "Unknown error"}`);
+    } finally {
+      setIsApprovingAssessment(null);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
@@ -399,6 +460,8 @@ ${assessmentLink}
         return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pending</Badge>
       case "overdue":
         return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Overdue</Badge>
+      case "pending_admin_review": // New status
+        return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">Pending Admin Review</Badge>
       default:
         return <Badge variant="outline">{status}</Badge>
     }
@@ -437,8 +500,9 @@ ${assessmentLink}
     const pending = assessments.filter((a: UIAssessment) => a.status === "pending").length // Explicitly type a
     const inProgress = assessments.filter((a: UIAssessment) => a.status === "in_progress").length // Explicitly type a
     const overdue = assessments.filter((a: UIAssessment) => a.status === "overdue").length // Explicitly type a
+    const pendingAdminReview = assessments.filter((a: UIAssessment) => a.status === "pending_admin_review").length // New stat
 
-    return { total, completed, pending, inProgress, overdue }
+    return { total, completed, pending, inProgress, overdue, pendingAdminReview }
   }
 
   const stats = getAssessmentStats()
@@ -539,8 +603,8 @@ ${assessmentLink}
               </Card>
               <Card className="text-center">
                 <CardContent className="p-6">
-                  <div className="text-3xl font-bold text-red-600">{stats.overdue}</div>
-                  <div className="text-sm text-gray-600 mt-1">Overdue</div>
+                  <div className="text-3xl font-bold text-purple-600">{stats.pendingAdminReview}</div>
+                  <div className="text-sm text-gray-600 mt-1">Pending Admin Review</div>
                 </CardContent>
               </Card>
             </div>
@@ -573,6 +637,7 @@ ${assessmentLink}
                     <option value="in_progress">In Progress</option>
                     <option value="pending">Pending</option>
                     <option value="overdue">Overdue</option>
+                    <option value="pending_admin_review">Pending Admin Review</option> {/* New filter option */}
                   </select>
                   <Button
                     variant="outline"
@@ -638,6 +703,21 @@ ${assessmentLink}
                           )}
                         </div>
                         <div className="flex space-x-2">
+                          {assessment.status === "pending_admin_review" && isAdmin && (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleApproveAssessment(assessment.id)}
+                              disabled={isApprovingAssessment === assessment.id}
+                              title="Approve Assessment"
+                            >
+                              {isApprovingAssessment === assessment.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
@@ -787,6 +867,12 @@ ${assessmentLink}
                     <li>They can complete the assessment at their convenience</li>
                     <li>You'll receive notifications when the assessment is completed</li>
                     <li>Risk scores and reports will be automatically generated</li>
+                    {organization?.require_admin_signature && (
+                      <li>
+                        <Shield className="inline-block h-4 w-4 mr-1 text-blue-600" />
+                        This assessment will require an administrator's e-signature for final approval.
+                      </li>
+                    )}
                   </ul>
                 </div>
 

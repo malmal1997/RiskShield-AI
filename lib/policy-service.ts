@@ -223,8 +223,18 @@ export async function createPolicyVersion(policyId: string, versionNumber: strin
 export async function approvePolicy(policyId: string, approvedByUserId: string | null): Promise<{ success: boolean, error: string | null }> {
   try {
     const { user, organization, role } = await getCurrentUserWithProfile();
-    if (!user || !organization || role?.role !== 'admin') {
-      return { success: false, error: "Unauthorized: Only administrators can approve policies." };
+    if (!user || !organization || !role) { // Ensure role is also present
+      return { success: false, error: "Unauthorized: User not authenticated or organization not found." };
+    }
+
+    // Check if admin e-signature is required and if the current user is an admin
+    if (organization.require_admin_signature && role.role !== 'admin') {
+      return { success: false, error: "Unauthorized: Admin e-signature is required to approve policies." };
+    }
+    
+    // If admin e-signature is required, ensure approvedByUserId is provided and matches current user
+    if (organization.require_admin_signature && (!approvedByUserId || approvedByUserId !== user.id)) {
+        return { success: false, error: "Unauthorized: Admin e-signature must be from the current authenticated administrator." };
     }
 
     // Fetch old data for audit log

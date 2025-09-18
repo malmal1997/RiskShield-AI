@@ -14,6 +14,7 @@ export interface Organization {
   trial_ends_at?: string
   created_at: string
   updated_at: string
+  require_admin_signature?: boolean; // Added new field
 }
 
 export interface UserProfile {
@@ -252,6 +253,44 @@ export async function updateUserProfile(updates: Partial<UserProfile>) {
     throw error
   }
 }
+
+// New function to update organization settings
+export async function updateOrganizationSettings(updates: Partial<Organization>): Promise<{ success: boolean, error: string | null }> {
+  try {
+    const { user, organization, role } = await getCurrentUserWithProfile();
+    if (!user || !organization || role?.role !== 'admin') {
+      return { success: false, error: "Unauthorized: Only administrators can update organization settings." };
+    }
+
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('organizations').select('*').eq('id', organization.id).single();
+
+    const { error } = await supabaseClient
+      .from('organizations')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', organization.id);
+
+    if (error) {
+      console.error("updateOrganizationSettings: Supabase update error:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'organization_settings_updated',
+      entity_type: 'organization',
+      entity_id: organization.id,
+      old_values: oldData,
+      new_values: updates,
+    });
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("updateOrganizationSettings: Unexpected error:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
 
 // Get all members for the current user's organization
 export async function getOrganizationMembers(): Promise<{ data: OrganizationMember[] | null, error: string | null }> {

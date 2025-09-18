@@ -294,7 +294,7 @@ export async function submitAssessmentResponse(
   assessmentId: string,
   vendorInfo: any,
   answers: Record<string, any>,
-): Promise<void> {
+): Promise<{ success: boolean, error: string | null }> {
   try {
     console.log("🔄 Submitting assessment response for ID:", assessmentId)
     console.log("📊 Vendor info:", vendorInfo)
@@ -317,6 +317,21 @@ export async function submitAssessmentResponse(
       throw new Error(`Failed to find assessment: ${assessmentError.message}`)
     }
 
+    // Get organization settings to check for admin signature requirement
+    const { data: organization, error: orgError } = await supabaseClient
+      .from("organizations")
+      .select("require_admin_signature")
+      .eq("id", assessment.organization_id)
+      .single();
+
+    if (orgError) {
+      console.error("❌ Error fetching organization settings:", orgError);
+      throw new Error(`Failed to fetch organization settings: ${orgError.message}`);
+    }
+
+    const requiresAdminSignature = organization?.require_admin_signature || false;
+    const newStatus = requiresAdminSignature ? "pending_admin_review" : "completed";
+
     // Insert the response into assessment_responses table
     const { error: responseError, data: newResponse } = await supabaseClient.from("assessment_responses").insert([
       {
@@ -334,7 +349,7 @@ export async function submitAssessmentResponse(
       throw new Error(`Failed to save assessment response: ${responseError.message}`)
     }
 
-    // Log audit event
+    // Log audit event for response submission
     await logAuditEvent({
       action: 'assessment_response_submitted',
       entity_type: 'assessment_response',
@@ -345,12 +360,12 @@ export async function submitAssessmentResponse(
 
     console.log("✅ Assessment response saved successfully")
 
-    // Update the assessment status to completed with proper data
+    // Update the assessment status to completed or pending_admin_review
     const { error: updateError, data: updatedAssessment } = await supabaseClient
       .from("assessments")
       .update({
-        status: "completed",
-        completed_date: new Date().toISOString(),
+        status: newStatus,
+        completed_date: new Date().toISOString(), // Still mark completion date
         risk_score: riskScore,
         risk_level: riskLevel,
         updated_at: new Date().toISOString(),
@@ -364,21 +379,86 @@ export async function submitAssessmentResponse(
       throw new Error(`Failed to update assessment status: ${updateError.message}`)
     }
 
-    // Log audit event
+    // Log audit event for assessment status update
     await logAuditEvent({
-      action: 'assessment_completed',
+      action: `assessment_${newStatus}`,
       entity_type: 'assessment',
       entity_id: assessmentId,
       old_values: { status: assessment.status, risk_score: null, risk_level: 'pending' }, // Assuming initial state
       new_values: { status: updatedAssessment.status, risk_score: updatedAssessment.risk_score, risk_level: updatedAssessment.risk_level },
     });
 
-    console.log("✅ Assessment status updated to completed")
+    console.log(`✅ Assessment status updated to ${newStatus}`)
+    return { success: true, error: null };
   } catch (error) {
     console.error("💥 Error submitting assessment response:", error)
-    throw error
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
+
+// New function to approve an assessment by an admin
+export async function approveAssessmentByAdmin(assessmentId: string, adminUserId: string): Promise<{ success: boolean, error: string | null }> {
+  try {
+    const { user, organization, role } = await getCurrentUserWithProfile();
+    if (!user || !organization || role?.role !== 'admin') {
+      return { success: false, error: "Unauthorized: Only administrators can approve assessments." };
+    }
+
+    // Fetch the assessment to ensure it's in 'pending_admin_review' status
+    const { data: assessment, error: fetchError } = await supabaseClient
+      .from('assessments')
+      .select('status, organization_id')
+      .eq('id', assessmentId)
+      .single();
+
+    if (fetchError || !assessment) {
+      return { success: false, error: fetchError?.message || "Assessment not found." };
+    }
+
+    if (assessment.status !== 'pending_admin_review') {
+      return { success: false, error: "Assessment is not in 'pending_admin_review' status." };
+    }
+
+    // Ensure the admin belongs to the same organization as the assessment owner
+    if (assessment.organization_id !== organization.id) {
+      return { success: false, error: "Unauthorized: Assessment belongs to a different organization." };
+    }
+
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('assessments').select('*').eq('id', assessmentId).single();
+
+    const { error: updateError, data: updatedAssessment } = await supabaseClient
+      .from('assessments')
+      .update({
+        status: 'completed',
+        updated_at: new Date().toISOString(),
+        // Optionally, add fields for admin signature if needed, e.g., approved_by_admin_id, approved_by_admin_at
+      })
+      .eq('id', assessmentId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error("approveAssessmentByAdmin: Supabase update error:", updateError);
+      return { success: false, error: updateError.message };
+    }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'assessment_approved_by_admin',
+      entity_type: 'assessment',
+      entity_id: assessmentId,
+      old_values: oldData,
+      new_values: updatedAssessment,
+    });
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("approveAssessmentByAdmin: Unexpected error:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
 
 // Delete assessment (only for the owner)
 export async function deleteAssessment(id: string) {
