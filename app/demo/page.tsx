@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import React from "react" // Import React for Fragment
+import { AuthGuard } from "@/components/auth-guard" // Import AuthGuard
 
 const demoSteps = [
   {
@@ -48,6 +49,14 @@ const demoSteps = [
 ]
 
 export default function InteractiveDemo() {
+  return (
+    <AuthGuard permission="view_interactive_demo"> {/* Added permission prop */}
+      <InteractiveDemoContent />
+    </AuthGuard>
+  )
+}
+
+function InteractiveDemoContent() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)

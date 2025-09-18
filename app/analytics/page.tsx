@@ -43,7 +43,7 @@ const defaultAnalyticsData: AnalyticsData = {
 
 export default function AnalyticsPage() {
   return (
-    <AuthGuard>
+    <AuthGuard permission="view_analytics"> {/* Added permission prop */}
       <AnalyticsContent />
     </AuthGuard>
   )

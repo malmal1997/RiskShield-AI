@@ -8,6 +8,9 @@ export interface UserPermissions {
   view_analytics: boolean;
   view_reports: boolean;
   view_notifications: boolean;
+  view_system_status: boolean; // New permission
+  view_demo_features: boolean; // New permission
+  view_interactive_demo: boolean; // New permission
 
   // Vendor Management
   view_vendors: boolean;
@@ -36,14 +39,18 @@ export interface UserPermissions {
 
   // Developer/System Access
   access_dev_dashboard: boolean;
+  access_ai_test: boolean; // New permission
 }
 
 export const DefaultRolePermissions: Record<UserRole['role'], UserPermissions> = {
   admin: {
     view_dashboard: true,
-    view_analytics: true,
+    view_analytics: false, // Restricted for client admin
     view_reports: true,
     view_notifications: true,
+    view_system_status: false, // Restricted for client admin
+    view_demo_features: false, // Restricted for client admin
+    view_interactive_demo: false, // Restricted for client admin
     view_vendors: true,
     manage_vendors: true,
     create_assessments: true,
@@ -57,37 +64,45 @@ export const DefaultRolePermissions: Record<UserRole['role'], UserPermissions> =
     approve_policies: true,
     manage_organization_settings: true,
     manage_team_members: true,
-    review_registrations: true,
+    review_registrations: false, // Restricted for client admin (only super admin can do this)
     manage_integrations: true,
-    access_dev_dashboard: true,
+    access_dev_dashboard: false, // Restricted for client admin
+    access_ai_test: false, // Restricted for client admin
   },
   manager: {
-    view_dashboard: false, // Restricted to admin
-    view_analytics: false, // Restricted to admin
+    view_dashboard: true, // Managers can view their dashboard
+    view_analytics: false,
     view_reports: true,
     view_notifications: true,
+    view_system_status: false,
+    view_demo_features: false,
+    view_interactive_demo: false,
     view_vendors: true,
     manage_vendors: true,
     create_assessments: true,
     view_assessments: true,
     manage_assessments: true,
-    approve_assessments: false, // Managers cannot approve final assessments
+    approve_assessments: false,
     manage_assessment_templates: true,
     create_policies: true,
     view_policies: true,
     manage_policies: true,
-    approve_policies: false, // Managers cannot approve final policies
+    approve_policies: false,
     manage_organization_settings: false,
     manage_team_members: false,
     review_registrations: false,
     manage_integrations: false,
     access_dev_dashboard: false,
+    access_ai_test: false,
   },
   analyst: {
-    view_dashboard: false, // Restricted to admin
-    view_analytics: false, // Restricted to admin
+    view_dashboard: true, // Analysts can view their dashboard
+    view_analytics: false,
     view_reports: true,
     view_notifications: true,
+    view_system_status: false,
+    view_demo_features: false,
+    view_interactive_demo: false,
     view_vendors: true,
     manage_vendors: false,
     create_assessments: true,
@@ -104,12 +119,16 @@ export const DefaultRolePermissions: Record<UserRole['role'], UserPermissions> =
     review_registrations: false,
     manage_integrations: false,
     access_dev_dashboard: false,
+    access_ai_test: false,
   },
   viewer: {
-    view_dashboard: false, // Restricted to admin
-    view_analytics: false, // Restricted to admin
+    view_dashboard: true, // Viewers can view their dashboard
+    view_analytics: false,
     view_reports: true,
     view_notifications: true,
+    view_system_status: false,
+    view_demo_features: false,
+    view_interactive_demo: false,
     view_vendors: true,
     manage_vendors: false,
     create_assessments: false,
@@ -126,6 +145,7 @@ export const DefaultRolePermissions: Record<UserRole['role'], UserPermissions> =
     review_registrations: false,
     manage_integrations: false,
     access_dev_dashboard: false,
+    access_ai_test: false,
   },
 };
 

@@ -54,7 +54,7 @@ export default function SettingsPage() {
 }
 
 function SettingsContent() {
-  const { user, profile, organization, role, refreshProfile, isDemo, loading: authLoading } = useAuth()
+  const { user, profile, organization, role, refreshProfile, isDemo, loading: authLoading, hasPermission } = useAuth()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
@@ -327,7 +327,8 @@ function SettingsContent() {
   ]
 
   const isOrgAdmin = role?.role === "admin";
-  const isSuperAdmin = isOrgAdmin && user?.email === SUPER_ADMIN_EMAIL;
+  // Super admin is now defined by having the 'review_registrations' permission
+  const isSuperAdmin = hasPermission("review_registrations");
 
   // If not an admin and not in demo mode, deny access to the entire page
   if (!authLoading && !isOrgAdmin && !isDemo) {
@@ -616,7 +617,7 @@ function SettingsContent() {
                 </Card>
 
                 {/* Admin Approval Card - Only visible to the designated super admin */}
-                {(isSuperAdmin || isDemo) && ( // Keep isDemo for preview mode functionality
+                {isSuperAdmin && ( // Now uses hasPermission("review_registrations")
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center space-x-2">

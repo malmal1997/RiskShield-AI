@@ -27,22 +27,23 @@ const pathPermissions: Record<string, keyof UserPermissions | null> = {
   '/reports': 'view_reports',
   '/analytics': 'view_analytics',
   '/dev-dashboard': 'access_dev_dashboard',
-  '/ai-test': 'access_dev_dashboard',
-  '/demo-features': 'view_dashboard',
-  '/demo': 'view_dashboard',
-  '/system-status': 'view_dashboard',
+  '/ai-test': 'access_ai_test', // Updated to new permission
+  '/demo-features': 'view_demo_features', // Updated to new permission
+  '/demo': 'view_interactive_demo', // Updated to new permission
+  '/system-status': 'view_system_status', // Updated to new permission
 };
 
 // Paths that do NOT require authentication
-const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status', '/demo-features'];
+const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password'];
 
 interface AuthGuardProps {
   children: React.ReactNode
   allowPreview?: boolean
   previewMessage?: string
+  permission?: keyof UserPermissions; // New optional permission prop
 }
 
-export function AuthGuard({ children, allowPreview = false, previewMessage }: AuthGuardProps) {
+export function AuthGuard({ children, allowPreview = false, previewMessage, permission }: AuthGuardProps) {
   const { user, loading, isDemo, profile, organization, role, signOut, hasPermission } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -84,7 +85,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     }
     // 5. If user is AUTHENTICATED but lacks specific permission for the current path
     else if (isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
-      const requiredPermission = pathPermissions[pathname];
+      const requiredPermission = permission || pathPermissions[pathname]; // Use prop permission if provided, else path-based
       if (requiredPermission && !hasPermission(requiredPermission)) {
         redirectTo = '/dashboard'; // Redirect to dashboard if permission is missing
         console.log(`AuthGuard: User ${user?.email} lacks permission '${requiredPermission}' for ${pathname}. Redirecting to ${redirectTo}.`);
@@ -99,7 +100,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       console.log(`AuthGuard: No redirection needed for ${pathname}.`);
     }
 
-  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router, hasPermission]);
+  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router, hasPermission, permission]);
 
   // Render logic:
   // If still loading auth state, show a loading spinner.
@@ -130,7 +131,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   } else if (!isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
     isRedirectPending = true;
   } else if (isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
-    const requiredPermission = pathPermissions[pathname];
+    const requiredPermission = permission || pathPermissions[pathname];
     if (requiredPermission && !hasPermission(requiredPermission)) {
       isRedirectPending = true;
     }

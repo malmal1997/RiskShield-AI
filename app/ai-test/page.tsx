@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Brain, Zap, CheckCircle, XCircle, AlertCircle, FileText, Upload } from "lucide-react"
+import { AuthGuard } from "@/components/auth-guard" // Import AuthGuard
 
 interface ProviderStatus {
   configured: boolean
@@ -33,6 +34,14 @@ interface AnalysisResult {
 }
 
 export default function AITestPage() {
+  return (
+    <AuthGuard permission="access_ai_test"> {/* Added permission prop */}
+      <AITestContent />
+    </AuthGuard>
+  )
+}
+
+function AITestContent() {
   const [testResult, setTestResult] = useState<TestResult | null>(null)
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
   const [isTestingProviders, setIsTestingProviders] = useState(false)

@@ -89,7 +89,7 @@ const logsData = [
 
 export default function DevDashboardPage() {
   return (
-    <AuthGuard>
+    <AuthGuard permission="access_dev_dashboard"> {/* Added permission prop */}
       <DevDashboardContent />
     </AuthGuard>
   )
