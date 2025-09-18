@@ -96,7 +96,7 @@ importers:
         specifier: 1.1.6
         version: 1.1.6(@types/react-dom@18.0.0)(@types/react@18.0.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
       '@supabase/supabase-js':
-        specifier: latest
+        specifier: 3.25.76
         version: 2.56.0
       ai:
         specifier: latest
@@ -147,28 +147,28 @@ importers:
         specifier: latest
         version: 5.4.54
       react:
-        specifier: ^18
+        specifier: latest
         version: 18.0.0
       react-day-picker:
-        specifier: 9.8.0
+        specifier: ^18
         version: 9.8.0(react@18.0.0)
       react-dom:
-        specifier: ^18
+        specifier: 9.8.0
         version: 18.0.0(react@18.0.0)
       react-hook-form:
-        specifier: latest
+        specifier: ^18
         version: 7.62.0(react@18.0.0)
       react-resizable-panels:
-        specifier: ^2.1.7
+        specifier: latest
         version: 2.1.7(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
       recharts:
-        specifier: latest
+        specifier: ^2.1.7
         version: 3.1.2(@types/react@18.0.0)(react-dom@18.0.0(react@18.0.0))(react-is@19.1.1)(react@18.0.0)(redux@5.0.1)
       resend:
-        specifier: ^6.0.3
+        specifier: latest
         version: 6.0.3
       sonner:
-        specifier: ^1.7.1
+        specifier: ^6.0.3
         version: 1.7.1(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
       tailwind-merge:
         specifier: ^2.5.5
@@ -177,17 +177,17 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
       vaul:
-        specifier: ^0.9.6
+        specifier: ^3.4.17
         version: 0.9.6(@types/react-dom@18.0.0)(@types/react@18.0.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
       zod:
-        specifier: 3.25.76
+        specifier: ^0.9.6
         version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^22
         version: 22.0.0
       '@types/react':
-        specifier: ^18
+        specifier: latest
         version: 18.0.0
       '@types/react-dom':
         specifier: ^18
@@ -196,7 +196,7 @@ importers:
         specifier: ^8.5
         version: 8.5.0
       tailwindcss:
-        specifier: ^3.4.17
+        specifier: ^1.7.1
         version: 3.4.17
       typescript:
         specifier: ^5
