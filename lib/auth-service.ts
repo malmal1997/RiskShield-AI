@@ -2,6 +2,153 @@ import { supabaseClient } from "./supabase-client"
 import type { User } from "@supabase/supabase-js"
 import type { Json } from "./supabase" // Added Json import
 
+export interface UserPermissions {
+  // General
+  view_dashboard: boolean;
+  view_analytics: boolean;
+  view_reports: boolean;
+  view_notifications: boolean;
+  view_system_status: boolean; // New permission
+  view_demo_features: boolean; // New permission
+  view_interactive_demo: boolean; // New permission
+
+  // Vendor Management
+  view_vendors: boolean;
+  manage_vendors: boolean; // Create, edit, delete vendors
+
+  // Assessment Management
+  create_assessments: boolean;
+  view_assessments: boolean;
+  manage_assessments: boolean; // Edit, delete assessments
+  approve_assessments: boolean; // For admin approval flow
+  manage_assessment_templates: boolean; // Create, edit, delete templates/questions
+
+  // Policy Management
+  create_policies: boolean;
+  view_policies: boolean;
+  manage_policies: boolean; // Edit, delete policies
+  approve_policies: boolean; // For admin approval flow
+
+  // Organization & User Management
+  manage_organization_settings: boolean;
+  manage_team_members: boolean; // Invite, change roles/status, delete users
+  review_registrations: boolean; // For super admin to approve new orgs
+
+  // Integrations
+  manage_integrations: boolean;
+
+  // Developer/System Access
+  access_dev_dashboard: boolean;
+  access_ai_test: boolean; // New permission
+}
+
+export const DefaultRolePermissions: Record<UserRole['role'], UserPermissions> = {
+  admin: {
+    view_dashboard: true,
+    view_analytics: false, // Restricted for client admin
+    view_reports: true,
+    view_notifications: true,
+    view_system_status: false, // Restricted for client admin
+    view_demo_features: false, // Restricted for client admin
+    view_interactive_demo: false, // Restricted for client admin
+    view_vendors: true,
+    manage_vendors: true,
+    create_assessments: true,
+    view_assessments: true,
+    manage_assessments: true,
+    approve_assessments: true,
+    manage_assessment_templates: true,
+    create_policies: true,
+    view_policies: true,
+    manage_policies: true,
+    approve_policies: true,
+    manage_organization_settings: true,
+    manage_team_members: true,
+    review_registrations: false, // Restricted for client admin (only super admin can do this)
+    manage_integrations: true,
+    access_dev_dashboard: false, // Restricted for client admin
+    access_ai_test: false, // Restricted for client admin
+  },
+  manager: {
+    view_dashboard: true, // Managers can view their dashboard
+    view_analytics: false,
+    view_reports: true,
+    view_notifications: true,
+    view_system_status: false,
+    view_demo_features: false,
+    view_interactive_demo: false,
+    view_vendors: true,
+    manage_vendors: true,
+    create_assessments: true,
+    view_assessments: true,
+    manage_assessments: true,
+    approve_assessments: false,
+    manage_assessment_templates: true,
+    create_policies: true,
+    view_policies: true,
+    manage_policies: true,
+    approve_policies: false,
+    manage_organization_settings: false,
+    manage_team_members: false,
+    review_registrations: false,
+    manage_integrations: false,
+    access_dev_dashboard: false,
+    access_ai_test: false,
+  },
+  analyst: {
+    view_dashboard: true, // Analysts can view their dashboard
+    view_analytics: false,
+    view_reports: true,
+    view_notifications: true,
+    view_system_status: false,
+    view_demo_features: false,
+    view_interactive_demo: false,
+    view_vendors: true,
+    manage_vendors: false,
+    create_assessments: true,
+    view_assessments: true,
+    manage_assessments: false,
+    approve_assessments: false,
+    manage_assessment_templates: false,
+    create_policies: true,
+    view_policies: true,
+    manage_policies: false,
+    approve_policies: false,
+    manage_organization_settings: false,
+    manage_team_members: false,
+    review_registrations: false,
+    manage_integrations: false,
+    access_dev_dashboard: false,
+    access_ai_test: false,
+  },
+  viewer: {
+    view_dashboard: true, // Viewers can view their dashboard
+    view_analytics: false,
+    view_reports: true,
+    view_notifications: true,
+    view_system_status: false,
+    view_demo_features: false,
+    view_interactive_demo: false,
+    view_vendors: true,
+    manage_vendors: false,
+    create_assessments: false,
+    view_assessments: true,
+    manage_assessments: false,
+    approve_assessments: false,
+    manage_assessment_templates: false,
+    create_policies: false,
+    view_policies: true,
+    manage_policies: false,
+    approve_policies: false,
+    manage_organization_settings: false,
+    manage_team_members: false,
+    review_registrations: false,
+    manage_integrations: false,
+    access_dev_dashboard: false,
+    access_ai_test: false,
+  },
+};
+
 export interface Organization {
   id: string
   name: string
@@ -14,6 +161,7 @@ export interface Organization {
   trial_ends_at?: string
   created_at: string
   updated_at: string
+  require_admin_signature?: boolean; // Added new field
 }
 
 export interface UserProfile {
@@ -38,7 +186,7 @@ export interface UserRole {
   organization_id: string
   user_id: string
   role: "admin" | "manager" | "analyst" | "viewer"
-  permissions: Record<string, any>
+  permissions: UserPermissions // Changed to use UserPermissions
   created_at: string
 }
 
@@ -253,6 +401,44 @@ export async function updateUserProfile(updates: Partial<UserProfile>) {
   }
 }
 
+// New function to update organization settings
+export async function updateOrganizationSettings(updates: Partial<Organization>): Promise<{ success: boolean, error: string | null }> {
+  try {
+    const { user, organization, role } = await getCurrentUserWithProfile();
+    if (!user || !organization || role?.role !== 'admin') {
+      return { success: false, error: "Unauthorized: Only administrators can update organization settings." };
+    }
+
+    // Fetch old data for audit log
+    const { data: oldData } = await supabaseClient.from('organizations').select('*').eq('id', organization.id).single();
+
+    const { error } = await supabaseClient
+      .from('organizations')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', organization.id);
+
+    if (error) {
+      console.error("updateOrganizationSettings: Supabase update error:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'organization_settings_updated',
+      entity_type: 'organization',
+      entity_id: organization.id,
+      old_values: oldData,
+      new_values: updates,
+    });
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("updateOrganizationSettings: Unexpected error:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+
 // Get all members for the current user's organization
 export async function getOrganizationMembers(): Promise<{ data: OrganizationMember[] | null, error: string | null }> {
   try {
@@ -325,7 +511,7 @@ export async function updateMemberRole(memberUserId: string, newRole: UserRole['
 
     const { error } = await supabaseClient
       .from('user_roles')
-      .update({ role: newRole, updated_at: new Date().toISOString() }) // Assuming updated_at exists on user_roles
+      .update({ role: newRole, permissions: DefaultRolePermissions[newRole], updated_at: new Date().toISOString() }) // Update permissions based on new role
       .eq('user_id', memberUserId)
       .eq('organization_id', organization.id);
 
@@ -378,7 +564,7 @@ export async function updateMemberStatus(memberUserId: string, newStatus: UserPr
 }
 
 // Check user permissions
-export function hasPermission(role: UserRole | null, permission: string): boolean {
+export function hasPermission(role: UserRole | null, permission: keyof UserPermissions): boolean {
   if (!role) return false
 
   // Admin has all permissions

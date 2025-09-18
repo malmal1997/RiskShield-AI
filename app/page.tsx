@@ -268,7 +268,7 @@ export default function RiskGuardLanding() {
 
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-blue-600">3</span>
+                <span className="2xl font-bold text-blue-600">3</span>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Start Assessing</h3>
               <p className="text-gray-600">
@@ -434,24 +434,24 @@ export default function RiskGuardLanding() {
               <h3 className="font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <a href="#" className="hover:text-white">
+                  <Link href="/about-us" className="hover:text-white">
                     About Us
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white">
+                  <Link href="/careers" className="hover:text-white">
                     Careers
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white">
+                  <Link href="/privacy-policy" className="hover:text-white">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white">
+                  <Link href="/terms-of-service" className="hover:text-white">
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
