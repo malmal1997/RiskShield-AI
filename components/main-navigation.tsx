@@ -23,8 +23,8 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
   const publicNavigationItems = [
     { name: "Platform", href: "/" },
     { name: "Solutions", href: "/solutions" },
-    { name: "About Us", href: "/about-us" }, // Updated href
-    { name: "Careers", href: "/careers" }, // Updated href
+    { name: "About Us", href: "/about-us" },
+    { name: "Careers", href: "/careers" },
     { name: "Documentation", href: "#" },
     { name: "Help Center", href: "#" },
   ];
