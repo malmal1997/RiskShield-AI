@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
-import { Checkbox } from "@/components/ui/checkbox" // Added Checkbox import
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Shield,
   FileText,
@@ -38,7 +38,7 @@ import {
   Copy,
   Edit3,
   Calendar,
-  AlertTriangle, // Added AlertTriangle
+  AlertTriangle,
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { Label as ShadcnLabel } from "@/components/ui/label"
@@ -57,7 +57,7 @@ interface BuiltInQuestion {
   id: string;
   category: string;
   question: string;
-  type: "boolean" | "multiple" | "tested" | "textarea" | "checkbox"; // Added "checkbox"
+  type: "boolean" | "multiple" | "tested" | "textarea" | "checkbox";
   options?: string[];
   weight?: number;
   required?: boolean;
@@ -67,1508 +67,7 @@ interface BuiltInAssessmentCategory {
   id: string;
   name: string;
   description: string;
-  icon: any; // Using 'any' for LucideIcon type for simplicity
-  questions: BuiltInQuestion[];
-}
-
-// Assessment categories and questions (now default/built-in templates)
-const assessmentCategories: BuiltInAssessmentCategory[] = [
-  {
-    id: "cybersecurity",
-    name: "Cybersecurity",
-    description: "Evaluate your organization's cybersecurity posture and controls",
-    icon: Shield,
-    questions: [
-      {
-        id: "cs1",
-        category: "Security Policies",
-        question: "Does your organization have a formal information security policy?",
-        type: "boolean" as const,
-        weight: 10,
-      },
-      {
-        id: "cs2",
-        category: "Security Training",
-        question: "How often do you conduct cybersecurity training for employees?",
-        type: "multiple" as const,
-        options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 8,
-      },
-      {
-        id: "cs3",
-        category: "Access Control",
-        question: "Do you have multi-factor authentication implemented for all critical systems?",
-        type: "boolean" as const,
-        weight: 9,
-      },
-      {
-        id: "cs4",
-        category: "Vulnerability Management",
-        question: "How frequently do you perform vulnerability assessments?",
-        type: "multiple" as const,
-        options: ["Never", "Annually", "Semi-annually", "Quarterly", "Monthly"],
-        weight: 8,
-      },
-      {
-        id: "cs5",
-        category: "Incident Response",
-        question: "Do you have an incident response plan in place?",
-        type: "boolean" as const,
-        weight: 9,
-      },
-      {
-        id: "cyb_1",
-        category: "Incident Response",
-        question: "Have you experienced a data breach or cybersecurity incident in the last two years?",
-        type: "boolean" as const,
-        weight: 10,
-        required: true,
-      },
-      {
-        id: "cyb_2",
-        category: "Governance",
-        question: "Does your organization have cybersecurity executive oversight?",
-        type: "boolean" as const,
-        weight: 9,
-        required: true,
-      },
-      {
-        id: "cyb_3",
-        category: "Threat Management",
-        question: "Do you actively monitor for evolving threats and vulnerabilities?",
-        type: "boolean" as const,
-        weight: 8,
-        required: true,
-      },
-      {
-        id: "cyb_4",
-        category: "Security Training",
-        question: "Do you provide phishing education to your employees?",
-        type: "boolean" as const,
-        weight: 7,
-        required: true,
-      },
-      {
-        id: "cyb_5",
-        category: "Security Training",
-        question: "Do you provide general cybersecurity employee training?",
-        type: "boolean" as const,
-        weight: 7,
-        required: true,
-      },
-      {
-        id: "cyb_6",
-        category: "Security Training",
-        question: "Do you assess cybersecurity staff competency?",
-        type: "boolean" as const,
-        weight: 8,
-        required: true,
-      },
-      {
-        id: "cyb_7",
-        category: "Human Resources",
-        question: "Do staff sign NDA/Confidentiality Agreements?",
-        type: "boolean" as const,
-        weight: 7,
-        required: true,
-      },
-      {
-        id: "cyb_8",
-        category: "Client Management",
-        question: "Do you define client cybersecurity responsibilities?",
-        type: "boolean" as const,
-        weight: 8,
-        required: true,
-      },
-      {
-        id: "cyb_9",
-        category: "Change Management",
-        question: "Do you have change management restrictions in place?",
-        type: "boolean" as const,
-        weight: 8,
-        required: true,
-      },
-      {
-        id: "cyb_10",
-        category: "Patch Management",
-        question: "How often are software and firmware updates applied?",
-        type: "multiple" as const,
-        options: ["Never", "Annually", "Quarterly", "Monthly", "Continuously"],
-        weight: 9,
-        required: true,
-      },
-      {
-        id: "cyb_11",
-        category: "Access Control",
-<dyad-problem-report summary="1255 problems">
-<problem file="app/risk-assessment/page.tsx" line="2253" column="6" code="17008">JSX element 'AuthGuard' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="2257" column="8" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="2296" column="10" code="17008">JSX element 'section' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="2297" column="12" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3040" column="16" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3041" column="18" code="17008">JSX element 'div' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3042" column="20" code="17008">JSX element 'h2' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3060" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3064" column="96" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3066" column="96" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3068" column="96" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3070" column="96" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3072" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3074" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3076" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3078" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3080" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3082" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3084" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3086" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3088" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3090" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3092" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3094" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3096" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3098" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3102" column="98" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3104" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3107" column="96" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3113" column="97" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3201" column="2" code="17008">JSX element 'dyad-write' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3243" column="1" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3258" column="5" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3265" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3268" column="5" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3273" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3278" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3284" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3289" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3291" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3297" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3299" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3304" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3306" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3312" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3314" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3319" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3321" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3327" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3329" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3335" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3337" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3343" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3345" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3351" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3353" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3359" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3361" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3367" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3369" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3375" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3377" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3383" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3385" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3391" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3393" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3400" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3402" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3408" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3410" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3416" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3418" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3424" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3426" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3432" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3434" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3440" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3442" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3448" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3450" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3456" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3458" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3464" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3466" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3472" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3474" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3480" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3482" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3488" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3490" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3496" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3498" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3504" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3506" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3512" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3514" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3520" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3522" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3528" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3530" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3536" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3538" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3544" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3546" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3552" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3554" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3560" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3562" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3568" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3570" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3576" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3578" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3585" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3587" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3593" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3595" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3601" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3603" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3609" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3611" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3617" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3619" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3626" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3628" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3634" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3636" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3642" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3644" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3650" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3652" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3658" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3660" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3666" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3668" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3670" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3676" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3681" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3683" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3689" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3691" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3696" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3698" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3704" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3706" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3711" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3713" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3715" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3721" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3726" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3728" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3734" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3736" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3741" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3743" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3749" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3751" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3756" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3758" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3760" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3766" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3772" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3774" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3781" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3783" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3789" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3791" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3798" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3800" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3806" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3808" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3814" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3816" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3822" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3824" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3830" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3832" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3839" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3841" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3847" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3849" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3855" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3857" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3863" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3865" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3871" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3873" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3879" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3881" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3887" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3889" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3895" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3897" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3903" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3905" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3911" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3913" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3919" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3921" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3927" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3929" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3935" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3937" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3943" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3945" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3951" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3953" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3960" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3962" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3968" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3970" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3976" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3978" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3984" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3986" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3993" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3995" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4002" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4004" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4011" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4013" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4019" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4021" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4027" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4029" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4031" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4037" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4043" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4045" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4052" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4054" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4060" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4062" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4069" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4071" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4077" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4079" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4085" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4087" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4094" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4096" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4102" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4104" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4106" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4112" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4118" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4120" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4127" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4129" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4135" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4137" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4144" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4146" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4152" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4154" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4160" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4162" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4169" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4171" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4177" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4179" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4185" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4187" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4193" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4195" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4202" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4204" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4210" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4212" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4218" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4220" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4226" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4228" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4234" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4236" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4242" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4244" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4250" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4252" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4258" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4260" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4266" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4268" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4274" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4276" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4282" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4284" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4290" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4292" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4298" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4300" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4306" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4308" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4314" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4316" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4322" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4324" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4330" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4332" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4338" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4340" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4346" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4348" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4354" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4356" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4362" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4364" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4370" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4372" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4378" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4380" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4386" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4388" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4394" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4396" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4402" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4404" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4410" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4412" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4418" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4420" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4426" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4428" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4434" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4436" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4442" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4444" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4450" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4452" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4458" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4460" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4466" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4468" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4474" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4476" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4482" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4484" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4490" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4492" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4494" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4500" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4506" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4508" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4515" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4517" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4523" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4525" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4532" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4534" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4540" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4542" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4548" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4550" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4557" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4559" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4565" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4567" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4573" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4575" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4581" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4583" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4585" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4592" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4599" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4601" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4607" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4609" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4615" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4617" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4623" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4625" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4631" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4635" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4641" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4643" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4649" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4651" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4657" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4659" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4665" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4667" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4673" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4675" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4681" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4683" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4689" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4691" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4697" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4699" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4705" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4707" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4713" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4717" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4723" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4725" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4731" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4733" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4739" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4741" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4747" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4749" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4755" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4759" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4765" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4767" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4773" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4775" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4781" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4783" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4789" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4791" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4797" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4801" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4807" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4809" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4815" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4817" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4823" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4825" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4831" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4835" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4841" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4843" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4849" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4851" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4857" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4859" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4865" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4867" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4873" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4877" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4883" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4885" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4891" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4893" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4899" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4901" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4907" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4911" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4917" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4919" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4925" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4927" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4933" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4937" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4943" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4945" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4951" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4953" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4959" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4963" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4969" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4971" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4977" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4979" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4985" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4987" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4993" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4995" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="4999" column="5" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5006" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5009" column="10" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5009" column="25" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5009" column="54" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5010" column="34" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5010" column="42" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5011" column="27" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5011" column="35" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5021" column="11" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5022" column="11" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5023" column="7" code="1005">'...' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5023" column="15" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5031" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5031" column="6" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5032" column="3" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5033" column="31" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5034" column="5" code="1005">'...' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5034" column="13" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5040" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5040" column="4" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5041" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5044" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5046" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5049" column="3" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5054" column="67" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5054" column="73" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5055" column="71" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5055" column="77" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5057" column="5" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5058" column="3" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5059" column="75" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5059" column="77" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5061" column="73" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5061" column="79" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5062" column="42" code="17008">JSX element 'Record' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5063" column="53" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5063" column="59" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5064" column="53" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5064" column="59" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5065" column="45" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5065" column="51" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5069" column="12" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5084" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5085" column="56" code="17008">JSX element 'Record' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5086" column="76" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5086" column="78" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5087" column="76" code="1003">Identifier expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5087" column="78" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5091" column="17" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5092" column="29" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5093" column="16" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5094" column="32" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5095" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5096" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5098" column="17" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5100" column="5" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5103" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5109" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5110" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5112" column="17" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5130" column="5" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5131" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5133" column="17" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5176" column="5" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5177" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5180" column="50" code="17008">JSX element 'HTMLInputElement' has no corresponding closing tag.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5180" column="70" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5181" column="5" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5182" column="7" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5182" column="61" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5184" column="14" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5185" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5186" column="30" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5187" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5188" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5190" column="53" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5194" column="82" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5199" column="6" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5200" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5202" column="44" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5203" column="5" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5208" column="9" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5210" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5213" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5214" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5217" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5218" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5225" column="7" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5226" column="37" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5227" column="44" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5228" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5229" column="72" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5231" column="66" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5231" column="164" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5234" column="15" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5236" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5241" column="9" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5243" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5258" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5260" column="7" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5263" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5264" column="7" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5267" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5268" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5270" column="64" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5274" column="37" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5278" column="33" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5284" column="52" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5285" column="53" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5286" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5288" column="38" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5289" column="5" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5294" column="9" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5296" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5302" column="9" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5304" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5311" column="9" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5313" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5320" column="9" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5326" column="23" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5326" column="50" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5326" column="148" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5332" column="26" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5336" column="9" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5337" column="60" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5338" column="19" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5342" column="9" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5344" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5349" column="31" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5351" column="16" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5354" column="9" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5355" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5356" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5357" column="49" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5363" column="11" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5364" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5365" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5366" column="7" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5367" column="33" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5368" column="7" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5369" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5370" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5372" column="53" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5373" column="5" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5374" column="7" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5386" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5387" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5389" column="33" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5390" column="9" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5397" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5400" column="54" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5401" column="5" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5402" column="7" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5403" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5411" column="42" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5412" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5416" column="48" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5417" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5418" column="38" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5419" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5422" column="38" code="1005">'}' expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5423" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5426" column="54" code="1382">Unexpected token. Did you mean `{'&gt;'}` or `&amp;gt;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5432" column="7" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5433" column="5" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5437" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="5440" column="5" code="1109">Expression expected.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5452" column="3" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="6442" column="1" code="1381">Unexpected token. Did you mean `{'}'}` or `&amp;rbrace;`?</problem>
-<problem file="app/risk-assessment/page.tsx" line="6442" column="2" code="1005">'&lt;/' expected.</problem>
-<problem file="app/reports/page.tsx" line="95" column="9" code="2304">Cannot find name 'isDemo'.</problem>
-<problem file="app/reports/page.tsx" line="124" column="12" code="2304">Cannot find name 'RefreshCw'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="1101" column="9" code="2322">Type '&quot;checkbox&quot;' is not assignable to type '&quot;boolean&quot; | &quot;multiple&quot; | &quot;tested&quot; | &quot;textarea&quot;'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="1850" column="21" code="2552">Cannot find name 'useRef'. Did you mean 'user'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="2991" column="36" code="2304">Cannot find name 'Checkbox'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3042" column="96" code="2339">Property 'dyad-problem-report' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3043" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3043" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3044" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3044" column="147" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3045" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3045" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3046" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3046" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3047" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3047" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3048" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3048" column="149" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3049" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3049" column="156" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3050" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3050" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3051" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3051" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3052" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3052" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3053" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3053" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3054" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3054" column="148" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3055" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3055" column="150" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3056" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3056" column="154" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3057" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3057" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3058" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3058" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3059" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3059" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3060" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3060" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3061" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3061" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3062" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3062" column="116" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3063" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3063" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3064" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3064" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3065" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3065" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3066" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3066" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3067" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3067" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3068" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3068" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3069" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3069" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3070" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3070" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3071" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3071" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3072" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3072" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3073" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3073" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3074" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3074" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3075" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3075" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3076" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3076" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3077" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3077" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3078" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3078" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3079" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3079" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3080" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3080" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3081" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3081" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3082" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3082" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3083" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3083" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3084" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3084" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3085" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3085" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3086" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3086" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3087" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3087" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3088" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3088" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3089" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3089" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3090" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3090" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3091" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3091" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3092" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3092" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3093" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3093" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3094" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3094" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3095" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3095" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3096" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3096" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3097" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3097" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3098" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3098" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3099" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3099" column="153" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3100" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3100" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3101" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3101" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3102" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3102" column="110" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3103" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3103" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3104" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3104" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3105" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3105" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3106" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3106" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3107" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3107" column="108" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3108" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3108" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3109" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3109" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3110" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3110" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3111" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3111" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3112" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3112" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3113" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3113" column="109" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3114" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3114" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3115" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3115" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3116" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3116" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3117" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3117" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3118" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3118" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3119" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3119" column="115" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3120" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3120" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3121" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3121" column="152" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3122" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3122" column="112" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3123" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3123" column="97" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3124" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3124" column="102" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3125" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3125" column="174" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3126" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3126" column="161" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3127" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3127" column="162" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3128" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3128" column="161" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3129" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3129" column="163" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3130" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3130" column="173" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3131" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3131" column="160" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3132" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3132" column="159" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3133" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3133" column="164" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3134" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3134" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3135" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3135" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3136" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3136" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3137" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3137" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3138" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3138" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3139" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3139" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3140" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3140" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3141" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3141" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3142" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3142" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3143" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3143" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3144" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3144" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3145" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3145" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3146" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3146" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3147" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3147" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3148" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3148" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3149" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3149" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3150" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3150" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3151" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3151" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3152" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3152" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3153" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3153" column="125" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3154" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3154" column="129" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3155" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3155" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3156" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3156" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3157" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3157" column="158" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3158" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3158" column="123" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3159" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3159" column="128" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3160" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3160" column="123" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3161" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3161" column="161" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3162" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3162" column="117" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3163" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3163" column="117" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3164" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3164" column="117" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3165" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3165" column="117" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3166" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3166" column="119" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3167" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3167" column="119" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3168" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3168" column="119" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3169" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3169" column="119" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3170" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3170" column="119" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3171" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3171" column="123" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3172" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3172" column="123" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3173" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3173" column="123" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3174" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3174" column="123" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3175" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3175" column="123" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3176" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3176" column="125" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3177" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3177" column="125" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3178" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3178" column="133" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3179" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3179" column="136" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3180" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3180" column="122" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3181" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3181" column="126" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3182" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3182" column="131" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3183" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3183" column="146" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3184" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3184" column="130" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3185" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3185" column="123" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3186" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3186" column="136" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3187" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3187" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3188" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3188" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3189" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3189" column="133" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3190" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3190" column="142" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3191" column="1" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3191" column="143" code="2339">Property 'problem' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3192" column="1" code="2339">Property 'dyad-problem-report' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3201" column="1" code="2339">Property 'dyad-write' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3204" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3204" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3204" column="31" code="2552">Cannot find name 'useRef'. Did you mean 'user'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3206" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3206" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3206" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3206" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3212" column="10" code="2304">Cannot find name 'Checkbox'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3214" column="3" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3245" column="19" code="2749">'ShadcnLabel' refers to a value, but is being used as a type here. Did you mean 'typeof ShadcnLabel'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3246" column="22" code="2749">'ShadcnTextarea' refers to a value, but is being used as a type here. Did you mean 'typeof ShadcnTextarea'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3249" column="19" code="2749">'ShadcnInput' refers to a value, but is being used as a type here. Did you mean 'typeof ShadcnInput'?</problem>
-<problem file="app/risk-assessment/page.tsx" line="3250" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3250" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3250" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3250" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3253" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3253" column="10" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3254" column="15" code="2693">'AssessmentTemplate' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3254" column="15" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3254" column="35" code="2693">'TemplateQuestion' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3258" column="3" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3268" column="3" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3278" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3284" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3291" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3299" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3306" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3314" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3321" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3329" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3337" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3345" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3353" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3361" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3369" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3377" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3385" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3393" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3402" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3410" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3418" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3426" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3434" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3442" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3450" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3458" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3466" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3474" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3482" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3490" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3498" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3506" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3514" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3522" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3530" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3538" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3546" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3554" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3562" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3570" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3578" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3587" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3595" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3603" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3611" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3619" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3628" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3636" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3644" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3652" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3660" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3670" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3676" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3683" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3691" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3698" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3706" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3715" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3721" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3728" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3736" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3743" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3751" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3760" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3766" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3774" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3783" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3791" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3800" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3808" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3816" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3824" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3832" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3841" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3849" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3857" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3865" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3873" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3881" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3889" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3897" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3905" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3913" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3921" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3929" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3937" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3945" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3953" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3962" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3970" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3978" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3986" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="3995" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4004" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4013" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4021" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4031" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4037" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4045" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4054" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4062" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4071" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4079" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4087" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4096" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4106" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4112" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4120" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4129" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4137" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4146" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4154" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4162" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4171" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4179" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4187" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4195" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4204" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4212" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4220" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4228" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4236" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4244" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4252" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4260" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4268" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4276" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4284" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4292" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4300" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4308" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4316" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4324" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4332" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4340" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4348" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4356" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4364" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4372" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4380" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4388" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4396" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4404" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4412" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4420" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4428" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4436" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4444" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4452" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4460" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4468" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4476" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4484" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4494" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4500" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4508" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4517" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4525" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4534" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4542" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4550" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4559" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4567" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4575" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4585" column="5" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4592" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4601" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4609" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4617" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4625" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4635" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4643" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4651" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4659" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4667" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4675" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4683" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4691" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4699" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4707" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4717" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4725" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4733" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4741" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4749" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4759" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4767" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4775" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4783" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4791" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4801" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4809" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4817" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4825" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4835" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4843" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4851" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4859" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4867" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4877" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4885" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4893" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4901" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4911" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4919" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4927" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4937" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4945" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4953" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4963" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4971" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4979" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4987" column="9" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="4999" column="3" code="2304">Cannot find name 'id'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5009" column="18" code="2339">Property 'string' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5010" column="27" code="2339">Property 'string' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5011" column="20" code="2339">Property 'string' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5020" column="28" code="2339">Property 'string' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5023" column="7" code="2304">Cannot find name 'fileName'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5034" column="5" code="2304">Cannot find name 'fileName'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5044" column="3" code="2304">Cannot find name 'file'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5049" column="11" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5049" column="11" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5054" column="59" code="2339">Property 'string' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5055" column="63" code="2339">Property 'string' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5059" column="54" code="2693">'UploadedFileWithLabel' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5061" column="58" code="2693">'AnalysisResult' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5062" column="42" code="2693">'Record' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5063" column="45" code="2339">Property 'number' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5064" column="45" code="2339">Property 'string' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5065" column="37" code="2339">Property 'string' does not exist on type 'JSX.IntrinsicElements'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5069" column="5" code="2304">Cannot find name 'socType'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5085" column="56" code="2693">'Record' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5086" column="58" code="2693">'AssessmentTemplate' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5087" column="60" code="2693">'TemplateQuestion' only refers to a type, but is being used as a value here.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5102" column="27" code="2304">Cannot find name 'preSelectedCategory'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5180" column="50" code="2786">'HTMLInputElement' cannot be used as a JSX component.
-  Its instance type 'HTMLInputElement' is not a valid JSX element.
-    Type 'HTMLInputElement' is missing the following properties from type 'ElementClass': render, context, setState, forceUpdate, and 3 more.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5183" column="9" code="2304">Cannot find name 'file'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5183" column="9" code="2695">Left side of comma operator is unused and has no side effects.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5184" column="9" code="2304">Cannot find name 'label'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5191" column="78" code="2304">Cannot find name 'indexToRemove'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5197" column="15" code="2304">Cannot find name 'index'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5197" column="34" code="18004">No value exists in scope for the shorthand property 'label'. Either declare one or provide an initializer.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5227" column="9" code="2304">Cannot find name 'formData'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5227" column="34" code="2304">Cannot find name 'item'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5234" column="9" code="2304">Cannot find name 'method'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5259" column="44" code="2304">Cannot find name 'err'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5261" column="18" code="2304">Cannot find name 'err'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5271" column="39" code="2304">Cannot find name 'questionId'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5271" column="52" code="2304">Cannot find name 'value'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5285" column="29" code="2304">Cannot find name 'reportId'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5326" column="9" code="2304">Cannot find name 'assessmentType'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5338" column="11" code="2304">Cannot find name 'fileName'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5351" column="11" code="2304">Cannot find name 'title'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5357" column="45" code="2304">Cannot find name 'err'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5361" column="24" code="2304">Cannot find name 'err'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5390" column="5" code="2304">Cannot find name 'let'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5411" column="7" code="2304">Cannot find name 'citationParts'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5411" column="30" code="2304">Cannot find name 'fileName'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5416" column="7" code="2304">Cannot find name 'citationParts'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5416" column="35" code="2304">Cannot find name 'pageNumber'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5418" column="7" code="2304">Cannot find name 'citationParts'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5422" column="7" code="2304">Cannot find name 'citationParts'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5429" column="29" code="2304">Cannot find name 'excerptData'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5436" column="15" code="2304">Cannot find name 'excerptText'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5436" column="36" code="2304">Cannot find name 'filteredParts'.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5501" column="14" code="2367">This comparison appears to be unintentional because the types '&quot;results&quot;' and '&quot;select-category&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5598" column="14" code="2367">This comparison appears to be unintentional because the types '&quot;results&quot;' and '&quot;soc-info&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5834" column="14" code="2367">This comparison appears to be unintentional because the types '&quot;results&quot;' and '&quot;upload-documents&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/page.tsx" line="5997" column="14" code="2367">This comparison appears to be unintentional because the types '&quot;results&quot;' and '&quot;review-answers&quot;' have no overlap.</problem>
-<problem file="app/risk-assessment/page.tsx" line="6193" column="36" code="2304">Cannot find name 'Checkbox'.</problem>
-</dyad-problem-report><think>**Analyzing Compilation Issues**
-
-I've discovered a critical bug in the code generation: `app/risk-assessment/ai-assessment/page.tsx` now contains the content of `app/reports/page.tsx`. This explains the flood of TypeScript errors. The generation process appears to have overwritten the intended file with incorrect data. My immediate focus is on restoring the correct content and understanding the root cause of this file corruption.
-
-
-**Debugging File Overwrites**
-
-I'm now investigating file corruption. The previous overwrite corrupted `app/risk-assessment/ai-assessment/page.tsx` with `app/reports/page.tsx`, and introduced `dyad-problem-report` tags. I've restored the original `app/risk-assessment/ai-assessment/page.tsx` file. Next, I'm cleaning up `app/risk-assessment/page.tsx`. It now lacks correct imports, features incorrect types, and has incorrect JSX tags. I am addressing missing imports, adjusting type definitions, and fixing malformed JSX tags. I'll also eliminate these spurious `dyad-problem-report` tags.
-
-
-**Restoring & Refining Files**
-
-I've restored `app/risk-assessment/ai-assessment/page.tsx` to its pristine state. Now, I'm tackling `app/risk-assessment/page.tsx`. I've removed the spurious tags. Next, I'm adding missing imports and correcting the `BuiltInQuestion` interface. I'm focusing on fixing JSX closing tags and ensuring all variables are correctly declared and scoped. The "no overlap" error with `currentStep` will be addressed once syntax is clean. My priority is restoring the basic structure first.
-
-
-**Fixing Remaining Compilation Errors**
-
-I've restored the correct content for `app/risk-assessment/ai-assessment/page.tsx` and now I'm fixing `app/risk-assessment/page.tsx`. I've removed the `dyad-problem-report` tags, added `useRef` and `Checkbox` imports, and updated the `BuiltInQuestion` interface to include the `"checkbox"` type.  I'm now methodically adding missing closing JSX tags and fixing syntax errors, addressing undeclared variable issues to clean up the code. Once I resolve the syntax problems, I'll revisit the `"results"` type overlap error.
-
-
-**Restoring File Integrity**
-
-I'm now fully focused on restoring the compromised files. I've restored `app/risk-assessment/ai-assessment/page.tsx`, and am currently cleaning `app/risk-assessment/page.tsx`, which was also affected by the `dyad-problem-report` tags and incorrect content. I'm importing `useRef` and `Checkbox`, updating the `BuiltInQuestion` interface, and systematically correcting JSX tags and undeclared variables. I will also address the type overlap error once the syntax is resolved, as I suspect it is a consequence of the syntax issues, but I will make an explicit check of the type of the `currentStep` and the related conditions.
-
-
-**Restoring File Integrity**
-
-I'm systematically restoring `app/risk-assessment/page.tsx` now. Imports like `useRef` and `Checkbox` are added, and the `BuiltInQuestion` type is updated. I'm focusing on fixing all syntax errors, including JSX closing tags, and variable scope issues, starting with the file-related functions. I'm addressing undeclared variable errors. My main aim is to resolve basic syntax problems. Afterward, I'll revisit the `currentStep` type conflict, and fix it directly if the problem persists.
-
-
-</think>You've encountered a significant issue where the content of `app/reports/page.tsx` was accidentally written into `app/risk-assessment/ai-assessment/page.tsx`, causing a large number of compilation errors across both files. My sincere apologies for this oversight!
-
-I will fix this by:
-
-1.  **Restoring `app/risk-assessment/ai-assessment/page.tsx`**: I will revert this file to its correct, original state.
-2.  **Fixing `app/risk-assessment/page.tsx`**: I will correct the syntax errors, add missing imports, and update the `BuiltInQuestion` interface to properly include the "checkbox" type.
-3.  **Fixing `app/reports/page.tsx`**: I will ensure `isDemo` is correctly destructured from `useAuth` and `RefreshCw` is imported from `lucide-react`.
-
-These changes will resolve all the reported TypeScript errors.
-
-<dyad-write path="app/risk-assessment/ai-assessment/page.tsx" description="Reverting to the correct version of AIAssessmentPage.">
-"use client"
-
-import { useState, useEffect, useRef } from "react" // Added useRef
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Progress } from "@/components/ui/progress"
-import { Checkbox } from "@/components/ui/checkbox" // Added Checkbox import
-import { 
-  Shield, 
-  FileText, 
-  BarChart3, 
-  Eye, 
-  Bot, 
-  Clock, 
-  Building, 
-  Lock, 
-  Server, 
-  Send, 
-  Users, 
-  User, 
-  ArrowLeft, 
-  Building2, 
-  CheckCircle2, 
-  Download, 
-  X, 
-  ArrowRight, 
-  Upload, 
-  AlertCircle, 
-  Check, 
-  Save, 
-  Info, 
-  FileCheck, 
-  Loader2, 
-  Copy, 
-  Edit3, 
-  Calendar, 
-  AlertTriangle, // Added AlertTriangle
-} from "lucide-react"
-import { AuthGuard } from "@/components/auth-guard"
-import { Label as ShadcnLabel } from "@/components/ui/label"
-import { Textarea as ShadcnTextarea } from "@/components/ui/textarea"
-import { sendAssessmentEmail } from "@/app/third-party-assessment/email-service"
-import Link from "next/link"
-import { Input as ShadcnInput } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useAuth } from "@/components/auth-context"
-import { useToast } from "@/components/ui/use-toast"
-import { saveAiAssessmentReport, getAssessmentTemplates, getTemplateQuestions } from "@/lib/assessment-service"
-import type { AssessmentTemplate, TemplateQuestion } from "@/lib/supabase";
-import { useRouter } from "next/navigation"
-
-interface BuiltInQuestion {
-  id: string;
-  category: string;
-  question: string;
-  type: "boolean" | "multiple" | "tested" | "textarea" | "checkbox"; // Added "checkbox"
-  options?: string[];
-  weight?: number;
-  required?: boolean;
-}
-
-interface BuiltInAssessmentCategory {
-  id: string;
-  name: string;
-  description: string;
-  icon: any; // Using 'any' for LucideIcon type for simplicity
+  icon: any;
   questions: BuiltInQuestion[];
 }
 
@@ -3298,7 +1797,7 @@ const assessmentCategories: BuiltInAssessmentCategory[] = [
 interface Question {
   id: string
   question: string
-  type: "boolean" | "multiple" | "tested" | "textarea" | "checkbox" // Added "checkbox"
+  type: "boolean" | "multiple" | "tested" | "textarea" | "checkbox"
   options?: string[]
   weight?: number
   required?: boolean
@@ -3349,7 +1848,7 @@ export default function AIAssessmentPage() {
   const { user, isDemo, hasPermission } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
-  const isMounted = useRef(false); // Ref to track if component is mounted
+  const isMounted = useRef(false);
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
@@ -3364,17 +1863,17 @@ export default function AIAssessmentPage() {
   const [riskLevel, setRiskLevel] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isReportSaved, setIsReportSaved] = useState(false);
-  const [isSavingReport, setIsSavingReport] = useState(false); // Renamed setter to avoid conflict
+  const [isSavingReport, setIsSavingReport] = useState(false);
   const [socInfo, setSocInfo] = useState({
-    socType: "", // SOC 1, SOC 2, SOC 3
-    reportType: "", // Type 1, Type 2
+    socType: "",
+    reportType: "",
     auditor: "",
     auditorOpinion: "",
     auditorOpinionDate: "",
     socStartDate: "",
     socEndDate: "",
     socDateAsOf: "",
-    testedStatus: "", // Added testedStatus
+    testedStatus: "",
     exceptions: "",
         nonOperationalControls: "",
     companyName: "",
@@ -3443,7 +1942,7 @@ export default function AIAssessmentPage() {
         } else {
           setCurrentQuestions(data || []);
           const selectedTemplate = customTemplates.find(t => t.id === selectedTemplateId);
-          if (selectedTemplate?.type === "soc-compliance") { // Check if it's the SOC template
+          if (selectedTemplate?.type === "soc-compliance") {
             setCurrentStep("soc-info");
           } else {
             setCurrentStep("upload-documents");
@@ -3454,12 +1953,12 @@ export default function AIAssessmentPage() {
         if (builtIn) {
           setCurrentQuestions(builtIn.questions.map((q: BuiltInQuestion) => ({
             id: q.id,
-            template_id: "builtin", // Indicate it's a built-in template
-            order: 0, // Default order
+            template_id: "builtin",
+            order: 0,
             question_text: q.question,
             question_type: q.type,
-            options: (q.options as string[] | undefined) || null, // Safely access options
-            required: q.required || false, // Safely access required
+            options: (q.options as string[] | undefined) || null,
+            required: q.required || false,
             category: q.category || null,
             weight: q.weight || null,
             created_at: new Date().toISOString(),
@@ -3481,7 +1980,7 @@ export default function AIAssessmentPage() {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files).map(file => ({
         file,
-        label: 'Primary' as 'Primary' | '4th Party' // Default label
+        label: 'Primary' as 'Primary' | '4th Party'
       }));
       setUploadedFiles(prev => [...prev, ...newFiles]);
     }
@@ -3535,7 +2034,7 @@ export default function AIAssessmentPage() {
         body: formData,
       });
 
-      if (!isMounted.current) return; // Check mount status after async operation
+      if (!isMounted.current) return;
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -3551,17 +2050,17 @@ export default function AIAssessmentPage() {
       // --- End Client-side Debugging ---
 
       setAnalysisResults(result)
-      setAnswers(result.answers) // Pre-fill answers with AI suggestions
+      setAnswers(result.answers)
       setRiskScore(result.riskScore)
       setRiskLevel(result.riskLevel)
       setCurrentStep("review-answers")
     } catch (err: any) {
       console.error("AI Analysis Failed:", err)
-      if (isMounted.current) { // Check mount status before setting error
+      if (isMounted.current) {
         setError(err.message || "Failed to perform AI analysis. Please try again.")
       }
     } finally {
-      if (isMounted.current) { // Check mount status before setting loading
+      if (isMounted.current) {
         setIsAnalyzing(false)
       }
     }
@@ -3576,13 +2075,11 @@ export default function AIAssessmentPage() {
   }
 
   const handleFinalSubmit = () => {
-    // Here you would typically save the final answers and risk score to your database
-    // For this demo, we'll just transition to the results page.
     setCurrentStep("results")
   }
 
   const handleViewFullReport = (reportId: string) => {
-    router.push(`/reports/${reportId}/view?type=ai`); // Navigate within the same tab
+    router.push(`/reports/${reportId}/view?type=ai`);
   };
 
   const handleSaveReport = async () => {
@@ -3612,7 +2109,7 @@ export default function AIAssessmentPage() {
       return;
     }
 
-    setIsSavingReport(true); // Set saving state to true
+    setIsSavingReport(true);
     try {
       toast({
         title: "Saving Report...",
@@ -3620,7 +2117,7 @@ export default function AIAssessmentPage() {
       });
 
       const reportTitle = `${(customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment")} AI Assessment`;
-      const reportSummary = analysisResults.overallAnalysis.substring(0, 250) + "..."; // Truncate for summary
+      const reportSummary = analysisResults.overallAnalysis.substring(0, 250) + "...";
 
       const savedReport = await saveAiAssessmentReport({
         assessmentType: (customTemplates.find(t => t.id === selectedTemplateId)?.name || assessmentCategories.find((c: BuiltInAssessmentCategory) => c.id === selectedCategory)?.name || "Custom Assessment"),
@@ -3632,7 +2129,7 @@ export default function AIAssessmentPage() {
           analysisResults: analysisResults,
           answers: answers,
           questions: currentQuestions,
-          socInfo: socInfo, // Include SOC info if available
+          socInfo: socInfo,
         },
         uploadedDocumentsMetadata: uploadedFiles.map(item => ({
           fileName: item.file.name,
@@ -3643,7 +2140,7 @@ export default function AIAssessmentPage() {
         socInfo: socInfo,
       });
 
-      if (!isMounted.current) return; // Check mount status after async operation
+      if (!isMounted.current) return;
 
       if (savedReport) {
         setIsReportSaved(true);
@@ -3655,7 +2152,7 @@ export default function AIAssessmentPage() {
       }
     } catch (err: any) {
       console.error("Error saving report:", err);
-      if (isMounted.current) { // Check mount status before setting error
+      if (isMounted.current) {
         toast({
           title: "Error Saving Report",
           description: err.message || "Failed to save the report. Please try again.",
@@ -3663,7 +2160,7 @@ export default function AIAssessmentPage() {
         });
       }
     } finally {
-      if (isMounted.current) { // Check mount status before setting loading
+      if (isMounted.current) {
         setIsSavingReport(false);
       }
     }
@@ -3705,34 +2202,30 @@ export default function AIAssessmentPage() {
     let citationParts: string[] = [];
     const fileName = excerptData.fileName;
     const pageNumber = excerptData.pageNumber;
-    const label = excerptData.label; // This will be '4th Party' or null
+    const label = excerptData.label;
 
     if (fileName && String(fileName).trim() !== '' && fileName !== 'N/A') {
       citationParts.push(`"${fileName}"`);
     }
 
-    // Explicitly add page number or 'N/A'
     if (pageNumber != null && String(pageNumber).trim() !== '' && pageNumber !== 'N/A') {
       citationParts.push(`Page: ${pageNumber}`);
     } else {
-      citationParts.push(`Page: N/A`); // Explicitly show N/A if page number is missing or invalid
+      citationParts.push(`Page: N/A`);
     }
 
     if (label === '4th Party') {
       citationParts.push('4th Party');
     }
 
-    // Filter out any potentially empty or null parts before joining
-    const filteredParts = citationParts.filter(part => part && String(part).trim() !== ''); // Ensure parts are non-empty strings
+    const filteredParts = citationParts.filter(part => part && String(part).trim() !== '');
 
-    // The excerpt is always the first part of the return string
     const excerptText = `"${excerptData.excerpt}"`;
 
     if (filteredParts.length === 0) {
       return excerptText;
     }
 
-    // Join parts for the citation, ensuring the excerpt is first
     return `${excerptText} (from ${filteredParts.join(' - ')})`;
   };
 
@@ -3818,7 +2311,7 @@ export default function AIAssessmentPage() {
                         onClick={() => {
                           if (canCreateAssessments) {
                             setSelectedCategory(category.id)
-                            setSelectedTemplateId(null); // Clear custom template selection
+                            setSelectedTemplateId(null);
                           } else {
                             toast({
                               title: "Permission Denied",
@@ -3851,7 +2344,7 @@ export default function AIAssessmentPage() {
 
                   {/* Custom Templates */}
                   {customTemplates.map((template: AssessmentTemplate) => {
-                    const IconComponent = FileText; // Default icon for custom templates
+                    const IconComponent = FileText;
                     return (
                       <Card
                         key={template.id}
@@ -3859,7 +2352,7 @@ export default function AIAssessmentPage() {
                         onClick={() => {
                           if (canCreateAssessments) {
                             setSelectedTemplateId(template.id);
-                            setSelectedCategory(null); // Clear built-in category selection
+                            setSelectedCategory(null);
                           } else {
                             toast({
                               title: "Permission Denied",
@@ -3900,7 +2393,9 @@ export default function AIAssessmentPage() {
                 <div className="mb-8">
                   <Button
                     variant="ghost"
-                    onClick={() => setCurrentStep("select-category")}
+                    onClick={() =>
+                      setCurrentStep("select-category")
+                    }
                     className="mb-6 hover:bg-blue-50"
                     disabled={!canCreateAssessments}
                   >
@@ -4160,7 +2655,7 @@ export default function AIAssessmentPage() {
 
                 <Card className="mb-8 border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50">
                   <CardHeader>
-                    <div className="flex items-center justify-between"> {/* Added wrapper div */}
+                    <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center space-x-2">
                         <Upload className="h-6 w-6 text-blue-600" />
                         <span className="text-blue-900">Document Upload</span>
@@ -4320,7 +2815,7 @@ export default function AIAssessmentPage() {
 
                 <Card>
                   <CardHeader>
-                    <div className="flex items-center justify-between"> {/* Added wrapper div */}
+                    <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center space-x-2">
                         <Bot className="h-5 w-5" />
                         <span>AI-Suggested Responses</span>
@@ -4420,7 +2915,7 @@ export default function AIAssessmentPage() {
                                   const value = e.target.value;
                                   if (value === "Other") {
                                     setShowOtherInput(prev => ({ ...prev, [question.id]: true }));
-                                    handleAnswerChange(question.id, ""); // Clear answer when "Other" is selected
+                                    handleAnswerChange(question.id, "");
                                   } else {
                                     setShowOtherInput(prev => ({ ...prev, [question.id]: false }));
                                     handleAnswerChange(question.id, value);
