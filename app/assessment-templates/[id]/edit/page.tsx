@@ -49,7 +49,7 @@ export default function EditAssessmentTemplatePage() {
 function EditAssessmentTemplateContent() {
   const params = useParams();
   const router = useRouter();
-  const { role, loading: authLoading, isDemo } = useAuth();
+  const { loading: authLoading, isDemo, hasPermission } = useAuth();
   const { toast } = useToast();
 
   const templateId = params.id as string;
@@ -73,11 +73,12 @@ function EditAssessmentTemplateContent() {
   });
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
-  const isAdmin = role?.role === "admin" || isDemo;
+  const canManageTemplates = hasPermission("manage_assessment_templates");
+  const canViewTemplates = hasPermission("view_assessments"); // Assuming view_assessments allows viewing templates
 
   const loadTemplateData = async () => {
-    if (!isAdmin) {
-      setError("You do not have administrative privileges to view this page.");
+    if (!canViewTemplates) {
+      setError("You do not have permission to view assessment templates.");
       setLoading(false);
       return;
     }
@@ -113,7 +114,7 @@ function EditAssessmentTemplateContent() {
     if (!authLoading && templateId) {
       loadTemplateData();
     }
-  }, [authLoading, templateId, isAdmin]);
+  }, [authLoading, templateId, canViewTemplates]);
 
   const handleTemplateUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +122,14 @@ function EditAssessmentTemplateContent() {
       toast({
         title: "Preview Mode",
         description: "Template updates are not available in preview mode. Please sign up for full access.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!canManageTemplates) {
+      toast({
+        title: "Permission Denied",
+        description: "You do not have permission to update assessment templates.",
         variant: "destructive",
       });
       return;
@@ -163,6 +172,14 @@ function EditAssessmentTemplateContent() {
       toast({
         title: "Preview Mode",
         description: "Question creation is not available in preview mode. Please sign up for full access.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!canManageTemplates) {
+      toast({
+        title: "Permission Denied",
+        description: "You do not have permission to add questions to assessment templates.",
         variant: "destructive",
       });
       return;
@@ -221,6 +238,14 @@ function EditAssessmentTemplateContent() {
       });
       return;
     }
+    if (!canManageTemplates) {
+      toast({
+        title: "Permission Denied",
+        description: "You do not have permission to update questions in assessment templates.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsSavingQuestion(question.id);
     try {
       const updates = {
@@ -265,6 +290,14 @@ function EditAssessmentTemplateContent() {
       });
       return;
     }
+    if (!canManageTemplates) {
+      toast({
+        title: "Permission Denied",
+        description: "You do not have permission to delete questions from assessment templates.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!confirm("Are you sure you want to delete this question? This action cannot be undone.")) {
       return;
     }
@@ -295,6 +328,22 @@ function EditAssessmentTemplateContent() {
   };
 
   const handleMoveQuestion = (questionId: string, direction: 'up' | 'down') => {
+    if (isDemo) {
+      toast({
+        title: "Preview Mode",
+        description: "Question reordering is not available in preview mode. Please sign up for full access.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!canManageTemplates) {
+      toast({
+        title: "Permission Denied",
+        description: "You do not have permission to reorder questions.",
+        variant: "destructive",
+      });
+      return;
+    }
     const index = questions.findIndex((q: TemplateQuestion) => q.id === questionId);
     if (index === -1) return;
 
@@ -327,6 +376,22 @@ function EditAssessmentTemplateContent() {
   };
 
   const handleDuplicateQuestion = (question: TemplateQuestion) => {
+    if (isDemo) {
+      toast({
+        title: "Preview Mode",
+        description: "Question duplication is not available in preview mode. Please sign up for full access.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!canManageTemplates) {
+      toast({
+        title: "Permission Denied",
+        description: "You do not have permission to duplicate questions.",
+        variant: "destructive",
+      });
+      return;
+    }
     const newOrder = questions.length > 0 ? Math.max(...questions.map((q: TemplateQuestion) => q.order)) + 1 : 1;
     const duplicatedQuestion: Partial<TemplateQuestion> = {
       ...question,
@@ -350,21 +415,6 @@ function EditAssessmentTemplateContent() {
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading template...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8">
-          <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
-          <Link href="/dashboard">
-            <Button>Return to Dashboard</Button>
-          </Link>
         </div>
       </div>
     );
@@ -426,6 +476,7 @@ function EditAssessmentTemplateContent() {
                   value={template.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTemplate({ ...template, name: e.target.value })}
                   required
+                  disabled={!canManageTemplates}
                 />
               </div>
               <div>
@@ -435,6 +486,7 @@ function EditAssessmentTemplateContent() {
                   value={template.description || ""}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTemplate({ ...template, description: e.target.value })}
                   rows={3}
+                  disabled={!canManageTemplates}
                 />
               </div>
               <div>
@@ -443,6 +495,7 @@ function EditAssessmentTemplateContent() {
                   value={template.type}
                   onValueChange={(value: string) => setTemplate({ ...template, type: value })}
                   required
+                  disabled={!canManageTemplates}
                 >
                   <SelectTrigger id="type">
                     <SelectValue placeholder="Select template type" />
@@ -464,6 +517,7 @@ function EditAssessmentTemplateContent() {
                   value={template.status}
                   onValueChange={(value: AssessmentTemplate['status']) => setTemplate({ ...template, status: value })}
                   required
+                  disabled={!canManageTemplates}
                 >
                   <SelectTrigger id="status">
                     <SelectValue placeholder="Select status" />
@@ -476,7 +530,7 @@ function EditAssessmentTemplateContent() {
                 </Select>
               </div>
               <div className="flex justify-end">
-                <Button type="submit" disabled={isSavingTemplate}>
+                <Button type="submit" disabled={isSavingTemplate || !canManageTemplates}>
                   {isSavingTemplate ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -503,12 +557,14 @@ function EditAssessmentTemplateContent() {
             <CardDescription>Add, edit, and reorder questions for this template.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => setShowAddQuestionForm(!showAddQuestionForm)} className="mb-4">
-              <Plus className="mr-2 h-4 w-4" />
-              {showAddQuestionForm ? "Hide Add Question Form" : "Add New Question"}
-            </Button>
+            {canManageTemplates && (
+              <Button onClick={() => setShowAddQuestionForm(!showAddQuestionForm)} className="mb-4">
+                <Plus className="mr-2 h-4 w-4" />
+                {showAddQuestionForm ? "Hide Add Question Form" : "Add New Question"}
+              </Button>
+            )}
 
-            {showAddQuestionForm && (
+            {showAddQuestionForm && canManageTemplates && (
               <div className="border p-4 rounded-lg mb-6 bg-gray-50">
                 <h3 className="text-lg font-semibold mb-4">
                   {editingQuestionId ? "Edit Question" : "Add New Question"}
@@ -728,32 +784,34 @@ function EditAssessmentTemplateContent() {
                           </p>
                         )}
                       </div>
-                      <div className="flex space-x-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleMoveQuestion(question.id, 'up')} disabled={index === 0}>
-                          <MoveUp className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleMoveQuestion(question.id, 'down')} disabled={index === questions.length - 1}>
-                          <MoveDown className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDuplicateQuestion(question)}>
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => setEditingQuestionId(question.id)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteQuestion(question.id)}
-                          disabled={isDeletingQuestion === question.id}
-                        >
-                          {isDeletingQuestion === question.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
+                      {canManageTemplates && (
+                        <div className="flex space-x-2">
+                          <Button variant="ghost" size="sm" onClick={() => handleMoveQuestion(question.id, 'up')} disabled={index === 0}>
+                            <MoveUp className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleMoveQuestion(question.id, 'down')} disabled={index === questions.length - 1}>
+                            <MoveDown className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDuplicateQuestion(question)}>
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => setEditingQuestionId(question.id)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteQuestion(question.id)}
+                            disabled={isDeletingQuestion === question.id}
+                          >
+                            {isDeletingQuestion === question.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </Card>

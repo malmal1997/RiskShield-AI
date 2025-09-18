@@ -7,6 +7,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useFeatureTracking } from "@/hooks/use-tracking"
 import { useAuth } from "@/components/auth-context"
+import type { UserPermissions } from "@/lib/auth-service" // Import UserPermissions
 
 interface NavigationProps {
   showAuthButtons?: boolean
@@ -16,30 +17,42 @@ export function MainNavigation({ showAuthButtons = true }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { trackClick } = useFeatureTracking()
-  const { user, signOut, isDemo, role } = useAuth() // Get role from useAuth
+  const { user, signOut, isDemo, hasPermission } = useAuth() // Use hasPermission
 
-  const isAdmin = role?.role === "admin" || isDemo; // Consider demo users as admin for navigation purposes
-
-  // Define navigation items with their visibility rules
+  // Define navigation items with their visibility rules based on permissions
   const publicNavigationItems = [
     { name: "Platform", href: "/" },
     { name: "Solutions", href: "/solutions" },
-    { name: "About Us", href: "#" }, // Assuming these are anchor links or placeholder for now
+    { name: "About Us", href: "#" },
     { name: "Careers", href: "#" },
     { name: "Documentation", href: "#" },
     { name: "Help Center", href: "#" },
   ];
 
-  const authenticatedNavigationItems = [
-    { name: "Dashboard", href: "/dashboard" },
-    { name: "Risk Assessment", href: "/risk-assessment" },
-    { name: "Third-Party Assessment", href: "/third-party-assessment" },
-    { name: "Policy Generator", href: "/policy-generator" },
-    { name: "Policy Library", href: "/policy-library" },
-    { name: "Settings", href: isAdmin ? "/settings" : "/settings/personal" }, // Dynamic settings link
+  const authenticatedNavigationItems: Array<{ name: string; href: string; permission?: keyof UserPermissions }> = [
+    { name: "Dashboard", href: "/dashboard", permission: "view_dashboard" },
+    { name: "Risk Assessment", href: "/risk-assessment", permission: "view_assessments" },
+    { name: "Third-Party Assessment", href: "/third-party-assessment", permission: "view_assessments" },
+    { name: "Policy Generator", href: "/policy-generator", permission: "create_policies" },
+    { name: "Policy Library", href: "/policy-library", permission: "view_policies" },
+    { name: "Settings", href: "/settings", permission: "manage_organization_settings" }, // Default to org settings for settings link
+    { name: "Admin Approval", href: "/admin-approval", permission: "review_registrations" },
+    { name: "Assessment Templates", href: "/assessment-templates", permission: "manage_assessment_templates" },
+    { name: "Vendors", href: "/vendors", permission: "view_vendors" },
+    { name: "Reports", href: "/reports", permission: "view_reports" },
+    { name: "Analytics", href: "/analytics", permission: "view_analytics" },
+    { name: "System Status", href: "/system-status", permission: "view_dashboard" }, // Assuming general dashboard view for system status
+    { name: "Dev Dashboard", href: "/dev-dashboard", permission: "access_dev_dashboard" },
+    { name: "Demo Features", href: "/demo-features", permission: "view_dashboard" }, // Assuming general dashboard view for demo features
+    { name: "Interactive Demo", href: "/demo", permission: "view_dashboard" }, // Assuming general dashboard view for interactive demo
+    { name: "AI Test", href: "/ai-test", permission: "access_dev_dashboard" }, // Assuming dev access for AI test
   ];
 
-  const navigationItems = user ? authenticatedNavigationItems : publicNavigationItems;
+  const filteredAuthenticatedNavigationItems = authenticatedNavigationItems.filter(item => 
+    item.permission ? hasPermission(item.permission) : true // If no specific permission is set, it's visible to all authenticated
+  );
+
+  const navigationItems = user ? filteredAuthenticatedNavigationItems : publicNavigationItems;
 
   const isActive = (href: string) => {
     if (href === "/" && pathname === "/") return true

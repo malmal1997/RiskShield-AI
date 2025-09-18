@@ -7,6 +7,31 @@ import { Shield, Play, Clock } from "lucide-react"
 import { useEffect } from "react" // Removed useState for redirecting
 import { useRouter, usePathname } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
+import type { UserPermissions } from "@/lib/auth-service" // Import UserPermissions
+
+// Define required permissions for specific paths
+const pathPermissions: Record<string, keyof UserPermissions | null> = {
+  '/dashboard': 'view_dashboard',
+  '/risk-assessment': 'view_assessments',
+  '/third-party-assessment': 'view_assessments',
+  '/policy-generator': 'create_policies',
+  '/policy-library': 'view_policies',
+  '/settings': 'manage_organization_settings', // General settings access
+  '/settings/personal': 'view_dashboard', // Personal settings are generally accessible if authenticated
+  '/settings/team-management': 'manage_team_members',
+  '/settings/integrations': 'manage_integrations',
+  '/admin-approval': 'review_registrations',
+  '/assessment-templates': 'manage_assessment_templates',
+  '/assessment-templates/create': 'manage_assessment_templates',
+  '/vendors': 'view_vendors',
+  '/reports': 'view_reports',
+  '/analytics': 'view_analytics',
+  '/dev-dashboard': 'access_dev_dashboard',
+  '/ai-test': 'access_dev_dashboard',
+  '/demo-features': 'view_dashboard',
+  '/demo': 'view_dashboard',
+  '/system-status': 'view_dashboard',
+};
 
 // Paths that do NOT require authentication
 const publicPaths = ['/', '/solutions', '/auth/login', '/auth/register', '/auth/forgot-password', '/demo', '/ai-test', '/system-status', '/demo-features'];
@@ -18,7 +43,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, allowPreview = false, previewMessage }: AuthGuardProps) {
-  const { user, loading, isDemo, profile, organization, role, signOut } = useAuth()
+  const { user, loading, isDemo, profile, organization, role, signOut, hasPermission } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -57,6 +82,14 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       redirectTo = '/auth/login';
       console.log(`AuthGuard: User is NOT AUTHENTICATED. Setting redirect to ${redirectTo}.`);
     }
+    // 5. If user is AUTHENTICATED but lacks specific permission for the current path
+    else if (isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
+      const requiredPermission = pathPermissions[pathname];
+      if (requiredPermission && !hasPermission(requiredPermission)) {
+        redirectTo = '/dashboard'; // Redirect to dashboard if permission is missing
+        console.log(`AuthGuard: User ${user?.email} lacks permission '${requiredPermission}' for ${pathname}. Redirecting to ${redirectTo}.`);
+      }
+    }
 
     // Perform redirection if a target path is determined and it's different from the current path
     if (redirectTo && pathname !== redirectTo) {
@@ -66,7 +99,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
       console.log(`AuthGuard: No redirection needed for ${pathname}.`);
     }
 
-  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router]);
+  }, [loading, user, isDemo, profile, organization, role, allowPreview, pathname, router, hasPermission]);
 
   // Render logic:
   // If still loading auth state, show a loading spinner.
@@ -96,6 +129,11 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
     isRedirectPending = true;
   } else if (!isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
     isRedirectPending = true;
+  } else if (isAuthenticated && !publicPaths.includes(pathname) && !allowPreview) {
+    const requiredPermission = pathPermissions[pathname];
+    if (requiredPermission && !hasPermission(requiredPermission)) {
+      isRedirectPending = true;
+    }
   }
 
   // If a redirect is pending, show a redirecting message and suppress children rendering.

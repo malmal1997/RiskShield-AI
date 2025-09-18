@@ -2,6 +2,133 @@ import { supabaseClient } from "./supabase-client"
 import type { User } from "@supabase/supabase-js"
 import type { Json } from "./supabase" // Added Json import
 
+export interface UserPermissions {
+  // General
+  view_dashboard: boolean;
+  view_analytics: boolean;
+  view_reports: boolean;
+  view_notifications: boolean;
+
+  // Vendor Management
+  view_vendors: boolean;
+  manage_vendors: boolean; // Create, edit, delete vendors
+
+  // Assessment Management
+  create_assessments: boolean;
+  view_assessments: boolean;
+  manage_assessments: boolean; // Edit, delete assessments
+  approve_assessments: boolean; // For admin approval flow
+  manage_assessment_templates: boolean; // Create, edit, delete templates/questions
+
+  // Policy Management
+  create_policies: boolean;
+  view_policies: boolean;
+  manage_policies: boolean; // Edit, delete policies
+  approve_policies: boolean; // For admin approval flow
+
+  // Organization & User Management
+  manage_organization_settings: boolean;
+  manage_team_members: boolean; // Invite, change roles/status, delete users
+  review_registrations: boolean; // For super admin to approve new orgs
+
+  // Integrations
+  manage_integrations: boolean;
+
+  // Developer/System Access
+  access_dev_dashboard: boolean;
+}
+
+export const DefaultRolePermissions: Record<UserRole['role'], UserPermissions> = {
+  admin: {
+    view_dashboard: true,
+    view_analytics: true,
+    view_reports: true,
+    view_notifications: true,
+    view_vendors: true,
+    manage_vendors: true,
+    create_assessments: true,
+    view_assessments: true,
+    manage_assessments: true,
+    approve_assessments: true,
+    manage_assessment_templates: true,
+    create_policies: true,
+    view_policies: true,
+    manage_policies: true,
+    approve_policies: true,
+    manage_organization_settings: true,
+    manage_team_members: true,
+    review_registrations: true,
+    manage_integrations: true,
+    access_dev_dashboard: true,
+  },
+  manager: {
+    view_dashboard: true,
+    view_analytics: true,
+    view_reports: true,
+    view_notifications: true,
+    view_vendors: true,
+    manage_vendors: true,
+    create_assessments: true,
+    view_assessments: true,
+    manage_assessments: true,
+    approve_assessments: false, // Managers cannot approve final assessments
+    manage_assessment_templates: true,
+    create_policies: true,
+    view_policies: true,
+    manage_policies: true,
+    approve_policies: false, // Managers cannot approve final policies
+    manage_organization_settings: false,
+    manage_team_members: false,
+    review_registrations: false,
+    manage_integrations: false,
+    access_dev_dashboard: false,
+  },
+  analyst: {
+    view_dashboard: true,
+    view_analytics: true,
+    view_reports: true,
+    view_notifications: true,
+    view_vendors: true,
+    manage_vendors: false,
+    create_assessments: true,
+    view_assessments: true,
+    manage_assessments: false,
+    approve_assessments: false,
+    manage_assessment_templates: false,
+    create_policies: true,
+    view_policies: true,
+    manage_policies: false,
+    approve_policies: false,
+    manage_organization_settings: false,
+    manage_team_members: false,
+    review_registrations: false,
+    manage_integrations: false,
+    access_dev_dashboard: false,
+  },
+  viewer: {
+    view_dashboard: true,
+    view_analytics: false,
+    view_reports: true,
+    view_notifications: true,
+    view_vendors: true,
+    manage_vendors: false,
+    create_assessments: false,
+    view_assessments: true,
+    manage_assessments: false,
+    approve_assessments: false,
+    manage_assessment_templates: false,
+    create_policies: false,
+    view_policies: true,
+    manage_policies: false,
+    approve_policies: false,
+    manage_organization_settings: false,
+    manage_team_members: false,
+    review_registrations: false,
+    manage_integrations: false,
+    access_dev_dashboard: false,
+  },
+};
+
 export interface Organization {
   id: string
   name: string
@@ -39,7 +166,7 @@ export interface UserRole {
   organization_id: string
   user_id: string
   role: "admin" | "manager" | "analyst" | "viewer"
-  permissions: Record<string, any>
+  permissions: UserPermissions // Changed to use UserPermissions
   created_at: string
 }
 
@@ -364,7 +491,7 @@ export async function updateMemberRole(memberUserId: string, newRole: UserRole['
 
     const { error } = await supabaseClient
       .from('user_roles')
-      .update({ role: newRole, updated_at: new Date().toISOString() }) // Assuming updated_at exists on user_roles
+      .update({ role: newRole, permissions: DefaultRolePermissions[newRole], updated_at: new Date().toISOString() }) // Update permissions based on new role
       .eq('user_id', memberUserId)
       .eq('organization_id', organization.id);
 
@@ -417,7 +544,7 @@ export async function updateMemberStatus(memberUserId: string, newStatus: UserPr
 }
 
 // Check user permissions
-export function hasPermission(role: UserRole | null, permission: string): boolean {
+export function hasPermission(role: UserRole | null, permission: keyof UserPermissions): boolean {
   if (!role) return false
 
   // Admin has all permissions

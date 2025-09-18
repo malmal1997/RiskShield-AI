@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BarChart3, TrendingUp, FileText, Download, Calendar, Filter, ArrowLeft } from "lucide-react" // Added ArrowLeft
+import { BarChart3, TrendingUp, FileText, Download, Calendar, Filter, ArrowLeft, AlertTriangle } from "lucide-react" // Added ArrowLeft
 import Link from "next/link"
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
@@ -21,9 +21,12 @@ export default function ReportsPage() {
 }
 
 function ReportsContent() {
-  const { user, profile, organization } = useAuth()
-  const [loading, setLoading] = useState(false)
+  const { user, profile, organization, loading: authLoading, hasPermission } = useAuth()
+  const [loading, setLoading] = useState(true)
   const [selectedTimeframe, setSelectedTimeframe] = useState("30d")
+  const [error, setError] = useState<string | null>(null);
+
+  const canViewReports = hasPermission("view_reports");
 
   // Mock report data
   const reportTemplates = [
@@ -89,12 +92,55 @@ function ReportsContent() {
   ]
 
   const generateReport = (reportId: string) => {
+    if (isDemo) {
+      alert("Preview Mode: Report generation is not available in preview mode. Please sign up for full access.");
+      return;
+    }
+    if (!canViewReports) { // Assuming generate also falls under view_reports or a new permission
+      alert("You do not have permission to generate reports.");
+      return;
+    }
     setLoading(true)
     // Simulate report generation
     setTimeout(() => {
       setLoading(false)
       alert(`Report generated successfully!`)
     }, 2000)
+  }
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!canViewReports) {
+        setError("You do not have permission to view reports.");
+      }
+      setLoading(false);
+    }
+  }, [authLoading, canViewReports]);
+
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading reports...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center p-8">
+          <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Link href="/dashboard">
+            <Button>Return to Dashboard</Button>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (

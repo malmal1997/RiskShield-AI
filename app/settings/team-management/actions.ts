@@ -1,7 +1,7 @@
 "use server";
 
 import { supabaseAdmin } from "@/src/integrations/supabase/admin";
-import { getCurrentUserWithProfile, OrganizationMember, UserProfile, UserRole, logAuditEvent } from "@/lib/auth-service"; // Import logAuditEvent
+import { getCurrentUserWithProfile, OrganizationMember, UserProfile, UserRole, logAuditEvent, DefaultRolePermissions } from "@/lib/auth-service"; // Import DefaultRolePermissions
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -52,12 +52,12 @@ export async function inviteUserToOrganization(email: string, firstName: string,
       return { success: false, error: `Failed to create user profile: ${profileError.message}` };
     }
 
-    // 3. Assign role
+    // 3. Assign role with default permissions
     const { error: roleError } = await supabaseAdmin.from('user_roles').insert({
       user_id: invitedUser.user.id,
       organization_id: organization.id,
       role: role,
-      permissions: {}, // Default empty permissions, can be expanded
+      permissions: DefaultRolePermissions[role], // Assign default permissions based on the role
     });
 
     if (roleError) {

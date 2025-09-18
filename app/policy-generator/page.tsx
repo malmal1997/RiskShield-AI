@@ -79,7 +79,7 @@ const policyTypes = [
 ]
 
 export default function PolicyGenerator() {
-  const { user, isDemo } = useAuth(); // Use useAuth hook
+  const { user, isDemo, hasPermission } = useAuth(); // Use useAuth hook
   const { toast } = useToast(); // Use useToast hook
   const [selectedPolicyType, setSelectedPolicyType] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -92,11 +92,21 @@ export default function PolicyGenerator() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const canCreatePolicies = hasPermission("create_policies");
+
   const handleGeneratePolicy = async () => {
     if (isDemo) {
       toast({
         title: "Preview Mode",
         description: "Policy generation is not available in preview mode. Please sign up for full access.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!canCreatePolicies) {
+      toast({
+        title: "Permission Denied",
+        description: "You do not have permission to create policies.",
         variant: "destructive",
       });
       return;
@@ -250,12 +260,14 @@ export default function PolicyGenerator() {
                 advanced AI.
               </p>
               <div className="mt-8">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
-                  <a href="/policy-library">
-                    <FileText className="mr-2 h-4 w-4" />
-                    View Policy Library
-                  </a>
-                </Button>
+                {hasPermission("view_policies") && (
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
+                    <a href="/policy-library">
+                      <FileText className="mr-2 h-4 w-4" />
+                      View Policy Library
+                    </a>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -284,6 +296,7 @@ export default function PolicyGenerator() {
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, companyName: e.target.value })}
                         placeholder="Your Organization Name"
                         required
+                        disabled={!canCreatePolicies}
                       />
                     </div>
                     <div>
@@ -292,6 +305,7 @@ export default function PolicyGenerator() {
                         value={formData.institutionType}
                         onValueChange={(value: string) => setFormData({ ...formData, institutionType: value })}
                         required
+                        disabled={!canCreatePolicies}
                       >
                         <SelectTrigger id="institutionType">
                           <SelectValue placeholder="Select type" />
@@ -312,6 +326,7 @@ export default function PolicyGenerator() {
                         value={formData.employeeCount}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, employeeCount: e.target.value })}
                         placeholder="e.g., 100-500"
+                        disabled={!canCreatePolicies}
                       />
                     </div>
                     <div>
@@ -321,6 +336,7 @@ export default function PolicyGenerator() {
                         value={formData.assets}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, assets: e.target.value })}
                         placeholder="e.g., $1 Billion"
+                        disabled={!canCreatePolicies}
                       />
                     </div>
 
@@ -332,8 +348,8 @@ export default function PolicyGenerator() {
                             key={policy.id}
                             className={`cursor-pointer ${
                               selectedPolicyType === policy.id ? "border-blue-600 ring-2 ring-blue-600" : ""
-                            }`}
-                            onClick={() => setSelectedPolicyType(policy.id)}
+                            } ${!canCreatePolicies ? "opacity-50 cursor-not-allowed" : ""}`}
+                            onClick={() => canCreatePolicies && setSelectedPolicyType(policy.id)}
                           >
                             <CardContent className="p-4">
                               <div className="flex items-center space-x-3">
@@ -357,7 +373,7 @@ export default function PolicyGenerator() {
 
                     <Button
                       onClick={handleGeneratePolicy}
-                      disabled={loading || !selectedPolicyType || !formData.companyName || !formData.institutionType}
+                      disabled={loading || !selectedPolicyType || !formData.companyName || !formData.institutionType || !canCreatePolicies}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       {loading ? (
