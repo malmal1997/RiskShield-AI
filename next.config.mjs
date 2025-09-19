@@ -9,9 +9,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    skipTrailingSlashRedirect: true,
-  },
+  skipTrailingSlashRedirect: true,
   async generateBuildId() {
     return 'build-' + Date.now()
   },
