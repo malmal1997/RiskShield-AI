@@ -10,13 +10,6 @@
     "typescript",
     "supabase"
   ],
-  "bugs": {
-    "url": "https://github.com/your-username/riskshield-ai/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-username/riskshield-ai.git"
-  },
   "license": "MIT",
   "author": "RiskShield AI Team",
   "main": "index.js",
@@ -24,7 +17,6 @@
     "build": "next build",
     "clean": "rm -rf .next out",
     "dev": "next dev",
-    "export": "next export",
     "lint": "next lint",
     "start": "next start",
     "type-check": "tsc --noEmit"
@@ -102,6 +94,6 @@
   },
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "npm": ">=8.0.0"
   }
 }
