@@ -51,14 +51,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshingRef = useRef(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  console.log("[v0] AuthProvider state:", {
-    user: user?.email,
-    loading,
-    isDemo,
-    role: role?.role,
-    hasUser: !!user,
-  })
-
   const createDemoSession = useCallback((userType?: "admin" | "user") => {
     if (typeof window === "undefined") return
 
@@ -200,46 +192,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq("user_id", supabaseUser.id)
           .single()
 
-        let profile = profileData
         if (profileError) {
-          console.log("[v0] AuthContext: Profile not found, creating default profile")
-          // Create a default profile if none exists
-          const defaultProfile = {
+          console.log("[v0] AuthContext: Profile not found, using default profile")
+          // Use default profile if none exists (will be created by trigger)
+          setProfile({
             user_id: supabaseUser.id,
             email: supabaseUser.email,
             first_name: supabaseUser.email?.split("@")[0] || "User",
             timezone: "UTC",
             language: "en",
-          }
-
-          const { data: newProfile, error: createError } = await supabase
-            .from("user_profiles")
-            .insert(defaultProfile)
-            .select()
-            .single()
-
-          if (!createError && newProfile) {
-            profile = newProfile
-            console.log("[v0] AuthContext: Default profile created:", profile)
-          } else {
-            console.log("[v0] AuthContext: Using fallback profile")
-            profile = defaultProfile
-          }
+          })
         } else {
-          console.log("[v0] AuthContext: Profile found:", profileData)
+          setProfile(profileData)
         }
 
-        setProfile(profile)
-
         let orgData = null
-        if (profile?.organization_id) {
+        let roleData = null
+
+        if (profileData?.organization_id) {
           const { data: orgResult } = await supabase
             .from("organizations")
             .select("*")
-            .eq("id", profile.organization_id)
+            .eq("id", profileData.organization_id)
             .single()
           orgData = orgResult
-          console.log("[v0] AuthContext: Organization found:", orgData)
         }
 
         const { data: roleResult } = await supabase
@@ -248,11 +224,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq("user_id", supabaseUser.id)
           .single()
 
-        const roleData = roleResult || {
-          role: "client_admin",
-          permissions: ["manage_assessments", "view_analytics", "manage_users"],
-        }
-        console.log("[v0] AuthContext: Role found:", roleData)
+        roleData = roleResult || { role: "user", permissions: ["view_assessments"] }
 
         setUser(supabaseUser)
         setOrganization(orgData)
