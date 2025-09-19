@@ -1,14 +1,16 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Shield, Mail, MessageSquare, Send, CheckCircle, Bot } from "lucide-react"
+import { Shield, Mail, MessageSquare, Send, CheckCircle } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import { AIChatbot } from "@/src/components/AIChatbot";
+import { AIChatbot } from "@/components/AIChatbot"
 
 export default function HelpCenterPage() {
   const [formData, setFormData] = useState({
@@ -52,7 +54,7 @@ export default function HelpCenterPage() {
         message: "",
         assessmentId: "",
       })
-      setShowContactForm(false); // Hide form after submission
+      setShowContactForm(false) // Hide form after submission
     } catch (error) {
       console.error("Error submitting support request:", error)
       toast({
@@ -66,12 +68,12 @@ export default function HelpCenterPage() {
   }
 
   const handleAiCannotHelp = () => {
-    setShowContactForm(true);
+    setShowContactForm(true)
     toast({
       title: "Contact Support",
       description: "Please fill out the form below to submit a support ticket.",
-    });
-  };
+    })
+  }
 
   return (
     <>
@@ -79,9 +81,7 @@ export default function HelpCenterPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-              RiskShield AI Help Center
-            </h1>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">RiskShield AI Help Center</h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
               Get instant answers from our AI assistant or submit a support ticket.
             </p>
@@ -105,9 +105,7 @@ export default function HelpCenterPage() {
                     <MessageSquare className="h-6 w-6 text-blue-600" />
                     <span>Submit a Support Ticket</span>
                   </CardTitle>
-                  <CardDescription>
-                    Our team will get back to you as soon as possible.
-                  </CardDescription>
+                  <CardDescription>Our team will get back to you as soon as possible.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {isSubmitted ? (
@@ -195,7 +193,11 @@ export default function HelpCenterPage() {
                           </>
                         )}
                       </Button>
-                      <Button variant="outline" className="w-full mt-2" onClick={() => setShowContactForm(false)}>
+                      <Button
+                        variant="outline"
+                        className="w-full mt-2 bg-transparent"
+                        onClick={() => setShowContactForm(false)}
+                      >
                         Cancel
                       </Button>
                     </form>
@@ -225,5 +227,5 @@ export default function HelpCenterPage() {
         </div>
       </section>
     </>
-  );
+  )
 }
