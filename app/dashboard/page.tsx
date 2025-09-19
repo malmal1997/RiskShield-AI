@@ -40,7 +40,6 @@ import type { RiskMetrics, VendorMetrics } from "@/lib/analytics-service"
 import type { Notification } from "@/lib/notification-service"
 import Link from "next/link"
 import { useAuth } from "@/components/auth-context" // Import useAuth
-import { AuthGuard } from "@/components/auth-guard" // Added AuthGuard import for authentication protection
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
 
@@ -112,7 +111,7 @@ const sampleNotifications: Notification[] = [
   },
 ]
 
-function DashboardContent() {
+export default function DashboardPage() {
   const { signOut } = useAuth() // Use signOut from AuthContext
   const [riskMetrics, setRiskMetrics] = useState<RiskMetrics>(sampleRiskMetrics)
   const [vendorMetrics, setVendorMetrics] = useState<VendorMetrics>(sampleVendorMetrics)
@@ -622,13 +621,5 @@ function DashboardContent() {
         </div>
       </section>
     </div>
-  )
-}
-
-export default function DashboardPage() {
-  return (
-    <AuthGuard>
-      <DashboardContent />
-    </AuthGuard>
   )
 }

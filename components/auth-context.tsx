@@ -166,10 +166,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       try {
         const supabase = createClient()
+        console.log("[v0] AuthContext: Checking Supabase auth...")
+
         const {
           data: { user: supabaseUser },
           error: userError,
         } = await supabase.auth.getUser()
+
+        console.log("[v0] AuthContext: Supabase getUser result:", {
+          user: supabaseUser ? { id: supabaseUser.id, email: supabaseUser.email } : null,
+          error: userError,
+        })
 
         if (userError || !supabaseUser) {
           console.log("[v0] AuthContext: No authenticated user found")
@@ -186,11 +193,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         console.log("[v0] AuthContext: Authenticated user found:", supabaseUser.email)
 
+        console.log("[v0] AuthContext: Fetching user profile...")
         const { data: profileData, error: profileError } = await supabase
           .from("user_profiles")
           .select("*")
           .eq("user_id", supabaseUser.id)
           .single()
+
+        console.log("[v0] AuthContext: Profile fetch result:", {
+          profile: profileData,
+          error: profileError,
+        })
 
         if (profileError) {
           console.log("[v0] AuthContext: Profile not found, using default profile")
@@ -210,21 +223,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         let roleData = null
 
         if (profileData?.organization_id) {
+          console.log("[v0] AuthContext: Fetching organization...")
           const { data: orgResult } = await supabase
             .from("organizations")
             .select("*")
             .eq("id", profileData.organization_id)
             .single()
           orgData = orgResult
+          console.log("[v0] AuthContext: Organization result:", orgData)
         }
 
-        const { data: roleResult } = await supabase
+        console.log("[v0] AuthContext: Fetching user role...")
+        const { data: roleResult, error: roleError } = await supabase
           .from("user_roles")
           .select("*")
           .eq("user_id", supabaseUser.id)
           .single()
 
+        console.log("[v0] AuthContext: Role fetch result:", {
+          role: roleResult,
+          error: roleError,
+        })
+
         roleData = roleResult || { role: "user", permissions: ["view_assessments"] }
+
+        console.log("[v0] AuthContext: Setting final auth state:", {
+          user: supabaseUser.email,
+          role: roleData.role,
+          permissions: roleData.permissions,
+          organization: orgData?.name,
+        })
 
         setUser(supabaseUser)
         setOrganization(orgData)
