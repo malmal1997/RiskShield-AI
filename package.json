@@ -10,7 +10,6 @@
     "typescript",
     "supabase"
   ],
-  "homepage": ".",
   "bugs": {
     "url": "https://github.com/your-username/riskshield-ai/issues"
   },
@@ -20,7 +19,7 @@
   },
   "license": "MIT",
   "author": "RiskShield AI Team",
-  "main": "next.config.mjs",
+  "main": "index.js",
   "scripts": {
     "build": "next build",
     "clean": "rm -rf .next out",

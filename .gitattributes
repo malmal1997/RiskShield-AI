@@ -1,0 +1,5 @@
+# Ensure consistent line endings
+* text=auto
+
+# Ensure package.json is at root level during export
+package.json export-ignore=false
