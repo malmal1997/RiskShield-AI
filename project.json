@@ -1,0 +1,22 @@
+{
+  "name": "riskshield-ai",
+  "root": ".",
+  "sourceRoot": ".",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/next:build",
+      "options": {
+        "root": ".",
+        "outputPath": ".next"
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/next:dev",
+      "options": {
+        "root": ".",
+        "dev": true
+      }
+    }
+  }
+}
