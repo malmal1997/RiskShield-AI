@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useFeatureTracking } from "@/hooks/use-tracking"
-import { useAuth } from "./auth-context" // Import useAuth
+import { useAuth } from "./auth-context"
 
 interface NavigationProps {
   onSignOut?: () => void
@@ -17,9 +17,9 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { trackClick } = useFeatureTracking()
-  const { user, isDemo, signOut: authSignOut } = useAuth() // Use useAuth hook
+  const { user, isDemo, loading, signOut: authSignOut } = useAuth()
 
-  console.log("[v0] MainNavigation: user =", user?.email, "isDemo =", isDemo)
+  console.log("[v0] MainNavigation: user =", user?.email, "isDemo =", isDemo, "loading =", loading)
   console.log("[v0] MainNavigation: pathname =", pathname)
 
   // Determine if user is authenticated or in demo mode
@@ -47,6 +47,24 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
     { name: "Settings", href: "/settings" },
   ]
 
+  if (loading) {
+    return (
+      <header className="bg-white sticky top-0 z-40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between w-full">
+            <div className="flex items-center flex-shrink-0">
+              <div className="flex items-center space-x-2">
+                <Shield className="h-8 w-8 text-blue-600" />
+                <span className="text-xl font-bold text-gray-900">RiskShield AI</span>
+              </div>
+            </div>
+            <div className="text-sm text-gray-500">Loading...</div>
+          </div>
+        </div>
+      </header>
+    )
+  }
+
   // Determine which navigation items to show
   const allNavigationItems = isAuthenticatedOrDemo ? restrictedNavigationItems : publicNavigationItems
 
@@ -67,9 +85,9 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
 
   const handleSignOutClick = () => {
     if (onSignOut) {
-      onSignOut() // Call prop if provided
+      onSignOut()
     } else {
-      authSignOut() // Use context signOut
+      authSignOut()
     }
   }
 

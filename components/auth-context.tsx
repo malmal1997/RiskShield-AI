@@ -200,29 +200,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq("user_id", supabaseUser.id)
           .single()
 
+        let profile = profileData
         if (profileError) {
-          console.log("[v0] AuthContext: Profile not found, using default profile")
-          // Use default profile if none exists (will be created by trigger)
-          setProfile({
+          console.log("[v0] AuthContext: Profile not found, creating default profile")
+          // Create a default profile if none exists
+          const defaultProfile = {
             user_id: supabaseUser.id,
             email: supabaseUser.email,
             first_name: supabaseUser.email?.split("@")[0] || "User",
             timezone: "UTC",
             language: "en",
-          })
+          }
+
+          const { data: newProfile, error: createError } = await supabase
+            .from("user_profiles")
+            .insert(defaultProfile)
+            .select()
+            .single()
+
+          if (!createError && newProfile) {
+            profile = newProfile
+            console.log("[v0] AuthContext: Default profile created:", profile)
+          } else {
+            console.log("[v0] AuthContext: Using fallback profile")
+            profile = defaultProfile
+          }
         } else {
           console.log("[v0] AuthContext: Profile found:", profileData)
-          setProfile(profileData)
         }
 
-        let orgData = null
-        let roleData = null
+        setProfile(profile)
 
-        if (profileData?.organization_id) {
+        let orgData = null
+        if (profile?.organization_id) {
           const { data: orgResult } = await supabase
             .from("organizations")
             .select("*")
-            .eq("id", profileData.organization_id)
+            .eq("id", profile.organization_id)
             .single()
           orgData = orgResult
           console.log("[v0] AuthContext: Organization found:", orgData)
@@ -234,7 +248,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq("user_id", supabaseUser.id)
           .single()
 
-        roleData = roleResult || { role: "user", permissions: ["view_assessments"] }
+        const roleData = roleResult || {
+          role: "client_admin",
+          permissions: ["manage_assessments", "view_analytics", "manage_users"],
+        }
         console.log("[v0] AuthContext: Role found:", roleData)
 
         setUser(supabaseUser)
