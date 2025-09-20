@@ -1,43 +1,43 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileCheck, User, Edit3, Calendar, Download, CheckCircle } from "lucide-react"
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileCheck, User, Edit3, Calendar, Download } from "lucide-react";
 
 interface ApprovalData {
-  clientName: string
-  role: string
-  signature: string
-  date: string
+  clientName: string;
+  role: string;
+  signature: string;
+  date: string;
 }
 
 interface PolicyContent {
-  title: string
-  companyName: string
-  effectiveDate: string
-  institutionType: string
-  employeeCount?: string
-  assets?: string
-  nextReviewDate: string
+  title: string;
+  companyName: string;
+  effectiveDate: string;
+  institutionType: string;
+  employeeCount?: string;
+  assets?: string;
+  nextReviewDate: string;
   sections: Array<{
-    number: string
-    title: string
-    content?: string
-    items?: string[]
-  }>
+    number: string;
+    title: string;
+    content?: string;
+    items?: string[];
+  }>;
 }
 
 interface PolicyApprovalProps {
-  policy: PolicyContent
-  companyName: string
-  selectedPolicyName: string
-  approvalData: ApprovalData
-  onApprovalDataChange: (field: keyof ApprovalData, value: string) => void
-  onFinalizeApproval: () => void
-  onBackToReview: () => void
-  isApproved: boolean
-  onDownloadPdf: () => void
+  policy: PolicyContent;
+  companyName: string;
+  selectedPolicyName: string;
+  approvalData: ApprovalData;
+  onApprovalDataChange: (field: keyof ApprovalData, value: string) => void;
+  onFinalizeApproval: () => void;
+  onBackToReview: () => void;
+  isApproved: boolean;
+  onDownloadPdf: () => void;
 }
 
 const PolicyApproval: React.FC<PolicyApprovalProps> = ({
@@ -64,10 +64,10 @@ const PolicyApproval: React.FC<PolicyApprovalProps> = ({
     "IT Director",
     "Operations Manager",
     "Board Member",
-  ]
+  ];
 
   const renderPolicyPreview = (policy: PolicyContent) => {
-    if (!policy) return null
+    if (!policy) return null;
     return (
       <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
         <div className="text-sm text-gray-600 mb-4">
@@ -88,8 +88,8 @@ const PolicyApproval: React.FC<PolicyApprovalProps> = ({
           ))}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   if (isApproved) {
     return (
@@ -135,16 +135,14 @@ const PolicyApproval: React.FC<PolicyApprovalProps> = ({
                 <Download className="mr-2 h-4 w-4" />
                 Download Policy
               </Button>
-              <Button variant="outline" onClick={onBackToReview}>
-                {" "}
-                {/* Changed to onBackToReview for consistency */}
+              <Button variant="outline" onClick={onBackToReview}> {/* Changed to onBackToReview for consistency */}
                 Generate New Policy
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -253,11 +251,13 @@ const PolicyApproval: React.FC<PolicyApprovalProps> = ({
           <CardHeader>
             <CardTitle>Policy Preview</CardTitle>
           </CardHeader>
-          <CardContent>{renderPolicyPreview(policy)}</CardContent>
+          <CardContent>
+            {renderPolicyPreview(policy)}
+          </CardContent>
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PolicyApproval
+export default PolicyApproval;

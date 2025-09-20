@@ -1,44 +1,47 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Download, Edit3, FileCheck } from "lucide-react"
+import { FileText, Download, CheckCircle, Edit3, FileCheck, Calendar, User } from "lucide-react"
 import { generatePolicy } from "./actions"
 import { AuthGuard } from "@/components/auth-guard"
-import PolicyForm from "@/components/policy-generator/PolicyForm"
-import PolicyViewer from "@/components/policy-generator/PolicyViewer"
-import PolicyEditor from "@/components/policy-generator/PolicyEditor"
-import PolicyApproval from "@/components/policy-generator/PolicyApproval"
+import PolicyForm from "@/src/components/policy-generator/PolicyForm"
+import PolicyViewer from "@/src/components/policy-generator/PolicyViewer"
+import PolicyEditor from "@/src/components/policy-generator/PolicyEditor"
+import PolicyApproval from "@/src/components/policy-generator/PolicyApproval"
 
 interface PolicyFormData {
-  companyName: string
-  institutionType: string
-  selectedPolicy: string
-  employeeCount: string
-  assets: string
+  companyName: string;
+  institutionType: string;
+  selectedPolicy: string;
+  employeeCount: string;
+  assets: string;
 }
 
 interface PolicyContent {
-  title: string
-  companyName: string
-  effectiveDate: string
-  institutionType: string
-  employeeCount?: string
-  assets?: string
-  nextReviewDate: string
+  title: string;
+  companyName: string;
+  effectiveDate: string;
+  institutionType: string;
+  employeeCount?: string;
+  assets?: string;
+  nextReviewDate: string;
   sections: Array<{
-    number: string
-    title: string
-    content?: string
-    items?: string[]
-  }>
+    number: string;
+    title: string;
+    content?: string;
+    items?: string[];
+  }>;
 }
 
 interface ApprovalData {
-  clientName: string
-  role: string
-  signature: string
-  date: string
+  clientName: string;
+  role: string;
+  signature: string;
+  date: string;
 }
 
 const policyTypes = [
@@ -79,7 +82,7 @@ const policyTypes = [
     description: "Internal controls and operational risk management framework for daily operations.",
     features: ["Internal Controls", "Risk Assessment", "Process Management", "Quality Assurance"],
   },
-]
+];
 
 export default function PolicyGenerator() {
   const [formData, setFormData] = useState<PolicyFormData>({
@@ -88,31 +91,31 @@ export default function PolicyGenerator() {
     selectedPolicy: "",
     employeeCount: "",
     assets: "",
-  })
-  const [generatedPolicy, setGeneratedPolicy] = useState<PolicyContent | null>(null)
-  const [editedPolicy, setEditedPolicy] = useState<PolicyContent | null>(null)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [isApproved, setIsApproved] = useState(false)
+  });
+  const [generatedPolicy, setGeneratedPolicy] = useState<PolicyContent | null>(null);
+  const [editedPolicy, setEditedPolicy] = useState<PolicyContent | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isApproved, setIsApproved] = useState(false);
   const [approvalData, setApprovalData] = useState<ApprovalData>({
     clientName: "",
     role: "",
     signature: "",
     date: "",
-  })
-  const [currentStep, setCurrentStep] = useState<"form" | "generated" | "editing" | "approval" | "completed">("form")
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  });
+  const [currentStep, setCurrentStep] = useState<"form" | "generated" | "editing" | "approval" | "completed">("form");
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
-    const hasAuth = sessionStorage.getItem("demo_session")
-    setIsPreviewMode(!hasAuth)
-  }, [])
+    const hasAuth = sessionStorage.getItem("demo_session");
+    setIsPreviewMode(!hasAuth);
+  }, []);
 
   const handleSubmitForm = async (data: PolicyFormData) => {
-    setFormData(data)
+    setFormData(data);
     if (isPreviewMode) {
-      alert("Preview Mode: Policy generated! Sign up to save, edit, and export your policies.")
+      alert("Preview Mode: Policy generated! Sign up to save, edit, and export your policies.");
       // Simulate policy generation for preview
-      const selectedPolicyDetails = policyTypes.find((p) => p.id === data.selectedPolicy)
+      const selectedPolicyDetails = policyTypes.find((p) => p.id === data.selectedPolicy);
       if (selectedPolicyDetails) {
         const mockPolicy: PolicyContent = {
           title: selectedPolicyDetails.name,
@@ -126,64 +129,64 @@ export default function PolicyGenerator() {
             { number: "1", title: "Purpose", content: `This is a mock policy for ${data.companyName}.` },
             { number: "2", title: "Scope", items: ["All employees", "All systems"] },
           ],
-        }
-        setGeneratedPolicy(mockPolicy)
-        setEditedPolicy(mockPolicy)
-        setCurrentStep("generated")
+        };
+        setGeneratedPolicy(mockPolicy);
+        setEditedPolicy(mockPolicy);
+        setCurrentStep("generated");
       }
-      return
+      return;
     }
 
-    setIsGenerating(true)
+    setIsGenerating(true);
     try {
-      const policy = await generatePolicy(data)
-      setGeneratedPolicy(policy)
-      setEditedPolicy(policy)
-      setCurrentStep("generated")
+      const policy = await generatePolicy(data);
+      setGeneratedPolicy(policy);
+      setEditedPolicy(policy);
+      setCurrentStep("generated");
     } catch (error) {
-      console.error("Error generating policy:", error)
-      alert("Failed to generate policy. Please try again.")
+      console.error("Error generating policy:", error);
+      alert("Failed to generate policy. Please try again.");
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   const handleEditPolicy = () => {
-    setCurrentStep("editing")
-  }
+    setCurrentStep("editing");
+  };
 
   const handleSaveEditedPolicy = (updatedPolicy: PolicyContent) => {
-    setGeneratedPolicy(updatedPolicy)
-    setEditedPolicy(updatedPolicy)
-    setCurrentStep("generated")
-  }
+    setGeneratedPolicy(updatedPolicy);
+    setEditedPolicy(updatedPolicy);
+    setCurrentStep("generated");
+  };
 
   const handleCancelEditPolicy = () => {
-    setEditedPolicy(generatedPolicy) // Revert to generated version
-    setCurrentStep("generated")
-  }
+    setEditedPolicy(generatedPolicy); // Revert to generated version
+    setCurrentStep("generated");
+  };
 
   const handleApprovePolicy = () => {
-    setCurrentStep("approval")
-  }
+    setCurrentStep("approval");
+  };
 
   const handleApprovalDataChange = (field: keyof ApprovalData, value: string) => {
-    setApprovalData((prev) => ({ ...prev, [field]: value }))
-  }
+    setApprovalData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleFinalizeApproval = () => {
     setApprovalData((prev) => ({
       ...prev,
       date: new Date().toLocaleDateString(),
-    }))
-    setIsApproved(true)
-    setCurrentStep("completed")
-  }
+    }));
+    setIsApproved(true);
+    setCurrentStep("completed");
+  };
 
   const downloadAsPDF = async () => {
     if (isPreviewMode) {
-      alert("Preview Mode: Sign up to download and save your policies. This feature requires an account.")
-      return
+      alert("Preview Mode: Sign up to download and save your policies. This feature requires an account.");
+      return;
     }
     try {
       // Create HTML content for PDF
@@ -347,25 +350,25 @@ export default function PolicyGenerator() {
         </div>
       </body>
       </html>
-    `
+    `;
 
       // Create blob and download
-      const blob = new Blob([htmlContent], { type: "text/html" })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `${formData.companyName}-${formData.selectedPolicy}-policy-${isApproved ? "APPROVED" : "DRAFT"}.html`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      const blob = new Blob([htmlContent], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${formData.companyName}-${formData.selectedPolicy}-policy-${isApproved ? "APPROVED" : "DRAFT"}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-      alert('Policy downloaded as HTML file. Use your browser\'s "Print to PDF" feature to convert to PDF.')
+      alert('Policy downloaded as HTML file. Use your browser\'s "Print to PDF" feature to convert to PDF.');
     } catch (error) {
-      console.error("Error downloading policy:", error)
-      alert("Error downloading policy. Please try again.")
+      console.error("Error downloading policy:", error);
+      alert("Error downloading policy. Please try again.");
     }
-  }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -374,20 +377,20 @@ export default function PolicyGenerator() {
       selectedPolicy: "",
       employeeCount: "",
       assets: "",
-    })
-    setGeneratedPolicy(null)
-    setEditedPolicy(null)
-    setIsApproved(false)
+    });
+    setGeneratedPolicy(null);
+    setEditedPolicy(null);
+    setIsApproved(false);
     setApprovalData({
       clientName: "",
       role: "",
       signature: "",
       date: "",
-    })
-    setCurrentStep("form")
-  }
+    });
+    setCurrentStep("form");
+  };
 
-  const selectedPolicyDetails = policyTypes.find((p) => p.id === formData.selectedPolicy)
+  const selectedPolicyDetails = policyTypes.find((p) => p.id === formData.selectedPolicy);
 
   return (
     <AuthGuard
@@ -514,7 +517,11 @@ export default function PolicyGenerator() {
             {/* Step 1: Form */}
             {currentStep === "form" && (
               <div className="max-w-4xl mx-auto flex justify-center">
-                <PolicyForm initialData={formData} onSubmit={handleSubmitForm} isGenerating={isGenerating} />
+                <PolicyForm
+                  initialData={formData}
+                  onSubmit={handleSubmitForm}
+                  isGenerating={isGenerating}
+                />
               </div>
             )}
 
@@ -579,7 +586,8 @@ export default function PolicyGenerator() {
                   <h3 className="text-lg font-semibold">AI Generation</h3>
                 </div>
                 <p className="text-gray-600">
-                  Generate comprehensive policies tailored to your institution's specific requirements and regulations.
+                  Generate comprehensive policies tailored to your institution's specific requirements and
+                  regulations.
                 </p>
               </div>
 
@@ -589,7 +597,8 @@ export default function PolicyGenerator() {
                   <h3 className="text-lg font-semibold">Easy Editing</h3>
                 </div>
                 <p className="text-gray-600">
-                  Make real-time edits to customize policies to match your organization's unique needs and preferences.
+                  Make real-time edits to customize policies to match your organization's unique needs and
+                  preferences.
                 </p>
               </div>
 
@@ -617,5 +626,5 @@ export default function PolicyGenerator() {
         </section>
       </>
     </AuthGuard>
-  )
+  );
 }
