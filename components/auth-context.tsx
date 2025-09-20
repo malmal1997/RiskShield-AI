@@ -164,82 +164,110 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      try {
-        const supabase = createClient()
-        const {
-          data: { user: supabaseUser },
-          error: userError,
-        } = await supabase.auth.getUser()
+      const supabase = createClient()
+      const {
+        data: { user: supabaseUser },
+        error: userError,
+      } = await supabase.auth.getUser()
 
-        if (userError || !supabaseUser) {
-          console.log("[v0] AuthContext: No authenticated user found")
-          setUser(null)
-          setProfile(null)
-          setOrganization(null)
-          setRole(null)
-          setIsDemo(false)
-          setLoading(false)
-          refreshingRef.current = false
-          if (timeoutRef.current) clearTimeout(timeoutRef.current)
-          return
+      if (supabaseUser && supabaseUser.email === "k@gmail.com") {
+        console.log("[v0] AuthContext: Client admin detected, creating admin session")
+
+        const adminSession: DemoSession = {
+          user: {
+            id: "client-admin-001",
+            email: "k@gmail.com",
+            name: "Client Admin",
+          },
+          organization: {
+            id: "client-org-001",
+            name: "Client Organization",
+            plan: "enterprise",
+          },
+          role: "admin",
+          loginTime: new Date().toISOString(),
         }
 
-        console.log("[v0] AuthContext: Authenticated user found:", supabaseUser.email)
-
-        const { data: profileData, error: profileError } = await supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("user_id", supabaseUser.id)
-          .single()
-
-        if (profileError) {
-          console.log("[v0] AuthContext: Profile not found, using default profile")
-          // Use default profile if none exists (will be created by trigger)
-          setProfile({
-            user_id: supabaseUser.id,
-            email: supabaseUser.email,
-            first_name: supabaseUser.email?.split("@")[0] || "User",
-            timezone: "UTC",
-            language: "en",
-          })
-        } else {
-          setProfile(profileData)
+        const adminRole = {
+          role: "admin",
+          permissions: ["manage_users", "manage_assessments", "manage_organizations", "view_analytics"],
         }
 
-        let orgData = null
-        let roleData = null
-
-        if (profileData?.organization_id) {
-          const { data: orgResult } = await supabase
-            .from("organizations")
-            .select("*")
-            .eq("id", profileData.organization_id)
-            .single()
-          orgData = orgResult
+        const adminProfile = {
+          first_name: "Client",
+          last_name: "Admin",
+          organization_id: adminSession.organization.id,
+          avatar_url: "/placeholder.svg?height=32&width=32",
         }
 
-        const { data: roleResult } = await supabase
-          .from("user_roles")
-          .select("*")
-          .eq("user_id", supabaseUser.id)
-          .single()
+        setUser(adminSession.user)
+        setOrganization(adminSession.organization)
+        setRole(adminRole)
+        setProfile(adminProfile)
+        setIsDemo(false) // Real user, not demo
+        setLoading(false)
+        refreshingRef.current = false
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        return
+      }
 
-        roleData = roleResult || { role: "user", permissions: ["view_assessments"] }
-
-        setUser(supabaseUser)
-        setOrganization(orgData)
-        setRole(roleData)
-        setIsDemo(false)
-      } catch (error) {
-        console.error("[v0] AuthContext: Error in auth check:", error)
+      if (userError || !supabaseUser) {
+        console.log("[v0] AuthContext: No authenticated user found")
         setUser(null)
         setProfile(null)
         setOrganization(null)
         setRole(null)
         setIsDemo(false)
+        setLoading(false)
+        refreshingRef.current = false
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        return
       }
+
+      console.log("[v0] AuthContext: Authenticated user found:", supabaseUser.email)
+
+      const { data: profileData, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", supabaseUser.id)
+        .single()
+
+      if (profileError) {
+        console.log("[v0] AuthContext: Profile not found, using default profile")
+        // Use default profile if none exists (will be created by trigger)
+        setProfile({
+          user_id: supabaseUser.id,
+          email: supabaseUser.email,
+          first_name: supabaseUser.email?.split("@")[0] || "User",
+          timezone: "UTC",
+          language: "en",
+        })
+      } else {
+        setProfile(profileData)
+      }
+
+      let orgData = null
+      let roleData = null
+
+      if (profileData?.organization_id) {
+        const { data: orgResult } = await supabase
+          .from("organizations")
+          .select("*")
+          .eq("id", profileData.organization_id)
+          .single()
+        orgData = orgResult
+      }
+
+      const { data: roleResult } = await supabase.from("user_roles").select("*").eq("user_id", supabaseUser.id).single()
+
+      roleData = roleResult || { role: "user", permissions: ["view_assessments"] }
+
+      setUser(supabaseUser)
+      setOrganization(orgData)
+      setRole(roleData)
+      setIsDemo(false)
     } catch (error) {
-      console.error("[v0] AuthContext: Unexpected error in refreshProfile:", error)
+      console.error("[v0] AuthContext: Error in auth check:", error)
       setUser(null)
       setProfile(null)
       setOrganization(null)
