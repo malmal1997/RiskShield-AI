@@ -428,22 +428,20 @@ export default function AIAssessmentClient() {
         return null
       })
 
+      let currentProgress = 0
       const interval = setInterval(() => {
-        setAnalysisProgress((prev) => {
-          const newProgress = prev + 10
-          if (newProgress >= 100) {
-            clearInterval(interval)
-            // Don't set step here - let the analysis completion handle it
-            return 100
-          }
-          return newProgress
-        })
+        currentProgress += 10
+        setAnalysisProgress(currentProgress)
+
+        if (currentProgress >= 100) {
+          clearInterval(interval)
+        }
       }, 500)
 
       const waitForProgress = () => {
         return new Promise<void>((resolve) => {
           const checkProgress = () => {
-            if (analysisProgress >= 100) {
+            if (currentProgress >= 100) {
               resolve()
             } else {
               setTimeout(checkProgress, 100)
