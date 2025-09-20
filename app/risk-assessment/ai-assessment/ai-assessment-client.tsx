@@ -432,9 +432,11 @@ export default function AIAssessmentClient() {
       const interval = setInterval(() => {
         currentProgress += 10
         setAnalysisProgress(currentProgress)
+        console.log("[v0] Progress updated to:", currentProgress)
 
         if (currentProgress >= 100) {
           clearInterval(interval)
+          console.log("[v0] Progress complete, clearing interval")
         }
       }, 500)
 
@@ -442,8 +444,10 @@ export default function AIAssessmentClient() {
         return new Promise<void>((resolve) => {
           const checkProgress = () => {
             if (currentProgress >= 100) {
+              console.log("[v0] Progress check: 100% reached")
               resolve()
             } else {
+              console.log("[v0] Progress check: still at", currentProgress)
               setTimeout(checkProgress, 100)
             }
           }
@@ -451,6 +455,7 @@ export default function AIAssessmentClient() {
         })
       }
 
+      // Process analysis results
       if (analysisResponse && analysisResponse.ok) {
         const analysisResult = await analysisResponse.json()
         console.log("[v0] AI analysis completed successfully")
@@ -505,9 +510,12 @@ export default function AIAssessmentClient() {
       }
 
       await waitForProgress()
+      console.log("[v0] Progress wait completed, transitioning to review")
+
       setIsAnalyzing(false)
-      console.log("[v0] Transitioning to review step")
+      console.log("[v0] Setting step to review")
       setCurrentStep("review")
+      console.log("[v0] Step transition complete")
     } catch (error) {
       console.error("[v0] Analysis failed:", error)
       setAnalysisError("Analysis failed. Please try again or contact support.")
