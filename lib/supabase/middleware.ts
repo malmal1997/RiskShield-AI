@@ -59,7 +59,9 @@ export async function updateSession(request: NextRequest) {
       request.nextUrl.pathname.startsWith("/documentation") ||
       request.nextUrl.pathname.startsWith("/help-center") ||
       request.nextUrl.pathname.startsWith("/platform") ||
-      request.nextUrl.pathname.startsWith("/solutions")
+      request.nextUrl.pathname.startsWith("/solutions") ||
+      request.nextUrl.pathname.startsWith("/third-party-assessment") ||
+      request.nextUrl.pathname.startsWith("/vendor-assessment")
     ) {
       return supabaseResponse
     }
