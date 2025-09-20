@@ -290,7 +290,7 @@ The assessment is ready to be completed by the vendor.`,
 }
 
 // Email template for vendor assessment invitation (kept for compatibility)
-export const generateAssessmentEmail = async (data: {
+export const generateAssessmentEmail = (data: {
   vendorName: string
   vendorEmail: string
   contactPerson: string
