@@ -218,6 +218,7 @@ interface DocumentMetadata {
   type: string
   lastModified: number
   content?: string
+  url?: string // Add URL field for blob storage
 }
 
 interface AIAnalysisResult {
@@ -333,17 +334,48 @@ export default function AIAssessmentClient() {
     }
   }, [])
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log("[v0] File upload triggered", event.target.files?.length)
     const files = event.target.files
     if (files) {
-      const newFiles: DocumentMetadata[] = Array.from(files).map((file) => ({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-      }))
-      console.log("[v0] New files processed:", newFiles.length)
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const formData = new FormData()
+        formData.append("file", file)
+
+        try {
+          const response = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          })
+
+          if (!response.ok) {
+            throw new Error(`Upload failed: ${response.statusText}`)
+          }
+
+          const result = await response.json()
+          console.log("[v0] File uploaded successfully:", result.filename)
+
+          return {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            lastModified: file.lastModified,
+            url: result.url, // Add blob URL
+          }
+        } catch (error) {
+          console.error("[v0] File upload failed:", error)
+          // Fallback to local processing if upload fails
+          return {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            lastModified: file.lastModified,
+          }
+        }
+      })
+
+      const newFiles = await Promise.all(uploadPromises)
+      console.log("[v0] Files processed:", newFiles.length)
       setUploadedFiles((prev) => [...prev, ...newFiles])
     }
   }
