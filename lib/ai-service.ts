@@ -455,70 +455,27 @@ async function performDirectAIAnalysis(
 
   // 2. Configure model instance and name based on selected provider and API key
   modelName = "gemini-1.5-flash"
-  modelInstance = google(modelName, { apiKey: apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY })
-  if (!apiKey && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+
+  const defaultGoogleKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+  if (!apiKey && defaultGoogleKey) {
+    apiKey = defaultGoogleKey
     keySource = "default_key"
+    console.log("✅ Using default Google AI API key from environment")
   }
 
-  // 3. Final check for any API key for the selected provider - MODIFIED FOR TESTING
+  modelInstance = google(modelName, { apiKey: apiKey })
+
+  // 3. Final check for any API key for the selected provider
   if (!apiKey) {
-    console.warn(
-      `⚠️ ${selectedProvider.toUpperCase()} AI API key not found. Returning mock analysis result for testing purposes.`,
+    console.error(`❌ ${selectedProvider.toUpperCase()} AI API key not found. Cannot perform real AI analysis.`)
+    throw new Error(
+      `${selectedProvider.toUpperCase()} API key not configured. Please add your API key in Settings > Integrations.`,
     )
-
-    const mockAnswers: Record<string, boolean | string> = {}
-    const mockConfidenceScores: Record<string, number> = {}
-    const mockReasoning: Record<string, string> = {}
-
-    questions.forEach((question) => {
-      if (question.type === "boolean") {
-        mockAnswers[question.id] = false
-        mockConfidenceScores[question.id] = 0.1
-        mockReasoning[question.id] = "AI analysis skipped due to missing API key. Defaulting to 'No'."
-      } else if (question.type === "multiple" && question.options) {
-        mockAnswers[question.id] = question.options[0] || "Never" // Most conservative option
-        mockConfidenceScores[question.id] = 0.1
-        mockReasoning[question.id] = "AI analysis skipped due to missing API key. Using most conservative option."
-      } else if (question.type === "tested") {
-        mockAnswers[question.id] = "not_tested"
-        mockConfidenceScores[question.id] = 0.1
-        mockReasoning[question.id] = "AI analysis skipped due to missing API key. Defaulting to 'Not Tested'."
-      }
-    })
-
-    return {
-      answers: mockAnswers,
-      confidenceScores: mockConfidenceScores,
-      reasoning: mockReasoning,
-      overallAnalysis: `AI analysis was skipped for ${assessmentType} due to a missing ${selectedProvider.toUpperCase()} API key. Please configure your API key in Settings > Integrations or ensure the default environment variable (${selectedProvider.toUpperCase()}_API_KEY) is set.`,
-      riskFactors: [
-        "AI analysis could not be performed due to missing API key",
-        "Assessment results are based on conservative defaults, not document content",
-        "Potential for inaccurate risk assessment without AI processing",
-      ],
-      recommendations: [
-        `Configure your ${selectedProvider.toUpperCase()} API key in Settings > Integrations.`,
-        `Ensure the ${selectedProvider.toUpperCase()}_API_KEY environment variable is set in your deployment.`,
-        "Re-run the AI assessment after configuring the API key for accurate results.",
-        "Review all answers manually as they are currently placeholders.",
-      ],
-      riskScore: 0, // Lowest possible score
-      riskLevel: "High",
-      analysisDate: new Date().toISOString(),
-      documentsAnalyzed: 0, // No documents were actually analyzed by AI
-      aiProvider: `Mock AI (${selectedProvider.toUpperCase()} - API Key Missing)`,
-      documentExcerpts: {}, // No excerpts if no analysis
-      directUploadResults: files.map((file) => ({
-        fileName: file.name,
-        success: false,
-        fileSize: file.size,
-        fileType: file.type || "unknown",
-        processingMethod: "skipped-due-to-missing-api-key",
-      })),
-      assessmentId: assessmentId, // Include assessmentId even in mock result
-    }
   }
+
+  console.log(
+    `🔑 Using ${keySource === "client_key" ? "client's" : "default"} ${selectedProvider.toUpperCase()} API key`,
+  )
 
   // Filter and process supported files
   const supportedFiles = files.filter((file) => isSupportedFileType(file))
