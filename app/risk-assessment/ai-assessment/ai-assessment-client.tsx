@@ -332,6 +332,7 @@ export default function AIAssessmentClient() {
   }, [])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("[v0] File upload triggered", event.target.files?.length)
     const files = event.target.files
     if (files) {
       const newFiles: DocumentMetadata[] = Array.from(files).map((file) => ({
@@ -340,6 +341,7 @@ export default function AIAssessmentClient() {
         type: file.type,
         lastModified: file.lastModified,
       }))
+      console.log("[v0] New files processed:", newFiles.length)
       setUploadedFiles((prev) => [...prev, ...newFiles])
     }
   }
@@ -412,11 +414,15 @@ export default function AIAssessmentClient() {
                 className="hidden"
                 id="file-upload"
               />
-              <label htmlFor="file-upload">
-                <Button as="span" className="cursor-pointer">
-                  Choose Files
-                </Button>
-              </label>
+              <Button
+                onClick={() => {
+                  console.log("[v0] Choose Files button clicked")
+                  document.getElementById("file-upload")?.click()
+                }}
+                className="cursor-pointer"
+              >
+                Choose Files
+              </Button>
             </div>
 
             {uploadedFiles.length > 0 && (
