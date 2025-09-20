@@ -393,7 +393,7 @@ export default function AIAssessmentClient() {
         if (prev >= 100) {
           clearInterval(interval)
           setIsAnalyzing(false)
-          setCurrentStep("results")
+          setCurrentStep("review")
           // Mock analysis result
           setAiAnalysisResult({
             overallScore: 75,
@@ -422,6 +422,10 @@ export default function AIAssessmentClient() {
         return prev + 10
       })
     }, 500)
+  }
+
+  const handleApproveResults = () => {
+    setCurrentStep("results")
   }
 
   const renderStepContent = () => {
@@ -496,6 +500,86 @@ export default function AIAssessmentClient() {
               />
             </div>
             <p className="text-sm text-gray-500">{analysisProgress}% Complete</p>
+          </div>
+        )
+
+      case "review":
+        return (
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Review Assessment Results</h2>
+              <p className="text-lg text-gray-600">Please review the AI analysis results before finalizing</p>
+            </div>
+
+            {aiAnalysisResult && (
+              <div className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
+                <div className="grid md:grid-cols-2 gap-8 mb-8">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">{aiAnalysisResult.overallScore}/100</div>
+                    <div className="text-lg font-semibold">Overall Score</div>
+                  </div>
+                  <div className="text-center">
+                    <div
+                      className={`text-2xl font-bold mb-2 ${
+                        aiAnalysisResult.riskLevel === "Low"
+                          ? "text-green-600"
+                          : aiAnalysisResult.riskLevel === "Medium"
+                            ? "text-yellow-600"
+                            : aiAnalysisResult.riskLevel === "High"
+                              ? "text-orange-600"
+                              : "text-red-600"
+                      }`}
+                    >
+                      {aiAnalysisResult.riskLevel} Risk
+                    </div>
+                    <div className="text-lg font-semibold">Risk Level</div>
+                  </div>
+                </div>
+
+                <div className="border-t pt-8">
+                  <h3 className="text-xl font-semibold mb-4">Summary</h3>
+                  <p className="text-gray-700 mb-6">{aiAnalysisResult.summary}</p>
+
+                  <h3 className="text-xl font-semibold mb-4">Key Findings</h3>
+                  <div className="space-y-4">
+                    {aiAnalysisResult.findings.map((finding, index) => (
+                      <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2">
+                          {finding.category} (Score: {finding.score}/100)
+                        </h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <h5 className="font-medium text-red-700 mb-1">Issues:</h5>
+                            <ul className="text-sm text-gray-600 list-disc list-inside">
+                              {finding.issues.map((issue, i) => (
+                                <li key={i}>{issue}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-green-700 mb-1">Recommendations:</h5>
+                            <ul className="text-sm text-gray-600 list-disc list-inside">
+                              {finding.recommendations.map((rec, i) => (
+                                <li key={i}>{rec}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-center space-x-4">
+              <Button variant="outline" onClick={() => setCurrentStep("upload")}>
+                Back to Upload
+              </Button>
+              <Button onClick={handleApproveResults} className="bg-green-600 hover:bg-green-700">
+                Approve & Finalize Results
+              </Button>
+            </div>
           </div>
         )
 
