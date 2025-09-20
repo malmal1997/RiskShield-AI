@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Shield, FileText, ArrowLeft, Brain, Building, Server } from "lucide-react"
@@ -287,6 +287,8 @@ export default function AIAssessmentClient() {
   const [isDelegatedAssessment, setIsDelegatedAssessment] = useState(false)
   const [delegatedAssessmentInfo, setDelegatedAssessmentInfo] = useState<DelegatedAssessmentInfo | null>(null)
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search)
@@ -407,17 +409,17 @@ export default function AIAssessmentClient() {
               <h3 className="text-xl font-semibold mb-2">Drop files here or click to upload</h3>
               <p className="text-gray-600 mb-6">Supported formats: PDF, DOC, DOCX, TXT</p>
               <input
+                ref={fileInputRef}
                 type="file"
                 multiple
                 accept=".pdf,.doc,.docx,.txt"
                 onChange={handleFileUpload}
                 className="hidden"
-                id="file-upload"
               />
               <Button
                 onClick={() => {
                   console.log("[v0] Choose Files button clicked")
-                  document.getElementById("file-upload")?.click()
+                  fileInputRef.current?.click()
                 }}
                 className="cursor-pointer"
               >
