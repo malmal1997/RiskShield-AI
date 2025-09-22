@@ -10,10 +10,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // Upload to Vercel Blob
+    console.log("[v0] Uploading file:", file.name)
+
+    // Upload to Vercel Blob with overwrite allowed
     const blob = await put(file.name, file, {
       access: "public",
+      allowOverwrite: true, // Allow overwriting existing files
     })
+
+    console.log("[v0] File uploaded successfully to:", blob.url)
 
     return NextResponse.json({
       url: blob.url,
@@ -22,7 +27,13 @@ export async function POST(request: NextRequest) {
       type: file.type,
     })
   } catch (error) {
-    console.error("Upload error:", error)
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 })
+    console.error("[v0] Upload error:", error)
+    return NextResponse.json(
+      {
+        error: "Upload failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }

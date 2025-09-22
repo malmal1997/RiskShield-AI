@@ -343,62 +343,55 @@ export default function AIAssessmentClient() {
         formData.append("file", file)
 
         try {
+          console.log("[v0] Uploading file:", file.name)
           const response = await fetch("/api/upload", {
             method: "POST",
             body: formData,
           })
 
           if (!response.ok) {
-            console.warn("[v0] Upload API failed, using local processing:", response.statusText)
-            // Fallback to local processing if upload fails
-            return {
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              lastModified: file.lastModified,
-              content: await file.text().catch(() => "Content could not be read"),
-            }
+            const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
+            console.error("[v0] Upload API failed:", response.status, errorData)
+            throw new Error(`Upload failed: ${errorData.error || response.statusText}`)
           }
 
           const result = await response.json()
-          console.log("[v0] File uploaded successfully:", result.filename)
+          console.log("[v0] File uploaded successfully:", result.filename, "URL:", result.url)
 
           return {
             name: file.name,
             size: file.size,
             type: file.type,
             lastModified: file.lastModified,
-            url: result.url, // Add blob URL
-            content: result.content || "Content processed",
+            url: result.url, // Store blob URL
+            content: "File uploaded to blob storage",
           }
         } catch (error) {
-          console.error("[v0] File upload failed, using fallback:", error)
-          // Fallback to local processing if upload fails
-          try {
-            const content = await file.text()
-            return {
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              lastModified: file.lastModified,
-              content: content,
-            }
-          } catch (readError) {
-            console.error("[v0] Could not read file content:", readError)
-            return {
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              lastModified: file.lastModified,
-              content: "File uploaded but content could not be processed",
-            }
-          }
+          console.error("[v0] File upload failed:", error)
+          setAnalysisError(`Failed to upload ${file.name}: ${error instanceof Error ? error.message : "Unknown error"}`)
+          throw error
         }
       })
 
-      const newFiles = await Promise.all(uploadPromises)
-      console.log("[v0] Files processed:", newFiles.length)
-      setUploadedFiles((prev) => [...prev, ...newFiles])
+      try {
+        const newFiles = await Promise.all(uploadPromises)
+        console.log("[v0] All files processed successfully:", newFiles.length)
+        console.log("[v0] New files to add:", newFiles)
+
+        setUploadedFiles((prev) => {
+          const updated = [...prev, ...newFiles]
+          console.log("[v0] Updated uploadedFiles state:", updated)
+          return updated
+        })
+        setAnalysisError(null) // Clear any previous errors
+
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
+      } catch (error) {
+        console.error("[v0] File upload batch failed:", error)
+        // Don't add files if upload failed
+      }
     }
   }
 
@@ -578,12 +571,17 @@ export default function AIAssessmentClient() {
             {uploadedFiles.length > 0 && (
               <div className="mt-8">
                 <h4 className="font-semibold mb-4">Uploaded Files ({uploadedFiles.length})</h4>
+                <div className="text-xs text-gray-500 mb-2">Debug: {uploadedFiles.length} files in state</div>
                 <div className="space-y-2">
                   {uploadedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                    <div
+                      key={`${file.name}-${index}`}
+                      className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
+                    >
                       <div className="flex items-center space-x-3">
                         <FileText className="h-5 w-5 text-gray-500" />
                         <span className="font-medium">{file.name}</span>
+                        <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">✓ Uploaded</span>
                       </div>
                       <span className="text-sm text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
                     </div>
@@ -595,7 +593,7 @@ export default function AIAssessmentClient() {
                   disabled={isAnalyzing}
                 >
                   <Brain className="mr-2 h-4 w-4" />
-                  Start AI Analysis
+                  Start AI Analysis ({uploadedFiles.length} files)
                 </Button>
               </div>
             )}
