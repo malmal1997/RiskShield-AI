@@ -124,32 +124,34 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   if (allowPreview) {
     return (
       <>
-        {/* Preview Banner */}
-        <div className="bg-blue-600 text-white py-3 px-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5" />
-              <span className="font-medium">
-                {previewMessage || "You're viewing a preview. Sign up for full access to all features."}
-              </span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleDemoLogin}
-                disabled={isSubmitting}
-                className="bg-white text-blue-600 hover:bg-gray-100"
-              >
-                <Play className="h-4 w-4 mr-1" />
-                Try Demo (Admin)
-              </Button>
-              <a href="/auth/register" className="text-white hover:text-blue-100 text-sm font-medium">
-                Sign Up Free
-              </a>
+        {/* Preview Banner - only show if not authenticated */}
+        {!user && !isDemo && (
+          <div className="bg-blue-600 text-white py-3 px-4">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Shield className="h-5 w-5" />
+                <span className="font-medium">
+                  {previewMessage || "You're viewing a preview. Sign up for full access to all features."}
+                </span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleDemoLogin}
+                  disabled={isSubmitting}
+                  className="bg-white text-blue-600 hover:bg-gray-100"
+                >
+                  <Play className="h-4 w-4 mr-1" />
+                  Try Demo (Admin)
+                </Button>
+                <a href="/auth/register" className="text-white hover:text-blue-100 text-sm font-medium">
+                  Sign Up Free
+                </a>
+              </div>
             </div>
           </div>
-        </div>
+        )}
         {children}
       </>
     )
