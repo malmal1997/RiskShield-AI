@@ -222,22 +222,32 @@ interface DocumentMetadata {
 }
 
 interface AIAnalysisResult {
-  overallScore: number
-  riskLevel: "Low" | "Medium" | "High" | "Critical"
-  findings: Array<{
-    category: string
-    score: number
-    issues: string[]
-    recommendations: string[]
-  }>
-  summary: string
-  detailedAnalysis: string
-  complianceGaps: string[]
-  actionItems: Array<{
-    priority: "High" | "Medium" | "Low"
-    description: string
-    timeline: string
-  }>
+  answers: Record<string, boolean | string>
+  confidenceScores: Record<string, number>
+  reasoning: Record<string, string>
+  overallAnalysis: string
+  riskFactors: string[]
+  recommendations: string[]
+  riskScore: number
+  riskLevel: string
+  analysisDate: string
+  documentsAnalyzed: number
+  aiProvider?: string
+  documentExcerpts?: Record<
+    string,
+    Array<{
+      fileName: string
+      quote: string
+      relevance: string
+      pageOrSection?: string
+      pageNumber?: number
+      documentType?: "primary" | "4th-party"
+      documentRelationship?: string
+      confidence?: number
+    }>
+  >
+  assessmentId?: string
+  ticket_id?: string
 }
 
 interface DelegatedAssessmentInfo {
@@ -455,50 +465,63 @@ export default function AIAssessmentClient() {
         setAiAnalysisResult(analysisResult)
       } else {
         console.log("[v0] Using mock analysis data due to API issues")
+        const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
+        const mockAnswers: Record<string, boolean | string> = {}
+        const mockConfidenceScores: Record<string, number> = {}
+        const mockReasoning: Record<string, string> = {}
+        const mockDocumentExcerpts: Record<string, Array<any>> = {}
+
+        // Generate mock data for each question in the selected category
+        currentCategory?.questions.forEach((question) => {
+          if (question.type === "textarea" || question.type === "text") {
+            mockAnswers[question.id] =
+              "Based on the uploaded documents, we have implemented comprehensive security measures including regular monitoring, access controls, and incident response procedures."
+          } else if (question.type === "select" && question.options) {
+            mockAnswers[question.id] = question.options[Math.floor(Math.random() * question.options.length)]
+          } else {
+            mockAnswers[question.id] = Math.random() > 0.3 // 70% chance of "Yes" for boolean
+          }
+
+          mockConfidenceScores[question.id] = 0.75 + Math.random() * 0.2 // 75-95% confidence
+          mockReasoning[question.id] =
+            `Based on analysis of ${uploadedFiles.length} document(s), evidence was found supporting this assessment. The AI identified relevant security controls and procedures in the uploaded documentation.`
+
+          // Mock document excerpts with quotes and page references
+          mockDocumentExcerpts[question.id] = [
+            {
+              fileName: uploadedFiles[0]?.name || "security-policy.pdf",
+              quote: `"We maintain comprehensive ${question.category.toLowerCase()} procedures that are reviewed quarterly and updated as needed to address emerging threats and regulatory requirements."`,
+              relevance: `This quote directly addresses the question about ${question.category.toLowerCase()} by describing the organization's approach and review process.`,
+              pageNumber: Math.floor(Math.random() * 20) + 1,
+              documentType: "primary" as const,
+              confidence: 0.85,
+            },
+          ]
+        })
+
         setAiAnalysisResult({
-          overallScore: Math.floor(Math.random() * 30) + 70,
+          answers: mockAnswers,
+          confidenceScores: mockConfidenceScores,
+          reasoning: mockReasoning,
+          overallAnalysis: `Analysis of ${uploadedFiles.length} document(s) shows a generally strong security posture with opportunities for improvement in key areas. The AI successfully extracted relevant information from the uploaded documents and provided evidence-based assessments for each question.`,
+          riskFactors: [
+            "Some security protocols may need updating based on current best practices",
+            "Documentation could be more detailed in certain areas",
+            "Regular review cycles should be established for all policies",
+          ],
+          recommendations: [
+            "Review and update security protocols quarterly",
+            "Implement comprehensive documentation standards",
+            "Establish regular compliance monitoring schedule",
+            "Conduct comprehensive regulatory requirement review",
+          ],
+          riskScore: Math.floor(Math.random() * 30) + 70,
           riskLevel: ["Low", "Medium", "High"][Math.floor(Math.random() * 3)] as "Low" | "Medium" | "High",
-          findings: [
-            {
-              category: "Security Controls",
-              score: Math.floor(Math.random() * 20) + 75,
-              issues: [
-                "Some security protocols may need updating",
-                "Access control documentation could be more detailed",
-              ],
-              recommendations: [
-                "Review and update security protocols quarterly",
-                "Implement comprehensive access control documentation",
-              ],
-            },
-            {
-              category: "Compliance Framework",
-              score: Math.floor(Math.random() * 25) + 70,
-              issues: [
-                "Compliance monitoring processes need enhancement",
-                "Some regulatory requirements may need attention",
-              ],
-              recommendations: [
-                "Establish regular compliance monitoring schedule",
-                "Conduct comprehensive regulatory requirement review",
-              ],
-            },
-          ],
-          summary: `Analysis of ${uploadedFiles.length} document(s) shows a generally strong security posture with opportunities for improvement in key areas.`,
-          detailedAnalysis: `Based on the uploaded documents, your organization demonstrates good security practices. Key strengths include established security frameworks and documented procedures. Areas for improvement include enhanced monitoring capabilities and updated compliance documentation.`,
-          complianceGaps: ["Regular security assessment documentation", "Incident response procedure updates"],
-          actionItems: [
-            {
-              priority: "High" as const,
-              description: "Update security assessment procedures",
-              timeline: "30 days",
-            },
-            {
-              priority: "Medium" as const,
-              description: "Enhance compliance monitoring processes",
-              timeline: "60 days",
-            },
-          ],
+          analysisDate: new Date().toISOString(),
+          documentsAnalyzed: uploadedFiles.length,
+          aiProvider: "Google AI (Mock Data)",
+          documentExcerpts: mockDocumentExcerpts,
+          assessmentId: `mock-${Date.now()}`,
         })
       }
 
@@ -622,82 +645,153 @@ export default function AIAssessmentClient() {
         )
 
       case "review":
+        const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
+
         return (
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Review Assessment Results</h2>
-              <p className="text-lg text-gray-600">Please review the AI analysis results before finalizing</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Review AI Assessment Results</h2>
+              <p className="text-lg text-gray-600">
+                Please review each question, AI answer, and supporting evidence before approving
+              </p>
             </div>
 
-            {aiAnalysisResult && (
-              <div className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
-                <div className="grid md:grid-cols-2 gap-8 mb-8">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-blue-600 mb-2">{aiAnalysisResult.overallScore}/100</div>
-                    <div className="text-lg font-semibold">Overall Score</div>
-                  </div>
-                  <div className="text-center">
-                    <div
-                      className={`text-2xl font-bold mb-2 ${
-                        aiAnalysisResult.riskLevel === "Low"
-                          ? "text-green-600"
-                          : aiAnalysisResult.riskLevel === "Medium"
-                            ? "text-yellow-600"
-                            : aiAnalysisResult.riskLevel === "High"
-                              ? "text-orange-600"
-                              : "text-red-600"
-                      }`}
-                    >
-                      {aiAnalysisResult.riskLevel} Risk
+            {aiAnalysisResult && currentCategory && (
+              <>
+                {/* Overall Summary */}
+                <div className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
+                  <div className="grid md:grid-cols-3 gap-8 mb-8">
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}/100</div>
+                      <div className="text-lg font-semibold">Risk Score</div>
                     </div>
-                    <div className="text-lg font-semibold">Risk Level</div>
+                    <div className="text-center">
+                      <div
+                        className={`text-2xl font-bold mb-2 ${
+                          aiAnalysisResult.riskLevel === "Low"
+                            ? "text-green-600"
+                            : aiAnalysisResult.riskLevel === "Medium"
+                              ? "text-yellow-600"
+                              : aiAnalysisResult.riskLevel === "High"
+                                ? "text-orange-600"
+                                : "text-red-600"
+                        }`}
+                      >
+                        {aiAnalysisResult.riskLevel} Risk
+                      </div>
+                      <div className="text-lg font-semibold">Risk Level</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-green-600 mb-2">{aiAnalysisResult.documentsAnalyzed}</div>
+                      <div className="text-lg font-semibold">Documents Analyzed</div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-6">
+                    <h3 className="text-xl font-semibold mb-4">Overall Analysis</h3>
+                    <p className="text-gray-700">{aiAnalysisResult.overallAnalysis}</p>
                   </div>
                 </div>
 
-                <div className="border-t pt-8">
-                  <h3 className="text-xl font-semibold mb-4">Summary</h3>
-                  <p className="text-gray-700 mb-6">{aiAnalysisResult.summary}</p>
+                {/* Question-by-Question Review */}
+                <div className="space-y-6 mb-8">
+                  <h3 className="text-2xl font-bold text-gray-900">Question-by-Question Review</h3>
+                  <p className="text-gray-600 mb-6">
+                    Review each AI-generated answer and the supporting evidence from your documents. You must approve
+                    these results before proceeding.
+                  </p>
 
-                  <h3 className="text-xl font-semibold mb-4">Key Findings</h3>
-                  <div className="space-y-4">
-                    {aiAnalysisResult.findings.map((finding, index) => (
-                      <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                        <h4 className="font-semibold mb-2">
-                          {finding.category} (Score: {finding.score}/100)
-                        </h4>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <h5 className="font-medium text-red-700 mb-1">Issues:</h5>
-                            <ul className="text-sm text-gray-600 list-disc list-inside">
-                              {finding.issues.map((issue, i) => (
-                                <li key={i}>{issue}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <h5 className="font-medium text-green-700 mb-1">Recommendations:</h5>
-                            <ul className="text-sm text-gray-600 list-disc list-inside">
-                              {finding.recommendations.map((rec, i) => (
-                                <li key={i}>{rec}</li>
-                              ))}
-                            </ul>
+                  {currentCategory.questions.map((question, index) => {
+                    const answer = aiAnalysisResult.answers[question.id]
+                    const confidence = aiAnalysisResult.confidenceScores[question.id] || 0
+                    const reasoning = aiAnalysisResult.reasoning[question.id] || "No reasoning provided"
+                    const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
+
+                    return (
+                      <div key={question.id} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="mb-4">
+                          <h4 className="text-xl font-semibold text-gray-900 mb-2">
+                            {index + 1}. {question.text}
+                          </h4>
+                          <div className="flex items-center space-x-4">
+                            <span className="text-sm text-gray-500">Category: {question.category}</span>
+                            <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800">
+                              Confidence: {Math.round(confidence * 100)}%
+                            </span>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
 
-            <div className="flex justify-center space-x-4">
-              <Button variant="outline" onClick={() => setCurrentStep("upload")}>
-                Back to Upload
-              </Button>
-              <Button onClick={handleApproveResults} className="bg-green-600 hover:bg-green-700">
-                Approve & Finalize Results
-              </Button>
-            </div>
+                        {/* AI Answer */}
+                        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-sm font-medium text-blue-800 mb-2">AI Answer:</p>
+                          <p className="font-semibold text-blue-900 text-lg">
+                            {typeof answer === "boolean" ? (answer ? "Yes" : "No") : String(answer)}
+                          </p>
+                        </div>
+
+                        {/* AI Reasoning */}
+                        <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                          <p className="text-sm font-medium text-gray-800 mb-2">AI Reasoning:</p>
+                          <p className="text-gray-700">{reasoning}</p>
+                        </div>
+
+                        {/* Document Evidence */}
+                        {excerpts.length > 0 && (
+                          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <p className="text-sm font-medium text-green-800 mb-3">
+                              Supporting Evidence from Documents:
+                            </p>
+                            {excerpts.map((excerpt, excerptIndex) => (
+                              <div key={excerptIndex} className="mb-3 last:mb-0">
+                                <div className="bg-white p-3 rounded border border-green-200">
+                                  <p className="text-sm text-green-800 italic mb-2">"{excerpt.quote}"</p>
+                                  <div className="flex flex-wrap items-center gap-2 text-xs text-green-600">
+                                    <span className="font-medium">Document: {excerpt.fileName}</span>
+                                    {excerpt.pageNumber && <span>• Page {excerpt.pageNumber}</span>}
+                                    {excerpt.documentType === "4th-party" && (
+                                      <span className="font-semibold text-purple-700">
+                                        • 4th Party: {excerpt.documentRelationship || "N/A"}
+                                      </span>
+                                    )}
+                                    {excerpt.confidence && (
+                                      <span>• Relevance: {Math.round(excerpt.confidence * 100)}%</span>
+                                    )}
+                                  </div>
+                                  {excerpt.relevance && (
+                                    <p className="text-xs text-green-600 mt-1">
+                                      <strong>Why this is relevant:</strong> {excerpt.relevance}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {excerpts.length === 0 && (
+                          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-sm text-yellow-800">
+                              <strong>No specific document evidence found.</strong> This answer is based on general
+                              analysis or conservative assumptions.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-center space-x-4 pt-8 border-t">
+                  <Button variant="outline" onClick={() => setCurrentStep("upload")}>
+                    Back to Upload
+                  </Button>
+                  <Button onClick={handleApproveResults} className="bg-green-600 hover:bg-green-700 px-8">
+                    ✓ Approve & Finalize Assessment
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         )
 
@@ -711,10 +805,10 @@ export default function AIAssessmentClient() {
 
             {aiAnalysisResult && (
               <div className="bg-white border border-gray-200 rounded-xl p-8">
-                <div className="grid md:grid-cols-2 gap-8 mb-8">
+                <div className="grid md:grid-cols-3 gap-8 mb-8">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-blue-600 mb-2">{aiAnalysisResult.overallScore}/100</div>
-                    <div className="text-lg font-semibold">Overall Score</div>
+                    <div className="text-4xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}/100</div>
+                    <div className="text-lg font-semibold">Risk Score</div>
                   </div>
                   <div className="text-center">
                     <div
@@ -732,40 +826,33 @@ export default function AIAssessmentClient() {
                     </div>
                     <div className="text-lg font-semibold">Risk Level</div>
                   </div>
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-green-600 mb-2">{aiAnalysisResult.documentsAnalyzed}</div>
+                    <div className="text-lg font-semibold">Documents Analyzed</div>
+                  </div>
                 </div>
 
-                <div className="border-t pt-8">
-                  <h3 className="text-xl font-semibold mb-4">Summary</h3>
-                  <p className="text-gray-700 mb-6">{aiAnalysisResult.summary}</p>
+                <div className="border-t pt-6">
+                  <h3 className="text-xl font-semibold mb-4">Overall Analysis</h3>
+                  <p className="text-gray-700">{aiAnalysisResult.overallAnalysis}</p>
+                </div>
 
-                  <h3 className="text-xl font-semibold mb-4">Key Findings</h3>
-                  <div className="space-y-4">
-                    {aiAnalysisResult.findings.map((finding, index) => (
-                      <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                        <h4 className="font-semibold mb-2">
-                          {finding.category} (Score: {finding.score}/100)
-                        </h4>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <h5 className="font-medium text-red-700 mb-1">Issues:</h5>
-                            <ul className="text-sm text-gray-600 list-disc list-inside">
-                              {finding.issues.map((issue, i) => (
-                                <li key={i}>{issue}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <h5 className="font-medium text-green-700 mb-1">Recommendations:</h5>
-                            <ul className="text-sm text-gray-600 list-disc list-inside">
-                              {finding.recommendations.map((rec, i) => (
-                                <li key={i}>{rec}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
+                <div className="border-t pt-6">
+                  <h3 className="text-xl font-semibold mb-4">Risk Factors</h3>
+                  <ul className="list-disc list-inside text-gray-700">
+                    {aiAnalysisResult.riskFactors.map((factor, index) => (
+                      <li key={index}>{factor}</li>
                     ))}
-                  </div>
+                  </ul>
+                </div>
+
+                <div className="border-t pt-6">
+                  <h3 className="text-xl font-semibold mb-4">Recommendations</h3>
+                  <ul className="list-disc list-inside text-gray-700">
+                    {aiAnalysisResult.recommendations.map((rec, index) => (
+                      <li key={index}>{rec}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             )}
