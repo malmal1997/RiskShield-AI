@@ -3,9 +3,9 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Shield, FileText, ArrowLeft, Brain, Building, Server, Upload } from "lucide-react"
+import { Shield, FileText, Brain, Building, Server, Upload, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
+import { Badge } from "@/components/ui/badge"
 
 const assessmentCategories = [
   {
@@ -416,19 +416,64 @@ export default function AIAssessmentClient() {
     try {
       console.log("[v0] Starting AI analysis with", uploadedFiles.length, "files")
 
+      const formData = new FormData()
+
+      // Fetch actual files from blob URLs and add to FormData
+      const filePromises = uploadedFiles.map(async (fileMetadata) => {
+        if (fileMetadata.url) {
+          try {
+            const response = await fetch(fileMetadata.url)
+            const blob = await response.blob()
+            const file = new File([blob], fileMetadata.name, { type: fileMetadata.type })
+            return file
+          } catch (error) {
+            console.error(`[v0] Failed to fetch file ${fileMetadata.name}:`, error)
+            return null
+          }
+        }
+        return null
+      })
+
+      const actualFiles = (await Promise.all(filePromises)).filter(Boolean) as File[]
+
+      if (actualFiles.length === 0) {
+        throw new Error("No valid files could be retrieved for analysis")
+      }
+
+      // Add files to FormData
+      actualFiles.forEach((file) => {
+        formData.append("files", file)
+      })
+
+      // Add other required parameters
+      const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
+      const questions =
+        currentCategory?.questions.map((q, index) => ({
+          id: q.id,
+          question: q.text,
+          type: q.type === "textarea" || q.type === "text" ? "boolean" : q.type,
+          weight: q.weight,
+          options: q.options,
+        })) || []
+
+      formData.append("questions", JSON.stringify(questions))
+      formData.append("assessmentType", currentCategory?.title || "Risk Assessment")
+      formData.append("userId", user?.id || "anonymous")
+      formData.append("isDemo", isDemo ? "true" : "false")
+      formData.append("selectedProvider", "google")
+
+      // Add document metadata
+      const documentMetadata = uploadedFiles.map((file) => ({
+        fileName: file.name,
+        type: "primary" as const,
+      }))
+      formData.append("documentMetadata", JSON.stringify(documentMetadata))
+
+      console.log("[v0] Sending FormData with", actualFiles.length, "actual files to AI analysis API")
+
       const analysisResponse = await fetch("/api/ai-assessment/analyze", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          files: uploadedFiles,
-          category: selectedCategory,
-          companyInfo: companyInfo,
-        }),
-      }).catch((error) => {
-        console.warn("[v0] AI analysis API failed, using mock data:", error)
-        return null
+        body: formData, // Send FormData instead of JSON
       })
 
       let currentProgress = 0
@@ -461,68 +506,13 @@ export default function AIAssessmentClient() {
       // Process analysis results
       if (analysisResponse && analysisResponse.ok) {
         const analysisResult = await analysisResponse.json()
-        console.log("[v0] AI analysis completed successfully")
+        console.log("[v0] AI analysis completed successfully with real data")
+        console.log("[v0] Analysis result:", analysisResult)
         setAiAnalysisResult(analysisResult)
       } else {
-        console.log("[v0] Using mock analysis data due to API issues")
-        const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
-        const mockAnswers: Record<string, boolean | string> = {}
-        const mockConfidenceScores: Record<string, number> = {}
-        const mockReasoning: Record<string, string> = {}
-        const mockDocumentExcerpts: Record<string, Array<any>> = {}
-
-        // Generate mock data for each question in the selected category
-        currentCategory?.questions.forEach((question) => {
-          if (question.type === "textarea" || question.type === "text") {
-            mockAnswers[question.id] =
-              "Based on the uploaded documents, we have implemented comprehensive security measures including regular monitoring, access controls, and incident response procedures."
-          } else if (question.type === "select" && question.options) {
-            mockAnswers[question.id] = question.options[Math.floor(Math.random() * question.options.length)]
-          } else {
-            mockAnswers[question.id] = Math.random() > 0.3 // 70% chance of "Yes" for boolean
-          }
-
-          mockConfidenceScores[question.id] = 0.75 + Math.random() * 0.2 // 75-95% confidence
-          mockReasoning[question.id] =
-            `Based on analysis of ${uploadedFiles.length} document(s), evidence was found supporting this assessment. The AI identified relevant security controls and procedures in the uploaded documentation.`
-
-          // Mock document excerpts with quotes and page references
-          mockDocumentExcerpts[question.id] = [
-            {
-              fileName: uploadedFiles[0]?.name || "security-policy.pdf",
-              quote: `"We maintain comprehensive ${question.category.toLowerCase()} procedures that are reviewed quarterly and updated as needed to address emerging threats and regulatory requirements."`,
-              relevance: `This quote directly addresses the question about ${question.category.toLowerCase()} by describing the organization's approach and review process.`,
-              pageNumber: Math.floor(Math.random() * 20) + 1,
-              documentType: "primary" as const,
-              confidence: 0.85,
-            },
-          ]
-        })
-
-        setAiAnalysisResult({
-          answers: mockAnswers,
-          confidenceScores: mockConfidenceScores,
-          reasoning: mockReasoning,
-          overallAnalysis: `Analysis of ${uploadedFiles.length} document(s) shows a generally strong security posture with opportunities for improvement in key areas. The AI successfully extracted relevant information from the uploaded documents and provided evidence-based assessments for each question.`,
-          riskFactors: [
-            "Some security protocols may need updating based on current best practices",
-            "Documentation could be more detailed in certain areas",
-            "Regular review cycles should be established for all policies",
-          ],
-          recommendations: [
-            "Review and update security protocols quarterly",
-            "Implement comprehensive documentation standards",
-            "Establish regular compliance monitoring schedule",
-            "Conduct comprehensive regulatory requirement review",
-          ],
-          riskScore: Math.floor(Math.random() * 30) + 70,
-          riskLevel: ["Low", "Medium", "High"][Math.floor(Math.random() * 3)] as "Low" | "Medium" | "High",
-          analysisDate: new Date().toISOString(),
-          documentsAnalyzed: uploadedFiles.length,
-          aiProvider: "Google AI (Mock Data)",
-          documentExcerpts: mockDocumentExcerpts,
-          assessmentId: `mock-${Date.now()}`,
-        })
+        const errorText = await analysisResponse.text().catch(() => "Unknown error")
+        console.error("[v0] AI analysis API failed:", analysisResponse.status, errorText)
+        throw new Error(`AI analysis failed: ${errorText}`)
       }
 
       await waitForProgress()
@@ -534,7 +524,9 @@ export default function AIAssessmentClient() {
       console.log("[v0] Step transition complete")
     } catch (error) {
       console.error("[v0] Analysis failed:", error)
-      setAnalysisError("Analysis failed. Please try again or contact support.")
+      setAnalysisError(
+        `Analysis failed: ${error instanceof Error ? error.message : "Unknown error"}. Please try again or contact support.`,
+      )
       setIsAnalyzing(false)
       setCurrentStep("upload")
     }
