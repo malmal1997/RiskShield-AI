@@ -458,7 +458,8 @@ export default function AIAssessmentClient() {
 
       formData.append("questions", JSON.stringify(questions))
       formData.append("assessmentType", currentCategory?.title || "Risk Assessment")
-      formData.append("userId", user?.id || "anonymous")
+      const userId = user?.id || user?.email || "anonymous"
+      formData.append("userId", userId)
       formData.append("isDemo", isDemo ? "true" : "false")
       formData.append("selectedProvider", "google")
 
