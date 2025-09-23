@@ -581,6 +581,8 @@ export default function AIAssessmentClient() {
         }
 
         console.log("[v0] Saving AI assessment report to database")
+        console.log("[v0] Report data:", JSON.stringify(reportData, null, 2))
+
         const response = await fetch("/api/ai-assessment-reports", {
           method: "POST",
           headers: {
@@ -592,13 +594,15 @@ export default function AIAssessmentClient() {
         if (response.ok) {
           const { report } = await response.json()
           console.log("[v0] AI assessment report saved successfully:", report.id)
+          alert("Assessment report saved successfully! You can view it in the Reports section.")
         } else {
-          console.error("[v0] Failed to save AI assessment report:", response.status)
-          // Continue to results even if save fails - don't block the user
+          const errorText = await response.text()
+          console.error("[v0] Failed to save AI assessment report:", response.status, errorText)
+          alert("Warning: Failed to save report to database, but you can still view the results.")
         }
       } catch (error) {
         console.error("[v0] Error saving AI assessment report:", error)
-        // Continue to results even if save fails - don't block the user
+        alert("Warning: Failed to save report to database, but you can still view the results.")
       }
     }
 
