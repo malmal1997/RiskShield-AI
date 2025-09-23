@@ -82,6 +82,49 @@ function ReportsContent() {
     }, 2000)
   }
 
+  const handleExportReport = async (report: any) => {
+    try {
+      // Create a comprehensive export object
+      const exportData = {
+        reportTitle: report.report_title,
+        reportSummary: report.report_summary,
+        assessmentType: report.assessment_type,
+        riskLevel: report.risk_level,
+        riskScore: report.risk_score,
+        createdAt: report.created_at,
+        fullReportContent: report.full_report_content,
+        uploadedDocumentsMetadata: report.uploaded_documents_metadata,
+        exportedAt: new Date().toISOString(),
+        exportedBy: user?.email || "Unknown User",
+      }
+
+      // Convert to JSON string with proper formatting
+      const jsonString = JSON.stringify(exportData, null, 2)
+
+      // Create blob and download
+      const blob = new Blob([jsonString], { type: "application/json" })
+      const url = URL.createObjectURL(blob)
+
+      // Create download link
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `${report.report_title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}_${new Date().toISOString().split("T")[0]}.json`
+
+      // Trigger download
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      // Clean up
+      URL.revokeObjectURL(url)
+
+      console.log("[v0] Report exported successfully:", report.report_title)
+    } catch (error) {
+      console.error("[v0] Error exporting report:", error)
+      alert("Failed to export report. Please try again.")
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 bg-white">
       <div className="flex justify-between items-center mb-8">
@@ -166,9 +209,9 @@ function ReportsContent() {
                                 View Details
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                            <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
-                                <DialogTitle>{report.report_title}</DialogTitle>
+                                <DialogTitle className="text-xl">{report.report_title}</DialogTitle>
                                 <DialogDescription>Detailed AI assessment with supporting evidence</DialogDescription>
                               </DialogHeader>
                               {selectedReport && (
@@ -260,7 +303,7 @@ function ReportsContent() {
                               )}
                             </DialogContent>
                           </Dialog>
-                          <Button size="sm">
+                          <Button size="sm" onClick={() => handleExportReport(report)}>
                             <Download className="w-4 h-4 mr-2" />
                             Export
                           </Button>
