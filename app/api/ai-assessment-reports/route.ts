@@ -23,13 +23,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const { data: userProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("organization_id")
+      .eq("user_id", user.id)
+      .single()
+
+    if (profileError) {
+      console.error("Error fetching user profile:", profileError)
+      return NextResponse.json({ error: "Failed to get user profile" }, { status: 500 })
+    }
+
     const reportData = await request.json()
+
+    console.log("[v0] Attempting to save AI assessment report for user:", user.id)
+    console.log("[v0] Organization ID:", userProfile?.organization_id)
 
     // Insert the AI assessment report
     const { data: report, error: insertError } = await supabase
       .from("ai_assessment_reports")
       .insert({
         user_id: user.id,
+        organization_id: userProfile?.organization_id || null, // Include organization_id
         report_title: reportData.report_title,
         assessment_type: reportData.assessment_type,
         risk_level: reportData.risk_level,
@@ -38,6 +53,7 @@ export async function POST(request: NextRequest) {
         full_report_content: reportData.full_report_content,
         uploaded_documents_metadata: reportData.uploaded_documents_metadata,
         soc_info: reportData.soc_info,
+        analysis_date: reportData.full_report_content?.analysisDate || new Date().toISOString(), // Add analysis_date
         created_at: new Date().toISOString(),
       })
       .select()
@@ -45,9 +61,16 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.error("Error inserting AI assessment report:", insertError)
-      return NextResponse.json({ error: "Failed to save report" }, { status: 500 })
+      return NextResponse.json(
+        {
+          error: "Failed to save report",
+          details: insertError.message,
+        },
+        { status: 500 },
+      )
     }
 
+    console.log("[v0] Successfully saved AI assessment report:", report?.id)
     return NextResponse.json({ report }, { status: 201 })
   } catch (error) {
     console.error("Error in AI assessment reports API:", error)

@@ -56,3 +56,26 @@ When performing AI document analysis, the citation format with quotes, document 
 *   Maintain the detailed evidence format in saved reports for client reference
 
 This citation system is essential for regulatory compliance and client trust - any changes to this format require explicit approval.
+
+## Assessment Format Preservation - Critical Rule
+
+The current AI assessment format with Question-by-Question Review MUST NEVER be modified. This includes:
+
+**Preserve Exactly:**
+*   Question-by-Question Review interface layout
+*   AI Answer format with confidence percentages
+*   AI Reasoning with page references
+*   Supporting Evidence sections with:
+    - Direct quotes in quotation marks
+    - Document name/filename display
+    - Page number references
+    - Relevance explanations
+    - Confidence scores
+
+**Visual Format Requirements:**
+*   Maintain the structured evidence boxes with green background
+*   Keep the "Why this is relevant" explanations
+*   Preserve all citation metadata (document, page, relevance, confidence)
+*   Never change the evidence presentation structure
+
+This assessment format provides exceptional value for regulatory compliance, client trust, and evidence traceability. Any modifications to this format are strictly prohibited without explicit user approval.
