@@ -36,3 +36,23 @@ To maintain consistency and efficiency, please adhere to the following guideline
 *   **Recharts:** Use for rendering all charts and graphs in analytics and dashboard views.
 *   **Resend:** Use the `sendAssessmentEmail` and `notifyAssessmentCompletion` functions (or similar) for all email sending functionality. Ensure `RESEND_API_KEY` is configured.
 *   **jsPDF & pdfjs-dist:** Use for client-side PDF generation and advanced PDF document parsing/text extraction, respectively.
+
+## AI Analysis Citation Requirements
+
+**CRITICAL: Citation Format Preservation**
+
+When performing AI document analysis, the citation format with quotes, document names, and page numbers MUST be preserved exactly as implemented. This format provides essential traceability and evidence for risk assessments.
+
+**Required Citation Elements:**
+*   **Direct quotes** from source documents
+*   **Document name/filename** for each citation
+*   **Page number** reference where available
+*   **Structured evidence format** that allows clients to verify findings
+
+**Implementation Rule:**
+*   Never modify the citation structure in `lib/ai-service.ts`
+*   Always include `documentExcerpts` with full evidence details in AI responses
+*   Preserve the semantic relevance checking for citation accuracy
+*   Maintain the detailed evidence format in saved reports for client reference
+
+This citation system is essential for regulatory compliance and client trust - any changes to this format require explicit approval.

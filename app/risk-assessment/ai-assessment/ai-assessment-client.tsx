@@ -533,7 +533,75 @@ export default function AIAssessmentClient() {
     }
   }
 
-  const handleApproveResults = () => {
+  const handleApproveResults = async () => {
+    if (aiAnalysisResult && selectedCategory) {
+      try {
+        const currentCategory = assessmentCategories.find((cat) => cat.id === selectedCategory)
+
+        // Prepare the report data
+        const reportData = {
+          report_title: `${currentCategory?.title || "AI Assessment"} - ${new Date().toLocaleDateString()}`,
+          assessment_type: currentCategory?.title || "AI Assessment",
+          risk_level: aiAnalysisResult.riskLevel,
+          risk_score: aiAnalysisResult.riskScore,
+          report_summary: aiAnalysisResult.overallAnalysis,
+          full_report_content: {
+            questions:
+              currentCategory?.questions.map((question, index) => ({
+                question: question.text,
+                answer:
+                  typeof aiAnalysisResult.answers[question.id] === "boolean"
+                    ? aiAnalysisResult.answers[question.id]
+                      ? "Yes"
+                      : "No"
+                    : String(aiAnalysisResult.answers[question.id]),
+                reasoning: aiAnalysisResult.reasoning[question.id] || "No reasoning provided",
+                confidence: Math.round((aiAnalysisResult.confidenceScores[question.id] || 0) * 100),
+                evidence: (aiAnalysisResult.documentExcerpts?.[question.id] || []).map((excerpt) => ({
+                  quote: excerpt.quote,
+                  document: excerpt.fileName,
+                  page: excerpt.pageNumber || excerpt.pageOrSection,
+                  relevance: excerpt.relevance,
+                  confidence: excerpt.confidence ? Math.round(excerpt.confidence * 100) : undefined,
+                })),
+              })) || [],
+            riskFactors: aiAnalysisResult.riskFactors,
+            recommendations: aiAnalysisResult.recommendations,
+            analysisDate: aiAnalysisResult.analysisDate,
+            documentsAnalyzed: aiAnalysisResult.documentsAnalyzed,
+            aiProvider: aiAnalysisResult.aiProvider || "google",
+          },
+          uploaded_documents_metadata: uploadedFiles.map((file) => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            lastModified: file.lastModified,
+          })),
+          soc_info: companyInfo,
+        }
+
+        console.log("[v0] Saving AI assessment report to database")
+        const response = await fetch("/api/ai-assessment-reports", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(reportData),
+        })
+
+        if (response.ok) {
+          const { report } = await response.json()
+          console.log("[v0] AI assessment report saved successfully:", report.id)
+        } else {
+          console.error("[v0] Failed to save AI assessment report:", response.status)
+          // Continue to results even if save fails - don't block the user
+        }
+      } catch (error) {
+        console.error("[v0] Error saving AI assessment report:", error)
+        // Continue to results even if save fails - don't block the user
+      }
+    }
+
     setCurrentStep("results")
   }
 
