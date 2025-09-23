@@ -37,11 +37,28 @@ To maintain consistency and efficiency, please adhere to the following guideline
 *   **Resend:** Use the `sendAssessmentEmail` and `notifyAssessmentCompletion` functions (or similar) for all email sending functionality. Ensure `RESEND_API_KEY` is configured.
 *   **jsPDF & pdfjs-dist:** Use for client-side PDF generation and advanced PDF document parsing/text extraction, respectively.
 
-## AI Analysis Citation Requirements
+## AI Assessment Critical Rules - ABSOLUTE REQUIREMENTS
 
-**CRITICAL: Citation Format Preservation**
+### Rule 1: ALL Questions Must Be Shown
+**CRITICAL:** The AI assessment system MUST ALWAYS show ALL questions to users, regardless of AI confidence or evidence availability. 
 
-When performing AI document analysis, the citation format with quotes, document names, and page numbers MUST be preserved exactly as implemented. This format provides essential traceability and evidence for risk assessments.
+**Requirements:**
+*   **Never filter out questions** based on semantic relevance or evidence quality
+*   **Always include every question** in the final assessment results
+*   **Show conservative answers** (e.g., "No" for boolean questions) when evidence is insufficient
+*   **Include low-confidence questions** with clear manual review indicators
+*   **Prevent false 100% scores** by including all questions in scoring calculations
+
+**Implementation:**
+*   Questions without strong evidence should default to conservative security answers
+*   Low-confidence answers must be clearly marked for manual review
+*   Users must see warnings when questions need manual verification
+*   The risk score must reflect ALL questions, not just those with high AI confidence
+
+This rule prevents artificially inflated security scores and ensures comprehensive risk assessment coverage.
+
+### Rule 2: Citation Format Preservation
+**CRITICAL:** Citation format with quotes, document names, and page numbers MUST be preserved exactly as implemented.
 
 **Required Citation Elements:**
 *   **Direct quotes** from source documents
@@ -55,11 +72,8 @@ When performing AI document analysis, the citation format with quotes, document 
 *   Preserve the semantic relevance checking for citation accuracy
 *   Maintain the detailed evidence format in saved reports for client reference
 
-This citation system is essential for regulatory compliance and client trust - any changes to this format require explicit approval.
-
-## Assessment Format Preservation - Critical Rule
-
-The current AI assessment format with Question-by-Question Review MUST NEVER be modified. This includes:
+### Rule 3: Assessment Format Preservation
+The current AI assessment format with Question-by-Question Review MUST NEVER be modified.
 
 **Preserve Exactly:**
 *   Question-by-Question Review interface layout
@@ -79,3 +93,4 @@ The current AI assessment format with Question-by-Question Review MUST NEVER be 
 *   Never change the evidence presentation structure
 
 This assessment format provides exceptional value for regulatory compliance, client trust, and evidence traceability. Any modifications to this format are strictly prohibited without explicit user approval.
+</markdown>

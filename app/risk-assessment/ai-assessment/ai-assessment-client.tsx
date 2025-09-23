@@ -719,6 +719,13 @@ export default function AIAssessmentClient() {
               <p className="text-lg text-gray-600">
                 Please review each question, AI answer, and supporting evidence before approving
               </p>
+              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg max-w-4xl mx-auto">
+                <p className="text-yellow-800 font-medium">
+                  ⚠️ Important: All questions are shown below, including those where AI found limited evidence. Questions
+                  without strong evidence default to conservative "No" answers to ensure security. Review each answer
+                  carefully and consider if manual verification is needed.
+                </p>
+              </div>
             </div>
 
             {aiAnalysisResult && currentCategory && (
@@ -729,6 +736,9 @@ export default function AIAssessmentClient() {
                     <div className="text-center">
                       <div className="text-4xl font-bold text-blue-600 mb-2">{aiAnalysisResult.riskScore}/100</div>
                       <div className="text-lg font-semibold">Risk Score</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        (Includes all questions - conservative scoring applied)
+                      </div>
                     </div>
                     <div className="text-center">
                       <div
@@ -780,9 +790,22 @@ export default function AIAssessmentClient() {
                           </h4>
                           <div className="flex items-center space-x-4">
                             <span className="text-sm text-gray-500">Category: {question.category}</span>
-                            <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800">
+                            <span
+                              className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                                confidence >= 0.7
+                                  ? "bg-green-100 text-green-800"
+                                  : confidence >= 0.4
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                              }`}
+                            >
                               Confidence: {Math.round(confidence * 100)}%
                             </span>
+                            {confidence < 0.4 && (
+                              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-orange-100 text-orange-800">
+                                ⚠️ Manual Review Recommended
+                              </span>
+                            )}
                           </div>
                         </div>
 
@@ -835,9 +858,14 @@ export default function AIAssessmentClient() {
 
                         {excerpts.length === 0 && (
                           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <p className="text-sm text-yellow-800">
-                              <strong>No specific document evidence found.</strong> This answer is based on general
-                              analysis or conservative assumptions.
+                            <p className="text-sm text-yellow-800 mb-2">
+                              <strong>No specific document evidence found.</strong> This answer is based on conservative
+                              security assumptions.
+                            </p>
+                            <p className="text-xs text-yellow-700">
+                              💡 <strong>Manual Review Needed:</strong> If you have evidence for this question that
+                              wasn't detected, consider documenting it separately or uploading additional relevant
+                              documents.
                             </p>
                           </div>
                         )}

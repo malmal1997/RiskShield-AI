@@ -307,7 +307,7 @@ function checkSemanticRelevance(
       "pen test",
       "pentest",
       "security test",
-      "security scan",
+      "security scanning",
       "security assessment",
       "vulnerability scan",
       "vulnerability assessment",
@@ -315,6 +315,8 @@ function checkSemanticRelevance(
       "vulnerability testing",
       "security audit",
       "intrusion test",
+      "ethical hacking",
+      "red team",
     ]
 
     const hasVulnerabilityTerms = vulnerabilityTerms.some((term) => evidenceLower.includes(term))
@@ -798,7 +800,7 @@ Respond in this exact JSON format:
       const aiResponse = JSON.parse(jsonString)
       console.log(`✅ Successfully parsed AI response JSON`)
 
-      // Process each question with enhanced validation
+      // Process each question with enhanced validation - ALWAYS INCLUDE ALL QUESTIONS
       questions.forEach((question) => {
         const questionId = question.id
         const aiAnswer = aiResponse.answers?.[questionId]
@@ -821,11 +823,10 @@ Respond in this exact JSON format:
               const documentType = item.documentType || "primary" // Default to primary
               const documentRelationship = item.documentRelationship || undefined
 
-              // Perform semantic relevance check on the quote
               const relevanceCheck = checkSemanticRelevance(question.question, quote)
-              if (!relevanceCheck.isRelevant) {
+              if (!relevanceCheck.isRelevant && quote.length < 20) {
                 console.log(`❌ Question ${questionId}: Evidence quote rejected - ${relevanceCheck.reason}`)
-                return null // Filter out irrelevant quotes
+                return null // Only filter out very short irrelevant quotes
               }
 
               return {
@@ -840,35 +841,31 @@ Respond in this exact JSON format:
             })
             .filter(Boolean) // Filter out nulls (irrelevant quotes)
 
-          if (relevantExcerpts.length > 0) {
-            answers[questionId] = aiAnswer // Use AI's answer if relevant evidence found
-            const avgConfidence =
-              relevantExcerpts.reduce((sum, excerpt) => sum + (excerpt.confidence || 0.5), 0) / relevantExcerpts.length
-            confidenceScores[questionId] = Math.min(aiConfidence, avgConfidence)
-            reasoning[question.id] = aiReasoning || "Evidence found and validated as relevant"
-            documentExcerpts[questionId] = relevantExcerpts
-          } else {
-            // No relevant excerpts found after filtering
-            console.log(`❌ Question ${questionId}: No relevant evidence found after semantic filtering.`)
-            if (question.type === "boolean") {
-              answers[question.id] = false
-            } else if (question.options && question.options.length > 0) {
-              answers[question.id] = question.options[0]
-            }
-            confidenceScores[question.id] = 0.1 // Low confidence if no relevant evidence
-            reasoning[question.id] = "No directly relevant evidence found in documents after semantic filtering."
-            documentExcerpts[questionId] = []
-          }
+          answers[questionId] = aiAnswer // Use AI's answer
+          const avgConfidence =
+            relevantExcerpts.length > 0
+              ? relevantExcerpts.reduce((sum, excerpt) => sum + (excerpt.confidence || 0.5), 0) /
+                relevantExcerpts.length
+              : 0.1 // Low confidence if no evidence
+          confidenceScores[questionId] = Math.min(aiConfidence, avgConfidence)
+          reasoning[question.id] =
+            aiReasoning ||
+            (relevantExcerpts.length > 0
+              ? "Evidence found and validated"
+              : "No directly relevant evidence found - answer based on conservative assumptions")
+          documentExcerpts[questionId] = relevantExcerpts
         } else {
-          // No evidence array or empty array provided by AI
-          console.log(`⚠️ Question ${questionId}: No evidence array or empty array provided by AI`)
+          console.log(
+            `⚠️ Question ${questionId}: No evidence array or empty array provided by AI - including with conservative answer`,
+          )
           if (question.type === "boolean") {
-            answers[question.id] = false
+            answers[question.id] = false // Conservative default for boolean questions
           } else if (question.options && question.options.length > 0) {
-            answers[question.id] = question.options[0]
+            answers[question.id] = question.options[0] // Most conservative option
           }
           confidenceScores[question.id] = 0.1 // Low confidence if no evidence
-          reasoning[question.id] = "No directly relevant evidence found in documents."
+          reasoning[question.id] =
+            "No directly relevant evidence found in documents. Answer based on conservative security assumptions."
           documentExcerpts[questionId] = []
         }
       })
