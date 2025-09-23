@@ -800,7 +800,6 @@ Respond in this exact JSON format:
       const aiResponse = JSON.parse(jsonString)
       console.log(`✅ Successfully parsed AI response JSON`)
 
-      // Process each question with enhanced validation - ALWAYS INCLUDE ALL QUESTIONS
       questions.forEach((question) => {
         const questionId = question.id
         const aiAnswer = aiResponse.answers?.[questionId]
@@ -812,6 +811,7 @@ Respond in this exact JSON format:
           `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence count=${Array.isArray(aiEvidenceArray) ? aiEvidenceArray.length : 0}`,
         )
 
+        // ALWAYS include the question - no filtering based on evidence quality
         if (Array.isArray(aiEvidenceArray) && aiEvidenceArray.length > 0) {
           const relevantExcerpts = aiEvidenceArray
             .map((item: any) => {
@@ -823,10 +823,9 @@ Respond in this exact JSON format:
               const documentType = item.documentType || "primary" // Default to primary
               const documentRelationship = item.documentRelationship || undefined
 
-              const relevanceCheck = checkSemanticRelevance(question.question, quote)
-              if (!relevanceCheck.isRelevant && quote.length < 20) {
-                console.log(`❌ Question ${questionId}: Evidence quote rejected - ${relevanceCheck.reason}`)
-                return null // Only filter out very short irrelevant quotes
+              // Only do basic validation - don't filter out based on semantic relevance
+              if (quote.length < 10) {
+                console.log(`⚠️ Question ${questionId}: Very short evidence quote, but including anyway`)
               }
 
               return {
@@ -836,28 +835,18 @@ Respond in this exact JSON format:
                 pageNumber,
                 documentType,
                 documentRelationship,
-                confidence: relevanceCheck.confidence, // Store confidence in excerpt object
+                confidence: 0.7, // Default confidence for included evidence
               }
             })
-            .filter(Boolean) // Filter out nulls (irrelevant quotes)
+            .filter(Boolean) // Only filter out completely invalid entries
 
           answers[questionId] = aiAnswer // Use AI's answer
-          const avgConfidence =
-            relevantExcerpts.length > 0
-              ? relevantExcerpts.reduce((sum, excerpt) => sum + (excerpt.confidence || 0.5), 0) /
-                relevantExcerpts.length
-              : 0.1 // Low confidence if no evidence
-          confidenceScores[questionId] = Math.min(aiConfidence, avgConfidence)
-          reasoning[question.id] =
-            aiReasoning ||
-            (relevantExcerpts.length > 0
-              ? "Evidence found and validated"
-              : "No directly relevant evidence found - answer based on conservative assumptions")
+          confidenceScores[questionId] = Math.min(aiConfidence, 0.9) // Cap confidence
+          reasoning[question.id] = aiReasoning || "Evidence found and processed"
           documentExcerpts[questionId] = relevantExcerpts
         } else {
-          console.log(
-            `⚠️ Question ${questionId}: No evidence array or empty array provided by AI - including with conservative answer`,
-          )
+          console.log(`⚠️ Question ${questionId}: No evidence provided by AI - including with conservative answer`)
+          // ALWAYS include the question with conservative defaults
           if (question.type === "boolean") {
             answers[question.id] = false // Conservative default for boolean questions
           } else if (question.options && question.options.length > 0) {
@@ -865,6 +854,7 @@ Respond in this exact JSON format:
           }
           confidenceScores[question.id] = 0.1 // Low confidence if no evidence
           reasoning[question.id] =
+            aiReasoning ||
             "No directly relevant evidence found in documents. Answer based on conservative security assumptions."
           documentExcerpts[questionId] = []
         }
@@ -895,7 +885,6 @@ Respond in this exact JSON format:
     }
   } catch (error) {
     console.error(`❌ ${selectedProvider.toUpperCase()} AI processing failed:`, error)
-    // Fallback to conservative answers
     questions.forEach((question) => {
       answers[question.id] = question.type === "boolean" ? false : question.options?.[0] || "Never"
       confidenceScores[question.id] = 0.1
@@ -975,7 +964,7 @@ Respond in this exact JSON format:
     riskFactors: [
       `Analysis based on direct ${selectedProvider.toUpperCase()} AI document processing`,
       "Conservative approach taken where evidence was unclear or missing",
-      "Semantic validation applied to all evidence",
+      "All questions included regardless of AI confidence level",
       ...(failedProcessing > 0 ? [`${failedProcessing} files failed to process`] : []),
       ...(unsupportedFiles.length > 0 ? [`${unsupportedFiles.length} files in unsupported formats`] : []),
     ],
