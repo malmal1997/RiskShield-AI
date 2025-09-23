@@ -71,15 +71,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized: User not authenticated." }, { status: 401 })
       }
 
-      // Ensure the userId from client matches the authenticated user
-      if (user.id !== userIdFromClient) {
+      if (user.email === "k@gmail.com" && userIdFromClient === "client-admin-001") {
+        // Special case: k@gmail.com uses custom client-admin-001 ID in auth context
+        userIdToUse = userIdFromClient
+        console.log(`AI Assessment API: Processing as client admin: ${userIdToUse}`)
+      } else if (user.id !== userIdFromClient) {
+        // For all other users, ensure the userId from client matches the authenticated user
         console.warn(
           `Unauthorized AI Assessment API call: User ID mismatch. Authenticated: ${user.id}, Client provided: ${userIdFromClient}`,
         )
         return NextResponse.json({ error: "Unauthorized: User ID mismatch." }, { status: 401 })
+      } else {
+        userIdToUse = user.id
+        console.log(`AI Assessment API: Processing as authenticated user: ${userIdToUse}`)
       }
-      userIdToUse = user.id
-      console.log(`AI Assessment API: Processing as authenticated user: ${userIdToUse}`)
     }
 
     if (!userIdToUse) {
