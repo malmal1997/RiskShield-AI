@@ -478,6 +478,12 @@ export default function DashboardPage() {
                         Manage Vendors
                       </Button>
                     </Link>
+                    <Link href="/reports">
+                      <Button className="w-full justify-start bg-transparent" variant="outline">
+                        <FileText className="mr-2 h-4 w-4" />
+                        View Reports
+                      </Button>
+                    </Link>
                     <Button className="w-full justify-start bg-transparent" variant="outline">
                       <BarChart3 className="mr-2 h-4 w-4" />
                       Generate Report

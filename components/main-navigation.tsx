@@ -17,15 +17,15 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { trackClick } = useFeatureTracking()
-  const { user, isDemo, signOut: authSignOut } = useAuth(); // Use useAuth hook
+  const { user, isDemo, signOut: authSignOut } = useAuth() // Use useAuth hook
 
-  console.log("MainNavigation: user =", user?.email, "isDemo =", isDemo);
+  console.log("MainNavigation: user =", user?.email, "isDemo =", isDemo)
 
   // Determine if user is authenticated or in demo mode
-  const isAuthenticatedOrDemo = !!user || isDemo;
-  const displayEmail = user?.email || (isDemo ? "demo@riskshield.ai" : undefined);
+  const isAuthenticatedOrDemo = !!user || isDemo
+  const displayEmail = user?.email || (isDemo ? "demo@riskshield.ai" : undefined)
 
-  console.log("MainNavigation: isAuthenticatedOrDemo =", isAuthenticatedOrDemo);
+  console.log("MainNavigation: isAuthenticatedOrDemo =", isAuthenticatedOrDemo)
 
   const publicNavigationItems = [
     { name: "Platform", href: "/" },
@@ -34,7 +34,7 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
     { name: "Careers", href: "/careers" },
     { name: "Documentation", href: "/documentation" },
     { name: "Help Center", href: "/help-center" },
-  ];
+  ]
 
   const restrictedNavigationItems = [
     { name: "Risk Assessment", href: "/risk-assessment" },
@@ -42,13 +42,12 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
     { name: "Policy Generator", href: "/policy-generator" },
     { name: "Policy Library", href: "/policy-library" },
     { name: "Dashboard", href: "/dashboard" },
+    { name: "Reports", href: "/reports" }, // Added Reports navigation item for accessing saved AI assessment reports
     { name: "Settings", href: "/settings" },
-  ];
+  ]
 
   // Determine which navigation items to show
-  const allNavigationItems = isAuthenticatedOrDemo
-    ? restrictedNavigationItems
-    : publicNavigationItems;
+  const allNavigationItems = isAuthenticatedOrDemo ? restrictedNavigationItems : publicNavigationItems
 
   const isActive = (href: string) => {
     if (href === "/" && pathname === "/") return true
@@ -66,9 +65,9 @@ export function MainNavigation({ onSignOut, showAuthButtons = true }: Navigation
 
   const handleSignOutClick = () => {
     if (onSignOut) {
-      onSignOut(); // Call prop if provided
+      onSignOut() // Call prop if provided
     } else {
-      authSignOut(); // Use context signOut
+      authSignOut() // Use context signOut
     }
   }
 
