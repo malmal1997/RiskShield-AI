@@ -34,7 +34,7 @@ import { useToast } from "@/components/ui/use-toast" // Import useToast
 // Removed: import { AppFooter } from "@/components/app-footer" // Import AppFooter
 
 // Assessment categories and questions
-const assessmentCategories = [
+export const assessmentCategories = [
   {
     id: "cybersecurity",
     name: "Cybersecurity",

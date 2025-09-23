@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Shield, FileText, Brain, Building, Server, Upload, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
 import { Badge } from "@/components/ui/badge"
+import { assessmentCategories as fullAssessmentCategories } from "../page"
 
 const assessmentCategories = [
   {
@@ -14,43 +15,16 @@ const assessmentCategories = [
     description: "Comprehensive security posture evaluation",
     icon: Shield,
     color: "bg-red-100 text-red-700",
-    questions: [
-      {
-        id: "network_security",
-        text: "How do you secure your network infrastructure?",
-        type: "textarea" as const,
-        category: "Network Security",
-        weight: 0.2,
-      },
-      {
-        id: "access_control",
-        text: "Describe your access control and authentication mechanisms",
-        type: "textarea" as const,
-        category: "Access Control",
-        weight: 0.25,
-      },
-      {
-        id: "data_protection",
-        text: "What measures do you have in place for data protection and encryption?",
-        type: "textarea" as const,
-        category: "Data Protection",
-        weight: 0.2,
-      },
-      {
-        id: "incident_response",
-        text: "Describe your incident response and recovery procedures",
-        type: "textarea" as const,
-        category: "Incident Response",
-        weight: 0.15,
-      },
-      {
-        id: "security_monitoring",
-        text: "How do you monitor and detect security threats?",
-        type: "textarea" as const,
-        category: "Security Monitoring",
-        weight: 0.2,
-      },
-    ],
+    questions:
+      fullAssessmentCategories
+        .find((cat) => cat.name === "Cybersecurity")
+        ?.questions.map((q) => ({
+          id: q.id,
+          text: q.question,
+          type: "textarea" as const,
+          category: "Cybersecurity",
+          weight: q.weight / 100, // Convert weight to decimal
+        })) || [],
   },
   {
     id: "compliance",
