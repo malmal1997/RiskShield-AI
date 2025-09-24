@@ -165,13 +165,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const supabase = createClient()
+      console.log("[v0] AuthContext: Checking Supabase authentication...")
+
       const {
         data: { user: supabaseUser },
         error: userError,
       } = await supabase.auth.getUser()
 
+      console.log("[v0] AuthContext: Supabase getUser result:", {
+        hasUser: !!supabaseUser,
+        userEmail: supabaseUser?.email,
+        error: userError?.message,
+      })
+
       if (supabaseUser && supabaseUser.email === "k@gmail.com") {
-        console.log("[v0] AuthContext: Client admin detected, creating admin session")
+        console.log("[v0] AuthContext: Client admin detected (k@gmail.com), creating admin session")
 
         const adminSession: DemoSession = {
           user: {
@@ -208,11 +216,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false)
         refreshingRef.current = false
         if (timeoutRef.current) clearTimeout(timeoutRef.current)
+
+        console.log("[v0] AuthContext: Client admin session created successfully")
         return
       }
 
       if (userError || !supabaseUser) {
-        console.log("[v0] AuthContext: No authenticated user found")
+        console.log("[v0] AuthContext: No authenticated user found", {
+          error: userError?.message,
+          hasUser: !!supabaseUser,
+        })
         setUser(null)
         setProfile(null)
         setOrganization(null)
@@ -226,6 +239,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       console.log("[v0] AuthContext: Authenticated user found:", supabaseUser.email)
 
+      // Existing code for regular user profile handling
       const { data: profileData, error: profileError } = await supabase
         .from("user_profiles")
         .select("*")

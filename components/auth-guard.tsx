@@ -25,6 +25,13 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
+  console.log("[v0] AuthGuard: Current auth state:", {
+    hasUser: !!user,
+    userEmail: user?.email,
+    loading,
+    isDemo,
+  })
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -115,6 +122,7 @@ export function AuthGuard({ children, allowPreview = false, previewMessage }: Au
         <div className="text-center">
           <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="mt-2 text-gray-600">Loading...</p>
+          <p className="mt-1 text-xs text-gray-400">Checking authentication...</p>
         </div>
       </div>
     )
