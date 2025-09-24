@@ -272,6 +272,9 @@ export default function AIAssessmentClient() {
   const [isDelegatedAssessment, setIsDelegatedAssessment] = useState(false)
   const [delegatedAssessmentInfo, setDelegatedAssessmentInfo] = useState<DelegatedAssessmentInfo | null>(null)
 
+  const [editingAnswers, setEditingAnswers] = useState<Record<string, string | boolean>>({})
+  const [isEditingMode, setIsEditingMode] = useState<Record<string, boolean>>({})
+
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -507,6 +510,48 @@ export default function AIAssessmentClient() {
     }
   }
 
+  const handleEditAnswer = (questionId: string, newAnswer: string | boolean) => {
+    setEditingAnswers((prev) => ({
+      ...prev,
+      [questionId]: newAnswer,
+    }))
+  }
+
+  const handleSaveEdit = (questionId: string) => {
+    if (aiAnalysisResult && editingAnswers[questionId] !== undefined) {
+      setAiAnalysisResult((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          answers: {
+            ...prev.answers,
+            [questionId]: editingAnswers[questionId],
+          },
+        }
+      })
+    }
+    setIsEditingMode((prev) => ({ ...prev, [questionId]: false }))
+    setEditingAnswers((prev) => {
+      const updated = { ...prev }
+      delete updated[questionId]
+      return updated
+    })
+  }
+
+  const handleCancelEdit = (questionId: string) => {
+    setIsEditingMode((prev) => ({ ...prev, [questionId]: false }))
+    setEditingAnswers((prev) => {
+      const updated = { ...prev }
+      delete updated[questionId]
+      return updated
+    })
+  }
+
+  const handleStartEdit = (questionId: string, currentAnswer: string | boolean) => {
+    setIsEditingMode((prev) => ({ ...prev, [questionId]: true }))
+    setEditingAnswers((prev) => ({ ...prev, [questionId]: currentAnswer }))
+  }
+
   const handleApproveResults = async () => {
     if (aiAnalysisResult && selectedCategory) {
       try {
@@ -700,6 +745,12 @@ export default function AIAssessmentClient() {
                   carefully and consider if manual verification is needed.
                 </p>
               </div>
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-4xl mx-auto">
+                <p className="text-blue-800 font-medium">
+                  💡 You can edit any AI-generated answer by clicking the "Edit" button next to each question. Make sure
+                  to save your changes before approving the assessment.
+                </p>
+              </div>
             </div>
 
             {aiAnalysisResult && currentCategory && (
@@ -746,12 +797,15 @@ export default function AIAssessmentClient() {
                 <div className="space-y-6 mb-8">
                   <h3 className="text-2xl font-bold text-gray-900">Question-by-Question Review</h3>
                   <p className="text-gray-600 mb-6">
-                    Review each AI-generated answer and the supporting evidence from your documents. You must approve
-                    these results before proceeding.
+                    Review each AI-generated answer and the supporting evidence from your documents. You can edit any
+                    answer before approving.
                   </p>
 
                   {currentCategory.questions.map((question, index) => {
-                    const answer = aiAnalysisResult.answers[question.id]
+                    const currentAnswer = aiAnalysisResult.answers[question.id]
+                    const editingAnswer = editingAnswers[question.id]
+                    const isEditing = isEditingMode[question.id]
+                    const displayAnswer = isEditing ? editingAnswer : currentAnswer
                     const confidence = aiAnalysisResult.confidenceScores[question.id] || 0
                     const reasoning = aiAnalysisResult.reasoning[question.id] || "No reasoning provided"
                     const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
@@ -783,12 +837,96 @@ export default function AIAssessmentClient() {
                           </div>
                         </div>
 
-                        {/* AI Answer */}
                         <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                          <p className="text-sm font-medium text-blue-800 mb-2">AI Answer:</p>
-                          <p className="font-semibold text-blue-900 text-lg">
-                            {typeof answer === "boolean" ? (answer ? "Yes" : "No") : String(answer)}
-                          </p>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm font-medium text-blue-800">AI Answer:</p>
+                            <div className="flex space-x-2">
+                              {!isEditing ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleStartEdit(question.id, currentAnswer)}
+                                  className="text-xs"
+                                >
+                                  Edit
+                                </Button>
+                              ) : (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleSaveEdit(question.id)}
+                                    className="text-xs bg-green-600 hover:bg-green-700"
+                                  >
+                                    Save
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleCancelEdit(question.id)}
+                                    className="text-xs"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {!isEditing ? (
+                            <p className="font-semibold text-blue-900 text-lg">
+                              {typeof displayAnswer === "boolean"
+                                ? displayAnswer
+                                  ? "Yes"
+                                  : "No"
+                                : String(displayAnswer)}
+                            </p>
+                          ) : (
+                            <div className="space-y-2">
+                              {question.type === "select" && question.options ? (
+                                <select
+                                  value={String(editingAnswer)}
+                                  onChange={(e) => handleEditAnswer(question.id, e.target.value)}
+                                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                  {question.options.map((option) => (
+                                    <option key={option} value={option}>
+                                      {option}
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : question.type === "textarea" ? (
+                                <textarea
+                                  value={String(editingAnswer)}
+                                  onChange={(e) => handleEditAnswer(question.id, e.target.value)}
+                                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  rows={3}
+                                />
+                              ) : (
+                                <div className="flex space-x-4">
+                                  <label className="flex items-center">
+                                    <input
+                                      type="radio"
+                                      name={`edit-${question.id}`}
+                                      checked={editingAnswer === true}
+                                      onChange={() => handleEditAnswer(question.id, true)}
+                                      className="mr-2"
+                                    />
+                                    Yes
+                                  </label>
+                                  <label className="flex items-center">
+                                    <input
+                                      type="radio"
+                                      name={`edit-${question.id}`}
+                                      checked={editingAnswer === false}
+                                      onChange={() => handleEditAnswer(question.id, false)}
+                                      className="mr-2"
+                                    />
+                                    No
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         {/* AI Reasoning */}
