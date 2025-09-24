@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { BarChart3, TrendingUp, FileText, Download, Calendar, Filter, Eye, Brain, Quote } from "lucide-react"
+import {
+  BarChart3,
+  TrendingUp,
+  FileText,
+  Download,
+  Calendar,
+  Filter,
+  Eye,
+  Brain,
+  Quote,
+  Edit2,
+  Save,
+  X,
+} from "lucide-react"
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#dc2626"]
 
@@ -57,6 +71,9 @@ function ReportsContent() {
   const [selectedTimeframe, setSelectedTimeframe] = useState("30d")
   const [aiReports, setAiReports] = useState<any[]>([])
   const [selectedReport, setSelectedReport] = useState<any>(null)
+  const [editingQuestions, setEditingQuestions] = useState<Set<number>>(new Set())
+  const [editedAnswers, setEditedAnswers] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     fetchAiReports()
@@ -84,7 +101,6 @@ function ReportsContent() {
 
   const handleExportReport = async (report: any) => {
     try {
-      // Create HTML content for PDF generation
       const htmlContent = `
         <!DOCTYPE html>
         <html>
@@ -185,22 +201,18 @@ function ReportsContent() {
         </html>
       `
 
-      // Create a new window for printing
       const printWindow = window.open("", "_blank")
       if (printWindow) {
         printWindow.document.write(htmlContent)
         printWindow.document.close()
 
-        // Wait for content to load, then trigger print dialog
         printWindow.onload = () => {
           printWindow.print()
-          // Close the window after printing (user can cancel)
           printWindow.onafterprint = () => {
             printWindow.close()
           }
         }
       } else {
-        // Fallback: create downloadable HTML file if popup blocked
         const blob = new Blob([htmlContent], { type: "text/html" })
         const url = URL.createObjectURL(blob)
         const link = document.createElement("a")
@@ -217,6 +229,72 @@ function ReportsContent() {
       console.error("[v0] Error exporting report:", error)
       alert("Failed to export report. Please try again.")
     }
+  }
+
+  const handleEditQuestion = (questionIndex: number, questionId: string, currentAnswer: string) => {
+    setEditingQuestions((prev) => new Set(prev).add(questionIndex))
+    setEditedAnswers((prev) => ({ ...prev, [questionId]: currentAnswer }))
+  }
+
+  const handleSaveQuestion = async (questionIndex: number, questionId: string) => {
+    if (!selectedReport) return
+
+    setSaving(true)
+    try {
+      const response = await fetch(`/api/assessment-responses/${selectedReport.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answers: {
+            [questionId]: editedAnswers[questionId],
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update assessment")
+      }
+
+      const result = await response.json()
+
+      const updatedReport = { ...selectedReport }
+      if (updatedReport.full_report_content?.questions) {
+        updatedReport.full_report_content.questions[questionIndex].answer = editedAnswers[questionId]
+      }
+      updatedReport.risk_score = result.riskScore
+      updatedReport.risk_level = result.riskLevel
+
+      setSelectedReport(updatedReport)
+
+      setAiReports((prev) => prev.map((report) => (report.id === selectedReport.id ? updatedReport : report)))
+
+      setEditingQuestions((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(questionIndex)
+        return newSet
+      })
+
+      console.log("[v0] Question updated successfully")
+    } catch (error) {
+      console.error("[v0] Error updating question:", error)
+      alert("Failed to update question. Please try again.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancelEdit = (questionIndex: number, questionId: string) => {
+    setEditingQuestions((prev) => {
+      const newSet = new Set(prev)
+      newSet.delete(questionIndex)
+      return newSet
+    })
+    setEditedAnswers((prev) => {
+      const { [questionId]: removed, ...rest } = prev
+      return rest
+    })
   }
 
   return (
@@ -334,45 +412,103 @@ function ReportsContent() {
                                       <h4 className="font-semibold mb-4">Detailed Analysis</h4>
                                       <div className="space-y-6">
                                         {selectedReport.full_report_content.questions.map(
-                                          (question: any, index: number) => (
-                                            <div key={index} className="border rounded-lg p-4">
-                                              <h5 className="font-medium text-blue-900 mb-2">{question.question}</h5>
-                                              <div className="bg-blue-50 p-3 rounded mb-3">
-                                                <p className="font-medium text-blue-800">Answer:</p>
-                                                <p className="text-blue-700">{question.answer}</p>
-                                              </div>
+                                          (question: any, index: number) => {
+                                            const isEditing = editingQuestions.has(index)
+                                            const questionId = `question_${index}`
 
-                                              {question.evidence && question.evidence.length > 0 && (
-                                                <div>
-                                                  <p className="font-medium text-gray-800 mb-2 flex items-center gap-2">
-                                                    <Quote className="w-4 h-4" />
-                                                    Supporting Evidence:
-                                                  </p>
-                                                  <div className="space-y-3">
-                                                    {question.evidence.map((evidence: any, evidenceIndex: number) => (
-                                                      <div
-                                                        key={evidenceIndex}
-                                                        className="bg-gray-50 p-3 rounded border-l-4 border-gray-300"
-                                                      >
-                                                        <blockquote className="text-gray-700 italic mb-2">
-                                                          "{evidence.quote}"
-                                                        </blockquote>
-                                                        <div className="text-sm text-gray-600">
-                                                          <span className="font-medium">Source:</span>{" "}
-                                                          {evidence.document}
-                                                          {evidence.page && (
-                                                            <span className="ml-2">
-                                                              <span className="font-medium">Page:</span> {evidence.page}
-                                                            </span>
-                                                          )}
-                                                        </div>
-                                                      </div>
-                                                    ))}
-                                                  </div>
+                                            return (
+                                              <div key={index} className="border rounded-lg p-4">
+                                                <div className="flex items-start justify-between mb-2">
+                                                  <h5 className="font-medium text-blue-900 flex-1">
+                                                    {question.question}
+                                                  </h5>
+                                                  {!isEditing && (
+                                                    <Button
+                                                      variant="ghost"
+                                                      size="sm"
+                                                      onClick={() =>
+                                                        handleEditQuestion(index, questionId, question.answer)
+                                                      }
+                                                      className="ml-2"
+                                                    >
+                                                      <Edit2 className="w-4 h-4" />
+                                                    </Button>
+                                                  )}
                                                 </div>
-                                              )}
-                                            </div>
-                                          ),
+
+                                                <div className="bg-blue-50 p-3 rounded mb-3">
+                                                  <p className="font-medium text-blue-800 mb-2">Answer:</p>
+                                                  {isEditing ? (
+                                                    <div className="space-y-3">
+                                                      <Textarea
+                                                        value={editedAnswers[questionId] || question.answer}
+                                                        onChange={(e) =>
+                                                          setEditedAnswers((prev) => ({
+                                                            ...prev,
+                                                            [questionId]: e.target.value,
+                                                          }))
+                                                        }
+                                                        className="w-full"
+                                                        rows={3}
+                                                      />
+                                                      <div className="flex gap-2">
+                                                        <Button
+                                                          size="sm"
+                                                          onClick={() => handleSaveQuestion(index, questionId)}
+                                                          disabled={saving}
+                                                        >
+                                                          <Save className="w-4 h-4 mr-1" />
+                                                          {saving ? "Saving..." : "Save"}
+                                                        </Button>
+                                                        <Button
+                                                          variant="outline"
+                                                          size="sm"
+                                                          onClick={() => handleCancelEdit(index, questionId)}
+                                                          disabled={saving}
+                                                        >
+                                                          <X className="w-4 h-4 mr-1" />
+                                                          Cancel
+                                                        </Button>
+                                                      </div>
+                                                    </div>
+                                                  ) : (
+                                                    <p className="text-blue-700">{question.answer}</p>
+                                                  )}
+                                                </div>
+
+                                                {question.evidence && question.evidence.length > 0 && (
+                                                  <div>
+                                                    <p className="font-medium text-gray-800 mb-2 flex items-center gap-2">
+                                                      <Quote className="w-4 h-4" />
+                                                      Supporting Evidence:
+                                                    </p>
+                                                    <div className="space-y-3">
+                                                      {question.evidence.map((evidence: any, evidenceIndex: number) => (
+                                                        <div
+                                                          key={evidenceIndex}
+                                                          className="bg-gray-50 p-3 rounded border-l-4 border-gray-300"
+                                                        >
+                                                          <blockquote className="text-gray-700 italic mb-2">
+                                                            "{evidence.quote}"
+                                                          </blockquote>
+                                                          <div className="text-sm text-gray-600">
+                                                            <span className="font-medium">Source:</span>{" "}
+                                                            {evidence.document}
+                                                            {evidence.page && (
+                                                              <span className="ml-2">
+                                                                <span className="font-medium">Page:</span>{" "}
+                                                                {evidence.page}
+                                                              </span>
+                                                            )}
+                                                          </div>
+                                                        </div>
+                                                      ))}
+                                                    </div>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )
+                                          },
                                         )}
                                       </div>
                                     </div>
