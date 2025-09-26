@@ -1,7 +1,5 @@
 import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
-import { supabaseClient } from "./supabase-client" // Import supabaseClient
-import { getUserApiKeys, decryptUserApiKey } from "./user-api-key-service" // Import API key services
 
 export interface DocumentAnalysisResult {
   answers: Record<string, boolean | string>
@@ -150,7 +148,7 @@ function getGoogleAIMediaType(file: File): string {
   if (fileName.endsWith(".pdf")) return "application/pdf"
   if (fileName.endsWith(".txt")) return "text/plain"
   if (fileName.endsWith(".md")) return "text/markdown"
-  if (fileName.endsWith(".csv")) return "application/csv" // Corrected from text/csv for consistency
+  if (fileName.endsWith(".csv")) return "application/csv"
   if (fileName.endsWith(".json")) return "application/json"
   if (fileName.endsWith(".html") || fileName.endsWith(".htm")) return "text/html"
   if (fileName.endsWith(".xml")) return "application/xml"
@@ -158,236 +156,9 @@ function getGoogleAIMediaType(file: File): string {
   return "application/octet-stream"
 }
 
-// Enhanced cybersecurity concept mapping for better evidence validation
-const CYBERSECURITY_CONCEPTS = {
-  "penetration testing": [
-    "penetration test",
-    "pen test",
-    "pentest",
-    "security testing",
-    "vulnerability assessment",
-    "ethical hacking",
-    "red team",
-    "security audit",
-    "intrusion testing",
-    "security evaluation",
-    "vulnerability testing",
-  ],
-  "anti-malware": [
-    "antivirus",
-    "anti-virus",
-    "malware protection",
-    "endpoint protection",
-    "virus scanner",
-    "malware detection",
-    "threat protection",
-    "security software",
-  ],
-  "vulnerability scanning": [
-    "vulnerability scan",
-    "vulnerability scanning",
-    "security scan",
-    "network scan",
-    "system scan",
-    "security assessment",
-    "vulnerability assessment",
-    "automated scanning",
-    "security monitoring",
-    "vulnerability testing",
-    "security evaluation",
-    "vulnerability analysis",
-  ],
-  "disciplinary measures": [
-    "disciplinary action",
-    "penalties",
-    "sanctions",
-    "enforcement",
-    "consequences",
-    "violations",
-    "non-compliance",
-    "corrective action",
-    "punishment",
-    "disciplinary procedures",
-  ],
-  "incident response": [
-    "incident response",
-    "security incident",
-    "breach response",
-    "emergency response",
-    "incident handling",
-    "incident management",
-    "security breach",
-    "cyber incident",
-  ],
-  "policy review": [
-    "policy review",
-    "policy update",
-    "policy revision",
-    "annual review",
-    "policy maintenance",
-    "policy evaluation",
-    "policy assessment",
-    "document review",
-  ],
-  "access control": [
-    "access control",
-    "user access",
-    "authentication",
-    "authorization",
-    "permissions",
-    "access management",
-    "identity management",
-    "user privileges",
-  ],
-  encryption: [
-    "encryption",
-    "encrypted",
-    "cryptographic",
-    "data protection",
-    "secure transmission",
-    "data at rest",
-    "data in transit",
-    "cryptography",
-  ],
-  backup: [
-    "backup",
-    "data backup",
-    "backup procedures",
-    "recovery",
-    "disaster recovery",
-    "business continuity",
-    "data restoration",
-    "backup strategy",
-  ],
-  training: [
-    "training",
-    "awareness",
-    "education",
-    "security training",
-    "staff training",
-    "employee training",
-    "security awareness",
-    "cybersecurity training",
-  ],
-}
-
-// Enhanced semantic relevance checking
-function checkSemanticRelevance(
-  question: string,
-  evidence: string,
-): { isRelevant: boolean; confidence: number; reason: string } {
-  const questionLower = question.toLowerCase()
-  const evidenceLower = evidence.toLowerCase()
-
-  // Skip relevance check if evidence indicates no content found
-  if (
-    evidenceLower.includes("no directly relevant evidence found") ||
-    evidenceLower.includes("no evidence found") ||
-    evidenceLower.includes("insufficient information")
-  ) {
-    return {
-      isRelevant: false,
-      confidence: 0.1,
-      reason: "No evidence found in documents",
-    }
-  }
-
-  const isVulnerabilityQuestion =
-    questionLower.includes("vulnerability") ||
-    questionLower.includes("penetration") ||
-    questionLower.includes("pen test") ||
-    questionLower.includes("security test") ||
-    questionLower.includes("security scan")
-
-  if (isVulnerabilityQuestion) {
-    // For vulnerability questions, check for broader security-related terms
-    const vulnerabilityTerms = [
-      "vulnerability",
-      "penetration",
-      "pen test",
-      "pentest",
-      "security test",
-      "security scanning",
-      "security assessment",
-      "vulnerability scan",
-      "vulnerability assessment",
-      "security evaluation",
-      "vulnerability testing",
-      "security audit",
-      "intrusion test",
-      "ethical hacking",
-      "red team",
-    ]
-
-    const hasVulnerabilityTerms = vulnerabilityTerms.some((term) => evidenceLower.includes(term))
-
-    if (hasVulnerabilityTerms && evidenceLower.length > 20) {
-      return {
-        isRelevant: true,
-        confidence: 0.85,
-        reason: "Evidence contains vulnerability/security testing related content",
-      }
-    }
-  }
-
-  // Find the primary concept in the question
-  let primaryConcept = ""
-  let conceptKeywords: string[] = []
-
-  for (const [concept, keywords] of Object.entries(CYBERSECURITY_CONCEPTS)) {
-    if (keywords.some((keyword) => questionLower.includes(keyword))) {
-      primaryConcept = concept
-      conceptKeywords = keywords
-      break
-    }
-  }
-
-  if (!primaryConcept) {
-    // Fallback to basic keyword extraction
-    const questionWords = questionLower.split(/\s+/).filter((word) => word.length > 3)
-    conceptKeywords = questionWords.slice(0, 3)
-    primaryConcept = "general"
-  }
-
-  // Check if evidence contains relevant keywords
-  const relevantKeywords = conceptKeywords.filter((keyword) => evidenceLower.includes(keyword.toLowerCase()))
-
-  if (relevantKeywords.length === 0) {
-    // For general questions, be more lenient
-    if (primaryConcept === "general" && evidenceLower.length > 50) {
-      return {
-        isRelevant: true,
-        confidence: 0.6,
-        reason: "General evidence found for broad question",
-      }
-    }
-
-    return {
-      isRelevant: false,
-      confidence: 0.1,
-      reason: `Evidence does not contain keywords related to ${primaryConcept}.`,
-    }
-  }
-
-  // Calculate confidence based on keyword matches and context
-  const keywordRatio = relevantKeywords.length / conceptKeywords.length
-  let confidence = keywordRatio * 0.8
-
-  // Boost confidence if multiple relevant keywords are found
-  if (relevantKeywords.length >= 2) {
-    confidence = Math.min(confidence + 0.2, 0.95)
-  }
-
-  return {
-    isRelevant: true,
-    confidence: Math.max(confidence, 0.6),
-    reason: `Evidence contains relevant keywords: ${relevantKeywords.join(", ")}`,
-  }
-}
-
 // Mock pricing for AI models (per 1000 tokens)
 const MOCK_PRICING = {
-  "gemini-1.5-flash": {
+  "gemini-2.5-flash": {
     input: 0.00000035, // $0.35 per 1M tokens
     output: 0.00000105, // $1.05 per 1M tokens
   },
@@ -404,13 +175,13 @@ function calculateMockCost(modelName: string, inputTokens = 0, outputTokens = 0)
   return inputCost + outputCost
 }
 
-// Direct AI analysis with file upload support for multiple providers
+// Direct AI analysis with file upload support
 async function performDirectAIAnalysis(
   files: File[],
   questions: Question[],
   assessmentType: string,
   userId: string,
-  selectedProvider: "google", // Removed groq and huggingface options
+  selectedProvider: "google",
   assessmentId?: string,
   documentMetadata: DocumentMetadata[] = [],
 ): Promise<DocumentAnalysisResult> {
@@ -421,42 +192,8 @@ async function performDirectAIAnalysis(
   let modelInstance: any
   let modelName: string
 
-  // 1. Try to get client's API key for the selected provider
-  if (userId && userId !== "anonymous") {
-    try {
-      const { data: userApiKeys, error: keysError } = await getUserApiKeys()
-      if (keysError) {
-        console.warn("Error fetching user API keys:", keysError)
-      } else if (userApiKeys && userApiKeys.length > 0) {
-        const providerKeyEntry = userApiKeys.find((key) => key.api_key_name.toLowerCase().includes(selectedProvider))
-
-        if (providerKeyEntry) {
-          console.log(
-            `Attempting to decrypt client's API key for ${selectedProvider}: ${providerKeyEntry.api_key_name}`,
-          )
-          const { apiKey: decryptedKey, error: decryptError } = await decryptUserApiKey(providerKeyEntry.id, userId)
-          if (decryptError) {
-            console.warn(`Failed to decrypt client's API key (${providerKeyEntry.api_key_name}):`, decryptError)
-          } else if (decryptedKey) {
-            apiKey = decryptedKey
-            keySource = "client_key"
-            console.log(`✅ Successfully retrieved client's ${selectedProvider} API key.`)
-          }
-        } else {
-          console.log(`No specific ${selectedProvider} API key found for client. Falling back to default.`)
-        }
-      } else {
-        console.log("No API keys configured for client. Falling back to default.")
-      }
-    } catch (error) {
-      console.error("Error in client API key retrieval/decryption process:", error)
-    }
-  } else {
-    console.log("Anonymous user or no user ID provided. Using default Google API key.")
-  }
-
-  // 2. Configure model instance and name based on selected provider and API key
-  modelName = "gemini-1.5-flash"
+  // Configure model instance and name
+  modelName = "gemini-2.5-flash"
 
   const defaultGoogleKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
   if (!apiKey && defaultGoogleKey) {
@@ -467,17 +204,13 @@ async function performDirectAIAnalysis(
 
   modelInstance = google(modelName, { apiKey: apiKey })
 
-  // 3. Final check for any API key for the selected provider
+  // Final check for API key
   if (!apiKey) {
     console.error(`❌ ${selectedProvider.toUpperCase()} AI API key not found. Cannot perform real AI analysis.`)
     throw new Error(
       `${selectedProvider.toUpperCase()} API key not configured. Please add your API key in Settings > Integrations.`,
     )
   }
-
-  console.log(
-    `🔑 Using ${keySource === "client_key" ? "client's" : "default"} ${selectedProvider.toUpperCase()} API key`,
-  )
 
   // Filter and process supported files
   const supportedFiles = files.filter((file) => isSupportedFileType(file))
@@ -535,33 +268,32 @@ async function performDirectAIAnalysis(
         fileType: file.type || "unknown",
         processingMethod: "no-supported-files",
       })),
-      assessmentId: assessmentId, // Include assessmentId
+      assessmentId: assessmentId,
     }
   }
 
-  // Test AI connection with the selected API key
+  // Test AI connection
   try {
-    console.log(`🔗 Testing ${selectedProvider.toUpperCase()} AI connection with selected API key...`)
+    console.log(`🔗 Testing ${selectedProvider.toUpperCase()} AI connection...`)
     const testResult = await generateText({
       model: modelInstance,
       prompt: "Reply with 'OK' if you can read this.",
       maxTokens: 10,
       temperature: 0.1,
-      response_format: { type: "json_object" },
     })
 
     if (!testResult.text.toLowerCase().includes("ok")) {
       throw new Error(`${selectedProvider.toUpperCase()} AI test failed - unexpected response`)
     }
-    console.log(`✅ ${selectedProvider.toUpperCase()} AI connection successful with selected API key.`)
+    console.log(`✅ ${selectedProvider.toUpperCase()} AI connection successful.`)
   } catch (error) {
-    console.error(`❌ ${selectedProvider.toUpperCase()} AI test failed with selected API key:`, error)
+    console.error(`❌ ${selectedProvider.toUpperCase()} AI test failed:`, error)
     throw new Error(
       `${selectedProvider.toUpperCase()} AI is not available with the provided API key: ${error instanceof Error ? error.message : "Unknown error"}`,
     )
   }
 
-  // Process files - separate PDFs from text files (only Google supports direct PDF upload)
+  // Process files
   console.log("📁 Processing files for AI...")
   const pdfFiles: File[] = []
   const textFiles: Array<{ file: File; text: string; metadata: DocumentMetadata }> = []
@@ -577,7 +309,7 @@ async function performDirectAIAnalysis(
       processingResults.push({ fileName: file.name, success: true, method: "pdf-upload" })
       console.log(`📄 PDF file prepared for upload: ${file.name}`)
     } else {
-      // Extract text from all files (including PDFs for non-Google providers)
+      // Extract text from all files
       const extraction = await extractTextFromFile(file)
       if (extraction.success && extraction.text.length > 0) {
         textFiles.push({ file, text: extraction.text, metadata })
@@ -590,88 +322,30 @@ async function performDirectAIAnalysis(
     }
   }
 
-  // Construct the main text prompt part
-  let textPromptPart = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. You have been provided with the following documents and questions.
+  // Construct the prompt
+  let textPromptPart = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. 
 
 CRITICAL INSTRUCTIONS:
 - Your ENTIRE response MUST be a single, valid JSON object.
 - ABSOLUTELY NO conversational text, introductory phrases, concluding remarks, or any other non-JSON text.
-- DO NOT wrap the JSON in markdown code blocks (e.g., \`\`\`json ... \`\`\`).
 - The response should start directly with '{' and end directly with '}'.
-- Analyze ALL provided documents (both attached files and text content provided below)
-- Documents are classified as 'Primary' or '4th Party'.
-- Prioritize information from 'Primary' documents. Only use information from '4th Party' documents if the required information cannot be found in 'Primary' documents.
-- If using a '4th Party' document, explicitly state its type and relationship in the reasoning and evidence.
-- Answer questions based ONLY on information that is DIRECTLY and SPECIFICALLY found in the documents
-- THOROUGHLY scan ALL sections, pages, and content areas of each document
-- Look for ALL cybersecurity-related content including but not limited to:
-  * VULNERABILITY ASSESSMENTS: vulnerability scans, security scans, penetration testing, pen test, pentests, vulnerability testing, security testing, vulnerability analysis, security evaluations
-  * PENETRATION TESTING: penetration tests, pen tests, pentests, ethical hacking, red team exercises, intrusion testing, security audits
-  * Security policies, procedures, controls, and measures
-  * Access controls, authentication, authorization, user management
-  * Incident response, breach procedures, emergency protocols
-  * Data protection, encryption, backup procedures, recovery plans
-  * Training programs, awareness initiatives, security education
-  * Compliance requirements, audit procedures, review processes
-  * Network security, endpoint protection, malware protection
-  * Risk management, threat assessment, security monitoring
-- SPECIAL ATTENTION: When looking for vulnerability assessments or penetration testing, search for ANY of these terms: "vulnerability scan", "vulnerability scanning", "vulnerability assessment", "vulnerability testing", "vulnerability analysis", "penetration test", "pen test", "pentest", "security test", "security testing", "security scan", "security assessment", "security evaluation", "security audit", "intrusion test", "ethical hacking", "red team"
-- If evidence is about a different cybersecurity topic than what's being asked, DO NOT use it
+- Answer questions based ONLY on information that is DIRECTLY found in the documents
 - Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
 - Answer "No" for boolean questions if no directly relevant evidence exists
-- Do NOT make assumptions or use general knowledge beyond what's in the documents
-- Be thorough and comprehensive - scan every section, paragraph, and page for relevant content
-- Pay special attention to technical sections, appendices, and detailed procedure descriptions
 
 `
 
-  // Add text file content directly to the prompt, grouped by type
+  // Add text file content
   if (textFiles.length > 0) {
-    const primaryTextDocs = textFiles.filter((d) => d.metadata.type === "primary")
-    const fourthPartyTextDocs = textFiles.filter((d) => d.metadata.type === "4th-party")
-
-    if (primaryTextDocs.length > 0) {
-      textPromptPart += "--- PRIMARY TEXT DOCUMENTS CONTENT ---\n"
-      primaryTextDocs.forEach(({ file, text }) => {
-        textPromptPart += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
-      })
-      textPromptPart += "------------------------------------\n\n"
-    }
-
-    if (fourthPartyTextDocs.length > 0) {
-      textPromptPart += "--- 4TH PARTY TEXT DOCUMENTS CONTENT ---\n"
-      fourthPartyTextDocs.forEach(({ file, text, metadata }) => {
-        textPromptPart += `\n=== DOCUMENT: ${file.name} (Relationship: ${metadata.relationship || "N/A"}) ===\n${text}\n`
-      })
-      textPromptPart += "--------------------------------------\n\n"
-    }
+    textPromptPart += "--- DOCUMENT CONTENT ---\n"
+    textFiles.forEach(({ file, text }) => {
+      textPromptPart += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
+    })
+    textPromptPart += "------------------------\n\n"
   }
-
-  // List all files (including PDFs) and indicate if they are attached
-  textPromptPart += "--- ATTACHED DOCUMENTS FOR ANALYSIS ---\n"
-  supportedFiles.forEach((file, index) => {
-    const metadata = documentMetadata.find((m) => m.fileName === file.name) || { fileName: file.name, type: "primary" }
-    textPromptPart += `${index + 1}. ${file.name} (${getGoogleAIMediaType(file)}) - ${
-      (file.type.includes("application/pdf") || file.name.endsWith(".pdf")) && selectedProvider === "google"
-        ? "Attached as file"
-        : "Content included above"
-    } (Type: ${metadata.type}${metadata.type === "4th-party" ? `, Relationship: ${metadata.relationship || "N/A"}` : ""})\n`
-  })
-  textPromptPart += "-------------------------------------\n\n"
 
   textPromptPart += `ASSESSMENT QUESTIONS:
 ${questions.map((q, idx) => `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""})`).join("\n")}
-
-For each question, you must:
-1. Identify the SPECIFIC topic being asked about (e.g., vulnerability scanning, penetration testing, access controls)
-2. COMPREHENSIVELY search ALL provided documents (both attached files and text content provided in this prompt) for ANY evidence that relates to that topic
-3. Look in ALL sections: main content, appendices, technical sections, procedure details, policy statements
-4. For VULNERABILITY or PENETRATION TESTING questions: Search exhaustively for ANY mention of vulnerability scans, security scans, penetration tests, pen tests, security testing, vulnerability assessments, security evaluations, or related terms
-5. If you find ANY relevant evidence, answer "Yes" for boolean questions or select the appropriate option
-6. If absolutely NO evidence exists anywhere in the documents, answer "No" or use the most conservative option
-7. Provide the EXACT QUOTE from the document content (NOT titles, headers, or metadata) that supports your answer. Include the document name and page number if available.
-8. Be especially thorough for technical security topics like vulnerability assessments, scans, and testing procedures
-9. When providing evidence, also include the document type ('primary' or '4th-party') and, if '4th-party', its relationship.
 
 Respond in this exact JSON format:
 {
@@ -682,17 +356,17 @@ Respond in this exact JSON format:
     ${questions.map((q) => `"${q.id}": 0.8`).join(",\n    ")}
   },
   "reasoning": {
-    ${questions.map((q) => `"${q.id}": "explanation based on evidence or 'No directly relevant evidence found after comprehensive search'"`).join(",\n    ")}
+    ${questions.map((q) => `"${q.id}": "explanation based on evidence or 'No directly relevant evidence found'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q) => `"${q.id}": [ { "quote": "EXACT TEXT FROM DOCUMENT CONTENT", "fileName": "document_name.pdf", "pageNumber": 1, "relevance": "explanation of relevance", "documentType": "primary", "documentRelationship": "N/A" } ]`).join(",\n    ")}
+    ${questions.map((q) => `"${q.id}": [ { "quote": "EXACT TEXT FROM DOCUMENT", "fileName": "document_name", "relevance": "explanation" } ]`).join(",\n    ")}
   }
 }`
 
-  // Prepare message content for generateText
+  // Prepare message content
   const messageContent: Array<any> = [{ type: "text" as const, text: textPromptPart }]
 
-  // Add PDF files as attachments (only for Google provider)
+  // Add PDF files as attachments
   if (selectedProvider === "google") {
     const pdfAttachments = await Promise.all(
       pdfFiles.map(async (file) => {
@@ -711,7 +385,7 @@ Respond in this exact JSON format:
         }
       }),
     )
-    messageContent.push(...pdfAttachments.filter(Boolean)) // Add valid attachments
+    messageContent.push(...pdfAttachments.filter(Boolean))
   }
 
   // Process questions with AI
@@ -720,31 +394,7 @@ Respond in this exact JSON format:
   const reasoning: Record<string, string> = {}
   const documentExcerpts: Record<string, Array<any>> = {}
 
-  let aiUsageLogId: string | null = null // To store the ID of the usage log entry
-
   try {
-    // Log AI call start
-    const { data: logData, error: logError } = await supabaseClient
-      .from("ai_usage_logs")
-      .insert({
-        user_id: userId,
-        assessment_id: assessmentId,
-        ai_provider: selectedProvider,
-        model_name: modelName,
-        document_count: files.length,
-        question_count: questions.length,
-        status: "pending",
-        key_source: keySource,
-      })
-      .select("id")
-      .single()
-
-    if (logError) {
-      console.error("Error logging AI usage start:", logError)
-    } else if (logData) {
-      aiUsageLogId = logData.id
-    }
-
     console.log(`🧠 Processing documents with ${selectedProvider.toUpperCase()} AI...`)
 
     const result = await generateText({
@@ -757,132 +407,76 @@ Respond in this exact JSON format:
       ],
       temperature: 0.1,
       maxTokens: 4000,
-      response_format: { type: "json_object" },
     })
 
     console.log(`📝 ${selectedProvider.toUpperCase()} AI response received (${result.text.length} characters)`)
-    console.log(`🔍 Response preview: ${result.text.substring(0, 200)}...`)
 
     const rawAiText = result.text
     let jsonString = ""
 
     try {
       // Attempt direct parse first
-      const directParse = JSON.parse(rawAiText)
-      jsonString = rawAiText // If successful, use the raw text
+      JSON.parse(rawAiText)
+      jsonString = rawAiText
       console.log("Successfully parsed AI response directly.")
     } catch (directParseError) {
       console.log("Direct JSON parse failed, attempting fallback extraction...")
-      // 1. Attempt to extract JSON from markdown code block
-      const markdownJsonMatch = rawAiText.match(/```json\s*([\s\S]*?)\s*```/)
-      if (markdownJsonMatch && markdownJsonMatch[1]) {
-        jsonString = markdownJsonMatch[1].trim()
-        console.log("Extracted JSON from markdown block.")
+      // Try to find JSON object by curly braces
+      const firstCurly = rawAiText.indexOf("{")
+      const lastCurly = rawAiText.lastIndexOf("}")
+
+      if (firstCurly !== -1 && lastCurly !== -1 && lastCurly > firstCurly) {
+        jsonString = rawAiText.substring(firstCurly, lastCurly + 1).trim()
+        console.log("Extracted JSON using first '{' and last '}' indices.")
       } else {
-        // 2. If no markdown block, try to find the outermost JSON object by curly braces
-        const firstCurly = rawAiText.indexOf("{")
-        const lastCurly = rawAiText.lastIndexOf("}")
-
-        if (firstCurly !== -1 && lastCurly !== -1 && lastCurly > firstCurly) {
-          jsonString = rawAiText.substring(firstCurly, lastCurly + 1).trim()
-          console.log("Extracted JSON using first '{' and last '}' indices.")
-        } else {
-          // 3. Fallback: if still no clear JSON, log and throw
-          console.error("❌ No valid JSON structure (markdown or curly braces) found in AI response.")
-          console.log("Raw AI response:", rawAiText)
-          throw new Error("Invalid AI response format - no JSON object found.")
-        }
+        console.error("❌ No valid JSON structure found in AI response.")
+        throw new Error("Invalid AI response format - no JSON object found.")
       }
     }
 
-    console.log("Attempting final JSON parse (after extraction/direct attempt):", jsonString)
-    try {
-      const aiResponse = JSON.parse(jsonString)
-      console.log(`✅ Successfully parsed AI response JSON`)
+    const aiResponse = JSON.parse(jsonString)
+    console.log(`✅ Successfully parsed AI response JSON`)
 
-      questions.forEach((question) => {
-        const questionId = question.id
-        const aiAnswer = aiResponse.answers?.[questionId]
-        const aiReasoning = aiResponse.reasoning?.[questionId]
-        const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
-        const aiEvidenceArray = aiResponse.evidence?.[questionId] // Expect an array now
+    questions.forEach((question) => {
+      const questionId = question.id
+      const aiAnswer = aiResponse.answers?.[questionId]
+      const aiReasoning = aiResponse.reasoning?.[questionId]
+      const aiConfidence = aiResponse.confidence?.[questionId] || 0.5
+      const aiEvidenceArray = aiResponse.evidence?.[questionId]
 
-        console.log(
-          `🔍 Processing question ${questionId}: Answer=${aiAnswer}, Evidence count=${Array.isArray(aiEvidenceArray) ? aiEvidenceArray.length : 0}`,
-        )
+      // Process evidence
+      if (Array.isArray(aiEvidenceArray) && aiEvidenceArray.length > 0) {
+        const relevantExcerpts = aiEvidenceArray
+          .map((item: any) => {
+            const quote = item.quote || ""
+            const fileName = item.fileName || (supportedFiles.length > 0 ? supportedFiles[0].name : "Document")
+            const relevance = item.relevance || `Evidence found in ${fileName}`
 
-        // ALWAYS include the question - no filtering based on evidence quality
-        if (Array.isArray(aiEvidenceArray) && aiEvidenceArray.length > 0) {
-          const relevantExcerpts = aiEvidenceArray
-            .map((item: any) => {
-              // Ensure item has quote, fileName, pageNumber
-              const quote = item.quote || ""
-              const fileName = item.fileName || (supportedFiles.length > 0 ? supportedFiles[0].name : "Document")
-              const pageNumber = item.pageNumber || undefined
-              const relevance = item.relevance || `Evidence found in ${fileName}`
-              const documentType = item.documentType || "primary" // Default to primary
-              const documentRelationship = item.documentRelationship || undefined
+            return {
+              fileName,
+              quote: quote.trim(),
+              relevance,
+              confidence: 0.7,
+            }
+          })
+          .filter(Boolean)
 
-              // Only do basic validation - don't filter out based on semantic relevance
-              if (quote.length < 10) {
-                console.log(`⚠️ Question ${questionId}: Very short evidence quote, but including anyway`)
-              }
-
-              return {
-                fileName,
-                quote: quote.trim(), // Ensure no leading/trailing whitespace
-                relevance,
-                pageNumber,
-                documentType,
-                documentRelationship,
-                confidence: 0.7, // Default confidence for included evidence
-              }
-            })
-            .filter(Boolean) // Only filter out completely invalid entries
-
-          answers[questionId] = aiAnswer // Use AI's answer
-          confidenceScores[questionId] = Math.min(aiConfidence, 0.9) // Cap confidence
-          reasoning[question.id] = aiReasoning || "Evidence found and processed"
-          documentExcerpts[questionId] = relevantExcerpts
-        } else {
-          console.log(`⚠️ Question ${questionId}: No evidence provided by AI - including with conservative answer`)
-          // ALWAYS include the question with conservative defaults
-          if (question.type === "boolean") {
-            answers[question.id] = false // Conservative default for boolean questions
-          } else if (question.options && question.options.length > 0) {
-            answers[question.id] = question.options[0] // Most conservative option
-          }
-          confidenceScores[question.id] = 0.1 // Low confidence if no evidence
-          reasoning[question.id] =
-            aiReasoning ||
-            "No directly relevant evidence found in documents. Answer based on conservative security assumptions."
-          documentExcerpts[questionId] = []
+        answers[questionId] = aiAnswer
+        confidenceScores[questionId] = Math.min(aiConfidence, 0.9)
+        reasoning[question.id] = aiReasoning || "Evidence found and processed"
+        documentExcerpts[questionId] = relevantExcerpts
+      } else {
+        // Conservative defaults
+        if (question.type === "boolean") {
+          answers[question.id] = false
+        } else if (question.options && question.options.length > 0) {
+          answers[question.id] = question.options[0]
         }
-      })
-    } catch (parseError) {
-      console.error("❌ Failed to parse AI response JSON:", parseError)
-      console.log("Problematic JSON string (attempted parse):", jsonString)
-      console.log("Original AI response:", rawAiText)
-      throw new Error("Invalid AI response format - JSON parsing failed")
-    }
-
-    // Update AI usage log with success status and token usage
-    if (aiUsageLogId) {
-      const cost = calculateMockCost(modelName, result.usage?.inputTokens, result.usage?.outputTokens)
-      const { error: updateLogError } = await supabaseClient
-        .from("ai_usage_logs")
-        .update({
-          input_tokens: result.usage?.inputTokens,
-          output_tokens: result.usage?.outputTokens,
-          cost: cost, // Store the calculated cost
-          status: "success",
-        })
-        .eq("id", aiUsageLogId)
-
-      if (updateLogError) {
-        console.error("Error updating AI usage log (success):", updateLogError)
+        confidenceScores[question.id] = 0.1
+        reasoning[question.id] = aiReasoning || "No directly relevant evidence found in documents."
+        documentExcerpts[questionId] = []
       }
-    }
+    })
   } catch (error) {
     console.error(`❌ ${selectedProvider.toUpperCase()} AI processing failed:`, error)
     questions.forEach((question) => {
@@ -891,22 +485,7 @@ Respond in this exact JSON format:
       reasoning[question.id] = `AI analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
       documentExcerpts[question.id] = []
     })
-
-    // Update AI usage log with failure status
-    if (aiUsageLogId) {
-      const { error: updateLogError } = await supabaseClient
-        .from("ai_usage_logs")
-        .update({
-          status: "failed",
-          error_message: error instanceof Error ? error.message : "Unknown AI processing error",
-        })
-        .eq("id", aiUsageLogId)
-
-      if (updateLogError) {
-        console.error("Error updating AI usage log (failure):", updateLogError)
-      }
-    }
-    throw error // Re-throw the error after logging
+    throw error
   }
 
   // Calculate risk score
@@ -964,7 +543,6 @@ Respond in this exact JSON format:
     riskFactors: [
       `Analysis based on direct ${selectedProvider.toUpperCase()} AI document processing`,
       "Conservative approach taken where evidence was unclear or missing",
-      "All questions included regardless of AI confidence level",
       ...(failedProcessing > 0 ? [`${failedProcessing} files failed to process`] : []),
       ...(unsupportedFiles.length > 0 ? [`${unsupportedFiles.length} files in unsupported formats`] : []),
     ],
@@ -991,17 +569,16 @@ Respond in this exact JSON format:
         processingMethod: result?.method || "unknown",
       }
     }),
-    assessmentId: assessmentId, // Include assessmentId
+    assessmentId: assessmentId,
   }
 }
 
-// Main analysis function
 export async function analyzeDocuments(
   files: File[],
   questions: Question[],
   assessmentType: string,
   userId: string,
-  selectedProvider: "google", // Removed groq and huggingface options
+  selectedProvider: "google",
   assessmentId?: string,
   documentMetadata: DocumentMetadata[] = [],
 ): Promise<DocumentAnalysisResult> {
@@ -1047,7 +624,6 @@ export async function analyzeDocuments(
   }
 }
 
-// Test AI providers
 export async function testAIProviders(): Promise<Record<string, boolean>> {
   const results: Record<string, boolean> = {}
 
@@ -1055,11 +631,10 @@ export async function testAIProviders(): Promise<Record<string, boolean>> {
   if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
     try {
       const result = await generateText({
-        model: google("gemini-1.5-flash"),
+        model: google("gemini-2.5-flash"),
         prompt: 'Respond with "OK" if you can read this.',
         maxTokens: 10,
         temperature: 0.1,
-        response_format: { type: "json_object" },
       })
       results.google = result.text.toLowerCase().includes("ok")
       console.log("Google AI test result:", results.google)
