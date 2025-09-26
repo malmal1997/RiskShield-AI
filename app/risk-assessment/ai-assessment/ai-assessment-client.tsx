@@ -897,7 +897,8 @@ export default function AIAssessmentClient() {
                 </p>
               </div>
               <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-4xl mx-auto">
-                <p className="text-blue-800 font-medium">
+                <Badge className="mr-2 bg-blue-100 text-blue-800">Editable</Badge>
+                <p className="text-blue-800 font-medium inline">
                   💡 You can edit any AI-generated answer by clicking the "Edit" button next to each question. Make sure
                   to save your changes before approving the assessment.
                 </p>
@@ -1217,15 +1218,135 @@ export default function AIAssessmentClient() {
 
                         {excerpts.length === 0 && (
                           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <p className="text-sm text-yellow-800">
-                              <strong>No specific document evidence found.</strong> This answer is based on conservative
-                              security assumptions.
-                            </p>
-                            <p className="text-xs text-yellow-700">
-                              💡 <strong>Manual Review Needed:</strong> If you have evidence for this question that
-                              wasn't detected, consider documenting it separately or uploading additional relevant
-                              documents.
-                            </p>
+                            <div className="flex items-center justify-between mb-3">
+                              <p className="text-sm font-medium text-yellow-800">
+                                <strong>No specific document evidence found.</strong>
+                              </p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  // Create empty evidence that user can edit
+                                  const emptyEvidence = [
+                                    {
+                                      fileName: uploadedFiles[0]?.name || "Document",
+                                      quote: "",
+                                      relevance: "",
+                                      pageNumber: undefined,
+                                      confidence: 0.5,
+                                    },
+                                  ]
+                                  setEditingExcerpts((prev) => ({ ...prev, [question.id]: emptyEvidence }))
+                                  setIsEditingExcerpts((prev) => ({ ...prev, [question.id]: true }))
+                                }}
+                                className="text-xs"
+                              >
+                                Add Evidence
+                              </Button>
+                            </div>
+
+                            {isEditingExcerpt && editingExcerpts[question.id] && (
+                              <div className="mt-4 space-y-3">
+                                {editingExcerpts[question.id].map((excerpt, excerptIndex) => (
+                                  <div key={excerptIndex} className="bg-white p-3 rounded border border-yellow-200">
+                                    <div className="space-y-3">
+                                      <div>
+                                        <label className="block text-xs font-medium text-yellow-800 mb-1">
+                                          Quote/Evidence:
+                                        </label>
+                                        <textarea
+                                          value={excerpt.quote}
+                                          onChange={(e) =>
+                                            handleEditExcerpt(question.id, excerptIndex, "quote", e.target.value)
+                                          }
+                                          placeholder="Enter the specific text or evidence from your document..."
+                                          className="w-full p-2 text-sm border border-yellow-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                                          rows={2}
+                                        />
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-xs font-medium text-yellow-800 mb-1">
+                                            Document Name:
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={excerpt.fileName}
+                                            onChange={(e) =>
+                                              handleEditExcerpt(question.id, excerptIndex, "fileName", e.target.value)
+                                            }
+                                            placeholder="Document filename"
+                                            className="w-full p-2 text-sm border border-yellow-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-yellow-800 mb-1">
+                                            Page Number:
+                                          </label>
+                                          <input
+                                            type="number"
+                                            value={excerpt.pageNumber || ""}
+                                            onChange={(e) =>
+                                              handleEditExcerpt(
+                                                question.id,
+                                                excerptIndex,
+                                                "pageNumber",
+                                                Number.parseInt(e.target.value) || undefined,
+                                              )
+                                            }
+                                            placeholder="Page #"
+                                            className="w-full p-2 text-sm border border-yellow-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs font-medium text-yellow-800 mb-1">
+                                          Why this supports your answer:
+                                        </label>
+                                        <textarea
+                                          value={excerpt.relevance}
+                                          onChange={(e) =>
+                                            handleEditExcerpt(question.id, excerptIndex, "relevance", e.target.value)
+                                          }
+                                          placeholder="Explain how this evidence supports your answer..."
+                                          className="w-full p-2 text-sm border border-yellow-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                                          rows={2}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                                <div className="flex justify-end space-x-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleSaveExcerpts(question.id)}
+                                    className="text-xs bg-green-600 hover:bg-green-700"
+                                  >
+                                    Save Evidence
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleCancelExcerptEdit(question.id)}
+                                    className="text-xs"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+
+                            {!isEditingExcerpt && (
+                              <>
+                                <p className="text-sm text-yellow-700 mt-2">
+                                  This answer is based on conservative security assumptions.
+                                </p>
+                                <p className="text-xs text-yellow-700 mt-1">
+                                  💡 <strong>Manual Review Needed:</strong> If you have evidence for this question that
+                                  wasn't detected, click "Add Evidence" to document it manually.
+                                </p>
+                              </>
+                            )}
                           </div>
                         )}
                       </div>

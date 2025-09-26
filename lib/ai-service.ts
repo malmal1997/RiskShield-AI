@@ -340,10 +340,13 @@ async function performDirectAIAnalysis(
 CRITICAL INSTRUCTIONS:
 - Your ENTIRE response MUST be a single, valid JSON object.
 - ABSOLUTELY NO conversational text, introductory phrases, concluding remarks, or any other non-JSON text.
-- The response should start directly with '{' and end directly with '}'.
+- The response should start directly with '{' and end directly with '}'
 - Answer questions based ONLY on information that is DIRECTLY found in the documents
 - Answer "Yes" for boolean questions ONLY if you find clear, direct evidence in the documents
 - Answer "No" for boolean questions if no directly relevant evidence exists
+- ALWAYS extract the EXACT document name and page number when providing evidence
+- For PDF files, try to identify page numbers from the content or context
+- If no page number is available, use "N/A" or estimate based on document structure
 
 `
 
@@ -362,6 +365,12 @@ CRITICAL INSTRUCTIONS:
   textPromptPart += `ASSESSMENT QUESTIONS:
 ${questions.map((q, idx) => `${idx + 1}. ID: ${q.id} - ${q.question} (Type: ${q.type}${q.options ? `, Options: ${q.options.join(", ")}` : ""})`).join("\n")}
 
+IMPORTANT: When providing evidence, you MUST:
+1. Use the EXACT document filename as provided above
+2. Extract or estimate page numbers when possible
+3. Provide the exact quote from the document
+4. Explain why this evidence supports your answer
+
 Respond in this exact JSON format:
 {
   "answers": {
@@ -374,7 +383,7 @@ Respond in this exact JSON format:
     ${questions.map((q) => `"${q.id}": "explanation based on evidence or 'No directly relevant evidence found'"`).join(",\n    ")}
   },
   "evidence": {
-    ${questions.map((q) => `"${q.id}": [ { "quote": "EXACT TEXT FROM DOCUMENT", "fileName": "document_name", "relevance": "explanation" } ]`).join(",\n    ")}
+    ${questions.map((q) => `"${q.id}": [ { "quote": "EXACT TEXT FROM DOCUMENT", "fileName": "EXACT_DOCUMENT_NAME.pdf", "pageNumber": 1, "relevance": "explanation of why this supports the answer" } ]`).join(",\n    ")}
   }
 }`
 
@@ -470,11 +479,13 @@ Respond in this exact JSON format:
             const quote = item.quote || ""
             const fileName = item.fileName || (supportedFiles.length > 0 ? supportedFiles[0].name : "Document")
             const relevance = item.relevance || `Evidence found in ${fileName}`
+            const pageNumber = item.pageNumber || "N/A"
 
             return {
               fileName,
               quote: quote.trim(),
               relevance,
+              pageNumber,
               confidence: 0.7,
             }
           })
