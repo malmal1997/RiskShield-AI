@@ -1255,17 +1255,7 @@ export default function AIAssessmentClient() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => {
-                                  // Create empty evidence that user can edit
-                                  const emptyEvidence = [
-                                    {
-                                      fileName: uploadedFiles[0]?.name || "Document",
-                                      quote: "",
-                                      relevance: "",
-                                      pageNumber: undefined,
-                                      confidence: 0.5,
-                                    },
-                                  ]
-                                  setEditingExcerpts((prev) => ({ ...prev, [question.id]: emptyEvidence }))
+                                  handleAddEvidence(question.id)
                                   setIsEditingExcerpts((prev) => ({ ...prev, [question.id]: true }))
                                 }}
                                 className="text-xs"
