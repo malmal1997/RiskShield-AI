@@ -274,6 +274,8 @@ export default function AIAssessmentClient() {
 
   const [editingAnswers, setEditingAnswers] = useState<Record<string, string | boolean>>({})
   const [isEditingMode, setIsEditingMode] = useState<Record<string, boolean>>({})
+  const [editingExcerpts, setEditingExcerpts] = useState<Record<string, any[]>>({})
+  const [isEditingExcerpts, setIsEditingExcerpts] = useState<Record<string, boolean>>({})
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -395,18 +397,23 @@ export default function AIAssessmentClient() {
 
       const formData = new FormData()
 
+      console.log(`[v0] Fetching ${uploadedFiles.length} files in parallel...`)
+      setAnalysisProgress(5) // 5% for starting
+
       const filePromises = uploadedFiles.map(async (fileMetadata, index) => {
         if (fileMetadata.url) {
           try {
-            console.log(`[v0] Fetching file ${index + 1}/${uploadedFiles.length}: ${fileMetadata.name}`)
-            setAnalysisProgress(Math.round((index / uploadedFiles.length) * 20)) // 0-20% for file fetching
-
             const response = await fetch(fileMetadata.url)
             if (!response.ok) {
               throw new Error(`Failed to fetch ${fileMetadata.name}: ${response.statusText}`)
             }
             const blob = await response.blob()
             const file = new File([blob], fileMetadata.name, { type: fileMetadata.type })
+
+            // Update progress for each file fetched
+            const progressIncrement = Math.round(15 / uploadedFiles.length) // 15% total for file fetching
+            setAnalysisProgress((prev) => Math.min(prev + progressIncrement, 20))
+
             return file
           } catch (error) {
             console.error(`[v0] Failed to fetch file ${fileMetadata.name}:`, error)
@@ -459,19 +466,19 @@ export default function AIAssessmentClient() {
 
       setAnalysisProgress(30) // 30% when starting API call
 
+      let currentProgress = 30
+      const progressInterval = setInterval(() => {
+        if (currentProgress < 85) {
+          // Slower, more realistic progress increments
+          currentProgress += Math.random() * 5 + 2 // 2-7% increments
+          setAnalysisProgress(Math.min(currentProgress, 85))
+        }
+      }, 3000) // Update every 3 seconds
+
       const analysisResponse = await fetch("/api/ai-assessment/analyze", {
         method: "POST",
         body: formData,
       })
-
-      let currentProgress = 30
-      const progressInterval = setInterval(() => {
-        if (currentProgress < 90) {
-          currentProgress += Math.random() * 10 // Random increments to simulate real progress
-          setAnalysisProgress(Math.min(currentProgress, 90))
-          console.log("[v0] AI processing progress:", Math.round(currentProgress))
-        }
-      }, 2000) // Update every 2 seconds instead of 500ms
 
       // Process analysis results
       if (analysisResponse && analysisResponse.ok) {
@@ -480,7 +487,6 @@ export default function AIAssessmentClient() {
 
         const analysisResult = await analysisResponse.json()
         console.log("[v0] AI analysis completed successfully with real data")
-        console.log("[v0] Analysis result:", analysisResult)
 
         setAnalysisProgress(100)
         setAiAnalysisResult(analysisResult)
@@ -503,7 +509,7 @@ export default function AIAssessmentClient() {
       )
       setIsAnalyzing(false)
       setCurrentStep("upload")
-      setAnalysisProgress(0) // Reset progress on error
+      setAnalysisProgress(0)
     }
   }
 
@@ -547,6 +553,59 @@ export default function AIAssessmentClient() {
   const handleStartEdit = (questionId: string, currentAnswer: string | boolean) => {
     setIsEditingMode((prev) => ({ ...prev, [questionId]: true }))
     setEditingAnswers((prev) => ({ ...prev, [questionId]: currentAnswer }))
+  }
+
+  const handleEditExcerpt = (questionId: string, excerptIndex: number, field: string, value: string | number) => {
+    setEditingExcerpts((prev) => {
+      const questionExcerpts = prev[questionId] || aiAnalysisResult?.documentExcerpts?.[questionId] || []
+      const updatedExcerpts = [...questionExcerpts]
+      if (updatedExcerpts[excerptIndex]) {
+        updatedExcerpts[excerptIndex] = {
+          ...updatedExcerpts[excerptIndex],
+          [field]: value,
+        }
+      }
+      return {
+        ...prev,
+        [questionId]: updatedExcerpts,
+      }
+    })
+  }
+
+  const handleSaveExcerpts = (questionId: string) => {
+    if (aiAnalysisResult && editingExcerpts[questionId]) {
+      setAiAnalysisResult((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          documentExcerpts: {
+            ...prev.documentExcerpts,
+            [questionId]: editingExcerpts[questionId],
+          },
+        }
+      })
+    }
+    setIsEditingExcerpts((prev) => ({ ...prev, [questionId]: false }))
+    setEditingExcerpts((prev) => {
+      const updated = { ...prev }
+      delete updated[questionId]
+      return updated
+    })
+  }
+
+  const handleCancelExcerptEdit = (questionId: string) => {
+    setIsEditingExcerpts((prev) => ({ ...prev, [questionId]: false }))
+    setEditingExcerpts((prev) => {
+      const updated = { ...prev }
+      delete updated[questionId]
+      return updated
+    })
+  }
+
+  const handleStartExcerptEdit = (questionId: string) => {
+    const currentExcerpts = aiAnalysisResult?.documentExcerpts?.[questionId] || []
+    setIsEditingExcerpts((prev) => ({ ...prev, [questionId]: true }))
+    setEditingExcerpts((prev) => ({ ...prev, [questionId]: [...currentExcerpts] }))
   }
 
   const handleApproveResults = async () => {
@@ -805,7 +864,9 @@ export default function AIAssessmentClient() {
                     const displayAnswer = isEditing ? editingAnswer : currentAnswer
                     const confidence = aiAnalysisResult.confidenceScores[question.id] || 0
                     const reasoning = aiAnalysisResult.reasoning[question.id] || "No reasoning provided"
-                    const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
+                    const excerpts =
+                      editingExcerpts[question.id] || aiAnalysisResult.documentExcerpts?.[question.id] || []
+                    const isEditingExcerpt = isEditingExcerpts[question.id]
 
                     return (
                       <div key={question.id} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
@@ -932,32 +993,126 @@ export default function AIAssessmentClient() {
                           <p className="text-gray-700">{reasoning}</p>
                         </div>
 
-                        {/* Document Evidence */}
+                        {/* Document Evidence - Now editable */}
                         {excerpts.length > 0 && (
                           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <p className="text-sm font-medium text-green-800 mb-3">
-                              Supporting Evidence from Documents:
-                            </p>
+                            <div className="flex items-center justify-between mb-3">
+                              <p className="text-sm font-medium text-green-800">Supporting Evidence from Documents:</p>
+                              <div className="flex space-x-2">
+                                {!isEditingExcerpt ? (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleStartExcerptEdit(question.id)}
+                                    className="text-xs"
+                                  >
+                                    Edit Evidence
+                                  </Button>
+                                ) : (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleSaveExcerpts(question.id)}
+                                      className="text-xs bg-green-600 hover:bg-green-700"
+                                    >
+                                      Save
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleCancelExcerptEdit(question.id)}
+                                      className="text-xs"
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                             {excerpts.map((excerpt, excerptIndex) => (
                               <div key={excerptIndex} className="mb-3 last:mb-0">
                                 <div className="bg-white p-3 rounded border border-green-200">
-                                  <p className="text-sm text-green-800 italic mb-2">"{excerpt.quote}"</p>
-                                  <div className="flex flex-wrap items-center gap-2 text-xs text-green-600">
-                                    <span className="font-medium">Document: {excerpt.fileName}</span>
-                                    {excerpt.pageNumber && <span>• Page {excerpt.pageNumber}</span>}
-                                    {excerpt.documentType === "4th-party" && (
-                                      <span className="font-semibold text-purple-700">
-                                        • 4th Party: {excerpt.documentRelationship || "N/A"}
-                                      </span>
-                                    )}
-                                    {excerpt.confidence && (
-                                      <span>• Relevance: {Math.round(excerpt.confidence * 100)}%</span>
-                                    )}
-                                  </div>
-                                  {excerpt.relevance && (
-                                    <p className="text-xs text-green-600 mt-1">
-                                      <strong>Why this is relevant:</strong> {excerpt.relevance}
-                                    </p>
+                                  {!isEditingExcerpt ? (
+                                    <>
+                                      <p className="text-sm text-green-800 italic mb-2">"{excerpt.quote}"</p>
+                                      <div className="flex flex-wrap items-center gap-2 text-xs text-green-600">
+                                        <span className="font-medium">Document: {excerpt.fileName}</span>
+                                        {excerpt.pageNumber && <span>• Page {excerpt.pageNumber}</span>}
+                                        {excerpt.documentType === "4th-party" && (
+                                          <span className="font-semibold text-purple-700">
+                                            • 4th Party: {excerpt.documentRelationship || "N/A"}
+                                          </span>
+                                        )}
+                                        {excerpt.confidence && (
+                                          <span>• Relevance: {Math.round(excerpt.confidence * 100)}%</span>
+                                        )}
+                                      </div>
+                                      {excerpt.relevance && (
+                                        <p className="text-xs text-green-600 mt-1">
+                                          <strong>Why this is relevant:</strong> {excerpt.relevance}
+                                        </p>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <div className="space-y-3">
+                                      <div>
+                                        <label className="block text-xs font-medium text-green-800 mb-1">Quote:</label>
+                                        <textarea
+                                          value={excerpt.quote}
+                                          onChange={(e) =>
+                                            handleEditExcerpt(question.id, excerptIndex, "quote", e.target.value)
+                                          }
+                                          className="w-full p-2 text-sm border border-green-300 rounded-md focus:ring-2 focus:ring-green-500"
+                                          rows={2}
+                                        />
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-xs font-medium text-green-800 mb-1">
+                                            Document:
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={excerpt.fileName}
+                                            onChange={(e) =>
+                                              handleEditExcerpt(question.id, excerptIndex, "fileName", e.target.value)
+                                            }
+                                            className="w-full p-2 text-sm border border-green-300 rounded-md focus:ring-2 focus:ring-green-500"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-green-800 mb-1">
+                                            Page Number:
+                                          </label>
+                                          <input
+                                            type="number"
+                                            value={excerpt.pageNumber || ""}
+                                            onChange={(e) =>
+                                              handleEditExcerpt(
+                                                question.id,
+                                                excerptIndex,
+                                                "pageNumber",
+                                                Number.parseInt(e.target.value) || undefined,
+                                              )
+                                            }
+                                            className="w-full p-2 text-sm border border-green-300 rounded-md focus:ring-2 focus:ring-green-500"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs font-medium text-green-800 mb-1">
+                                          Relevance Explanation:
+                                        </label>
+                                        <textarea
+                                          value={excerpt.relevance}
+                                          onChange={(e) =>
+                                            handleEditExcerpt(question.id, excerptIndex, "relevance", e.target.value)
+                                          }
+                                          className="w-full p-2 text-sm border border-green-300 rounded-md focus:ring-2 focus:ring-green-500"
+                                          rows={2}
+                                        />
+                                      </div>
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -1006,6 +1161,11 @@ export default function AIAssessmentClient() {
               <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg max-w-2xl mx-auto">
                 <p className="text-green-800 font-medium">
                   ✅ Report saved successfully! You can also view it anytime in the Reports section.
+                </p>
+              </div>
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl mx-auto">
+                <p className="text-blue-800 font-medium">
+                  💡 You can still edit answers, document references, and page numbers below even after approval.
                 </p>
               </div>
             </div>
@@ -1058,18 +1218,23 @@ export default function AIAssessmentClient() {
                   <h3 className="text-2xl font-bold text-gray-900 mb-6">Complete Assessment Report</h3>
                   <p className="text-gray-600 mb-8">
                     Detailed analysis of each security question with AI-generated answers and supporting evidence from
-                    your documents.
+                    your documents. <strong>You can still edit any information below.</strong>
                   </p>
 
-                  {/* Questions and Answers */}
+                  {/* Questions and Answers - Now editable in results step */}
                   <div className="space-y-8">
                     {assessmentCategories
                       .find((cat) => cat.id === selectedCategory)
                       ?.questions.map((question, index) => {
                         const currentAnswer = aiAnalysisResult.answers[question.id]
+                        const editingAnswer = editingAnswers[question.id]
+                        const isEditing = isEditingMode[question.id]
+                        const displayAnswer = isEditing ? editingAnswer : currentAnswer
                         const confidence = aiAnalysisResult.confidenceScores[question.id] || 0
                         const reasoning = aiAnalysisResult.reasoning[question.id] || "No reasoning provided"
-                        const excerpts = aiAnalysisResult.documentExcerpts?.[question.id] || []
+                        const excerpts =
+                          editingExcerpts[question.id] || aiAnalysisResult.documentExcerpts?.[question.id] || []
+                        const isEditingExcerpt = isEditingExcerpts[question.id]
 
                         return (
                           <div key={question.id} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
@@ -1093,16 +1258,97 @@ export default function AIAssessmentClient() {
                               </div>
                             </div>
 
-                            {/* Answer */}
+                            {/* Answer - Now editable in results step */}
                             <div className="mb-4 p-4 bg-white border border-blue-200 rounded-lg">
-                              <p className="text-sm font-medium text-blue-800 mb-2">Answer:</p>
-                              <p className="font-semibold text-blue-900 text-lg">
-                                {typeof currentAnswer === "boolean"
-                                  ? currentAnswer
-                                    ? "Yes"
-                                    : "No"
-                                  : String(currentAnswer)}
-                              </p>
+                              <div className="flex items-center justify-between mb-2">
+                                <p className="text-sm font-medium text-blue-800">Answer:</p>
+                                <div className="flex space-x-2">
+                                  {!isEditing ? (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleStartEdit(question.id, currentAnswer)}
+                                      className="text-xs"
+                                    >
+                                      Edit
+                                    </Button>
+                                  ) : (
+                                    <>
+                                      <Button
+                                        size="sm"
+                                        onClick={() => handleSaveEdit(question.id)}
+                                        className="text-xs bg-green-600 hover:bg-green-700"
+                                      >
+                                        Save
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleCancelEdit(question.id)}
+                                        className="text-xs"
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+
+                              {!isEditing ? (
+                                <p className="font-semibold text-blue-900 text-lg">
+                                  {typeof displayAnswer === "boolean"
+                                    ? displayAnswer
+                                      ? "Yes"
+                                      : "No"
+                                    : String(displayAnswer)}
+                                </p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {question.type === "select" && question.options ? (
+                                    <select
+                                      value={String(editingAnswer)}
+                                      onChange={(e) => handleEditAnswer(question.id, e.target.value)}
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                      {question.options.map((option) => (
+                                        <option key={option} value={option}>
+                                          {option}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  ) : question.type === "textarea" ? (
+                                    <textarea
+                                      value={String(editingAnswer)}
+                                      onChange={(e) => handleEditAnswer(question.id, e.target.value)}
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      rows={3}
+                                    />
+                                  ) : (
+                                    <div className="flex space-x-4">
+                                      <label className="flex items-center">
+                                        <input
+                                          type="radio"
+                                          name={`edit-${question.id}`}
+                                          checked={editingAnswer === true}
+                                          onChange={() => handleEditAnswer(question.id, true)}
+                                          className="mr-2"
+                                        />
+                                        Yes
+                                      </label>
+                                      <label className="flex items-center">
+                                        <input
+                                          type="radio"
+                                          name={`edit-${question.id}`}
+                                          checked={editingAnswer === false}
+                                          onChange={() => handleEditAnswer(question.id, false)}
+                                          className="mr-2"
+                                        />
+                                        No
+                                      </label>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
 
                             {/* AI Reasoning */}
@@ -1111,37 +1357,145 @@ export default function AIAssessmentClient() {
                               <p className="text-gray-700">{reasoning}</p>
                             </div>
 
-                            {/* Supporting Evidence */}
+                            {/* Supporting Evidence - Now editable in results step */}
                             {excerpts.length > 0 ? (
                               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                                <p className="text-sm font-medium text-green-800 mb-3">
-                                  Supporting Evidence from Your Documents:
-                                </p>
+                                <div className="flex items-center justify-between mb-3">
+                                  <p className="text-sm font-medium text-green-800">
+                                    Supporting Evidence from Your Documents:
+                                  </p>
+                                  <div className="flex space-x-2">
+                                    {!isEditingExcerpt ? (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleStartExcerptEdit(question.id)}
+                                        className="text-xs"
+                                      >
+                                        Edit Evidence
+                                      </Button>
+                                    ) : (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          onClick={() => handleSaveExcerpts(question.id)}
+                                          className="text-xs bg-green-600 hover:bg-green-700"
+                                        >
+                                          Save
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => handleCancelExcerptEdit(question.id)}
+                                          className="text-xs"
+                                        >
+                                          Cancel
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
                                 <div className="space-y-3">
                                   {excerpts.map((excerpt, excerptIndex) => (
                                     <div key={excerptIndex} className="bg-white p-3 rounded border border-green-200">
-                                      <p className="text-sm text-green-800 italic mb-2 font-medium">
-                                        "{excerpt.quote}"
-                                      </p>
-                                      <div className="flex flex-wrap items-center gap-3 text-xs text-green-600">
-                                        <span className="font-medium bg-green-100 px-2 py-1 rounded">
-                                          📄 {excerpt.fileName}
-                                        </span>
-                                        {excerpt.pageNumber && (
-                                          <span className="bg-green-100 px-2 py-1 rounded">
-                                            📍 Page {excerpt.pageNumber}
-                                          </span>
-                                        )}
-                                        {excerpt.confidence && (
-                                          <span className="bg-green-100 px-2 py-1 rounded">
-                                            🎯 {Math.round(excerpt.confidence * 100)}% Relevant
-                                          </span>
-                                        )}
-                                      </div>
-                                      {excerpt.relevance && (
-                                        <p className="text-xs text-green-700 mt-2 bg-green-100 p-2 rounded">
-                                          <strong>Why this supports the answer:</strong> {excerpt.relevance}
-                                        </p>
+                                      {!isEditingExcerpt ? (
+                                        <>
+                                          <p className="text-sm text-green-800 italic mb-2 font-medium">
+                                            "{excerpt.quote}"
+                                          </p>
+                                          <div className="flex flex-wrap items-center gap-3 text-xs text-green-600">
+                                            <span className="font-medium bg-green-100 px-2 py-1 rounded">
+                                              📄 {excerpt.fileName}
+                                            </span>
+                                            {excerpt.pageNumber && (
+                                              <span className="bg-green-100 px-2 py-1 rounded">
+                                                📍 Page {excerpt.pageNumber}
+                                              </span>
+                                            )}
+                                            {excerpt.confidence && (
+                                              <span className="bg-green-100 px-2 py-1 rounded">
+                                                🎯 {Math.round(excerpt.confidence * 100)}% Relevant
+                                              </span>
+                                            )}
+                                          </div>
+                                          {excerpt.relevance && (
+                                            <p className="text-xs text-green-700 mt-2 bg-green-100 p-2 rounded">
+                                              <strong>Why this supports the answer:</strong> {excerpt.relevance}
+                                            </p>
+                                          )}
+                                        </>
+                                      ) : (
+                                        <div className="space-y-3">
+                                          <div>
+                                            <label className="block text-xs font-medium text-green-800 mb-1">
+                                              Quote:
+                                            </label>
+                                            <textarea
+                                              value={excerpt.quote}
+                                              onChange={(e) =>
+                                                handleEditExcerpt(question.id, excerptIndex, "quote", e.target.value)
+                                              }
+                                              className="w-full p-2 text-sm border border-green-300 rounded-md focus:ring-2 focus:ring-green-500"
+                                              rows={2}
+                                            />
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                              <label className="block text-xs font-medium text-green-800 mb-1">
+                                                Document:
+                                              </label>
+                                              <input
+                                                type="text"
+                                                value={excerpt.fileName}
+                                                onChange={(e) =>
+                                                  handleEditExcerpt(
+                                                    question.id,
+                                                    excerptIndex,
+                                                    "fileName",
+                                                    e.target.value,
+                                                  )
+                                                }
+                                                className="w-full p-2 text-sm border border-green-300 rounded-md focus:ring-2 focus:ring-green-500"
+                                              />
+                                            </div>
+                                            <div>
+                                              <label className="block text-xs font-medium text-green-800 mb-1">
+                                                Page Number:
+                                              </label>
+                                              <input
+                                                type="number"
+                                                value={excerpt.pageNumber || ""}
+                                                onChange={(e) =>
+                                                  handleEditExcerpt(
+                                                    question.id,
+                                                    excerptIndex,
+                                                    "pageNumber",
+                                                    Number.parseInt(e.target.value) || undefined,
+                                                  )
+                                                }
+                                                className="w-full p-2 text-sm border border-green-300 rounded-md focus:ring-2 focus:ring-green-500"
+                                              />
+                                            </div>
+                                          </div>
+                                          <div>
+                                            <label className="block text-xs font-medium text-green-800 mb-1">
+                                              Relevance Explanation:
+                                            </label>
+                                            <textarea
+                                              value={excerpt.relevance}
+                                              onChange={(e) =>
+                                                handleEditExcerpt(
+                                                  question.id,
+                                                  excerptIndex,
+                                                  "relevance",
+                                                  e.target.value,
+                                                )
+                                              }
+                                              className="w-full p-2 text-sm border border-green-300 rounded-md focus:ring-2 focus:ring-green-500"
+                                              rows={2}
+                                            />
+                                          </div>
+                                        </div>
                                       )}
                                     </div>
                                   ))}
