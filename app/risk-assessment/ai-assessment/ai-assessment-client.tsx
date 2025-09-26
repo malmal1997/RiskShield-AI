@@ -395,17 +395,22 @@ export default function AIAssessmentClient() {
 
       const formData = new FormData()
 
-      // Fetch actual files from blob URLs and add to FormData
-      const filePromises = uploadedFiles.map(async (fileMetadata) => {
+      const filePromises = uploadedFiles.map(async (fileMetadata, index) => {
         if (fileMetadata.url) {
           try {
+            console.log(`[v0] Fetching file ${index + 1}/${uploadedFiles.length}: ${fileMetadata.name}`)
+            setAnalysisProgress(Math.round((index / uploadedFiles.length) * 20)) // 0-20% for file fetching
+
             const response = await fetch(fileMetadata.url)
+            if (!response.ok) {
+              throw new Error(`Failed to fetch ${fileMetadata.name}: ${response.statusText}`)
+            }
             const blob = await response.blob()
             const file = new File([blob], fileMetadata.name, { type: fileMetadata.type })
             return file
           } catch (error) {
             console.error(`[v0] Failed to fetch file ${fileMetadata.name}:`, error)
-            return null
+            throw new Error(`Could not retrieve ${fileMetadata.name} for analysis`)
           }
         }
         return null
@@ -416,6 +421,9 @@ export default function AIAssessmentClient() {
       if (actualFiles.length === 0) {
         throw new Error("No valid files could be retrieved for analysis")
       }
+
+      console.log(`[v0] Successfully fetched ${actualFiles.length} files, starting AI analysis`)
+      setAnalysisProgress(25) // 25% after file fetching
 
       // Add files to FormData
       actualFiles.forEach((file) => {
@@ -449,57 +457,45 @@ export default function AIAssessmentClient() {
 
       console.log("[v0] Sending FormData with", actualFiles.length, "actual files to AI analysis API")
 
+      setAnalysisProgress(30) // 30% when starting API call
+
       const analysisResponse = await fetch("/api/ai-assessment/analyze", {
         method: "POST",
-        body: formData, // Send FormData instead of JSON
+        body: formData,
       })
 
-      let currentProgress = 0
-      const interval = setInterval(() => {
-        currentProgress += 10
-        setAnalysisProgress(currentProgress)
-        console.log("[v0] Progress updated to:", currentProgress)
-
-        if (currentProgress >= 100) {
-          clearInterval(interval)
-          console.log("[v0] Progress complete, clearing interval")
+      let currentProgress = 30
+      const progressInterval = setInterval(() => {
+        if (currentProgress < 90) {
+          currentProgress += Math.random() * 10 // Random increments to simulate real progress
+          setAnalysisProgress(Math.min(currentProgress, 90))
+          console.log("[v0] AI processing progress:", Math.round(currentProgress))
         }
-      }, 500)
-
-      const waitForProgress = () => {
-        return new Promise<void>((resolve) => {
-          const checkProgress = () => {
-            if (currentProgress >= 100) {
-              console.log("[v0] Progress check: 100% reached")
-              resolve()
-            } else {
-              console.log("[v0] Progress check: still at", currentProgress)
-              setTimeout(checkProgress, 100)
-            }
-          }
-          checkProgress()
-        })
-      }
+      }, 2000) // Update every 2 seconds instead of 500ms
 
       // Process analysis results
       if (analysisResponse && analysisResponse.ok) {
+        clearInterval(progressInterval)
+        setAnalysisProgress(95)
+
         const analysisResult = await analysisResponse.json()
         console.log("[v0] AI analysis completed successfully with real data")
         console.log("[v0] Analysis result:", analysisResult)
+
+        setAnalysisProgress(100)
         setAiAnalysisResult(analysisResult)
+
+        setTimeout(() => {
+          setIsAnalyzing(false)
+          setCurrentStep("review")
+          console.log("[v0] Transitioning to review step")
+        }, 1000)
       } else {
+        clearInterval(progressInterval)
         const errorText = await analysisResponse.text().catch(() => "Unknown error")
         console.error("[v0] AI analysis API failed:", analysisResponse.status, errorText)
         throw new Error(`AI analysis failed: ${errorText}`)
       }
-
-      await waitForProgress()
-      console.log("[v0] Progress wait completed, transitioning to review")
-
-      setIsAnalyzing(false)
-      console.log("[v0] Setting step to review")
-      setCurrentStep("review")
-      console.log("[v0] Step transition complete")
     } catch (error) {
       console.error("[v0] Analysis failed:", error)
       setAnalysisError(
@@ -507,6 +503,7 @@ export default function AIAssessmentClient() {
       )
       setIsAnalyzing(false)
       setCurrentStep("upload")
+      setAnalysisProgress(0) // Reset progress on error
     }
   }
 
@@ -970,7 +967,7 @@ export default function AIAssessmentClient() {
 
                         {excerpts.length === 0 && (
                           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <p className="text-sm text-yellow-800 mb-2">
+                            <p className="text-sm text-yellow-800">
                               <strong>No specific document evidence found.</strong> This answer is based on conservative
                               security assumptions.
                             </p>

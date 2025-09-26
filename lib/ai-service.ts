@@ -175,6 +175,16 @@ function calculateMockCost(modelName: string, inputTokens = 0, outputTokens = 0)
   return inputCost + outputCost
 }
 
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, operation: string): Promise<T> {
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`${operation} timed out after ${timeoutMs / 1000} seconds`))
+    }, timeoutMs)
+  })
+
+  return Promise.race([promise, timeoutPromise])
+}
+
 // Direct AI analysis with file upload support
 async function performDirectAIAnalysis(
   files: File[],
@@ -272,15 +282,18 @@ async function performDirectAIAnalysis(
     }
   }
 
-  // Test AI connection
   try {
     console.log(`🔗 Testing ${selectedProvider.toUpperCase()} AI connection...`)
-    const testResult = await generateText({
-      model: modelInstance,
-      prompt: "Reply with 'OK' if you can read this.",
-      maxTokens: 10,
-      temperature: 0.1,
-    })
+    const testResult = await withTimeout(
+      generateText({
+        model: modelInstance,
+        prompt: "Reply with 'OK' if you can read this.",
+        maxTokens: 10,
+        temperature: 0.1,
+      }),
+      15000, // 15 second timeout for connection test
+      `${selectedProvider.toUpperCase()} AI connection test`,
+    )
 
     if (!testResult.text.toLowerCase().includes("ok")) {
       throw new Error(`${selectedProvider.toUpperCase()} AI test failed - unexpected response`)
@@ -322,7 +335,6 @@ async function performDirectAIAnalysis(
     }
   }
 
-  // Construct the prompt
   let textPromptPart = `You are a cybersecurity expert analyzing documents for ${assessmentType} risk assessment. 
 
 CRITICAL INSTRUCTIONS:
@@ -335,11 +347,14 @@ CRITICAL INSTRUCTIONS:
 
 `
 
-  // Add text file content
+  // Add text file content with length limits to prevent timeouts
   if (textFiles.length > 0) {
     textPromptPart += "--- DOCUMENT CONTENT ---\n"
     textFiles.forEach(({ file, text }) => {
-      textPromptPart += `\n=== DOCUMENT: ${file.name} ===\n${text}\n`
+      // Limit text length to prevent API timeouts
+      const truncatedText =
+        text.length > 10000 ? text.substring(0, 10000) + "\n[TRUNCATED - Document continues...]" : text
+      textPromptPart += `\n=== DOCUMENT: ${file.name} ===\n${truncatedText}\n`
     })
     textPromptPart += "------------------------\n\n"
   }
@@ -397,17 +412,21 @@ Respond in this exact JSON format:
   try {
     console.log(`🧠 Processing documents with ${selectedProvider.toUpperCase()} AI...`)
 
-    const result = await generateText({
-      model: modelInstance,
-      messages: [
-        {
-          role: "user" as const,
-          content: messageContent,
-        },
-      ],
-      temperature: 0.1,
-      maxTokens: 4000,
-    })
+    const result = await withTimeout(
+      generateText({
+        model: modelInstance,
+        messages: [
+          {
+            role: "user" as const,
+            content: messageContent,
+          },
+        ],
+        temperature: 0.1,
+        maxTokens: 4000,
+      }),
+      120000, // 2 minute timeout for main analysis
+      `${selectedProvider.toUpperCase()} AI document analysis`,
+    )
 
     console.log(`📝 ${selectedProvider.toUpperCase()} AI response received (${result.text.length} characters)`)
 
@@ -479,13 +498,19 @@ Respond in this exact JSON format:
     })
   } catch (error) {
     console.error(`❌ ${selectedProvider.toUpperCase()} AI processing failed:`, error)
+
+    const isTimeout = error instanceof Error && error.message.includes("timed out")
+    const errorMessage = isTimeout
+      ? `AI analysis timed out. This can happen with large documents or slow network connections. Please try with smaller files or check your connection.`
+      : `AI analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
+
     questions.forEach((question) => {
       answers[question.id] = question.type === "boolean" ? false : question.options?.[0] || "Never"
       confidenceScores[question.id] = 0.1
-      reasoning[question.id] = `AI analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      reasoning[question.id] = errorMessage
       documentExcerpts[question.id] = []
     })
-    throw error
+    throw new Error(errorMessage)
   }
 
   // Calculate risk score
