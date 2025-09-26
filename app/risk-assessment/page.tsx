@@ -1482,9 +1482,68 @@ export default function RiskAssessmentPage() {
   const [delegatedAssessmentInfo, setDelegatedAssessmentInfo] = useState<any>(null)
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("savedAssessments") || "[]")
-    setSavedAssessments(saved)
-  }, [])
+    console.log("[v0] Risk Assessment: Setting up auto-save with auth state:", { user: user?.email, isDemo: false }) // Assuming isDemo is false here, adjust if needed
+
+    if (assessmentStarted && selectedCategory && user) {
+      console.log("[v0] Risk Assessment: Auto-saving progress for authenticated user")
+
+      try {
+        const assessmentData = {
+          category: selectedCategory,
+          currentQuestion,
+          answers,
+          socInfo,
+          timestamp: new Date().toISOString(),
+          categoryName: assessmentCategories.find((cat) => cat.id === selectedCategory)?.name,
+          userId: user.email || user.id, // Include user identifier
+        }
+
+        // Save current progress with user-specific key
+        const storageKey = `savedAssessments_${user.email || user.id || "anonymous"}`
+        const saved = JSON.parse(localStorage.getItem(storageKey) || "[]")
+        const existingIndex = saved.findIndex((s: any) => s.category === selectedCategory)
+
+        if (existingIndex >= 0) {
+          saved[existingIndex] = assessmentData
+          console.log("[v0] Risk Assessment: Updated existing saved assessment")
+        } else {
+          saved.push(assessmentData)
+          console.log("[v0] Risk Assessment: Added new saved assessment")
+        }
+
+        localStorage.setItem(storageKey, JSON.stringify(saved))
+        setSavedAssessments(saved)
+        console.log("[v0] Risk Assessment: Progress saved successfully")
+      } catch (error) {
+        console.error("[v0] Risk Assessment: Error saving progress:", error)
+      }
+    } else {
+      console.log("[v0] Risk Assessment: Skipping auto-save - missing requirements:", {
+        assessmentStarted,
+        selectedCategory,
+        hasUser: !!user,
+      })
+    }
+  }, [assessmentStarted, selectedCategory, currentQuestion, answers, socInfo, user])
+
+  useEffect(() => {
+    console.log("[v0] Risk Assessment: Loading saved assessments for user:", user?.email)
+
+    if (user) {
+      try {
+        const storageKey = `savedAssessments_${user.email || user.id || "anonymous"}`
+        const saved = JSON.parse(localStorage.getItem(storageKey) || "[]")
+        console.log("[v0] Risk Assessment: Loaded", saved.length, "saved assessments")
+        setSavedAssessments(saved)
+      } catch (error) {
+        console.error("[v0] Risk Assessment: Error loading saved assessments:", error)
+        setSavedAssessments([])
+      }
+    } else {
+      console.log("[v0] Risk Assessment: No user - clearing saved assessments")
+      setSavedAssessments([])
+    }
+  }, [user])
 
   // Fetch delegated assessments from Supabase
   const fetchDelegatedAssessments = async () => {
@@ -1516,9 +1575,8 @@ export default function RiskAssessmentPage() {
     }
   }, [user?.id, organization?.id])
 
-  // Add this useEffect after the existing useEffects
+  // Check if this is a delegated assessment from URL parameters
   useEffect(() => {
-    // Check if this is a delegated assessment
     const urlParams = new URLSearchParams(window.location.search)
     const isDelegated = urlParams.get("delegated") === "true"
     const delegatedId = urlParams.get("id")
@@ -1553,33 +1611,6 @@ export default function RiskAssessmentPage() {
       }
     }
   }, [])
-
-  useEffect(() => {
-    if (assessmentStarted && selectedCategory) {
-      const assessmentData = {
-        id: `draft-${selectedCategory}-${Date.now()}`,
-        category: selectedCategory,
-        currentQuestion,
-        answers,
-        socInfo: selectedCategory === "soc-compliance" ? socInfo : undefined,
-        timestamp: new Date().toISOString(),
-        categoryName: assessmentCategories.find((cat) => cat.id === selectedCategory)?.name,
-      }
-
-      // Save current progress
-      const saved = JSON.parse(localStorage.getItem("savedAssessments") || "[]")
-      const existingIndex = saved.findIndex((s: any) => s.category === selectedCategory)
-
-      if (existingIndex >= 0) {
-        saved[existingIndex] = assessmentData
-      } else {
-        saved.push(assessmentData)
-      }
-
-      localStorage.setItem("savedAssessments", JSON.stringify(saved))
-      setSavedAssessments(saved)
-    }
-  }, [assessmentStarted, selectedCategory, currentQuestion, answers, socInfo])
 
   const handleStartAssessment = (categoryId: string) => {
     setSelectedCategory(categoryId)
@@ -1625,9 +1656,12 @@ export default function RiskAssessmentPage() {
   // Update the completeAssessment function to handle delegated assessments
   const completeAssessment = async () => {
     // Remove from saved assessments when completing
-    const saved = savedAssessments.filter((s) => s.category !== selectedCategory)
-    localStorage.setItem("savedAssessments", JSON.stringify(saved))
-    setSavedAssessments(saved)
+    if (user) {
+      const storageKey = `savedAssessments_${user.email || user.id || "anonymous"}`
+      const saved = savedAssessments.filter((s) => s.category !== selectedCategory)
+      localStorage.setItem(storageKey, JSON.stringify(saved))
+      setSavedAssessments(saved)
+    }
 
     const category = assessmentCategories.find((cat) => cat.id === selectedCategory)
     if (!category) return
@@ -1765,6 +1799,8 @@ export default function RiskAssessmentPage() {
   }
 
   const loadSavedAssessment = (savedAssessment: any) => {
+    console.log("[v0] Risk Assessment: Loading saved assessment:", savedAssessment.categoryName)
+
     setSelectedCategory(savedAssessment.category)
     setCurrentQuestion(savedAssessment.currentQuestion)
     setAnswers(savedAssessment.answers)
@@ -1778,12 +1814,24 @@ export default function RiskAssessmentPage() {
       setCurrentStep("manual-assessment")
     }
     setShowSavedAssessments(false)
+
+    console.log("[v0] Risk Assessment: Saved assessment loaded successfully")
   }
 
   const deleteSavedAssessment = (categoryId: string) => {
-    const saved = savedAssessments.filter((s) => s.category !== categoryId)
-    localStorage.setItem("savedAssessments", JSON.stringify(saved))
-    setSavedAssessments(saved)
+    console.log("[v0] Risk Assessment: Deleting saved assessment:", categoryId)
+
+    if (user) {
+      try {
+        const storageKey = `savedAssessments_${user.email || user.id || "anonymous"}`
+        const saved = savedAssessments.filter((s) => s.category !== categoryId)
+        localStorage.setItem(storageKey, JSON.stringify(saved))
+        setSavedAssessments(saved)
+        console.log("[v0] Risk Assessment: Saved assessment deleted successfully")
+      } catch (error) {
+        console.error("[v0] Risk Assessment: Error deleting saved assessment:", error)
+      }
+    }
   }
 
   const getRiskLevelColor = (level: string) => {
