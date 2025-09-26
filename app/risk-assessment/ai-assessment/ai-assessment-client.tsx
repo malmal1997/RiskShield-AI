@@ -314,6 +314,35 @@ export default function AIAssessmentClient() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const handleAddEvidence = (questionId: string) => {
+    const newEvidence = {
+      fileName: uploadedFiles[0]?.name || "Document",
+      quote: "",
+      relevance: "",
+      pageNumber: undefined,
+      confidence: 0.5,
+    }
+
+    setEditingExcerpts((prev) => {
+      const currentExcerpts = prev[questionId] || []
+      return {
+        ...prev,
+        [questionId]: [...currentExcerpts, newEvidence],
+      }
+    })
+  }
+
+  const handleRemoveEvidence = (questionId: string, excerptIndex: number) => {
+    setEditingExcerpts((prev) => {
+      const currentExcerpts = prev[questionId] || []
+      const updatedExcerpts = currentExcerpts.filter((_, index) => index !== excerptIndex)
+      return {
+        ...prev,
+        [questionId]: updatedExcerpts,
+      }
+    })
+  }
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search)
@@ -1249,6 +1278,21 @@ export default function AIAssessmentClient() {
                               <div className="mt-4 space-y-3">
                                 {editingExcerpts[question.id].map((excerpt, excerptIndex) => (
                                   <div key={excerptIndex} className="bg-white p-3 rounded border border-yellow-200">
+                                    <div className="flex justify-between items-center mb-3">
+                                      <h4 className="text-sm font-medium text-yellow-800">
+                                        Evidence #{excerptIndex + 1}
+                                      </h4>
+                                      {editingExcerpts[question.id].length > 1 && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => handleRemoveEvidence(question.id, excerptIndex)}
+                                          className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        >
+                                          Remove
+                                        </Button>
+                                      )}
+                                    </div>
                                     <div className="space-y-3">
                                       <div>
                                         <label className="block text-xs font-medium text-yellow-800 mb-1">
@@ -1316,22 +1360,32 @@ export default function AIAssessmentClient() {
                                     </div>
                                   </div>
                                 ))}
-                                <div className="flex justify-end space-x-2">
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleSaveExcerpts(question.id)}
-                                    className="text-xs bg-green-600 hover:bg-green-700"
-                                  >
-                                    Save Evidence
-                                  </Button>
+                                <div className="flex justify-between items-center">
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => handleCancelExcerptEdit(question.id)}
-                                    className="text-xs"
+                                    onClick={() => handleAddEvidence(question.id)}
+                                    className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                   >
-                                    Cancel
+                                    + Add Another Evidence
                                   </Button>
+                                  <div className="flex space-x-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleSaveExcerpts(question.id)}
+                                      className="text-xs bg-green-600 hover:bg-green-700"
+                                    >
+                                      Save Evidence
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleCancelExcerptEdit(question.id)}
+                                      className="text-xs"
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
                                 </div>
                               </div>
                             )}
@@ -1434,11 +1488,13 @@ export default function AIAssessmentClient() {
                 <div className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-2xl font-bold text-gray-900">Reviewer Sign-Off</h3>
-                    {!isSignedOff && !aiAnalysisResult.reviewerSignOff && (
+                    {!isSignedOff && !aiAnalysisResult.reviewerSignOff ? (
                       <Button onClick={() => setShowSignOffForm(true)} className="bg-blue-600 hover:bg-blue-700">
                         <PenTool className="mr-2 h-4 w-4" />
                         Sign Off Assessment
                       </Button>
+                    ) : (
+                      <Badge className="bg-green-100 text-green-800">Signed Off</Badge>
                     )}
                   </div>
 
@@ -1797,6 +1853,11 @@ export default function AIAssessmentClient() {
                                     <div key={excerptIndex} className="bg-white p-3 rounded border border-green-200">
                                       {!isEditingExcerpt ? (
                                         <>
+                                          {excerpts.length > 1 && (
+                                            <div className="text-xs font-medium text-green-700 mb-2">
+                                              Evidence #{excerptIndex + 1}
+                                            </div>
+                                          )}
                                           <p className="text-sm text-green-800 italic mb-2 font-medium">
                                             "{excerpt.quote}"
                                           </p>
@@ -1823,6 +1884,21 @@ export default function AIAssessmentClient() {
                                         </>
                                       ) : (
                                         <div className="space-y-3">
+                                          <div className="flex justify-between items-center mb-3">
+                                            <h4 className="text-sm font-medium text-green-800">
+                                              Evidence #{excerptIndex + 1}
+                                            </h4>
+                                            {excerpts.length > 1 && (
+                                              <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => handleRemoveEvidence(question.id, excerptIndex)}
+                                                className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                                              >
+                                                Remove
+                                              </Button>
+                                            )}
+                                          </div>
                                           <div>
                                             <label className="block text-xs font-medium text-green-800 mb-1">
                                               Quote:
