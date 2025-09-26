@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import {
-  Shield,
   User,
   Building,
   Bell,
@@ -27,11 +26,13 @@ import {
   Plus,
   EyeOff,
   Eye,
-  ExternalLink, // Added ExternalLink icon
-  Bot, // Added Bot icon
-  Brain, // Added Brain icon
-  Cloud, // Added Cloud icon for Salesforce
-  RefreshCw, // Added RefreshCw for sync
+  ExternalLink,
+  Bot,
+  Brain,
+  Cloud,
+  RefreshCw,
+  FileCheck,
+  CheckCircle,
 } from "lucide-react"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/components/auth-context"
@@ -103,14 +104,23 @@ function SettingsContent() {
     Jira: true, // Jira is initially connected
     Salesforce: false,
     Webhook: false,
-  });
+  })
 
   // Salesforce Integration State
-  const [salesforceConnected, setSalesforceConnected] = useState(false);
-  const [salesforceSyncing, setSalesforceSyncing] = useState(false);
-  const [salesforceLastSync, setSalesforceLastSync] = useState<string | null>(null);
-  const [salesforceSyncDirection, setSalesforceSyncDirection] = useState<"one-way-sf-to-rs" | "one-way-rs-to-sf" | "two-way">("one-way-sf-to-rs");
-  const [salesforceObjectMapping, setSalesforceObjectMapping] = useState<string>("Account to Vendor");
+  const [salesforceConnected, setSalesforceConnected] = useState(false)
+  const [salesforceSyncing, setSalesforceSyncing] = useState(false)
+  const [salesforceLastSync, setSalesforceLastSync] = useState<string | null>(null)
+  const [salesforceSyncDirection, setSalesforceSyncDirection] = useState<
+    "one-way-sf-to-rs" | "one-way-rs-to-sf" | "two-way"
+  >("one-way-sf-to-rs")
+  const [salesforceObjectMapping, setSalesforceObjectMapping] = useState<string>("Account to Vendor")
+
+  const [signOffSettings, setSignOffSettings] = useState({
+    requireSignOff: true,
+    allowedRoles: ["admin", "manager"],
+    requireComments: false,
+    autoArchiveAfterSignOff: false,
+  })
 
   useEffect(() => {
     if (profile) {
@@ -134,24 +144,24 @@ function SettingsContent() {
   // Load API keys when component mounts or tab changes
   useEffect(() => {
     if (activeTab === "integrations" && user) {
-      fetchApiKeys();
+      fetchApiKeys()
     }
-  }, [activeTab, user]);
+  }, [activeTab, user])
 
   const fetchApiKeys = async () => {
-    setLoading(true);
-    const { data, error } = await getUserApiKeys();
+    setLoading(true)
+    const { data, error } = await getUserApiKeys()
     if (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error,
-      });
+      })
     } else {
-      setApiKeys(data || []);
+      setApiKeys(data || [])
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const handleAddApiKey = async () => {
     if (!newApiKeyName || !newApiKeyValue || !newApiKeyProvider) {
@@ -159,198 +169,198 @@ function SettingsContent() {
         variant: "destructive",
         title: "Missing Information",
         description: "Please provide an API key name, the key value, and select a provider.",
-      });
-      return;
+      })
+      return
     }
 
-    setIsAddingApiKey(true);
+    setIsAddingApiKey(true)
     // Prepend provider to key name for easier identification in backend
-    const fullApiKeyName = `${newApiKeyProvider}-${newApiKeyName}`;
-    const { success, message } = await createUserApiKey(fullApiKeyName, newApiKeyValue);
+    const fullApiKeyName = `${newApiKeyProvider}-${newApiKeyName}`
+    const { success, message } = await createUserApiKey(fullApiKeyName, newApiKeyValue)
     if (success) {
       toast({
         title: "Success",
         description: message,
-      });
-      setNewApiKeyName("");
-      setNewApiKeyValue("");
-      setNewApiKeyProvider("");
-      fetchApiKeys(); // Refresh the list of keys
+      })
+      setNewApiKeyName("")
+      setNewApiKeyValue("")
+      setNewApiKeyProvider("")
+      fetchApiKeys() // Refresh the list of keys
     } else {
       toast({
         variant: "destructive",
         title: "Error",
         description: message,
-      });
+      })
     }
-    setIsAddingApiKey(false);
-  };
+    setIsAddingApiKey(false)
+  }
 
   const handleDeleteApiKey = async (keyId: string) => {
     if (!confirm("Are you sure you want to delete this API key?")) {
-      return;
+      return
     }
 
-    setLoading(true);
-    const { success, message } = await deleteUserApiKey(keyId);
+    setLoading(true)
+    const { success, message } = await deleteUserApiKey(keyId)
     if (success) {
       toast({
         title: "Success",
         description: message,
-      });
-      fetchApiKeys(); // Refresh the list
+      })
+      fetchApiKeys() // Refresh the list
     } else {
       toast({
         variant: "destructive",
         title: "Error",
         description: message,
-      });
+      })
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const handleProfileUpdate = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      await updateUserProfile(profileForm);
-      await refreshProfile(); // Refresh auth context to get updated profile
+      await updateUserProfile(profileForm)
+      await refreshProfile() // Refresh auth context to get updated profile
       toast({
         title: "Profile Updated",
         description: "Your personal information has been saved.",
-      });
+      })
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error updating profile:", error)
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to update profile. Please try again.",
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleOrgUpdate = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       // In a real app, this would call an API to update the organization
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
       // For now, just update local state and show toast
       // await updateOrganization(orgForm); // Example API call
-      await refreshProfile(); // Refresh auth context to get updated organization
+      await refreshProfile() // Refresh auth context to get updated organization
       toast({
         title: "Organization Updated",
         description: "Your organization details have been saved.",
-      });
+      })
     } catch (error) {
-      console.error("Error updating organization:", error);
+      console.error("Error updating organization:", error)
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to update organization. Please try again.",
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleNotificationUpdate = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       // In a real app, this would call an API to update notification preferences
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
       // For now, just update local state and show toast
       // await updateNotificationPreferences(notificationPrefs); // Example API call
       toast({
         title: "Notification Preferences Saved",
         description: "Your notification settings have been updated.",
-      });
+      })
     } catch (error) {
-      console.error("Error updating notification preferences:", error);
+      console.error("Error updating notification preferences:", error)
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to save notification preferences. Please try again.",
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSecurityUpdate = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       // In a real app, this would call an "API to update security settings"
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
       // For now, just update local state and show toast
       // await updateSecuritySettings(securitySettings); // Example API call
       toast({
         title: "Security Settings Saved",
         description: "Your security settings have been updated.",
-      });
+      })
     } catch (error) {
-      console.error("Error updating security settings:", error);
+      console.error("Error updating security settings:", error)
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to save security settings. Please try again.",
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleConnectToggle = (integrationName: string) => {
-    setIntegrationStatuses(prev => {
-      const newStatus = !prev[integrationName];
+    setIntegrationStatuses((prev) => {
+      const newStatus = !prev[integrationName]
       toast({
         title: newStatus ? "Connected!" : "Disconnected",
         description: `${integrationName} has been ${newStatus ? "connected" : "disconnected"}.`,
         variant: newStatus ? "default" : "destructive",
-      });
+      })
       return {
         ...prev,
         [integrationName]: newStatus,
-      };
-    });
-  };
+      }
+    })
+  }
 
   const handleSalesforceConnect = async () => {
-    setSalesforceSyncing(true);
+    setSalesforceSyncing(true)
     // Simulate OAuth flow and connection
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setSalesforceConnected(true);
-    setSalesforceLastSync(new Date().toLocaleString());
-    setSalesforceSyncing(false);
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    setSalesforceConnected(true)
+    setSalesforceLastSync(new Date().toLocaleString())
+    setSalesforceSyncing(false)
     toast({
       title: "Salesforce Connected!",
       description: "RiskShield AI is now connected to your Salesforce instance.",
-    });
-  };
+    })
+  }
 
   const handleSalesforceDisconnect = async () => {
-    setSalesforceSyncing(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSalesforceConnected(false);
-    setSalesforceLastSync(null);
-    setSalesforceSyncing(false);
+    setSalesforceSyncing(true)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    setSalesforceConnected(false)
+    setSalesforceLastSync(null)
+    setSalesforceSyncing(false)
     toast({
       title: "Salesforce Disconnected",
       description: "RiskShield AI has been disconnected from Salesforce.",
       variant: "destructive",
-    });
-  };
+    })
+  }
 
   const handleSalesforceSync = async () => {
-    setSalesforceSyncing(true);
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate data sync
-    setSalesforceLastSync(new Date().toLocaleString());
-    setSalesforceSyncing(false);
+    setSalesforceSyncing(true)
+    await new Promise((resolve) => setTimeout(resolve, 3000)) // Simulate data sync
+    setSalesforceLastSync(new Date().toLocaleString())
+    setSalesforceSyncing(false)
     toast({
       title: "Salesforce Sync Complete",
       description: "Data synchronized successfully with Salesforce.",
-    });
-  };
+    })
+  }
 
   const timezones = [
     "UTC",
@@ -611,7 +621,9 @@ function SettingsContent() {
               <CardContent>
                 <div className="flex justify-between items-center mb-4">
                   <p className="text-sm text-gray-600">Manage who has access to your organization.</p>
-                  <Link href="/settings/users"> {/* Link to the new user management page */}
+                  <Link href="/settings/users">
+                    {" "}
+                    {/* Link to the new user management page */}
                     <Button size="sm">
                       <Users className="mr-2 h-4 w-4" />
                       Manage Users
@@ -636,6 +648,86 @@ function SettingsContent() {
                       </div>
                     </div>
                     <Badge>{role?.role}</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FileCheck className="h-5 w-5" />
+                  <span>Assessment Sign-Off Settings</span>
+                </CardTitle>
+                <CardDescription>Configure reviewer approval and sign-off requirements.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Require Sign-Off</Label>
+                      <p className="text-sm text-gray-600">Require reviewer approval for all assessments</p>
+                    </div>
+                    <Switch
+                      checked={signOffSettings.requireSignOff}
+                      onCheckedChange={(checked) => setSignOffSettings({ ...signOffSettings, requireSignOff: checked })}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Require Comments</Label>
+                      <p className="text-sm text-gray-600">Make reviewer comments mandatory</p>
+                    </div>
+                    <Switch
+                      checked={signOffSettings.requireComments}
+                      onCheckedChange={(checked) =>
+                        setSignOffSettings({ ...signOffSettings, requireComments: checked })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Auto-Archive After Sign-Off</Label>
+                      <p className="text-sm text-gray-600">Automatically archive assessments after approval</p>
+                    </div>
+                    <Switch
+                      checked={signOffSettings.autoArchiveAfterSignOff}
+                      onCheckedChange={(checked) =>
+                        setSignOffSettings({ ...signOffSettings, autoArchiveAfterSignOff: checked })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Allowed Reviewer Roles</Label>
+                    <p className="text-sm text-gray-600 mb-3">Select which roles can sign off on assessments</p>
+                    <div className="space-y-2">
+                      {["admin", "manager", "analyst"].map((role) => (
+                        <label key={role} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={signOffSettings.allowedRoles.includes(role)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSignOffSettings({
+                                  ...signOffSettings,
+                                  allowedRoles: [...signOffSettings.allowedRoles, role],
+                                })
+                              } else {
+                                setSignOffSettings({
+                                  ...signOffSettings,
+                                  allowedRoles: signOffSettings.allowedRoles.filter((r) => r !== role),
+                                })
+                              }
+                            }}
+                            className="text-blue-600"
+                          />
+                          <span className="text-sm capitalize">{role}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -982,19 +1074,27 @@ function SettingsContent() {
                         <CheckCircle className="h-5 w-5 text-green-600" />
                         <div>
                           <p className="font-medium text-green-900">Salesforce Connected</p>
-                          <p className="text-sm text-green-800">
-                            Last synced: {salesforceLastSync || "Never"}
-                          </p>
+                          <p className="text-sm text-green-800">Last synced: {salesforceLastSync || "Never"}</p>
                         </div>
                       </div>
-                      <Button variant="destructive" size="sm" onClick={handleSalesforceDisconnect} disabled={salesforceSyncing}>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleSalesforceDisconnect}
+                        disabled={salesforceSyncing}
+                      >
                         Disconnect
                       </Button>
                     </div>
 
                     <div>
                       <Label htmlFor="syncDirection">Data Synchronization Direction</Label>
-                      <Select value={salesforceSyncDirection} onValueChange={(value: "one-way-sf-to-rs" | "one-way-rs-to-sf" | "two-way") => setSalesforceSyncDirection(value)}>
+                      <Select
+                        value={salesforceSyncDirection}
+                        onValueChange={(value: "one-way-sf-to-rs" | "one-way-rs-to-sf" | "two-way") =>
+                          setSalesforceSyncDirection(value)
+                        }
+                      >
                         <SelectTrigger id="syncDirection">
                           <SelectValue placeholder="Select sync direction" />
                         </SelectTrigger>
@@ -1017,7 +1117,9 @@ function SettingsContent() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Account to Vendor">Salesforce Account to RiskShield AI Vendor</SelectItem>
-                          <SelectItem value="Opportunity to Assessment">Salesforce Opportunity to RiskShield AI Assessment</SelectItem>
+                          <SelectItem value="Opportunity to Assessment">
+                            Salesforce Opportunity to RiskShield AI Assessment
+                          </SelectItem>
                           <SelectItem value="Custom Object">Custom Object Mapping</SelectItem>
                         </SelectContent>
                       </Select>
@@ -1112,7 +1214,10 @@ function SettingsContent() {
                       Your API keys are encrypted and stored securely. They are never exposed to the client-side.
                     </p>
                   </div>
-                  <Button onClick={handleAddApiKey} disabled={isAddingApiKey || !newApiKeyName || !newApiKeyValue || !newApiKeyProvider}>
+                  <Button
+                    onClick={handleAddApiKey}
+                    disabled={isAddingApiKey || !newApiKeyName || !newApiKeyValue || !newApiKeyProvider}
+                  >
                     {isAddingApiKey ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>

@@ -3,9 +3,25 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Shield, FileText, Brain, Building, Server, Upload, ArrowLeft } from "lucide-react"
+import {
+  Shield,
+  FileText,
+  Brain,
+  Building,
+  Server,
+  Upload,
+  ArrowLeft,
+  CheckCircle,
+  Edit,
+  Save,
+  X,
+  PenTool,
+} from "lucide-react"
 import { useAuth } from "@/components/auth-context"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { assessmentCategories as fullAssessmentCategories } from "../page"
 
 const assessmentCategories = [
@@ -195,6 +211,14 @@ interface DocumentMetadata {
   url?: string // Add URL field for blob storage
 }
 
+interface ReviewerSignOff {
+  reviewerName: string
+  reviewerRole: string
+  signOffDate: string
+  signature: string
+  comments?: string
+}
+
 interface AIAnalysisResult {
   answers: Record<string, boolean | string>
   confidenceScores: Record<string, number>
@@ -222,6 +246,7 @@ interface AIAnalysisResult {
   >
   assessmentId?: string
   ticket_id?: string
+  reviewerSignOff?: ReviewerSignOff
 }
 
 interface DelegatedAssessmentInfo {
@@ -276,6 +301,16 @@ export default function AIAssessmentClient() {
   const [isEditingMode, setIsEditingMode] = useState<Record<string, boolean>>({})
   const [editingExcerpts, setEditingExcerpts] = useState<Record<string, any[]>>({})
   const [isEditingExcerpts, setIsEditingExcerpts] = useState<Record<string, boolean>>({})
+
+  const [reviewerSignOff, setReviewerSignOff] = useState<ReviewerSignOff>({
+    reviewerName: "",
+    reviewerRole: "",
+    signOffDate: "",
+    signature: "",
+    comments: "",
+  })
+  const [showSignOffForm, setShowSignOffForm] = useState(false)
+  const [isSignedOff, setIsSignedOff] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -682,6 +717,66 @@ export default function AIAssessmentClient() {
     }
 
     setCurrentStep("results")
+  }
+
+  const handleSaveAnswerChanges = async () => {
+    if (!aiAnalysisResult?.assessmentId) return
+
+    try {
+      const response = await fetch(`/api/assessment-responses/${aiAnalysisResult.assessmentId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answers: aiAnalysisResult.answers,
+          documentEvidence: aiAnalysisResult.documentExcerpts,
+          reviewerSignOff: aiAnalysisResult.reviewerSignOff,
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log("[v0] Assessment updated successfully:", result)
+
+        // Update the risk score if it changed
+        if (result.riskScore !== undefined) {
+          setAiAnalysisResult((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  riskScore: result.riskScore,
+                  riskLevel: result.riskLevel,
+                }
+              : prev,
+          )
+        }
+      }
+    } catch (error) {
+      console.error("[v0] Error saving changes:", error)
+    }
+  }
+
+  const handleReviewerSignOff = () => {
+    const signOffData: ReviewerSignOff = {
+      ...reviewerSignOff,
+      signOffDate: new Date().toISOString(),
+    }
+
+    setAiAnalysisResult((prev) =>
+      prev
+        ? {
+            ...prev,
+            reviewerSignOff: signOffData,
+          }
+        : prev,
+    )
+
+    setIsSignedOff(true)
+    setShowSignOffForm(false)
+
+    // Save the sign-off to the database
+    handleSaveAnswerChanges()
   }
 
   const renderStepContent = () => {
@@ -1164,7 +1259,8 @@ export default function AIAssessmentClient() {
                 </p>
               </div>
               <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl mx-auto">
-                <p className="text-blue-800 font-medium">
+                <Badge className="mr-2 bg-blue-100 text-blue-800">Editable</Badge>
+                <p className="text-blue-800 font-medium inline">
                   💡 You can still edit answers, document references, and page numbers below even after approval.
                 </p>
               </div>
@@ -1215,13 +1311,182 @@ export default function AIAssessmentClient() {
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Complete Assessment Report</h3>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900">Reviewer Sign-Off</h3>
+                    {!isSignedOff && !aiAnalysisResult.reviewerSignOff && (
+                      <Button onClick={() => setShowSignOffForm(true)} className="bg-blue-600 hover:bg-blue-700">
+                        <PenTool className="mr-2 h-4 w-4" />
+                        Sign Off Assessment
+                      </Button>
+                    )}
+                  </div>
+
+                  {isSignedOff || aiAnalysisResult.reviewerSignOff ? (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                      <div className="flex items-center mb-4">
+                        <CheckCircle className="h-6 w-6 text-green-600 mr-3" />
+                        <h4 className="text-lg font-semibold text-green-800">Assessment Approved</h4>
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <p className="text-sm text-green-700 mb-1">
+                            <strong>Reviewer:</strong>
+                          </p>
+                          <p className="text-green-800">{aiAnalysisResult.reviewerSignOff?.reviewerName}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-green-700 mb-1">
+                            <strong>Role:</strong>
+                          </p>
+                          <p className="text-green-800">{aiAnalysisResult.reviewerSignOff?.reviewerRole}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-green-700 mb-1">
+                            <strong>Date:</strong>
+                          </p>
+                          <p className="text-green-800">
+                            {aiAnalysisResult.reviewerSignOff?.signOffDate
+                              ? new Date(aiAnalysisResult.reviewerSignOff.signOffDate).toLocaleDateString()
+                              : "N/A"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-green-700 mb-1">
+                            <strong>E-Signature:</strong>
+                          </p>
+                          <p className="text-green-800 font-mono bg-green-100 px-2 py-1 rounded">
+                            {aiAnalysisResult.reviewerSignOff?.signature}
+                          </p>
+                        </div>
+                      </div>
+                      {aiAnalysisResult.reviewerSignOff?.comments && (
+                        <div className="mt-4">
+                          <p className="text-sm text-green-700 mb-1">
+                            <strong>Comments:</strong>
+                          </p>
+                          <p className="text-green-800 bg-green-100 p-3 rounded">
+                            {aiAnalysisResult.reviewerSignOff.comments}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                      <div className="flex items-center">
+                        <div className="h-6 w-6 border-2 border-yellow-400 rounded-full mr-3"></div>
+                        <p className="text-yellow-800">This assessment is pending reviewer sign-off.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sign-Off Form Modal */}
+                  {showSignOffForm && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                      <div className="bg-white rounded-xl p-8 max-w-md w-full">
+                        <div className="flex items-center justify-between mb-6">
+                          <h3 className="text-xl font-bold text-gray-900">Sign Off Assessment</h3>
+                          <Button variant="ghost" size="sm" onClick={() => setShowSignOffForm(false)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="reviewerName">Reviewer Name</Label>
+                            <Input
+                              id="reviewerName"
+                              value={reviewerSignOff.reviewerName}
+                              onChange={(e) =>
+                                setReviewerSignOff((prev) => ({
+                                  ...prev,
+                                  reviewerName: e.target.value,
+                                }))
+                              }
+                              placeholder="Enter your full name"
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor="reviewerRole">Role/Title</Label>
+                            <Input
+                              id="reviewerRole"
+                              value={reviewerSignOff.reviewerRole}
+                              onChange={(e) =>
+                                setReviewerSignOff((prev) => ({
+                                  ...prev,
+                                  reviewerRole: e.target.value,
+                                }))
+                              }
+                              placeholder="e.g., Risk Manager, CISO, Compliance Officer"
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor="signature">Electronic Signature</Label>
+                            <Input
+                              id="signature"
+                              value={reviewerSignOff.signature}
+                              onChange={(e) =>
+                                setReviewerSignOff((prev) => ({
+                                  ...prev,
+                                  signature: e.target.value,
+                                }))
+                              }
+                              placeholder="Type your full name as signature"
+                              className="font-mono"
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor="comments">Comments (Optional)</Label>
+                            <Textarea
+                              id="comments"
+                              value={reviewerSignOff.comments}
+                              onChange={(e) =>
+                                setReviewerSignOff((prev) => ({
+                                  ...prev,
+                                  comments: e.target.value,
+                                }))
+                              }
+                              placeholder="Add any additional comments or notes..."
+                              rows={3}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end space-x-3 mt-6">
+                          <Button variant="outline" onClick={() => setShowSignOffForm(false)}>
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={handleReviewerSignOff}
+                            disabled={
+                              !reviewerSignOff.reviewerName ||
+                              !reviewerSignOff.reviewerRole ||
+                              !reviewerSignOff.signature
+                            }
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Sign Off Assessment
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900">Complete Assessment Report</h3>
+                    <Badge className="bg-blue-100 text-blue-800">Always Editable</Badge>
+                  </div>
                   <p className="text-gray-600 mb-8">
                     Detailed analysis of each security question with AI-generated answers and supporting evidence from
-                    your documents. <strong>You can still edit any information below.</strong>
+                    your documents. <strong>You can edit any information below at any time.</strong>
                   </p>
 
-                  {/* Questions and Answers - Now editable in results step */}
+                  {/* Questions and Answers - Always editable in results step */}
                   <div className="space-y-8">
                     {assessmentCategories
                       .find((cat) => cat.id === selectedCategory)
@@ -1255,10 +1520,11 @@ export default function AIAssessmentClient() {
                                 >
                                   AI Confidence: {Math.round(confidence * 100)}%
                                 </span>
+                                <Badge className="bg-blue-100 text-blue-800">Editable</Badge>
                               </div>
                             </div>
 
-                            {/* Answer - Now editable in results step */}
+                            {/* Answer - Always editable in results step */}
                             <div className="mb-4 p-4 bg-white border border-blue-200 rounded-lg">
                               <div className="flex items-center justify-between mb-2">
                                 <p className="text-sm font-medium text-blue-800">Answer:</p>
@@ -1270,15 +1536,20 @@ export default function AIAssessmentClient() {
                                       onClick={() => handleStartEdit(question.id, currentAnswer)}
                                       className="text-xs"
                                     >
+                                      <Edit className="mr-1 h-3 w-3" />
                                       Edit
                                     </Button>
                                   ) : (
                                     <>
                                       <Button
                                         size="sm"
-                                        onClick={() => handleSaveEdit(question.id)}
+                                        onClick={() => {
+                                          handleSaveEdit(question.id)
+                                          handleSaveAnswerChanges()
+                                        }}
                                         className="text-xs bg-green-600 hover:bg-green-700"
                                       >
+                                        <Save className="mr-1 h-3 w-3" />
                                         Save
                                       </Button>
                                       <Button
@@ -1357,7 +1628,7 @@ export default function AIAssessmentClient() {
                               <p className="text-gray-700">{reasoning}</p>
                             </div>
 
-                            {/* Supporting Evidence - Now editable in results step */}
+                            {/* Supporting Evidence - Always editable in results step */}
                             {excerpts.length > 0 ? (
                               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                                 <div className="flex items-center justify-between mb-3">
@@ -1372,15 +1643,20 @@ export default function AIAssessmentClient() {
                                         onClick={() => handleStartExcerptEdit(question.id)}
                                         className="text-xs"
                                       >
+                                        <Edit className="mr-1 h-3 w-3" />
                                         Edit Evidence
                                       </Button>
                                     ) : (
                                       <>
                                         <Button
                                           size="sm"
-                                          onClick={() => handleSaveExcerpts(question.id)}
+                                          onClick={() => {
+                                            handleSaveExcerpts(question.id)
+                                            handleSaveAnswerChanges()
+                                          }}
                                           className="text-xs bg-green-600 hover:bg-green-700"
                                         >
+                                          <Save className="mr-1 h-3 w-3" />
                                           Save
                                         </Button>
                                         <Button

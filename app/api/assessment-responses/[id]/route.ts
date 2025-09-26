@@ -5,10 +5,10 @@ import { getCurrentUser } from "@/lib/assessment-service"
 // Update individual assessment answers
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { answers } = await request.json()
+    const { answers, documentEvidence, reviewerSignOff } = await request.json()
     const assessmentId = params.id
 
-    console.log("[v0] Updating assessment answers:", { assessmentId, answers })
+    console.log("[v0] Updating assessment:", { assessmentId, answers, documentEvidence, reviewerSignOff })
 
     // Get current user
     const user = await getCurrentUser()
@@ -32,7 +32,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    // Update the assessment_responses table
+    // Get existing response
     const { data: existingResponse, error: fetchError } = await supabaseClient
       .from("assessment_responses")
       .select("*")
@@ -43,20 +43,26 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ error: "Assessment response not found" }, { status: 404 })
     }
 
-    // Merge new answers with existing ones
-    const updatedAnswers = { ...existingResponse.answers, ...answers }
+    // Merge new data with existing
+    const updatedAnswers = answers ? { ...existingResponse.answers, ...answers } : existingResponse.answers
+    const updatedDocumentEvidence = documentEvidence || existingResponse.document_evidence || []
+    const updatedReviewerSignOff = reviewerSignOff || existingResponse.reviewer_sign_off || null
 
-    // Calculate new risk score
+    // Recalculate risk score
     const riskScore = calculateRiskScore(updatedAnswers)
     const riskLevel = getRiskLevel(riskScore)
 
     // Update the assessment_responses table
+    const updateData: any = {
+      answers: updatedAnswers,
+      document_evidence: updatedDocumentEvidence,
+      reviewer_sign_off: updatedReviewerSignOff,
+      submitted_at: new Date().toISOString(),
+    }
+
     const { error: updateError } = await supabaseClient
       .from("assessment_responses")
-      .update({
-        answers: updatedAnswers,
-        submitted_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq("assessment_id", assessmentId)
 
     if (updateError) {
@@ -64,18 +70,27 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ error: "Failed to update assessment" }, { status: 500 })
     }
 
-    // Update the main assessment table with new risk score
+    // Update the main assessment table with new risk score and approval status
+    const assessmentUpdateData: any = {
+      risk_score: riskScore,
+      risk_level: riskLevel,
+      updated_at: new Date().toISOString(),
+    }
+
+    // If reviewer sign-off is provided, update approval status
+    if (reviewerSignOff && reviewerSignOff.signOffDate) {
+      assessmentUpdateData.approval_status = "approved"
+      assessmentUpdateData.approved_by = user.id
+      assessmentUpdateData.approved_at = reviewerSignOff.signOffDate
+    }
+
     const { error: assessmentUpdateError } = await supabaseClient
       .from("assessments")
-      .update({
-        risk_score: riskScore,
-        risk_level: riskLevel,
-        updated_at: new Date().toISOString(),
-      })
+      .update(assessmentUpdateData)
       .eq("id", assessmentId)
 
     if (assessmentUpdateError) {
-      console.error("[v0] Error updating assessment risk score:", assessmentUpdateError)
+      console.error("[v0] Error updating assessment:", assessmentUpdateError)
     }
 
     console.log("[v0] Assessment updated successfully:", { riskScore, riskLevel })
@@ -85,6 +100,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       riskScore,
       riskLevel,
       updatedAnswers,
+      updatedDocumentEvidence,
+      updatedReviewerSignOff,
     })
   } catch (error) {
     console.error("[v0] Error in assessment update API:", error)
